@@ -66,6 +66,14 @@ static int parse_type(cstate *state)
 	return pt;
 }
 
+static int parse_expression(cstate *state)
+{
+	state -> expression = 1;
+	
+	state -> expression = 0;
+	return 1;
+}
+
 static void parse_decls(cstate *state)
 {
 	/* declarations */
@@ -122,6 +130,7 @@ static void parse_decls(cstate *state)
 static void parse_statements(cstate *state)
 {
 	symtab_entry_t *se;
+	int et;
 	
 	for (;;)
 	{
@@ -141,10 +150,14 @@ static void parse_statements(cstate *state)
 			if (!se)
 				lwb_error("Unknown variable %s\n", state -> lexer_token_string);
 			lexer(state);
+			/* ensure the first token of the expression will be parsed correctly */
+			state -> expression = 1;
 			expect(state, token_op_assignment);
 
 			/* parse the expression */
-			/* parse_expression(state); */
+			et = parse_expression(state);
+			
+			/* check type compatibility */
 			
 			/* actually do the assignment */
 			

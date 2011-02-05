@@ -53,7 +53,7 @@ typedef struct
 	int lexer_token;
 	int lexer_curchar;
 	int lexer_ignorechar;
-	
+	int expression;	
 	int parser_state;
 	
 	void *input_state;
@@ -87,6 +87,23 @@ enum
 	token_kw_endfunction,		/* ENDFUNCTION keyword */
 	token_kw_dim,				/* DIM keyword */
 	token_op_assignment,		/* assignment operator */
+	token_op_equality,			/* equality test */
+	token_op_greater,			/* greater than */
+	token_op_less,				/* less than */
+	token_op_greaterequal,		/* greater or equal */
+	token_op_lessequal,			/* less or equal */
+	token_op_notequal,			/* not equal */
+	token_op_and,				/* boolean and */
+	token_op_or,				/* boolean or */
+	token_op_xor,				/* boolean exlusive or */
+	token_op_band,				/* bitwise and */
+	token_op_bor,				/* bitwise or */
+	token_op_bxor,				/* bitwise xor */
+	token_op_plus,				/* plus */
+	token_op_minus,				/* minus */
+	token_op_times,				/* times */
+	token_op_divide,			/* divide */
+	token_op_modulus,			/* modulus */
 	token_identifier,			/* an identifier (variable, function, etc. */
 	token_char,					/* single character; fallback */
 	token_uint,					/* unsigned integer up to 32 bits */

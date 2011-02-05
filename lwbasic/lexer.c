@@ -46,6 +46,7 @@ struct token_list
 	int token;
 };
 
+/* keywords that appear as part of normal expressions */
 static struct token_list lexer_global_tokens[] = 
 {
 	{ "function",		token_kw_function },
@@ -59,7 +60,18 @@ static struct token_list lexer_global_tokens[] =
 	{ "endsub",			token_kw_endsub },
 	{ "endfunction",	token_kw_endfunction },
 	{ "dim",			token_kw_dim },
-	{ "=",				token_op_assignment },
+	{ NULL }
+};
+
+/* contains "built in" function names */
+static struct token_list lexer_expr_tokens[] =
+{
+	{ "and",			token_op_and },
+	{ "or",				token_op_or },
+	{ "band",			token_op_band },
+	{ "bor", 			token_op_bor },
+	{ "bxor",			token_op_bxor },
+	{ "xor",			token_op_xor },
 	{ NULL }
 };
 
@@ -77,6 +89,23 @@ static char *lexer_token_names[] =
 	"ENDFUNCTION",
 	"DIM",
 	"<assignment>",
+	"<equality>",
+	"<greater>",
+	"<less>",
+	"<greaterequal>",
+	"<lessequal>",
+	"<notequal>",
+	"<and>",
+	"<or>",
+	"<xor>",
+	"<bitwiseand>",
+	"<bitwiseor>",
+	"<bitwisexor>",
+	"<plus>",
+	"<minus>",
+	"<times>",
+	"<divide>",
+	"<modulus>",
 	"<identifier>",
 	"<char>",
 	"<uint>",
@@ -171,6 +200,11 @@ static void lexer_word(cstate *state)
 		tok = lexer_global_tokens;
 	}
 	
+	if (state -> expression)
+	{
+		tok = lexer_expr_tokens;
+	}
+	
 	/* check for tokens if appropriate */
 	/* force uppercase */
 	if (tok)
@@ -192,6 +226,39 @@ static void lexer_word(cstate *state)
 		state -> lexer_token = tok -> token;
 	else
 		state -> lexer_token = token_identifier;
+}
+
+static void lexer_parse_number(cstate *state, int neg)
+{
+	unsigned long tint = 0;
+	int c;
+	
+	for (;;)
+	{
+		c = lexer_curchar(state);
+		if (c >= '0' && c <= '9')
+		{
+			tint *= 10 + (c - '0');
+		}
+		else
+		{
+			/* end of the number here */
+			if (neg)
+			{
+				if (tint > 0x80000000)
+					lwb_error("Integer overflow\n");
+				state -> lexer_token_number.integer = -tint;
+				state -> lexer_token = token_int;
+			}
+			else
+			{
+				state -> lexer_token = token_uint;
+				state -> lexer_token_number.uinteger = tint;
+			}
+			return;
+		}
+		lexer_nextchar(state);
+	}
 }
 
 static void lexer_empty_token(cstate *state)
@@ -239,13 +306,101 @@ void lexer(cstate *state)
 		lexer_word(state);
 		return;
 	}
+
+	if (state -> expression && c >= '0' && c <= '9')
+	{
+		/* we have a number */
+		lexer_parse_number(state, 0);
+		return;
+	}
+ 
+	lexer_nextchar(state);	
+	if (state -> expression)
+	{
+		if (c == '-' && lexer_curchar(state) >= '0' && lexer_curchar(state) <= '9')
+		{
+			/* we have a negative number here */
+			lexer_parse_number(state, 1);
+			return;
+		}
+		if (c == '=')
+		{
+			state -> lexer_token = token_op_equality;
+			return;
+		}
+		if (c == '<')
+		{
+			if (lexer_curchar(state) == '=')
+			{
+				lexer_nextchar(state);
+				state -> lexer_token = token_op_lessequal;
+				return;
+			}
+			if (lexer_curchar(state) == '>')
+			{
+				lexer_nextchar(state);
+				state -> lexer_token = token_op_notequal;
+				return;
+			}
+			state -> lexer_token = token_op_less;
+			return;
+		}
+		if (c == '>')
+		{
+			if (lexer_curchar(state) == '>')
+			{
+				lexer_nextchar(state);
+				state -> lexer_token = token_op_greaterequal;
+				return;
+			}
+			if (lexer_curchar(state) == '<')
+			{
+				state -> lexer_token = token_op_notequal;
+				lexer_nextchar(state);
+				return;
+			}
+			state -> lexer_token = token_op_greater;
+			return;
+		}
+		switch(c)
+		{
+		case '+':
+			state -> lexer_token = token_op_plus;
+			return;
+		
+		case '-':
+			state -> lexer_token = token_op_minus;
+			return;
+		
+		case '/':
+			state -> lexer_token = token_op_divide;
+			return;
+		
+		case '*':
+			state -> lexer_token = token_op_times;
+			return;
+		
+		case '%':
+			state -> lexer_token = token_op_modulus;
+			return;
+		
+		
+		}
+	}
+	else
+	{
+		if (c == '=')
+		{
+			state -> lexer_token = token_op_assignment;
+			return;
+		}
+	}
 	
 	/* return the character if all else fails */
+	state -> lexer_token = token_char;
 	state -> lexer_token_string = lw_realloc(state -> lexer_token_string, 2);
 	state -> lexer_token_string[0] = c;
 	state -> lexer_token_string[1] = 0;
-	lexer_nextchar(state);
-	state -> lexer_token = token_char;
 	return;
 }
 
