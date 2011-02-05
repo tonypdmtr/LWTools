@@ -59,8 +59,38 @@ static struct token_list lexer_global_tokens[] =
 	{ "endsub",			token_kw_endsub },
 	{ "endfunction",	token_kw_endfunction },
 	{ "dim",			token_kw_dim },
+	{ "=",				token_op_assignment },
 	{ NULL }
 };
+
+static char *lexer_token_names[] =
+{
+	"SUB",
+	"FUNCTION",
+	"AS",
+	"PUBLIC",
+	"PRIVATE",
+	"PARAMS",
+	"RETURNS",
+	"INTEGER",
+	"ENDSUB",
+	"ENDFUNCTION",
+	"DIM",
+	"<assignment>",
+	"<identifier>",
+	"<char>",
+	"<uint>",
+	"<int>",
+	"<eol>",
+	"<eof>"
+};
+
+char *lexer_token_name(int token)
+{
+	if (token > token_eol)
+		return "???";
+	return lexer_token_names[token];
+}
 
 static int lexer_getchar(cstate *state)
 {
@@ -231,12 +261,12 @@ char *lexer_return_token(cstate *state)
 		buflen = 128;
 	}
 
-	l = snprintf(buffer, buflen, "%s (%d)", state -> lexer_token_string, state -> lexer_token);
+	l = snprintf(buffer, buflen, "%s (%s)", state -> lexer_token_string, lexer_token_name(state -> lexer_token));
 	if (l >= buflen)
 	{
 		buffer = lw_realloc(buffer, l + 1);
 		buflen = l + 1;
-		snprintf(buffer, buflen, "%s (%d)", state -> lexer_token_string, state -> lexer_token);
+		snprintf(buffer, buflen, "%s (%s)", state -> lexer_token_string, lexer_token_name(state -> lexer_token));
 	}
 	return buffer;
 }

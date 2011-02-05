@@ -86,6 +86,7 @@ enum
 	token_kw_endsub,			/* ENDSUB keyword */
 	token_kw_endfunction,		/* ENDFUNCTION keyword */
 	token_kw_dim,				/* DIM keyword */
+	token_op_assignment,		/* assignment operator */
 	token_identifier,			/* an identifier (variable, function, etc. */
 	token_char,					/* single character; fallback */
 	token_uint,					/* unsigned integer up to 32 bits */
@@ -114,6 +115,7 @@ extern void lwb_error(const char *fmt, ...);
 #ifndef __lexer_c_seen__
 extern void lexer(cstate *state);
 extern char *lexer_return_token(cstate *state);
+extern char *lexer_token_name(int token);
 #endif
 
 #ifndef __emit_c_seen__

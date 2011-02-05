@@ -31,6 +31,13 @@ This is the actual compiler bit; it drives the parser and code generation
 #include "lwbasic.h"
 #include "symtab.h"
 
+static void expect(cstate *state, int tt)
+{
+	if (state -> lexer_token != tt)
+		lwb_error("Expecting %s, got %s\n", lexer_token_name(tt), lexer_return_token(state));
+	lexer(state);
+}
+
 
 /* size of a type */
 static int sizeof_type(int type)
@@ -98,11 +105,57 @@ static void parse_decls(cstate *state)
 			
 			lw_free(vn);
 			break;
+		
+		/* blank lines allowed */
+		case token_eol:
+			break;
+			
 		default:
 			return;
 		}
 		if (state -> lexer_token != token_eol)
-			lwb_error("Expecting end of line; got %s", lexer_return_token(state));
+			lwb_error("Expecting end of line; got %s\n", lexer_return_token(state));
+		lexer(state);
+	}
+}
+
+static void parse_statements(cstate *state)
+{
+	symtab_entry_t *se;
+	
+	for (;;)
+	{
+		switch (state -> lexer_token)
+		{
+		/* blank lines allowed */
+		case token_eol:
+			break;
+		
+		/* variable assignment */
+		case token_identifier:
+			se = symtab_find(state -> local_syms, state -> lexer_token_string);
+			if (!se)
+			{
+				se = symtab_find(state -> global_syms, state -> lexer_token_string);
+			}
+			if (!se)
+				lwb_error("Unknown variable %s\n", state -> lexer_token_string);
+			lexer(state);
+			expect(state, token_op_assignment);
+
+			/* parse the expression */
+			/* parse_expression(state); */
+			
+			/* actually do the assignment */
+			
+			break;
+		
+		/* anything we don't recognize as a statement token breaks out */
+		default:
+			return;
+		}
+		if (state -> lexer_token != token_eol)
+			lwb_error("Expecting end of line; got %s\n", lexer_return_token(state));
 		lexer(state);
 	}
 }
@@ -229,7 +282,7 @@ noparms:
 	emit_prolog(state, vis);
 	
 	/* parse statement block  */
-	/* parse_statements(state); */
+	parse_statements(state);
 	
 	if (issub)
 	{
