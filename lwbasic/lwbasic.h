@@ -104,6 +104,10 @@ enum
 	token_op_times,				/* times */
 	token_op_divide,			/* divide */
 	token_op_modulus,			/* modulus */
+	token_op_oparen,			/* open paren */
+	token_op_cparen,			/* close paren */
+	token_op_not,				/* boolean not */
+	token_op_bnot,				/* bitwise not */
 	token_identifier,			/* an identifier (variable, function, etc. */
 	token_char,					/* single character; fallback */
 	token_uint,					/* unsigned integer up to 32 bits */

@@ -66,9 +66,13 @@ static int parse_type(cstate *state)
 	return pt;
 }
 
+static void parse_expr(cstate *state, int prec);
+static void parse_term(cstate *state);
 static int parse_expression(cstate *state)
 {
 	state -> expression = 1;
+	
+	parse_expr(state, 0);
 	
 	state -> expression = 0;
 	return 1;
@@ -354,4 +358,112 @@ void parser(cstate *state)
 			lwb_error("Invalid token '%s' in global state\n", lexer_return_token(state));
 		}
 	}	
+}
+
+static void parse_expr(cstate *state, int prec)
+{
+	static const struct operinfo {
+		int opernum;
+		int operprec;
+	} operators[] =
+	{
+		{ token_op_plus, 100 },
+		{ token_op_minus, 100 },
+		{ token_op_times, 150 },
+		{ token_op_divide, 150 },
+		{ token_op_modulus, 150 },
+		{ token_op_and,	25 },
+		{ token_op_or, 20 },
+		{ token_op_xor, 20 },
+		{ token_op_band, 50 },
+		{ token_op_bor, 45 },
+		{ token_op_bxor, 45 },
+		{ -1, -1 }
+	};
+	int opern;
+	
+	parse_term(state);
+	
+eval_next:
+	for (opern = 0; operators[opern].opernum != -1; opern++)
+	{
+		if (operators[opern].opernum == state -> lexer_token)
+			break;
+	}
+	if (operators[opern].opernum == -1)
+		return;
+	
+	if (operators[opern].operprec <= prec)
+		return;
+	
+	lexer(state);
+	
+	parse_expr(state, operators[opern].operprec);
+	
+	/* push operator */
+	
+	goto eval_next;
+}
+
+static void parse_term(cstate *state)
+{
+eval_next:
+	/* parens */
+	if (state -> lexer_token == token_op_oparen)
+	{
+		lexer(state);
+		parse_expr(state, 0);
+		expect(state, token_op_cparen);
+		return;
+	}
+	
+	/* unary plus; ignore it */
+	if (state -> lexer_token == token_op_plus)
+	{
+		lexer(state);
+		goto eval_next;
+	}
+	
+	/* unary minus, precision 200 */
+	if (state -> lexer_token == token_op_minus)
+	{
+		lexer(state);
+		parse_expr(state, 200);
+		
+		/* push unary negation */
+	}
+	
+	/* BNOT, NOT */
+	if (state -> lexer_token == token_op_not || state -> lexer_token == token_op_bnot)
+	{
+		lexer(state);
+		parse_expr(state, 200);
+		
+		/* push unary operator */
+	}
+	
+	/* integer */
+	if (state -> lexer_token == token_int)
+	{
+	}
+	
+	/* unsigned integer */
+	if (state -> lexer_token == token_uint)
+	{
+	}
+	
+	/* variable or function call */
+	if (state -> lexer_token == token_identifier)
+	{
+		lexer(state);
+		if (state -> lexer_token == token_op_oparen)
+		{
+			/* function call */
+			return;
+		}
+		/* variable */
+		return;
+	}
+	
+	lwb_error("Invalid input in expression; got %s\n", lexer_return_token(state));
 }

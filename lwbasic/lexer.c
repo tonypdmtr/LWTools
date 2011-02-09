@@ -72,6 +72,8 @@ static struct token_list lexer_expr_tokens[] =
 	{ "bor", 			token_op_bor },
 	{ "bxor",			token_op_bxor },
 	{ "xor",			token_op_xor },
+	{ "not",			token_op_not },
+	{ "bnot",			token_op_bnot },
 	{ NULL }
 };
 
@@ -106,6 +108,10 @@ static char *lexer_token_names[] =
 	"<times>",
 	"<divide>",
 	"<modulus>",
+	"<openparen>",
+	"<closeparen>",
+	"<not>",
+	"<bitwisenot>",
 	"<identifier>",
 	"<char>",
 	"<uint>",
@@ -384,6 +390,13 @@ void lexer(cstate *state)
 			state -> lexer_token = token_op_modulus;
 			return;
 		
+		case '(':
+			state -> lexer_token = token_op_oparen;
+			return;
+		
+		case ')':
+			state -> lexer_token = token_op_cparen;
+			return;
 		
 		}
 	}
