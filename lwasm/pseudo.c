@@ -686,6 +686,8 @@ PARSEFUNC(pseudo_parse_setdp)
 		return;
 	}
 	
+	// try simplifying the expression and see if it turns into an int
+	lwasm_reduce_expr(as, e);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
 		lwasm_register_error(as, l, "SETDP must be constant on pass 1");
@@ -739,6 +741,7 @@ PARSEFUNC(pseudo_parse_ifeq)
 	}
 
 	e = lwasm_parse_cond(as, p);
+	lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) != 0)
 	{
 		as -> skipcond = 1;
@@ -760,6 +763,7 @@ PARSEFUNC(pseudo_parse_ifne)
 	}
 
 	e = lwasm_parse_cond(as, p);
+	lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) == 0)
 	{
 		as -> skipcond = 1;
@@ -782,6 +786,7 @@ PARSEFUNC(pseudo_parse_ifgt)
 	}
 
 	e = lwasm_parse_cond(as, p);
+	lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) <= 0)
 	{
 		as -> skipcond = 1;
@@ -803,6 +808,7 @@ PARSEFUNC(pseudo_parse_ifge)
 	}
 
 	e = lwasm_parse_cond(as, p);
+	lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) < 0)
 	{
 		as -> skipcond = 1;
@@ -824,6 +830,7 @@ PARSEFUNC(pseudo_parse_iflt)
 	}
 
 	e = lwasm_parse_cond(as, p);
+	lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) >= 0)
 	{
 		as -> skipcond = 1;
@@ -845,6 +852,7 @@ PARSEFUNC(pseudo_parse_ifle)
 	}
 
 	e = lwasm_parse_cond(as, p);
+	lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) > 0)
 	{
 		as -> skipcond = 1;
