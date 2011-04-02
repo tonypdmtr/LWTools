@@ -430,6 +430,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 		lw_free(tstr);
 		tstr = argv[i] + cch;
 		cch = 0;
+		i++;
 		
 	common:
 		/* j will be the offset into the option table when we get here */
