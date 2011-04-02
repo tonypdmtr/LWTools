@@ -163,7 +163,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 
 	as -> context = lwasm_next_context(as);
 
-	while (**p && !isspace(**p) && **p != ',')
+	while (**p && !isspace(**p) && **p)
 	{
 		p2 = *p;
 		while (*p2 && !isspace(*p2) && *p2 != ',')
@@ -271,10 +271,10 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 		for (p = ctcbuf; *p; p++)
 			macro_add_to_buff(&linebuff, &bloc, &blen, *p);
 	}
+	macro_add_to_buff(&linebuff, &bloc, &blen, 0);
 	
 	// push the macro into the front of the stream
 	input_openstring(as, opc, linebuff);
-
 	lw_free(linebuff);
 
 	// clean up
