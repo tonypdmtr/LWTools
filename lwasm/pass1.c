@@ -77,8 +77,13 @@ void do_pass1(asmstate_t *as)
 			{
 				as -> context = strtol(p1, NULL, 10);
 			}
+			else if (!strcmp(line + 2, "SETLINENO"))
+			{
+				lc = strtol(p1, NULL, 10);
+			}
 			lw_free(line);
-			lc = 1;
+			if (lc == 0)
+				lc = 1;
 			continue;
 		}
 		debug_message(as, 75, "Read line: %s", line);
@@ -128,7 +133,7 @@ void do_pass1(asmstate_t *as)
 			lc = 1;
 		if (lc)
 		{
-			cl -> lineno = 1;
+			cl -> lineno = lc;
 			lc = 0;
 		}
 		as -> line_tail = cl;

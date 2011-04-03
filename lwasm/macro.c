@@ -267,7 +267,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 	{
 		char ctcbuf[100];
 		char *p;
-		snprintf(ctcbuf, 100, "\001\001SETCONTEXT %d\n", oldcontext);
+		snprintf(ctcbuf, 100, "\001\001SETCONTEXT %d\n\001\001SETLINENO %d\n", oldcontext, cl -> lineno + 1);
 		for (p = ctcbuf; *p; p++)
 			macro_add_to_buff(&linebuff, &bloc, &blen, *p);
 	}
