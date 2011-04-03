@@ -65,7 +65,7 @@ void do_list(asmstate_t *as)
 			{
 				if (cl -> dsize == 1)
 				{
-					fprintf(of, "     %02X                 ", cl -> dshow & 0xff);
+					fprintf(of, "     %02X               ", cl -> dshow & 0xff);
 				}
 				else
 				{
