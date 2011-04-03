@@ -1044,7 +1044,8 @@ PARSEFUNC(pseudo_parse_include)
 	char *p3;
 	int delim = 0;
 	int len;
-	
+	char buf[110];
+		
 	if (!**p)
 	{
 		lwasm_register_error(as, l, "Missing filename");
@@ -1068,6 +1069,10 @@ PARSEFUNC(pseudo_parse_include)
 	(*p) = p2;
 	if (delim && **p)
 		(*p)++;
+
+	/* add a book-keeping entry for line numbers */
+	snprintf(buf, 100, "\001\001SETLINENO %d\n", l -> lineno + 1);
+	input_openstring(as, "INTERNAL", buf);
 	
 	len = strlen(fn) + 8;
 	p3 = lw_alloc(len + 1);
