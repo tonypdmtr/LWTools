@@ -40,6 +40,9 @@ static int bailing = 0;
 
 int lw_expr_istype(lw_expr_t e, int t)
 {
+	/* NULL expression is never of any type */
+	if (!e)
+		return 0;
 	if (e -> type == t)
 		return 1;
 	return 0;
@@ -115,6 +118,8 @@ lw_expr_t lw_expr_copy(lw_expr_t E)
 	lw_expr_t r;
 	struct lw_expr_opers *o;
 	
+	if (!E)
+		return NULL;
 	r = lw_alloc(sizeof(struct lw_expr_priv));
 	*r = *E;
 	r -> operands = NULL;

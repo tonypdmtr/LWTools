@@ -277,6 +277,8 @@ void do_pass1(asmstate_t *as)
 				{
 					if (as -> instruct == 0 || instab[opnum].flags & lwasm_insn_struct)
 					{
+						struct line_expr_s *le;
+
 						cl -> len = -1;
 						// call parse function
 						(instab[opnum].parse)(as, cl, &p1);
@@ -286,6 +288,23 @@ void do_pass1(asmstate_t *as)
 							// flag bad operand error
 							lwasm_register_error(as, cl, "Bad operand (%s)", p1);
 						}
+						
+						/* do a reduction on the line expressions to avoid carrying excessive expression baggage if not needed */
+						as -> cl = cl;
+		
+						// simplify address
+						lwasm_reduce_expr(as, cl -> addr);
+		
+						// simplify each expression
+						for (le = cl -> exprs; le; le = le -> next)
+							lwasm_reduce_expr(as, le -> expr);
+						
+						/* try resolving the instruction as well */
+						if (cl -> insn >= 0 && instab[cl -> insn].resolve)
+						{
+							(instab[cl -> insn].resolve)(as, cl, 0);
+						}
+
 					}
 					else if (as -> instruct == 1)
 					{
