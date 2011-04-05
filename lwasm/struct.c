@@ -244,7 +244,8 @@ int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc)
 		lw_free(t);
 	}
 
-	l -> symset = 1;
+	if (as -> instruct)
+		l -> symset = 1;
 	if (as -> instruct)
 		register_struct_entry(as, l, s -> size, s);
 	return 0;
