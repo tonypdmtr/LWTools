@@ -1093,7 +1093,7 @@ definition is simply ignored. Macros must be defined before they are used.
 
 <variablelist>
 <varlistentry>
-<term><parameter>macroname</parameter> MACRO</term>
+<term><parameter>macroname</parameter> MACRO [NOEXPAND]</term>
 <listitem>
 <para>This directive is used to being the definition of a macro called
 <parameter>macroname</parameter>. If <parameter>macroname</parameter> already
@@ -1101,6 +1101,17 @@ exists, it is considered an error. Attempting to define a macro within a
 macro is undefined. It may work and it may not so the behaviour should not
 be relied upon.
 </para>
+
+<para>If NOEXPAND is specified, the macro will not be expanded in a program
+listing. Instead, all bytes emitted by all instructions within the macro
+will appear to be emitted on the line where the macro is invoked, starting
+at the address of the line of the invokation. If the macro uses ORG or other
+directives that define symbols or change the assembly address, these things
+will also be hidden (except in the symbol table) and the output bytes will
+appear with incorrect address attribution. Thus, NOEXPAND should only be
+used for macros that do not mess with the assembly address or otherwise
+define symbols that should be visible.</para>
+
 </listitem>
 </varlistentry>
 
