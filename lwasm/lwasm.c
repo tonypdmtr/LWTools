@@ -278,6 +278,7 @@ void lwasm_emitop(line_t *cl, int opc)
 lw_expr_t lwasm_parse_term(char **p, void *priv)
 {
 	asmstate_t *as = priv;
+	int neg = 1;
 	int val;
 	
 	if (!**p)
@@ -339,6 +340,12 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		// decimal constant
 		int v = 0;
 		(*p)++;
+		
+		if (**p == '-')
+		{
+			(*p)++;
+			neg = -1;
+		}
 
 		if (!strchr("0123456789", **p))
 			return NULL;
@@ -348,7 +355,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			val = val * 10 + (**p - '0');
 			(*p)++;
 		}
-		return lw_expr_build(lw_expr_type_int, v);
+		return lw_expr_build(lw_expr_type_int, v * neg);
 	}
 
 	if (**p == '%')
@@ -356,6 +363,12 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		// binary constant
 		int v = 0;
 		(*p)++;
+
+		if (**p == '-')
+		{
+			(*p)++;
+			neg = -1;
+		}
 
 		if (**p != '0' && **p != '1')
 			return NULL;
@@ -365,7 +378,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			val = val * 2 + (**p - '0');
 			(*p)++;
 		}
-		return lw_expr_build(lw_expr_type_int, v);
+		return lw_expr_build(lw_expr_type_int, v * neg);
 	}
 	
 	if (**p == '$')
@@ -373,6 +386,12 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		// hexadecimal constant
 		int v = 0, v2;
 		(*p)++;
+		if (**p == '-')
+		{
+			(*p)++;
+			neg = -1;
+		}
+
 		if (!strchr("0123456789abcdefABCDEF", **p))
 			return NULL;
 
@@ -384,7 +403,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			v = v * 16 + v2;
 			(*p)++;
 		}
-		return lw_expr_build(lw_expr_type_int, v);
+		return lw_expr_build(lw_expr_type_int, v * neg);
 	}
 	
 	if (**p == '0' && (*((*p)+1) == 'x' || *((*p)+1) == 'X'))
@@ -412,6 +431,12 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		// octal constant
 		int v = 0;
 		(*p)++;
+		if (**p == '-')
+		{
+			(*p)++;
+			neg = -1;
+		}
+
 
 		if (!strchr("01234567", **p))
 			return NULL;
@@ -421,7 +446,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			v = v * 8 + (**p - '0');
 			(*p)++;
 		}
-		return lw_expr_build(lw_expr_type_int, v);
+		return lw_expr_build(lw_expr_type_int, v * neg);
 	}
 	
 
