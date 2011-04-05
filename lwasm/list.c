@@ -35,10 +35,10 @@ Do listing
 */
 void do_list(asmstate_t *as)
 {
-	line_t *cl, *nl;
+	line_t *cl, *nl, *nl2;
 	FILE *of;
 	int i;
-	char *obytes = NULL;
+	unsigned char *obytes = NULL;
 	int obytelen = 0;
 	
 	char *tc;
@@ -76,12 +76,12 @@ void do_list(asmstate_t *as)
 			}
 			obytes = lw_alloc(obytelen);
 			nc = 0;
-			for (nl = cl; ; nl = nl -> next)
+			for (nl2 = cl; ; nl2 = nl2 -> next)
 			{
 				int i;
-				for (i = 0; i < nl -> outputl; i++)
+				for (i = 0; i < nl2 -> outputl; i++)
 				{
-					obytes[nc++] = nl -> output[i];
+					obytes[nc++] = nl2 -> output[i];
 				}
 				if (nc >= obytelen)
 					break;
