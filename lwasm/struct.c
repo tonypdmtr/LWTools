@@ -205,6 +205,12 @@ int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc)
 		lwasm_register_error(as, l, "Cannot declare a structure without a symbol name.");
 		return -1;
 	}
+
+	if (as -> instruct)
+	{
+		lwasm_register_error(as, l, "Nested structures not currently supported");
+		return -1;
+	}
 	
 	l -> len = s -> size;
 
