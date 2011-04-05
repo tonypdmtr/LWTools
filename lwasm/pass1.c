@@ -81,6 +81,14 @@ void do_pass1(asmstate_t *as)
 			{
 				lc = strtol(p1, NULL, 10);
 			}
+			else if (!strcmp(line + 2, "SETNOEXPANDSTART"))
+			{
+				as -> line_tail -> noexpand_start = 1;
+			}
+			else if (!strcmp(line + 2, "SETNOEXPANDEND"))
+			{
+				as -> line_tail -> noexpand_end = 1;
+			}
 			lw_free(line);
 			if (lc == 0)
 				lc = 1;

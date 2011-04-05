@@ -35,10 +35,12 @@ Do listing
 */
 void do_list(asmstate_t *as)
 {
-	line_t *cl;
+	line_t *cl, *nl;
 	FILE *of;
 	int i;
-
+	char *obytes = NULL;
+	int obytelen = 0;
+	
 	char *tc;
 		
 	if (!(as -> flags & FLAG_LIST))
@@ -53,9 +55,49 @@ void do_list(asmstate_t *as)
 		fprintf(stderr, "Cannot open list file; list not generated\n");
 		return;
 	}
-	for (cl = as -> line_head; cl; cl = cl -> next)
+	for (cl = as -> line_head; cl; cl = nl)
 	{
-		if (cl -> len < 1)
+		nl = cl -> next;
+		if (cl -> noexpand_start)
+		{
+			obytelen = 0;
+			int nc = 0;
+			for (nl = cl; ; nl = nl -> next)
+			{
+				if (nl -> noexpand_start)
+					nc++;
+				if (nl -> noexpand_end)
+					nc--;
+				
+				if (nl -> outputl > 0)
+					obytelen += nl -> outputl;
+				if (nc == 0)
+					break;
+			}
+			obytes = lw_alloc(obytelen);
+			nc = 0;
+			for (nl = cl; ; nl = nl -> next)
+			{
+				int i;
+				for (i = 0; i < nl -> outputl; i++)
+				{
+					obytes[nc++] = nl -> output[i];
+				}
+				if (nc >= obytelen)
+					break;
+			}
+			nl = nl -> next;
+		}
+		else
+		{
+			obytelen = cl -> outputl;
+			if (obytelen > 0)
+			{
+				obytes = lw_alloc(obytelen);
+				memmove(obytes, cl -> output, cl -> outputl);
+			}
+		}
+		if (cl -> len < 1 && obytelen < 1)
 		{
 			if (cl -> soff >= 0)
 			{
@@ -106,9 +148,9 @@ void do_list(asmstate_t *as)
 //			fprintf(of, "%s\n", lw_expr_print(te));
 			fprintf(of, "%04X ", lw_expr_intval(te) & 0xffff);
 			lw_expr_destroy(te);
-			for (i = 0; i < cl -> outputl && i < 8; i++)
+			for (i = 0; i < obytelen && i < 8; i++)
 			{
-				fprintf(of, "%02X", cl -> output[i]);
+				fprintf(of, "%02X", obytes[i]);
 			}
 			for (; i < 8; i++)
 			{
@@ -147,7 +189,7 @@ void do_list(asmstate_t *as)
 		fputc('\n', of);
 		if (cl -> outputl > 8)
 		{
-			for (i = 8; i < cl -> outputl; i++)
+			for (i = 8; i < obytelen; i++)
 			{
 				if (i % 8 == 0)
 				{
@@ -156,11 +198,13 @@ void do_list(asmstate_t *as)
 					else
 						fprintf(of, "     ");
 				}
-				fprintf(of, "%02X", cl -> output[i]);
+				fprintf(of, "%02X", obytes[i]);
 			}
 			if (i > 8)
 				fprintf(of, "\n");
 		}
+		lw_free(obytes);
+		obytes = NULL;
 	}
 	
 	if (as -> flags & FLAG_SYMBOLS)

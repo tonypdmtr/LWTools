@@ -173,6 +173,10 @@ struct line_s
 	int dsize;							// set to 1 for 8 bit dshow value
 	int isbrpt;							// set to 1 if this line is a branch point
 	struct symtabe *dptr;				// symbol value to display
+
+	int noexpand_start;					// start of a no-expand block
+	int noexpand_end;					// end of a no-expand block
+	
 };
 
 enum
@@ -204,7 +208,13 @@ struct macrotab_s
 	char *name;							// name of macro
 	char **lines;						// macro lines
 	int numlines;						// number lines in macro
+	int flags;							// flags for the macro
 	macrotab_t *next;					// next macro in list
+};
+
+enum
+{
+	macro_noexpand = 1					// set to not expland the macro by default in listing
 };
 
 typedef struct structtab_s structtab_t;

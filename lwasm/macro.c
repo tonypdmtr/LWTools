@@ -35,7 +35,9 @@ Contains stuff associated with macro processing
 PARSEFUNC(pseudo_parse_macro)
 {
 	macrotab_t *m;
-	
+	char *t;
+	char tc;
+		
 	l -> len = 0;
 	
 	if (as -> skipcond)
@@ -72,11 +74,17 @@ PARSEFUNC(pseudo_parse_macro)
 	m -> next = as -> macros;
 	m -> lines = NULL;
 	m -> numlines = 0;
+	m -> flags = 0;
 	as -> macros = m;
-	
+
+	t = *p;
 	while (**p && !isspace(**p))
 		(*p)++;
-	
+	tc = **p;
+	/* ignore unknown flags */
+	if (strcasecmp(t, "noexpand") == 0)
+		m -> flags |= macro_noexpand;
+	**p = tc;
 	as -> inmacro = 1;
 }
 
@@ -204,6 +212,16 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 	// and push it into the front of the input stack
 	bloc = blen = 0;
 	linebuff = NULL;
+
+	if (m -> flags & macro_noexpand)
+	{
+		char ctcbuf[100];
+		char *p;
+		snprintf(ctcbuf, 100, "\001\001SETNOEXPANDSTART\n");
+		for (p = ctcbuf; *p; p++)
+			macro_add_to_buff(&linebuff, &bloc, &blen, *p);
+	}
+
 	
 	for (lc = 0; lc < m -> numlines; lc++)
 	{
@@ -262,6 +280,15 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 
 		macro_add_to_buff(&linebuff, &bloc, &blen, '\n');
 		
+	}
+
+	if (m -> flags & macro_noexpand)
+	{
+		char ctcbuf[100];
+		char *p;
+		snprintf(ctcbuf, 100, "\001\001SETNOEXPANDEND\n");
+		for (p = ctcbuf; *p; p++)
+			macro_add_to_buff(&linebuff, &bloc, &blen, *p);
 	}
 
 	{
