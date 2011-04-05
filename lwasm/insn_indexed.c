@@ -349,7 +349,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				case 1:
 				case 2:
 				case 3:
-					pb = 0x89 | ((l -> pb & 0x03) << 5) | (0x10 * (l -> pb & 0x80));
+					pb = 0x89 | ((l -> pb & 0x03) << 5) | ((l -> pb & 0x80) ? 0x10 : 0);
 					break;
 			
 				case 4: // W
@@ -377,7 +377,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				case 1:
 				case 2:
 				case 3:
-					pb = 0x88 | ((l -> pb & 0x03) << 5) | (0x10 * (l -> pb & 0x80));
+					pb = 0x88 | ((l -> pb & 0x03) << 5) | ((l -> pb & 0x80) ? 0x10 : 0);
 					break;
 			
 				case 4: // W
@@ -436,7 +436,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 			case 1:
 			case 2:
 			case 3:
-				pb = 0x89 | (l -> pb & 0x03) << 5 | (0x10 * (l -> pb & 0x80));
+				pb = 0x89 | (l -> pb & 0x03) << 5 | ((l -> pb & 0x80) ? 0x10 : 0);
 				break;
 			
 			case 4: // W
@@ -462,7 +462,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 			case 1:
 			case 2:
 			case 3:
-				pb = 0x88 | (l -> pb & 0x03) << 5 | (0x10 * (l -> pb & 0x80));
+				pb = 0x88 | (l -> pb & 0x03) << 5 | ((l -> pb & 0x80) ? 0x10 : 0);
 				break;
 			
 			case 4: // W
