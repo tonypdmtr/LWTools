@@ -227,7 +227,24 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 	{
 		for (p2 = m -> lines[lc]; *p2; p2++)
 		{
-			if (*p2 == '\\' && isdigit(p2[1]))
+			if (*p2 == '\\' && p2[1] == '*')
+			{
+				int n;
+				/* all arguments */
+				for (n = 0; n < nargs; n++)
+				{
+					for (p3 = args[n]; *p3; p3++)
+					{
+						macro_add_to_buff(&linebuff, &bloc, &blen, *p3);
+					}
+					if (n != (nargs -1))
+					{
+						macro_add_to_buff(&linebuff, &bloc, &blen, ',');
+					}
+				}
+				p2++;
+			}
+			else if (*p2 == '\\' && isdigit(p2[1]))
 			{
 				int n;
 					
