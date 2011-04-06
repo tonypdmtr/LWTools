@@ -42,6 +42,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "cescapes", PRAGMA_CESCAPES },
 	{ "importundefexport", PRAGMA_IMPORTUNDEFEXPORT },
 	{ "pcaspcr", PRAGMA_PCASPCR },
+	{ "shadow", PRAGMA_SHADOW },
 	{ 0, 0 }
 };
 
@@ -53,6 +54,7 @@ static const struct pragma_list reset_pragmas[] =
 	{ "nocescapes", PRAGMA_CESCAPES },
 	{ "noimportundefexport", PRAGMA_IMPORTUNDEFEXPORT },
 	{ "nopcaspcr", PRAGMA_PCASPCR },
+	{ "noshadow", PRAGMA_SHADOW },
 	{ 0, 0 }
 };
 

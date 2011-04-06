@@ -260,6 +260,16 @@ void do_pass1(asmstate_t *as)
 			if (as -> skipcond && !(instab[opnum].flags & lwasm_insn_cond))
 				goto linedone;
         	
+        	if (as -> pragmas & PRAGMA_SHADOW)
+        	{
+        		// check for macros even if they shadow real operations
+        		// NOTE: "ENDM" cannot be shadowed
+        		if (expand_macro(as, cl, &p1, sym) == 0)
+        		{
+        			// a macro was expanded here
+        			goto linedone;
+        		}
+        	}
 			if (instab[opnum].opcode == NULL)
 			{
 				cl -> insn = -1;

@@ -76,7 +76,8 @@ enum lwasm_pragmas_e
 	PRAGMA_UNDEFEXTERN = 0x0004,		// undefined symbols are considered to be external
 	PRAGMA_CESCAPES = 0x0008,			// allow C style escapes in fcc, fcs, fcn, etc.
 	PRAGMA_IMPORTUNDEFEXPORT = 0x0010,	// imports symbol if undefined upon export
-	PRAGMA_PCASPCR = 0x0020				// treats ,PC as ,PCR instead of constant offset
+	PRAGMA_PCASPCR = 0x0020,			// treats ,PC as ,PCR instead of constant offset
+	PRAGMA_SHADOW = 0x0040				// allow macros to shadow builtin operations
 };
 
 
