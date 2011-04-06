@@ -22,6 +22,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <lw_alloc.h>
 
@@ -1159,5 +1160,456 @@ EMITFUNC(pseudo_emit_align)
 	for (i = 0; i < l -> len; i++)
 	{
 		lwasm_emitexpr(l, e, 1);
+	}
+}
+
+/* string conditional argument parser */
+/*
+argument syntax:
+
+a bare word ended by whitespace, comma, or NUL
+a double quote delimited string containing arbitrary printable characters
+a single quote delimited string containing arbitrary printable characters
+
+In a double quoted string, a double quote cannot be represented.
+In a single quoted string, a single quote cannot be represented.
+
+*/
+char *strcond_parsearg(char **p)
+{
+	char *arg;
+	char *tstr;
+	int i;
+	tstr = *p;
+
+	if (!**p || isspace(**p))
+	{
+		return lw_strdup("");
+	}
+	
+	if (*tstr == '"')
+	{
+		// double quote delim
+		tstr++;
+		for (i = 0; tstr[i] && tstr[i] != '"'; i++)
+			/* do nothing */ ;
+		
+		arg = lw_alloc(i + 1);
+		strncpy(arg, tstr, i);
+		arg[i] = 0;
+		
+		if (tstr[i])
+			i++;
+		
+		*p += i;
+		return arg;
+	}
+	else if (*tstr == '\'')
+	{
+		// single quote delim
+		tstr++;
+		for (i = 0; tstr[i] && tstr[i] != '\''; i++)
+			/* do nothing */ ;
+		
+		arg = lw_alloc(i + 1);
+		strncpy(arg, tstr, i);
+		arg[i] = 0;
+		
+		if (tstr[i])
+			i++;
+		
+		*p += i;
+		return arg;
+	}
+	else
+	{
+		// bare word - whitespace or comma delim
+		for (i = 0; tstr[i] && !isspace(tstr[i]) && tstr[i] != ','; i++)
+			/* do nothing */ ;
+		
+		arg = lw_alloc(i + 1);
+		strncpy(arg, tstr, i);
+		arg[i] = 0;
+		if (tstr[i] == ',')
+			i++;
+		
+		*p += i;
+		return arg;
+	}
+}
+
+/* string conditional helpers */
+/* return "1" for true, "0" for false */
+int strcond_eq(char **p)
+{
+	char *arg1;
+	char *arg2;
+	int c = 0;
+		
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	if (strcmp(arg1, arg2) == 0)
+		c = 1;
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_ieq(char **p)
+{
+	char *arg1;
+	char *arg2;
+	int c = 0;
+		
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	if (strcasecmp(arg1, arg2) == 0)
+		c = 1;
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_ne(char **p)
+{
+	char *arg1;
+	char *arg2;
+	int c = 0;
+		
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	if (strcmp(arg1, arg2) != 0)
+		c = 1;
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_ine(char **p)
+{
+	char *arg1;
+	char *arg2;
+	int c = 0;
+		
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	if (strcasecmp(arg1, arg2) != 0)
+		c = 1;
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_peq(char **p)
+{
+	char *arg0;
+	char *arg1;
+	char *arg2;
+	int plen;
+	int c = 0;
+	
+	arg0 = strcond_parsearg(p);
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	plen = strtol(arg0, NULL, 10);
+	if (strlen(arg1) > plen)
+		arg1[plen] = 0;
+	if (strlen(arg2) > plen)
+		arg2[plen] = 0;
+
+	if (strcmp(arg1, arg2) == 0)
+		c = 1;
+	lw_free(arg0);
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_ipeq(char **p)
+{
+	char *arg0;
+	char *arg1;
+	char *arg2;
+	int plen;
+	int c = 0;
+	
+	arg0 = strcond_parsearg(p);
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	plen = strtol(arg0, NULL, 10);
+	if (strlen(arg1) > plen)
+		arg1[plen] = 0;
+	if (strlen(arg2) > plen)
+		arg2[plen] = 0;
+
+	if (strcasecmp(arg1, arg2) == 0)
+		c = 1;
+	lw_free(arg0);
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_pne(char **p)
+{
+	char *arg0;
+	char *arg1;
+	char *arg2;
+	int plen;
+	int c = 0;
+	
+	arg0 = strcond_parsearg(p);
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	plen = strtol(arg0, NULL, 10);
+	if (strlen(arg1) > plen)
+		arg1[plen] = 0;
+	if (strlen(arg2) > plen)
+		arg2[plen] = 0;
+
+	if (strcmp(arg1, arg2) != 0)
+		c = 1;
+	lw_free(arg0);
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_ipne(char **p)
+{
+	char *arg0;
+	char *arg1;
+	char *arg2;
+	int plen;
+	int c = 0;
+	
+	arg0 = strcond_parsearg(p);
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+
+	plen = strtol(arg0, NULL, 10);
+	if (strlen(arg1) > plen)
+		arg1[plen] = 0;
+	if (strlen(arg2) > plen)
+		arg2[plen] = 0;
+
+	if (strcasecmp(arg1, arg2) != 0)
+		c = 1;
+	lw_free(arg0);
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_seq(char **p)
+{
+	char *arg0;
+	char *arg1;
+	char *arg2;
+	char *rarg1;
+	char *rarg2;
+	
+	int plen;
+	int c = 0;
+	
+	arg0 = strcond_parsearg(p);
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	rarg1 = arg1;
+	rarg2 = arg2;
+
+	plen = strtol(arg0, NULL, 10);
+	if (strlen(arg1) > plen)
+	{
+		rarg1 += strlen(arg1) - plen;
+	}
+	if (strlen(arg2) > plen)
+	{
+		rarg2 += strlen(arg2) - plen;
+	}
+	if (strcmp(rarg1, rarg2) == 0)
+		c = 1;
+	lw_free(arg0);
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_iseq(char **p)
+{
+	char *arg0;
+	char *arg1;
+	char *arg2;
+	char *rarg1;
+	char *rarg2;
+	
+	int plen;
+	int c = 0;
+	
+	arg0 = strcond_parsearg(p);
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	rarg1 = arg1;
+	rarg2 = arg2;
+		
+	plen = strtol(arg0, NULL, 10);
+	if (strlen(arg1) > plen)
+	{
+		rarg1 += strlen(arg1) - plen;
+	}
+	if (strlen(arg2) > plen)
+	{
+		rarg2 += strlen(arg2) - plen;
+	}
+	
+	if (strcasecmp(rarg1, rarg2) == 0)
+		c = 1;
+	lw_free(arg0);
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+
+int strcond_sne(char **p)
+{
+	char *arg0;
+	char *arg1;
+	char *arg2;
+	char *rarg1;
+	char *rarg2;
+	
+	int plen;
+	int c = 0;
+	
+	arg0 = strcond_parsearg(p);
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	rarg1 = arg1;
+	rarg2 = arg2;
+		
+	plen = strtol(arg0, NULL, 10);
+	if (strlen(arg1) > plen)
+	{
+		rarg1 += strlen(arg1) - plen;
+	}
+	if (strlen(arg2) > plen)
+	{
+		rarg2 += strlen(arg2) - plen;
+	}
+	
+	if (strcmp(rarg1, rarg2) != 0)
+		c = 1;
+	lw_free(arg0);
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+int strcond_isne(char **p)
+{
+	char *arg0;
+	char *arg1;
+	char *arg2;
+	char *rarg1;
+	char *rarg2;
+	
+	int plen;
+	int c = 0;
+	
+	arg0 = strcond_parsearg(p);
+	arg1 = strcond_parsearg(p);
+	arg2 = strcond_parsearg(p);
+	
+	rarg1 = arg1;
+	rarg2 = arg2;
+		
+	plen = strtol(arg0, NULL, 10);
+	if (strlen(arg1) > plen)
+	{
+		rarg1 += strlen(arg1) - plen;
+	}
+	if (strlen(arg2) > plen)
+	{
+		rarg2 += strlen(arg2) - plen;
+	}
+	
+	if (strcasecmp(rarg1, rarg2) != 0)
+		c = 1;
+	lw_free(arg0);
+	lw_free(arg1);
+	lw_free(arg2);
+	return c;
+}
+
+/* string conditionals */
+PARSEFUNC(pseudo_parse_ifstr)
+{
+	static struct strconds
+	{
+		char *str;
+		int (*fn)(char **ptr);
+	} strops[] = {
+		{ "eq", strcond_eq },
+		{ "ieq", strcond_ieq },
+		{ "ne", strcond_ne },
+		{ "ine", strcond_ine },
+		{ "peq", strcond_peq },
+		{ "ipeq", strcond_ipeq },
+		{ "pne", strcond_pne },
+		{ "ipne", strcond_ipne },
+		{ "seq", strcond_seq },
+		{ "iseq", strcond_iseq },
+		{ "sne", strcond_sne },
+		{ "isne", strcond_isne },
+		{ NULL, 0 }
+	};
+	int tv = 0;
+	char *tstr;
+	int i, strop;
+	
+	l -> len = 0;
+	
+	if (as -> skipcond && !(as -> skipmacro))
+	{
+		as -> skipcount++;
+		skip_operand(p);
+		return;
+	}
+
+	tstr = strcond_parsearg(p);
+	if (!**p || isspace(**p))	
+	{
+		lwasm_register_error(as, l, "Bad string condition");
+		return;
+	}
+		
+	for (strop = 0; strops[strop].str != NULL; strop++)
+		if (strcasecmp(strops[strop].str, tstr) == 0)
+			break;
+	
+	lw_free(tstr);
+	
+	if (strops[strop].str == NULL)
+	{
+		lwasm_register_error(as, l, "Bad string condition");
+	}
+
+	tv = (*(strops[strop].fn))(p);
+	
+	if (!tv)
+	{
+		as -> skipcond = 1;
+		as -> skipcount = 1;
 	}
 }
