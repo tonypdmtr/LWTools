@@ -106,6 +106,8 @@ PARSEFUNC(pseudo_parse_pragma)
 	
 	ps = lw_strndup(*p, t - *p);
 	*p = t;
+	
+	l -> len = 0;
 
 	if (parse_pragma_string(as, ps, 0) == 0)
 	{
@@ -124,6 +126,8 @@ PARSEFUNC(pseudo_parse_starpragma)
 	ps = lw_strndup(*p, t - *p);
 	*p = t;
 
+	l -> len = 0;
+	
 	// *pragma must NEVER throw an error
 	parse_pragma_string(as, ps, 1);
 	lw_free(ps);
