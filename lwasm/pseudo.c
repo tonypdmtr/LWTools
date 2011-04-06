@@ -1576,7 +1576,7 @@ PARSEFUNC(pseudo_parse_ifstr)
 	};
 	int tv = 0;
 	char *tstr;
-	int i, strop;
+	int strop;
 	
 	l -> len = 0;
 	
