@@ -413,15 +413,16 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 			goto do_version;
 		/* look up name */
 		
+		fprintf(stderr, "option string: %s\n", argv[i]);
 		for (j = 2; argv[i][j] && argv[i][j] != '='; j++)
 			/* do nothing */ ;
 		tstr = lw_alloc(j - 1);
 		strncpy(tstr, argv[i] + 2, j - 2);
-		tstr[j - 1] = 0;
+		tstr[j - 2] = 0;
 		if (argv[i][j] == '=')
 			j++;
 		cch = j;
-		
+		fprintf(stderr, "Option: %s, Arg: %s\n", tstr, argv[i]+j);
 		for (j = 0; parser -> options[j].name; j++)
 		{
 			if (strcmp(parser -> options[j].name, tstr) == 0)
