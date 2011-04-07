@@ -58,8 +58,11 @@ void do_pass1(asmstate_t *as)
 	char *tok, *sym;
 	int opnum;
 	int lc = 1;
+	int nomacro;
+	
 	for (;;)
 	{
+		nomacro = 0;
 		sym = NULL;
 		line = input_readline(as);
 		if (!line)
@@ -231,6 +234,14 @@ void do_pass1(asmstate_t *as)
 		cl -> symset = 0;
 		
 		// tok points to the opcode for the line or NUL if none
+		
+		// if the first two chars of the opcode are "??", that's
+		// a flag to inhibit macro expansion
+		if (*tok && tok[0] == '?' && tok[1] == '?')
+		{
+			nomacro = 1;
+			tok += 2;
+		}
 		if (*tok)
 		{
 			// look up operation code
@@ -260,7 +271,7 @@ void do_pass1(asmstate_t *as)
 			if (as -> skipcond && !(instab[opnum].flags & lwasm_insn_cond))
 				goto linedone;
         	
-        	if (as -> pragmas & PRAGMA_SHADOW)
+        	if (!nomacro && (as -> pragmas & PRAGMA_SHADOW))
         	{
         		// check for macros even if they shadow real operations
         		// NOTE: "ENDM" cannot be shadowed
@@ -276,7 +287,8 @@ void do_pass1(asmstate_t *as)
 				if (*tok != ';' && *tok != '*')
 				{
 					// bad opcode; check for macro here
-					if (expand_macro(as, cl, &p1, sym) != 0)
+					// but don't expand it if "nomacro" is in effect
+					if (nomacro || expand_macro(as, cl, &p1, sym) != 0)
 					{
 						// macro expansion failed
 						if (expand_struct(as, cl, &p1, sym) != 0)
