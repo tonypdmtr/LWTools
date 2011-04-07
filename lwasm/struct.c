@@ -70,63 +70,70 @@ PARSEFUNC(pseudo_parse_struct)
 	
 	l -> len = 0;
 	l -> symset = 1;
+	
+	// save current assembly address and initialize to 0
+	as -> savedaddr = l -> addr;
+	l -> addr = lw_expr_build(lw_expr_type_int, 0);
 }
 
-void pseudo_endstruct_aux(asmstate_t *as, line_t *l, structtab_field_t *e, const char *prefix, int *coff)
+static void instantiate_struct(asmstate_t *as, line_t *l, structtab_t *s, char *pref, lw_expr_t baseaddr)
 {
-	char *symname = NULL;
-	lw_expr_t te1, te2;
 	int len;
+	char *t;
+	int plen;
+	int addr = 0;
+	lw_expr_t te, te2;
+	structtab_field_t *e;
+
+	if (baseaddr == NULL)
+		baseaddr = l -> addr;
 	
-	while (e)
+	plen = strlen(pref);
+	for (e = s -> fields; e; e = e -> next)
 	{
 		if (e -> name)
 		{
-			len = strlen(prefix) + strlen(e -> name) + 1;
-			symname = lw_alloc(len + 1);
-			sprintf(symname, "%s.%s", prefix, e -> name);
+			len = plen + strlen(e -> name) + 1;
+			t = lw_alloc(len + 1);
+			sprintf(t, "%s.%s", pref, e -> name);
 		}
 		else
 		{
-			len = strlen(prefix) + 30;
-			symname = lw_alloc(len + 1);
-			sprintf(symname, "%s.____%d", prefix, *coff);
+			len = plen + 30;
+			t = lw_alloc(len + 1);
+			sprintf(t, "%s.____%d", pref, addr);
 		}
-		
-		// register the symbol
-		te1 = lw_expr_build(lw_expr_type_int, *coff);
-		te2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, te1, l -> addr);
-		register_symbol(as, l, symname, te2, symbol_flag_nocheck);
-		lw_expr_destroy(te2);
-		lw_expr_destroy(te1);
+
+		te = lw_expr_build(lw_expr_type_int, addr);
+		te2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, te, baseaddr);
+		register_symbol(as, l, t, te2, symbol_flag_nocheck);
+		lw_expr_destroy(te);
 		
 		if (e -> substruct)
 		{
-			char *t;
-			len = strlen(symname) + 8;
-			t = lw_alloc(len + 1);
-			sprintf(t, "sizeof{%s}", symname);
-			te1 = lw_expr_build(lw_expr_type_int, e -> substruct -> size);
-			register_symbol(as, l, t, te1, symbol_flag_nocheck);
-			lw_expr_destroy(te1);
-			lw_free(t);
-			pseudo_endstruct_aux(as, l, e -> substruct -> fields, symname, coff);
+			instantiate_struct(as, l, e -> substruct, t, te2);
 		}
-		else
-		{
-			*coff += e -> size;
-		}
-		e = e -> next;
+		
+		lw_expr_destroy(te2);
+		
+		lw_free(t);
+		addr += e -> size;
 	}
+	
+	/* register the "sizeof" symbol */
+	len = plen + 8;
+	t = lw_alloc(len + 1);
+	sprintf(t, "sizeof{%s}", pref);
+	te = lw_expr_build(lw_expr_type_int, s -> size);
+	register_symbol(as, l, t, te, symbol_flag_nocheck);
+	lw_expr_destroy(te);
+	lw_free(t);
 }
 
 
 PARSEFUNC(pseudo_parse_endstruct)
 {
-	char *t;
-	int coff = 0;
 	lw_expr_t te;
-	int len;
 		
 	if (as -> instruct == 0)
 	{
@@ -135,20 +142,20 @@ PARSEFUNC(pseudo_parse_endstruct)
 		return;
 	}
 
-	len = strlen(as -> cstruct -> name) + 8;
-	t = lw_alloc(len + 1);
-	sprintf(t, "sizeof{%s}", as -> cstruct -> name);
-	te = lw_expr_build(lw_expr_type_int, as -> cstruct -> size);
-	register_symbol(as, l, t, te, symbol_flag_nocheck);
+	te = lw_expr_build(lw_expr_type_int, 0);
+	
+	// make all the relevant generic struct symbols
+	instantiate_struct(as, l, as -> cstruct, as -> cstruct -> name, te);
 	lw_expr_destroy(te);
-	lw_free(t);
 	
 	l -> soff = as -> cstruct -> size;
 	as -> instruct = 0;
 	
 	skip_operand(p);
 	
-	pseudo_endstruct_aux(as, l, as -> cstruct -> fields, as -> cstruct -> name, &coff);
+	lw_expr_destroy(l -> addr);
+	l -> addr = as -> savedaddr;
+	as -> savedaddr = NULL;
 	
 	l -> len = 0;
 }
@@ -182,10 +189,6 @@ void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab_t *ss)
 int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc)
 {
 	structtab_t *s;
-	char *t;
-	lw_expr_t te;
-	int addr = 0;
-	int len;
 	
 	debug_message(as, 200, "Checking for structure expansion: %s", opc);
 
@@ -206,48 +209,24 @@ int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc)
 		return -1;
 	}
 
-	if (as -> instruct)
-	{
-		lwasm_register_error(as, l, "Nested structures not currently supported");
-		return -1;
-	}
-	
 	l -> len = s -> size;
 
 	if (as -> instruct)
 	{
-//		len = strlen(as -> cstruct -> name) + strlen(l -> sym) + 9;
-//		t = lw_alloc(len + 1);
-//		sprintf(t, "sizeof{%s.%s}", as -> cstruct -> name, l -> sym);
+		/* register substruct here */
+		register_struct_entry(as, l, s -> size, s);
+		/* mark the symbol consumed */
+		l -> symset = 1;
+		l -> len = 0;
+		return 0;
 	}
 	else
 	{
-		len = strlen(l -> sym) + 8;
-		t = lw_alloc(len + 1);
-		sprintf(t, "sizeof{%s}", l -> sym);
-		te = lw_expr_build(lw_expr_type_int, s -> size);
-		register_symbol(as, l, t, te, symbol_flag_nocheck);
-		lw_expr_destroy(te);
-		lw_free(t);
+		/* instantiate the struct here */
+		instantiate_struct(as, l, s, l -> sym, NULL);
+		return 0;
 	}
 	
-	if (as -> instruct)
-	{
-//		len = strlen(as -> cstruct -> name) + strlen(l -> sym) + 1;
-//		t = lw_alloc(len + 1);
-//		sprintf(t, "%s.%s", as -> cstruct -> name, l -> sym);
-	}
-	else
-	{
-		t = lw_strdup(l -> sym);
-		pseudo_endstruct_aux(as, l, s -> fields, t, &addr);
-		lw_free(t);
-	}
-
-	if (as -> instruct)
-		l -> symset = 1;
-	if (as -> instruct)
-		register_struct_entry(as, l, s -> size, s);
 	return 0;
 }
 

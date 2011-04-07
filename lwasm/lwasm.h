@@ -282,7 +282,7 @@ struct asmstate_s
 
 	structtab_t *structs;				// defined structures
 	structtab_t *cstruct;				// current structure
-	
+	lw_expr_t savedaddr;				// old address counter before struct started	
 	int exportcheck;					// set if we need to collapse out the section base to 0
 };
 
