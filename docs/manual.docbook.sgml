@@ -1044,17 +1044,19 @@ series of instructions. Once a macro is defined, it is used like any other
 assembler directive. Defining a macro can be considered equivalent to adding
 additional assembler directives.
 </para>
-<para>Macros may accept parameters. These parameters are referenced within
-a macro by the a backslash ("\") followed by a digit 1 through 9 for the first
+
+<para>Macros may accept parameters. These parameters are referenced within a
+macro by the a backslash ("\") followed by a digit 1 through 9 for the first
 through ninth parameters. They may also be referenced by enclosing the
-decimal parameter number in braces ("{num}"). These parameter references
-are replaced with the verbatim text of the parameter passed to the macro. A
-reference to a non-existent parameter will be replaced by an empty string.
-Macro parameters are expanded everywhere on each source line. That means
-the parameter to a macro could be used as a symbol or it could even appear
-in a comment or could cause an entire source line to be commented out
-when the macro is expanded.
-</para>
+decimal parameter number in braces ("{num}"). The special expansion "\*"
+translates to the exact parameter string, including all parameters, passed
+to the macro. These parameter references are replaced with the verbatim text
+of the parameter passed to the macro. A reference to a non-existent
+parameter will be replaced by an empty string. Macro parameters are expanded
+everywhere on each source line. That means the parameter to a macro could be
+used as a symbol or it could even appear in a comment or could cause an
+entire source line to be commented out when the macro is expanded. </para>
+
 <para>
 Parameters passed to a macro are separated by commas and the parameter list
 is terminated by any whitespace. This means that neither a comma nor whitespace
@@ -1550,6 +1552,18 @@ offset from PC while PCR causes the assembler to calculate the offset to the
 specified operand and use that as the offset from PC. By setting this
 pragma, you can have PC treated the same as PCR. </para>
 
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>shadow</term>
+<listitem>
+
+<para>When this pragma is in effect, it becomes possible to define a macro
+that matches an internal operation code. Thus, it makes it possible to
+redefine either CPU instructions or pseudo operations. Because this feature
+is of dubious utility, it is disabled by default.</para>
 
 </listitem>
 </varlistentry>
