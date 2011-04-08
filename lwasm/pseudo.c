@@ -994,7 +994,7 @@ PARSEFUNC(pseudo_parse_includebin)
 			/* do nothing */ ;
 	}
 	fn = lw_strndup(*p, p2 - *p);
-	
+	*p = p2;
 	if (delim && **p)
 		(*p)++;
 	
