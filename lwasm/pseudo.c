@@ -985,7 +985,7 @@ PARSEFUNC(pseudo_parse_includebin)
 		delim = **p;
 		(*p)++;
 
-		for (p2 = *p; *p2 && *p2 != delim; p2++)
+		for (p2 = *p; *p2 && (*p2 != delim); p2++)
 			/* do nothing */ ;
 	}
 	else
