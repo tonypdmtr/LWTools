@@ -1848,7 +1848,7 @@ This will cause the section <parameter>name</parameter> to load after the previo
 section.
 </para></listitem></varlistentry>
 <varlistentry>
-<term>exec <parameter>addr or sym</parameter></term>
+<term>entry <parameter>addr or sym</parameter></term>
 <listitem>
 <para>
 This will cause the execution address (entry point) to be the address
