@@ -287,7 +287,7 @@ void setup_script()
 		}
 		else
 		{
-			fprintf(stderr, "%s: bad script\n", scriptfile);
+			fprintf(stderr, "%s: bad script line: %s\n", scriptfile, line);
 			exit(1);
 		}
 		lw_free(line);
