@@ -284,6 +284,7 @@ struct asmstate_s
 	structtab_t *cstruct;				// current structure
 	lw_expr_t savedaddr;				// old address counter before struct started	
 	int exportcheck;					// set if we need to collapse out the section base to 0
+	int passno;							// set to the current pass number
 };
 
 #ifndef ___symbol_c_seen___

@@ -232,6 +232,7 @@ int main(int argc, char **argv)
 	{
 		if ((asmstate.flags & FLAG_DEPEND) && passlist[passnum].fordep == 0)
 			continue;
+		asmstate.passno = passnum;
 		debug_message(&asmstate, 50, "Doing pass %d (%s)\n", passnum, passlist[passnum].passname);
 		(passlist[passnum].fn)(&asmstate);
 		debug_message(&asmstate, 50, "After pass %d (%s)\n", passnum, passlist[passnum].passname);

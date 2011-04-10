@@ -70,7 +70,7 @@ lw_expr_t lwasm_evaluate_var(char *var, void *priv)
 	}
 	
 	// check for "undefined" to import automatically
-	if (!im && CURPRAGMA(as -> cl, PRAGMA_UNDEFEXTERN))
+	if ((as -> passno != 0) && !im && CURPRAGMA(as -> cl, PRAGMA_UNDEFEXTERN))
 	{
 		im = lw_alloc(sizeof(importlist_t));
 		im -> symbol = lw_strdup(var);
