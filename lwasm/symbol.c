@@ -59,7 +59,7 @@ struct symtabe *symbol_findprev(asmstate_t *as, struct symtabe *se)
 			/* if se has no section but se1 does, we go first */
 			if (se -> section == NULL && se1 -> section != NULL)
 				return se2;
-			if (se -> section != NULL && se -> section != NULL)
+			if (se -> section != NULL && se1 -> section != NULL)
 			{
 				/* compare section names and if se < se1, return */
 				i = strcasecmp(se -> section -> name, se1 -> section -> name);
