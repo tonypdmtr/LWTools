@@ -49,6 +49,7 @@ static struct lw_cmdline_options options[] =
 	{ "raw",		'r',	0,			0,							"Generate raw binary format output, equivalent of --format=raw"},
 	{ "obj",		0x100,	0,			0,							"Generate proprietary object file format for later linking, equivalent of --format=obj" },
 	{ "depend",		0x101,	0,			0,							"Output a dependency list to stdout; do not do any actual output though assembly is completed as usual" },
+	{ "dependnoerr", 0x102,	0,			0,							"Output a dependency list to stdout; do not do any actual output though assembly is completed as usual; don't bail on missing include files" },
 	{ "pragma",		'p',	"PRAGMA",	0,							"Set an assembler pragma to any value understood by the \"pragma\" pseudo op"},
 	{ "6809",		'9',	0,			0,							"Set assembler to 6809 only mode" },
 	{ "6309",		'3',	0,			0,							"Set assembler to 6309 mode (default)" },
@@ -108,6 +109,10 @@ static int parse_opts(int key, char *arg, void *state)
 
 	case 0x101:
 		as -> flags |= FLAG_DEPEND;
+		break;
+
+	case 0x102:
+		as -> flags |= FLAG_DEPEND | FLAG_DEPENDNOERR;
 		break;
 
 	case 'f':
@@ -240,6 +245,12 @@ int main(int argc, char **argv)
 		
 		if (asmstate.errorcount > 0)
 		{
+			if (asmstate.flags & FLAG_DEPEND)
+			{
+				// don't show errors during dependency scanning but
+				// stop processing immediately
+				break;
+			}
 			lwasm_show_errors(&asmstate);
 			exit(1);
 		}

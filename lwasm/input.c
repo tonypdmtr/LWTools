@@ -40,6 +40,8 @@ less difficult.
 Data type for storing input buffers
 */
 
+#define IGNOREERROR (errno == ENOENT && (as -> flags & FLAG_DEPENDNOERR))
+
 enum input_types_e
 {
 	input_type_file,			// regular file, no search path
@@ -179,7 +181,7 @@ void input_open(asmstate_t *as, char *s)
 			/* absolute path */
 			IS -> data = fopen(s, "rb");
 			debug_message(as, 1, "Opening (abs) %s", s);
-			if (!IS -> data)
+			if (!IS -> data && !IGNOREERROR)
 			{
 				lw_error("Cannot open file '%s': %s", s, strerror(errno));
 			}
@@ -217,6 +219,11 @@ void input_open(asmstate_t *as, char *s)
 		debug_message(as, 2, "Failed to open: (sp) %s (%s)\n", p2, strerror(errno));
 			lw_free(p2);
 			lw_stringlist_next(as -> include_list);
+		}
+		if (IGNOREERROR)
+		{
+			input_pushpath(as, s);
+			return;
 		}
 		lw_error("Cannot open include file '%s': %s", s, strerror(errno));
 		break;
@@ -312,13 +319,16 @@ nextfile:
 		for (;;)
 		{
 			int c, c2;
-			c = fgetc(IS -> data);
+			c = EOF;
+			if (IS -> data)
+				c = fgetc(IS -> data);
 			if (c == EOF)
 			{
 				if (lbloc == 0)
 				{
 					struct input_stack *t;
-					fclose(IS -> data);
+					if (IS -> data)
+						fclose(IS -> data);
 					lw_free(lw_stack_pop(as -> file_dir));
 					lw_free(IS -> filespec);
 					t = IS -> next;

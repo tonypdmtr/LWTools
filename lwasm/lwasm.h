@@ -65,6 +65,7 @@ enum lwasm_flags_e
 	FLAG_LIST = 0x0001,
 	FLAG_DEPEND = 0x0002,
 	FLAG_SYMBOLS = 0x004,
+	FLAG_DEPENDNOERR = 0x0008,
 	FLAG_NONE = 0
 };
 
