@@ -183,7 +183,7 @@ void input_open(asmstate_t *as, char *s)
 			debug_message(as, 1, "Opening (abs) %s", s);
 			if (!IS -> data && !IGNOREERROR)
 			{
-				lw_error("Cannot open file '%s': %s", s, strerror(errno));
+				lw_error("Cannot open file '%s': %s\n", s, strerror(errno));
 			}
 			input_pushpath(as, s);
 			return;
@@ -225,7 +225,7 @@ void input_open(asmstate_t *as, char *s)
 			input_pushpath(as, s);
 			return;
 		}
-		lw_error("Cannot open include file '%s': %s", s, strerror(errno));
+		lw_error("Cannot open include file '%s': %s\n", s, strerror(errno));
 		break;
 		
 	case input_type_file:
@@ -234,13 +234,13 @@ void input_open(asmstate_t *as, char *s)
 
 		if (!IS -> data)
 		{
-			lw_error("Cannot open file '%s': %s", s, strerror(errno));
+			lw_error("Cannot open file '%s': %s\n", s, strerror(errno));
 		}
 		input_pushpath(as, s);
 		return;
 	}
 
-	lw_error("Cannot figure out how to open '%s'.", t -> filespec);
+	lw_error("Cannot figure out how to open '%s'.\n", t -> filespec);
 }
 
 FILE *input_open_standalone(asmstate_t *as, char *s)
@@ -423,7 +423,7 @@ nextfile:
 		}
 	
 	default:
-		lw_error("Problem reading from unknown input type");
+		lw_error("Problem reading from unknown input type\n");
 		return NULL;
 	}
 }
