@@ -1,0 +1,65 @@
+These files are extra utility type scripts that can be used for various
+purposes.
+
+as
+
+This is a sort of front-end script that makes lwasm look approximately like
+gnu as which is useful for using lwasm as a backend to gcc. You will
+probably need to edit it to make it work fully. Simply put this in place
+of whatever gcc6809 installed for "as" (in the "m6809/bin" folder in
+"--prefix") after editing it to point to the real location of the "lwasm"
+binary.
+
+
+ld
+
+Similar to the "as" script above except for lwlink.
+
+
+ar
+
+Similar to the "as" script above except for lwar.
+
+
+To use these scripts, you really need to understand how to build a gcc as a
+cross compiler. The basics are that you put the as, ld, and ar scripts
+whereever you plan to put your cross-development binaries. Then, when
+building the cross compiler, you tell it where the scripts are.
+
+The following worked with gcc6809 4.3.4-3:
+
+1. Install the ar, as, and ld scripts named m6809-unknown-{as,ar,ld} in a
+directory in your path, say /usr/local/coco/bin/.
+
+2. Make symbolic links to /bin/true for similarly named nm, objdump, ranlib,
+and strip in the same directory  Some of these may not be necessary.
+
+3. Unpack gcc and apply the gcc6809 patch.
+
+4. Make sure /usr/local/coco/bin is in your PATH
+
+5. Make sure "." is NOT in your path or is at the END of PATH. If you have
+gazillions of errors pop up compiling "gemodes.c", this is your problem.
+
+6. In a directory (other than the gcc source, say "gcc-build" at the same
+level as the main gcc directory, do (assuming gcc 4.3.4):
+
+configure --enable-languages=c --target=m6809-unknown \
+--program-prefix=m6809-unknown- --enable-obsolete \
+--srcdir=../gcc-4.3.4 --disable-threads --disable-nls \
+--disable-libssp --prefix=/usr/local/coco \
+--with-as=/usr/local/coco/bin/m6809-unknown-as \
+--with-ld=/usr/local/coco/bin/m6809-unknown-ld \
+--with-ar=/usr/local/coco/bin/m6809-unknown-ar
+
+NOTE: the last three are required to prevent selection of the wrong binutils
+programs at runtime.
+
+--with-sysroot might be useful if you have a C library involved.
+
+7. Run "make". If errors appear, troubleshoot.
+
+8. Run "make install". Note that you will have to have your PATH variable
+for "root" set up correctly if your install prefix requires root privileges.
+
+The above is WOMM certified. YMMV.
