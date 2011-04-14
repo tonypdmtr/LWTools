@@ -185,6 +185,136 @@ EMITFUNC(pseudo_emit_fqb)
 	}
 }
 
+static int cstringlen(asmstate_t *as, line_t *ln, char **p, char delim)
+{
+	int l = 0;
+	char *str = NULL;
+	int blen = 0;
+	int bsize = 0;
+	
+	if (!(as -> pragmas & PRAGMA_CESCAPES))
+	{
+		for (; **p && **p != delim; (*p)++)
+		{
+			l++;
+			if (blen >= bsize)
+			{
+				str = lw_realloc(str, bsize + 32);
+				bsize++;
+			}
+			str[blen++] = **p;
+		}
+	}
+	else
+	{
+		while (**p && **p != delim)
+		{
+			int wch = **p;
+			if (**p == '\\')
+			{
+				/* escape sequence */
+
+				(*p)++;
+				if (!**p)
+					break;
+		
+				switch (**p)
+				{
+					/* octal sequence or NUL */
+					/* skip the "0", then skip up to two more digits */
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+					(*p)++;
+					wch -= 0x30;
+					if (**p >= '0' && **p <= '9')
+					{
+						wch *= 8;
+						wch += **p - 0x30;
+						(*p)++;
+					}
+					if (**p >= '0' && **p <= '9')
+					{
+						wch *= 8;
+						wch += **p -0x30;
+					}
+					break;			
+
+				/* hexadecimal value */
+				case 'x':
+					(*p)++;			// ignore "x"
+					wch = 0;
+					if (**p)		// skip digit 1
+					{
+						wch = **p - 0x30;
+						if (wch > 9)
+							wch -= 7;
+						if (wch > 9)
+							wch -= 32;
+						(*p)++;
+					}
+					if (**p)
+					{
+						int i;
+						i = **p - 0x30;
+						if (i > 9)
+							i -= 7;
+						if (i > 9)
+							i -= 32;
+						wch = wch * 16 + i;
+					}
+					break;
+
+				case 'a':
+					wch = 7;
+					break;
+				
+				case 'b':
+					wch = 8;
+					break;
+				
+				case 't':
+					wch = 9;
+					break;
+				
+				case 'n':
+					wch = 10;
+					break;
+				
+				case 'v':
+					wch = 11;
+					break;
+				
+				case 'f':
+					wch = 12;
+					break;
+				
+				case 'r':
+					wch = 13;
+				
+				/* everything else represents itself */
+				default:
+					break;
+				}
+			}
+			/* now "wch" is the character to write out */
+			l++;
+			(*p)++;
+			if (blen >= bsize)
+			{
+				str = lw_realloc(str, bsize + 32);
+				bsize += 32;
+			}
+			str[blen++] = wch;
+		}
+	}
+	/* do something with the string here */
+	/* l is the string length, str is the string itself */
+	ln -> lstr = str;
+	return l;
+}
+
 PARSEFUNC(pseudo_parse_fcc)
 {
 	char delim;
@@ -199,18 +329,15 @@ PARSEFUNC(pseudo_parse_fcc)
 	delim = **p;
 	(*p)++;
 	
-	for (i = 0; (*p)[i] && (*p)[i] != delim; i++)
-		/* do nothing */ ;
 	
-	if ((*p)[i] != delim)
+	i = cstringlen(as, l, p, delim);
+	
+	if (**p != delim)
 	{
 		lwasm_register_error(as, l, "Bad operand");
 		return;
 	}
-	
-	l -> lstr = lw_strndup(*p, i);
-	(*p) += i + 1;
-	
+	(*p)++;	
 	l -> len = i;
 }
 
@@ -236,18 +363,14 @@ PARSEFUNC(pseudo_parse_fcs)
 	delim = **p;
 	(*p)++;
 	
-	for (i = 0; (*p)[i] && (*p)[i] != delim; i++)
-		/* do nothing */ ;
+	i = cstringlen(as, l, p, delim);
 	
-	if ((*p)[i] != delim)
+	if (**p != delim)
 	{
 		lwasm_register_error(as, l, "Bad operand");
 		return;
 	}
-	
-	l -> lstr = lw_strndup(*p, i);
-	(*p) += i + 1;
-	
+	(*p)++;
 	l -> len = i;
 }
 
@@ -274,18 +397,14 @@ PARSEFUNC(pseudo_parse_fcn)
 	delim = **p;
 	(*p)++;
 	
-	for (i = 0; (*p)[i] && (*p)[i] != delim; i++)
-		/* do nothing */ ;
-	
-	if ((*p)[i] != delim)
+	i = cstringlen(as, l, p, delim);
+
+	if (**p != delim)
 	{
 		lwasm_register_error(as, l, "Bad operand");
 		return;
 	}
-	
-	l -> lstr = lw_strndup(*p, i);
-	(*p) += i + 1;
-	
+	(*p)++;
 	l -> len = i + 1;
 }
 

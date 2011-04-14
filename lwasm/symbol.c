@@ -217,7 +217,7 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 			if (s -> flags & symbol_flag_set)
 			{
 				// look for highest version of symbol
-				if (s -> version > s2 -> version)
+				if (!s2 || (s -> version > s2 -> version))
 					s2 = s;
 				continue;
 			}
