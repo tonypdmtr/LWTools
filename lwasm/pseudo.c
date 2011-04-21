@@ -217,7 +217,7 @@ static int cstringlen(asmstate_t *as, line_t *ln, char **p, char delim)
 				(*p)++;
 				if (!**p)
 					break;
-		
+
 				switch (**p)
 				{
 					/* octal sequence or NUL */
@@ -226,16 +226,17 @@ static int cstringlen(asmstate_t *as, line_t *ln, char **p, char delim)
 				case '1':
 				case '2':
 				case '3':
-					(*p)++;
+					wch = **p;
 					wch -= 0x30;
-					if (**p >= '0' && **p <= '9')
+					if ((*p)[1] >= '0' && (*p)[1] < '8')
 					{
+						(*p)++;
 						wch *= 8;
 						wch += **p - 0x30;
-						(*p)++;
 					}
-					if (**p >= '0' && **p <= '9')
+					if ((*p)[1] >= '0' && (*p)[1] < '8')
 					{
+						(*p)++;
 						wch *= 8;
 						wch += **p -0x30;
 					}
