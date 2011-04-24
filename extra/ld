@@ -20,7 +20,7 @@
 
 # this was based somewhat on the "as" script from gcc6809
 
-echo "LWTOOLS-as $0 $*"
+#echo "LWTOOLS-ld $0 $*"
 path_to_lwlink=lwlink
 
 # Set defaults.  Some are based on the target type, which is 
