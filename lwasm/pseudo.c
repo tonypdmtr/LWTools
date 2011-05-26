@@ -1031,6 +1031,7 @@ PARSEFUNC(pseudo_parse_ifdef)
 		/* do nothing */ ;
 	
 	sym = lw_strndup(*p, i);
+	(*p) += i;
 	
 	s = lookup_symbol(as, l, sym);
 	
