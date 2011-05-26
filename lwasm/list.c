@@ -58,6 +58,11 @@ void do_list(asmstate_t *as)
 	for (cl = as -> line_head; cl; cl = nl)
 	{
 		nl = cl -> next;
+		if (CURPRAGMA(cl, PRAGMA_NOLIST))
+		{
+			if (cl -> outputl <= 0)
+				continue;
+		}
 		if (cl -> noexpand_start)
 		{
 			obytelen = 0;

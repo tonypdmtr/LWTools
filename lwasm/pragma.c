@@ -43,6 +43,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "importundefexport", PRAGMA_IMPORTUNDEFEXPORT },
 	{ "pcaspcr", PRAGMA_PCASPCR },
 	{ "shadow", PRAGMA_SHADOW },
+	{ "nolist", PRAGMA_NOLIST },
 	{ 0, 0 }
 };
 
@@ -55,6 +56,7 @@ static const struct pragma_list reset_pragmas[] =
 	{ "noimportundefexport", PRAGMA_IMPORTUNDEFEXPORT },
 	{ "nopcaspcr", PRAGMA_PCASPCR },
 	{ "noshadow", PRAGMA_SHADOW },
+	{ "list", PRAGMA_NOLIST },
 	{ 0, 0 }
 };
 
@@ -113,6 +115,8 @@ PARSEFUNC(pseudo_parse_pragma)
 	{
 		lwasm_register_error(as, l, "Unrecognized pragma string");
 	}
+	if (as -> pragmas & PRAGMA_NOLIST)
+		l -> pragmas |= PRAGMA_NOLIST;
 	lw_free(ps);
 }
 
@@ -130,5 +134,7 @@ PARSEFUNC(pseudo_parse_starpragma)
 	
 	// *pragma must NEVER throw an error
 	parse_pragma_string(as, ps, 1);
+	if (as -> pragmas & PRAGMA_NOLIST)
+		l -> pragmas |= PRAGMA_NOLIST;
 	lw_free(ps);
 }
