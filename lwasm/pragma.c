@@ -123,7 +123,7 @@ PARSEFUNC(pseudo_parse_pragma)
 PARSEFUNC(pseudo_parse_starpragma)
 {
 	char *ps, *t;
-	
+
 	for (t = *p; *t && !isspace(*t); t++)
 		/* do nothing */ ;
 	

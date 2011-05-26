@@ -195,8 +195,8 @@ void do_pass1(asmstate_t *as)
 		else
 			stspace = 0;
 
-		if (*p1 == '*' || *p1 == ';' || *p1 == '#')
-			goto nextline;
+//		if (*p1 == '*' || *p1 == ';' || *p1 == '#')
+//			goto nextline;
 		if (!*p1)
 		{
 			// nothing but whitespace - context break
@@ -210,6 +210,8 @@ void do_pass1(asmstate_t *as)
 		
 		if (*p1 == ':' || *p1 == '=' || stspace == 0)
 		{
+			if (*tok == '*' || *tok == ';' || *tok == '#')
+				goto nextline;
 			// have a symbol here
 			sym = lw_strndup(tok, p1 - tok);
 			if (*p1 == ':')
@@ -254,6 +256,9 @@ void do_pass1(asmstate_t *as)
 				if (!strcasecmp(instab[opnum].opcode, sym))
 					break;
 			}
+			
+			if (instab[opnum].opcode == NULL && (*tok == '*' || *tok == ';' || *tok == '#'))
+				goto nextline;
 			
 			// p1 points to the start of the operand
 			
