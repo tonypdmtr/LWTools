@@ -160,6 +160,10 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	se -> context = context;
 	se -> version = version;
 	se -> flags = flags;
+	if (CURPRAGMA(cl, PRAGMA_NOLIST))
+	{
+		se -> flags |= symbol_flag_nolist;
+	}
 	se -> value = lw_expr_copy(val);
 	se -> symbol = lw_strdup(sym);
 	se -> section = cl -> csect;
@@ -273,6 +277,8 @@ void list_symbols(asmstate_t *as, FILE *of)
 	
 	for (s = as -> symtab.head; s; s = s -> next)
 	{
+		if (s -> flags & symbol_flag_nolist)
+			continue;
 		lwasm_reduce_expr(as, s -> value);
 		fputc('[', of);
 		if (s -> flags & symbol_flag_set)
