@@ -575,7 +575,10 @@ again:
 				E -> value2 = lw_strdup(te -> value2);
 			for (o = te -> operands; o; o = o -> next)
 			{
-				lw_expr_add_operand(E, lw_expr_copy(o -> p));
+				lw_expr_t xxx;
+				xxx = lw_expr_copy(o -> p);
+				lw_expr_add_operand(E, xxx);
+				lw_expr_destroy(xxx);
 			}
 			lw_expr_destroy(te);
 			goto again;
@@ -932,6 +935,7 @@ again:
 				lw_free(o);
 			}
 			*E = *r;
+			lw_free(r);
 			return;
 		}
 		else if (c == 0)
@@ -1003,6 +1007,7 @@ again:
 					{
 						t1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_times, E3, o -> p);
 						lw_expr_add_operand(E, t1);
+						lw_expr_destroy(t1);
 					}
 					
 					lw_expr_destroy(E2);
