@@ -363,7 +363,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				}
 				
 				l -> pb = pb;
-//				lw_expr_destroy(e2);
+				lw_expr_destroy(e2);
 //				lw_expr_destroy(e3);
 				return;
 			}
@@ -401,6 +401,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				}
 			
 				l -> pb = pb;
+				lw_expr_destroy(e2);
 				return;
 			}
 			else
@@ -417,10 +418,11 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 					pb = (l -> pb & 0x03) << 5 | (v & 0x1F);
 				}
 				l -> pb = pb;
+				lw_expr_destroy(e2);
 				return;
 			}
-			lw_expr_destroy(e2);
 		}
+		lw_expr_destroy(e2);
 	}
 		
 	if (lw_expr_istype(e, lw_expr_type_int))

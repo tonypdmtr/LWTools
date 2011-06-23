@@ -93,6 +93,7 @@ PARSEFUNC(insn_parse_rel16)
 	if (!t)
 	{
 		lwasm_register_error(as, l, "Bad operand");
+		lw_expr_destroy(t);
 		return;
 	}
 	l -> len = OPLEN(instab[l -> insn].ops[0]) + 2;
