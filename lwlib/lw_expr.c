@@ -90,7 +90,9 @@ lw_expr_t lw_expr_create(void)
 	
 	r = lw_alloc(sizeof(struct lw_expr_priv));
 	r -> operands = NULL;
-
+	r -> value2 = NULL;
+	r -> type = lw_expr_type_int;
+	r -> value = 0;
 	return r;
 }
 
