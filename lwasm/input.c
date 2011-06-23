@@ -136,7 +136,7 @@ void input_openstring(asmstate_t *as, char *s, char *str)
 	t -> data2 = 0;
 	t -> next = IS;
 	as -> input_data = t;
-	t -> filespec = lw_strdup(s);
+//	t -> filespec = lw_strdup(s);
 }
 
 void input_open(asmstate_t *as, char *s)

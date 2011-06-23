@@ -55,7 +55,7 @@ void do_pass1(asmstate_t *as)
 	line_t *cl;
 	char *p1;
 	int stspace;
-	char *tok, *sym;
+	char *tok, *sym = NULL;
 	int opnum;
 	int lc = 1;
 	int nomacro;
@@ -63,6 +63,8 @@ void do_pass1(asmstate_t *as)
 	for (;;)
 	{
 		nomacro = 0;
+		if (sym)
+			lw_free(sym);
 		sym = NULL;
 		line = input_readline(as);
 		if (!line)
@@ -247,6 +249,7 @@ void do_pass1(asmstate_t *as)
 		if (*tok)
 		{
 			// look up operation code
+			lw_free(sym);
 			sym = lw_strndup(tok, p1 - tok);
 			for (; *p1 && isspace(*p1); p1++)
 				/* do nothing */ ;
@@ -350,8 +353,6 @@ void do_pass1(asmstate_t *as)
 		}
 	
 	linedone:
-		lw_free(sym);
-		
 		if (!as -> skipcond && !as -> inmacro)
 		{
 			if (cl -> sym && cl -> symset == 0)
@@ -369,6 +370,10 @@ void do_pass1(asmstate_t *as)
 		}
 		
 	nextline:
+		if (sym)
+			lw_free(sym);
+		sym = NULL;
+		
 		lw_free(line);
 		
 		// if we've hit the "end" bit, finish out

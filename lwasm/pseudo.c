@@ -1207,6 +1207,7 @@ PARSEFUNC(pseudo_parse_include)
 	lw_free(p3);
 
 	l -> len = 0;
+	lw_free(fn);
 }
 
 PARSEFUNC(pseudo_parse_align)
