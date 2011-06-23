@@ -52,6 +52,7 @@ PARSEFUNC(insn_parse_rel8)
 	lw_expr_destroy(e1);
 	e1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, t, e2);
 	lw_expr_destroy(e2);
+	lw_expr_destroy(t);
 	lwasm_save_expr(l, 0, e1);
 }
 
@@ -101,6 +102,7 @@ PARSEFUNC(insn_parse_rel16)
 	lw_expr_destroy(e1);
 	e1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, t, e2);
 	lw_expr_destroy(e2);
+	lw_expr_destroy(t);
 	lwasm_save_expr(l, 0, e1);
 }
 
