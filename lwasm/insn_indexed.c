@@ -363,7 +363,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				}
 				
 				l -> pb = pb;
-				lw_expr_destroy(e2);
+//				lw_expr_destroy(e2);
 //				lw_expr_destroy(e3);
 				return;
 			}
@@ -419,6 +419,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				l -> pb = pb;
 				return;
 			}
+			lw_expr_destroy(e2);
 		}
 	}
 		
