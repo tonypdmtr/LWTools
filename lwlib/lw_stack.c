@@ -30,7 +30,7 @@ lw_stack_t lw_stack_create(void (*freefn)(void *d))
 {
 	lw_stack_t S;
 	
-	S = lw_alloc(sizeof(lw_stack_t));
+	S = lw_alloc(sizeof(struct lw_stack_priv));
 	S -> head = NULL;
 	S -> freefn = freefn;
 	return S;

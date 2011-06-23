@@ -24,7 +24,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 #ifdef ___lw_stack_c_seen___
-
 struct lw_stack_node_priv
 {
 	void *data;
@@ -38,6 +37,7 @@ struct lw_stack_priv
 };
 
 typedef struct lw_stack_priv * lw_stack_t;
+
 
 #else /* def ___lw_stack_c_seen___ */
 
