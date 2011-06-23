@@ -762,6 +762,7 @@ PARSEFUNC(pseudo_parse_equ)
 	register_symbol(as, l, l -> sym, e, symbol_flag_none);
 	l -> symset = 1;
 	l -> dptr = lookup_symbol(as, l, l -> sym);
+	lw_expr_destroy(e);
 }
 
 PARSEFUNC(pseudo_parse_set)
@@ -786,6 +787,7 @@ PARSEFUNC(pseudo_parse_set)
 	register_symbol(as, l, l -> sym, e, symbol_flag_set);
 	l -> symset = 1;
 	l -> dptr = lookup_symbol(as, l, l -> sym);
+	lw_expr_destroy(e);
 }
 
 PARSEFUNC(pseudo_parse_setdp)
@@ -812,9 +814,11 @@ PARSEFUNC(pseudo_parse_setdp)
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
 		lwasm_register_error(as, l, "SETDP must be constant on pass 1");
+		lw_expr_destroy(e);
 		return;
 	}
 	l -> dpval = lw_expr_intval(e) & 0xff;
+	lw_expr_destroy(e);
 	l -> dshow = l -> dpval;
 	l -> dsize = 1;
 }
