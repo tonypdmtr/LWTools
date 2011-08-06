@@ -355,7 +355,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			val = val * 10 + (**p - '0');
 			(*p)++;
 		}
-		return lw_expr_build(lw_expr_type_int, v * neg);
+		return lw_expr_build(lw_expr_type_int, val * neg);
 	}
 
 	if (**p == '%')
