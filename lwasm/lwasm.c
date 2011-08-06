@@ -338,7 +338,6 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 	if (**p == '&')
 	{
 		// decimal constant
-		int v = 0;
 		(*p)++;
 		
 		if (**p == '-')
