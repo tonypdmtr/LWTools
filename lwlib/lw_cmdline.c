@@ -395,7 +395,9 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 				break;
 		cch++;
 		tstr = argv[i] + cch;
-		if (!*tstr && (parser -> options[j].flags & lw_cmdline_opt_optional) == 0)
+		if (*tstr == 0)
+			tstr = NULL;
+		if (!tstr && (parser -> options[j].flags & lw_cmdline_opt_optional) == 0)
 		{
 			/* only consume the next arg if the argument is optional */
 			if (nextarg < argc)
@@ -429,6 +431,8 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 		}
 		lw_free(tstr);
 		tstr = argv[i] + cch;
+		if (*tstr == 0)
+			tstr = NULL;
 		cch = 0;
 		i++;
 		
@@ -450,8 +454,8 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 			if (tstr && cch && argv[i][cch] == 0)
 				nextarg++;
 			
-			if (!*tstr)
-				tstr = NULL;
+			//if (!*tstr)
+			//	tstr = NULL;
 			
 			/* move on to next argument if we have an arg specified */
 			if (tstr && cch && argv[i][cch] != 0)
