@@ -260,8 +260,10 @@ void do_pass1(asmstate_t *as)
 					break;
 			}
 			
+			// have to go to linedone here in case there was a symbol
+			// to register on this line
 			if (instab[opnum].opcode == NULL && (*tok == '*' || *tok == ';' || *tok == '#'))
-				goto nextline;
+				goto linedone;
 			
 			// p1 points to the start of the operand
 			
