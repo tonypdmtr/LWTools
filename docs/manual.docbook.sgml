@@ -1442,6 +1442,30 @@ for correct functioning of the code.
 </para>
 </listitem>
 </varlistentry>
+
+<varlistentry>
+<term>*PRAGMAPUSH <parameter>pragma[,...]</parameter></term>
+<listitem>
+<para>
+This directive saves the current state of the specified pragma(s) for later retrieval. See discussion below for more information.
+</para>
+
+<para>This directive will not throw any errors for any reason.</para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>*PRAGMAPOP <parameter>pragma[,...]</parameter></term>
+<listitem>
+<para>
+This directive restores the previously saved state of the specified pragma(s). See discussion below for more information.
+</para>
+
+<para>This directive will not throw any errors for any reason.</para>
+
+</listitem>
+</varlistentry>
 </variablelist>
 
 <para>Each pragma supported has a positive version and a negative version.
@@ -1568,7 +1592,38 @@ is of dubious utility, it is disabled by default.</para>
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term>nolist</term>
+<listitem>
+
+<para>Lines where this pragma is in effect will not appear in the assembly
+listing.  Also, any symbols defined under this pragma will not show up in
+the symbol list.  This is most useful in include files to avoid spamming the
+assembly listing with dozens, hundreds, or thousands of irrelevant
+symbols.</para>
+
+</listitem>
+</varlistentry>
+
 </variablelist>
+
+<para>As a convenience, each input file has a pragma state stack. This
+allows, through the use of *PRAGMAPUSH and *PRAGMAPOP, a file to change a
+pragma state and then restore it to the precise state it had previously. 
+If, at the end of an input file, all pragma states have not been popped,
+they will be removed from the stack.  Thus, it is critical to employ
+*PRAGMAPOP correctly. Because each input file has its own pragma stack,
+using *PRAGMAPUSH in one file and *PRAGMAPOP in another file will not
+work.</para>
+
+<para>Pragma stacks are more useful in include files, in particular in
+conjunction with the nolist pragma.  One can push the state of the nolist
+pragma, engage the nolist pragma, and then pop the state of the nolist
+pragma at the end of the include file.  This will cause the entire include
+file to operate under the nolist pragma.  However, if the file is included
+while nolist is already engaged, it will not undo that state.</para>
+
+
 
 </section>
 
