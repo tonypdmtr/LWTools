@@ -455,7 +455,10 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 			
 			/* move on to next argument if we have an arg specified */
 			if (tstr && cch && argv[i][cch] != 0)
+			{
 				i++;
+				cch = 0;
+			}
 			
 			if (!tstr && (parser -> options[j].flags & lw_cmdline_opt_optional) == 0)
 			{
