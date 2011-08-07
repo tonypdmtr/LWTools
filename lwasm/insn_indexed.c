@@ -340,7 +340,22 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 			v = lw_expr_intval(e2);
 			// we have a reducible expression here which depends on
 			// the size of this instruction
-			if (v < -128 || v > 127)
+			if (v == 0 && !CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) && (l -> pb & 0x07) <= 4)
+			{
+				if ((l -> pb & 0x07) < 4)
+				{
+					pb = 0x84 | ((l -> pb & 0x03) << 5) | ((l -> pb & 0x80) ? 0x10 : 0);
+				}
+				else
+				{
+					pb = (l -> pb & 0x80) ? 0x90 : 0x8F;
+				}
+				l -> pb = pb;
+				lw_expr_destroy(e2);
+				l -> lint = 0;
+				return;
+			}
+			else if (v < -128 || v > 127)
 			{
 				l -> lint = 2;
 				switch (l -> pb & 0x07)
@@ -429,7 +444,21 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 	{
 		// we know how big it is
 		v = lw_expr_intval(e);
-		if (v < -128 || v > 127)
+		if (v == 0 && !CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) && (l -> pb & 0x07) <= 4)
+		{
+			if ((l -> pb & 0x07) < 4)
+			{
+				pb = 0x84 | ((l -> pb & 0x03) << 5) | ((l -> pb & 0x80) ? 0x10 : 0);
+			}
+			else
+			{
+				pb = (l -> pb & 0x80) ? 0x90 : 0x8F;
+			}
+			l -> pb = pb;
+			l -> lint = 0;
+			return;
+		}
+		else if (v < -128 || v > 127)
 		{
 		do16bit:
 			l -> lint = 2;
