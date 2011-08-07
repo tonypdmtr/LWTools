@@ -337,11 +337,19 @@ nextfile:
 				if (lbloc == 0)
 				{
 					struct input_stack *t;
+					struct input_stack_node *n;
 					if (IS -> data)
 						fclose(IS -> data);
 					lw_free(lw_stack_pop(as -> file_dir));
 					lw_free(IS -> filespec);
 					t = IS -> next;
+					while (IS -> stack)
+					{
+						n = IS -> stack;
+						IS -> stack = n -> next;
+						lw_free(n -> entry);
+						lw_free(n);
+					}
 					lw_free(IS);
 					as -> input_data = t;
 					goto nextfile;
@@ -386,9 +394,17 @@ nextfile:
 		if (((char *)(IS -> data))[IS -> data2] == '\0')
 		{
 			struct input_stack *t;
+			struct input_stack_node *n;
 			lw_free(IS -> data);
 			lw_free(IS -> filespec);
 			t = IS -> next;
+			while (IS -> stack)
+			{
+				n = IS -> stack;
+				IS -> stack = n -> next;
+				lw_free(n -> entry);
+				lw_free(n);
+			}
 			lw_free(IS);
 			as -> input_data = t;
 			goto nextfile;
@@ -452,6 +468,7 @@ void input_stack_push(asmstate_t *as, input_stack_entry *e)
 	n = lw_alloc(sizeof(struct input_stack_node));	
 	n -> next = IS -> stack;
 	n -> entry = e;
+	IS -> stack = n;
 }
 
 input_stack_entry *input_stack_pop(asmstate_t *as, int magic, int (*fn)(input_stack_entry *e, void *data), void *data)

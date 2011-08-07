@@ -643,7 +643,7 @@ instab_t instab[] =
 	{ "pragma",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_pragma,	pseudo_resolve_pragma,			pseudo_emit_pragma,			lwasm_insn_normal},
 	{ "*pragma",	{	-1, 	-1, 	-1, 	-1},	pseudo_parse_starpragma,pseudo_resolve_starpragma,		pseudo_emit_starpragma,		lwasm_insn_normal},
 	{ "*pragmapush",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapush, pseudo_resolve_starpragmapush, pseudo_emit_starpragmapush,	lwasm_insn_normal},
-	{ "*pragmappop",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapop, pseudo_resolve_starpragmapop, pseudo_emit_starpragmapop,	lwasm_insn_normal},
+	{ "*pragmapop",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapop, pseudo_resolve_starpragmapop, pseudo_emit_starpragmapop,	lwasm_insn_normal},
 	
 	
 	// for os9 target

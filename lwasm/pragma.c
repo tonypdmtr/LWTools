@@ -137,7 +137,7 @@ static int pragma_stack_compare(input_stack_entry *e, void *d)
 {
 	int flag = *((int *)d);
 	struct pragma_stack_entry *pse = (struct pragma_stack_entry *)e;
-	
+
 	if (pse -> flag == flag)
 		return 1;
 	return 0;
@@ -172,6 +172,7 @@ PARSEFUNC(pseudo_parse_starpragmapop)
 				pse = (struct pragma_stack_entry *)input_stack_pop(as, 0x42424242, pragma_stack_compare, (void *)&(set_pragmas[i].flag));
 				if (pse)
 				{
+					debug_message(as, 100, "Popped pragma string %s", pse->str);
 					parse_pragma_string(as, (char *)&(pse->str), 1);
 					lw_free(pse);
 				}
@@ -227,6 +228,8 @@ PARSEFUNC(pseudo_parse_starpragmapush)
 				pse -> flag = set_pragmas[i].flag;
 				pse -> magic = 0x42424242;
 				strcpy((char *)&(pse -> str), t);
+				debug_message(as, 100, "Pushed pragma string %s", pse->str);
+
 				input_stack_push(as, (input_stack_entry *)pse);
 				
 				if (set_pragmas[i].flag == PRAGMA_NOLIST)
