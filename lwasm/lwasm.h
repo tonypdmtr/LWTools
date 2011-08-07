@@ -328,6 +328,6 @@ extern void dump_state(asmstate_t *as);
 
 
 #define OPLEN(op) (((op)>0xFF)?2:1)
-#define CURPRAGMA(l,p)	(((l)->pragmas & (p)) ? 1 : 0)
+#define CURPRAGMA(l,p)	(((l) && ((l)->pragmas & (p))) ? 1 : 0)
 
 #endif /* ___lwasm_h_seen___ */

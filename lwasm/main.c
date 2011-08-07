@@ -54,6 +54,7 @@ static struct lw_cmdline_options options[] =
 	{ "6809",		'9',	0,			0,							"Set assembler to 6809 only mode" },
 	{ "6309",		'3',	0,			0,							"Set assembler to 6309 mode (default)" },
 	{ "includedir",	'I',	"PATH",		0,							"Add entry to include path" },
+	{ "define", 'D', "SYM[=VAL]", 0, "Automatically define SYM to be VAL (or 1)"},
 	{ 0 }
 };
 
@@ -67,7 +68,28 @@ static int parse_opts(int key, char *arg, void *state)
 	case 'I':
 		lw_stringlist_addstring(as -> include_list, arg);
 		break;
-
+	
+	case 'D':
+	{
+		char *offs;
+		int val = 1;
+		lw_expr_t te;
+		
+		if ((offs = strchr(arg, '=')))
+		{
+			*offs = '\0';
+			val = strtol(offs + 1, NULL, 0);
+		}
+		
+		/* register global symbol */
+		te = lw_expr_build(lw_expr_type_int, val);
+		register_symbol(as, NULL, arg, te, symbol_flag_nocheck | symbol_flag_set);
+		lw_expr_destroy(te);
+		
+		if (offs)
+			*offs = '=';
+		break;
+	}
 	case 'o':
 		if (as -> output_file)
 			lw_free(as -> output_file);

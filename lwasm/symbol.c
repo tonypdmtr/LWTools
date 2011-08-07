@@ -166,7 +166,10 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	}
 	se -> value = lw_expr_copy(val);
 	se -> symbol = lw_strdup(sym);
-	se -> section = cl -> csect;
+	if (cl)
+		se -> section = cl -> csect;
+	else
+		se -> section = NULL;
 	sprev = symbol_findprev(as, se);
 	if (!sprev)
 	{
