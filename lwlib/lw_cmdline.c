@@ -395,8 +395,9 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 				break;
 		cch++;
 		tstr = argv[i] + cch;
-		if (!*tstr)
+		if (!*tstr && (parser -> options[j].flags & lw_cmdline_opt_optional) == 0)
 		{
+			/* only consume the next arg if the argument is optional */
 			if (nextarg < argc)
 				tstr = argv[nextarg];
 			else
@@ -438,7 +439,10 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 		/* this string or "nextarg" */
 		if (parser -> options[j].name == NULL)
 		{
-			fprintf(stderr, "Unknown option. See %s --usage.\n", argv[0]);
+			if (cch)
+				fprintf(stderr, "Unknown option '%c'. See %s --usage.\n", argv[i][cch - 1], argv[0]);
+			else
+				fprintf(stderr, "Unknown option '%s'. See %s --usage.\n", argv[i - 1], argv[0]);
 			exit(1);
 		}
 		if (parser -> options[j].arg)
@@ -448,6 +452,10 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 			
 			if (!*tstr)
 				tstr = NULL;
+			
+			/* move on to next argument if we have an arg specified */
+			if (tstr && cch && argv[i][cch] != 0)
+				i++;
 			
 			if (!tstr && (parser -> options[j].flags & lw_cmdline_opt_optional) == 0)
 			{
