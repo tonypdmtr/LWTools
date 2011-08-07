@@ -116,6 +116,8 @@ PARSEFUNC(pseudo_parse_mod)
 
 	// init crc
 	as -> inmod = 1;
+	
+	l -> len = 13;
 }
 
 EMITFUNC(pseudo_emit_mod)
@@ -175,6 +177,7 @@ PARSEFUNC(pseudo_parse_emod)
 	}
 	
 	as -> inmod = 0;
+	l -> len = 3;
 }
 
 EMITFUNC(pseudo_emit_emod)
