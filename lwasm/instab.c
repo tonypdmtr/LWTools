@@ -239,6 +239,14 @@ extern PARSEFUNC(pseudo_parse_starpragma);
 #define pseudo_resolve_starpragma NULL
 #define pseudo_emit_starpragma NULL
 
+extern PARSEFUNC(pseudo_parse_starpragmapush);
+#define pseudo_resolve_starpragmapush NULL
+#define pseudo_emit_starpragmapush NULL
+
+extern PARSEFUNC(pseudo_parse_starpragmapop);
+#define pseudo_resolve_starpragmapop NULL
+#define pseudo_emit_starpragmapop NULL
+
 extern PARSEFUNC(pseudo_parse_section);
 #define pseudo_resolve_section NULL
 #define pseudo_emit_section NULL
@@ -634,6 +642,9 @@ instab_t instab[] =
 
 	{ "pragma",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_pragma,	pseudo_resolve_pragma,			pseudo_emit_pragma,			lwasm_insn_normal},
 	{ "*pragma",	{	-1, 	-1, 	-1, 	-1},	pseudo_parse_starpragma,pseudo_resolve_starpragma,		pseudo_emit_starpragma,		lwasm_insn_normal},
+	{ "*pragmapush",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapush, pseudo_resolve_starpragmapush, pseudo_emit_starpragmapush,	lwasm_insn_normal},
+	{ "*pragmappop",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapop, pseudo_resolve_starpragmapop, pseudo_emit_starpragmapop,	lwasm_insn_normal},
+	
 	
 	// for os9 target
 	{ "os9",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_os9,		pseudo_resolve_os9,				pseudo_emit_os9,			lwasm_insn_normal},

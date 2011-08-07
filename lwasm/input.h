@@ -24,6 +24,14 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "lwasm.h"
 
+typedef struct
+{
+  int magic;
+} input_stack_entry;
+
+extern void input_stack_push(asmstate_t *as, input_stack_entry *se);
+extern input_stack_entry *input_stack_pop(asmstate_t *as, int magic, int (*fn)(input_stack_entry *e, void *data), void *data);
+
 extern void input_init(asmstate_t *as);
 extern void input_openstring(asmstate_t *as, char *s, char *str);
 extern void input_open(asmstate_t *as, char *s);

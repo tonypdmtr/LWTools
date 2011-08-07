@@ -27,37 +27,34 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "lwasm.h"
 #include "instab.h"
+#include "input.h"
 
 struct pragma_list
 {
-	const char *str;
+	const char *setstr;
+	const char *resetstr;
 	int flag;
+};
+
+struct pragma_stack_entry
+{
+	int magic;	// must always be at the start of any input stack entry
+	int flag;	// the pragma flag bit
+	char str[1];	// magic number - this will be allocated bigger
+			// string will be what's needed to re-instate a pragma
 };
 
 static const struct pragma_list set_pragmas[] =
 {
-	{ "dollarnotlocal", PRAGMA_DOLLARNOTLOCAL },
-	{ "noindex0tonone", PRAGMA_NOINDEX0TONONE },
-	{ "undefextern", PRAGMA_UNDEFEXTERN },
-	{ "cescapes", PRAGMA_CESCAPES },
-	{ "importundefexport", PRAGMA_IMPORTUNDEFEXPORT },
-	{ "pcaspcr", PRAGMA_PCASPCR },
-	{ "shadow", PRAGMA_SHADOW },
-	{ "nolist", PRAGMA_NOLIST },
-	{ 0, 0 }
-};
-
-static const struct pragma_list reset_pragmas[] =
-{
-	{ "nodollarnotlocal", PRAGMA_DOLLARNOTLOCAL },
-	{ "index0tonone", PRAGMA_NOINDEX0TONONE },
-	{ "noundefextern", PRAGMA_UNDEFEXTERN },
-	{ "nocescapes", PRAGMA_CESCAPES },
-	{ "noimportundefexport", PRAGMA_IMPORTUNDEFEXPORT },
-	{ "nopcaspcr", PRAGMA_PCASPCR },
-	{ "noshadow", PRAGMA_SHADOW },
-	{ "list", PRAGMA_NOLIST },
-	{ 0, 0 }
+	{ "dollarnotlocal", "nodollarnotlocal", PRAGMA_DOLLARNOTLOCAL },
+	{ "noindex0tonone", "index0tonone", PRAGMA_NOINDEX0TONONE },
+	{ "undefextern", "noundefextern", PRAGMA_UNDEFEXTERN },
+	{ "cescapes", "nocescapes", PRAGMA_CESCAPES },
+	{ "importundefexport", "noimportundefexport", PRAGMA_IMPORTUNDEFEXPORT },
+	{ "pcaspcr", "nopcaspcr", PRAGMA_PCASPCR },
+	{ "shadow", "noshadow", PRAGMA_SHADOW },
+	{ "nolist", "list", PRAGMA_NOLIST },
+	{ 0, 0, 0}
 };
 
 int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
@@ -70,19 +67,16 @@ int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
 	while (np)
 	{
 		p = lw_token(np, ',', &np);
-		for (i = 0; set_pragmas[i].str; i++)
+		for (i = 0; set_pragmas[i].setstr; i++)
 		{
-			if (!strcasecmp(p, set_pragmas[i].str))
+			if (!strcasecmp(p, set_pragmas[i].setstr))
 			{
 				pragmas |= set_pragmas[i].flag;
 				goto out;
 			}
-		}
-		for (i = 0; reset_pragmas[i].str; i++)
-		{
-			if (!strcasecmp(p, reset_pragmas[i].str))
+			if (!strcasecmp(p, set_pragmas[i].resetstr))
 			{
-				pragmas &= ~(reset_pragmas[i].flag);
+				pragmas &= ~(set_pragmas[i].flag);
 				goto out;
 			}
 		}
@@ -138,3 +132,110 @@ PARSEFUNC(pseudo_parse_starpragma)
 		l -> pragmas |= PRAGMA_NOLIST;
 	lw_free(ps);
 }
+
+static int pragma_stack_compare(input_stack_entry *e, void *d)
+{
+	int flag = *((int *)d);
+	struct pragma_stack_entry *pse = (struct pragma_stack_entry *)e;
+	
+	if (pse -> flag == flag)
+		return 1;
+	return 0;
+}
+
+PARSEFUNC(pseudo_parse_starpragmapop)
+{
+	char *ps, *t;
+	char *pp;
+	int i;
+	const char *np;
+	struct pragma_stack_entry *pse;
+	
+	for (t = *p; *t && !isspace(*t); t++)
+		/* do nothing */ ;
+	
+	ps = lw_strndup(*p, t - *p);
+	*p = t;
+	
+	l -> len = 0;
+	
+	// *pragma stuff must never throw an error
+	np = ps;
+
+	while (np)
+	{
+		pp = lw_token(np, ',', &np);
+		for (i = 0; set_pragmas[i].setstr; i++)
+		{
+			if (!strcasecmp(pp, set_pragmas[i].setstr) || !strcasecmp(pp, set_pragmas[i].resetstr))
+			{
+				pse = (struct pragma_stack_entry *)input_stack_pop(as, 0x42424242, pragma_stack_compare, (void *)&(set_pragmas[i].flag));
+				if (pse)
+				{
+					parse_pragma_string(as, (char *)&(pse->str), 1);
+					lw_free(pse);
+				}
+				if (set_pragmas[i].flag == PRAGMA_NOLIST)
+					l -> pragmas |= PRAGMA_NOLIST;
+			}
+		}
+		lw_free(pp);
+	}
+
+	lw_free(ps);
+}
+
+PARSEFUNC(pseudo_parse_starpragmapush)
+{
+	char *ps, *t;
+	char *pp;
+	int i;
+	const char *np;
+	struct pragma_stack_entry *pse;
+	
+	for (t = *p; *t && !isspace(*t); t++)
+		/* do nothing */ ;
+	
+	ps = lw_strndup(*p, t - *p);
+	*p = t;
+	
+	l -> len = 0;
+	
+	// *pragma stuff must never throw an error
+	np = ps;
+
+	while (np)
+	{
+		pp = lw_token(np, ',', &np);
+		for (i = 0; set_pragmas[i].setstr; i++)
+		{
+			if (!strcasecmp(pp, set_pragmas[i].setstr) || !strcasecmp(pp, set_pragmas[i].resetstr))
+			{
+				/* found set or reset pragma */
+				/* push pragma state */
+				if (as -> pragmas & (set_pragmas[i].flag))
+				{
+					/* use set string */
+					t = (char *)set_pragmas[i].setstr;
+				}
+				else
+				{
+					/* use reset string */
+					t = (char *)set_pragmas[i].resetstr;
+				}
+				pse = lw_alloc(sizeof(struct pragma_stack_entry) + strlen(t));
+				pse -> flag = set_pragmas[i].flag;
+				pse -> magic = 0x42424242;
+				strcpy((char *)&(pse -> str), t);
+				input_stack_push(as, (input_stack_entry *)pse);
+				
+				if (set_pragmas[i].flag == PRAGMA_NOLIST)
+					l -> pragmas |= PRAGMA_NOLIST;
+			}
+		}
+		lw_free(pp);
+	}
+
+	lw_free(ps);
+}
+

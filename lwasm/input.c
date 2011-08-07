@@ -35,6 +35,7 @@ less difficult.
 #include <lw_error.h>
 
 #include "lwasm.h"
+#include "input.h"
 
 /*
 Data type for storing input buffers
@@ -51,6 +52,12 @@ enum input_types_e
 	input_type_error			// invalid input type
 };
 
+struct input_stack_node
+{
+	input_stack_entry *entry;
+	struct input_stack_node *next;
+};
+
 struct input_stack
 {
 	struct input_stack *next;
@@ -58,6 +65,7 @@ struct input_stack
 	void *data;
 	int data2;
 	char *filespec;
+	struct input_stack_node *stack;
 };
 
 static char *make_filename(char *p, char *f)
@@ -135,6 +143,7 @@ void input_openstring(asmstate_t *as, char *s, char *str)
 	t -> data = lw_strdup(str);
 	t -> data2 = 0;
 	t -> next = IS;
+	t -> stack = NULL;
 	as -> input_data = t;
 //	t -> filespec = lw_strdup(s);
 }
@@ -170,6 +179,7 @@ void input_open(asmstate_t *as, char *s)
 		lw_free(ts);
 	}
 	t -> next = as -> input_data;
+	t -> stack = NULL;
 	as -> input_data = t;
 	
 	switch (IS -> type)
@@ -432,5 +442,41 @@ char *input_curspec(asmstate_t *as)
 {
 	if (IS)
 		return IS -> filespec;
+	return NULL;
+}
+
+void input_stack_push(asmstate_t *as, input_stack_entry *e)
+{
+	struct input_stack_node *n;
+
+	n = lw_alloc(sizeof(struct input_stack_node));	
+	n -> next = IS -> stack;
+	n -> entry = e;
+}
+
+input_stack_entry *input_stack_pop(asmstate_t *as, int magic, int (*fn)(input_stack_entry *e, void *data), void *data)
+{
+	struct input_stack_node *n, *n2;
+	input_stack_entry *e2;
+	
+	n2 = NULL;
+	for (n = IS -> stack; n; n = n -> next)
+	{
+		if (n -> entry -> magic == magic)
+		{
+			if ((*fn)(n -> entry, data))
+			{
+				/* we have a match */
+				e2 = n -> entry;
+				if (n2)
+					n2 -> next = n -> next;
+				else
+					IS -> stack = n -> next;
+				lw_free(n);
+				return e2;
+			}
+		}
+		n2 = n;
+	}
 	return NULL;
 }
