@@ -36,7 +36,7 @@ Do listing
 void do_list(asmstate_t *as)
 {
 	line_t *cl, *nl, *nl2;
-	FILE *of;
+	FILE *of = NULL;
 	int i;
 	unsigned char *obytes = NULL;
 	int obytelen = 0;
@@ -45,9 +45,16 @@ void do_list(asmstate_t *as)
 		
 	if (!(as -> flags & FLAG_LIST))
 		return;
-
+		
 	if (as -> list_file)
-		of = fopen(as -> list_file, "w");
+	{
+		if (strcmp(as -> list_file, "-") == 0)
+		{
+			of = stdout;
+		}
+		else
+			of = fopen(as -> list_file, "w");
+	}
 	else
 		of = stdout;
 	if (!of)
@@ -55,6 +62,7 @@ void do_list(asmstate_t *as)
 		fprintf(stderr, "Cannot open list file; list not generated\n");
 		return;
 	}
+	
 	for (cl = as -> line_head; cl; cl = nl)
 	{
 		nl = cl -> next;
@@ -211,7 +219,6 @@ void do_list(asmstate_t *as)
 		lw_free(obytes);
 		obytes = NULL;
 	}
-	
 	if (as -> flags & FLAG_SYMBOLS)
 		list_symbols(as, of);
 }

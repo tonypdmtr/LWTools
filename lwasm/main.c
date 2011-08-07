@@ -62,7 +62,7 @@ static struct lw_cmdline_options options[] =
 static int parse_opts(int key, char *arg, void *state)
 {
 	asmstate_t *as = state;
-	
+
 	switch (key)
 	{
 	case 'I':
@@ -107,7 +107,7 @@ static int parse_opts(int key, char *arg, void *state)
 		if (as -> list_file)
 			lw_free(as -> list_file);
 		if (!arg)
-			as -> list_file = NULL;
+			as -> list_file = lw_strdup("-");
 		else
 			as -> list_file = lw_strdup(arg);
 		as -> flags |= FLAG_LIST;
