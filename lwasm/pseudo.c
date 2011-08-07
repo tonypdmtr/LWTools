@@ -1231,6 +1231,7 @@ PARSEFUNC(pseudo_parse_align)
 	
 	if (**p == ',')
 	{
+		(*p)++;
 		e = lwasm_parse_expr(as, p);
 	}
 	else
