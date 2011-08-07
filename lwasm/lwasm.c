@@ -337,6 +337,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 	
 	if (**p == '&')
 	{
+		val = 0;
 		// decimal constant
 		(*p)++;
 		
@@ -359,6 +360,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 
 	if (**p == '%')
 	{
+		val = 0;
 		// binary constant
 		(*p)++;
 
