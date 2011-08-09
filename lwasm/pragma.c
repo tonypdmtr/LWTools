@@ -54,6 +54,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "pcaspcr", "nopcaspcr", PRAGMA_PCASPCR },
 	{ "shadow", "noshadow", PRAGMA_SHADOW },
 	{ "nolist", "list", PRAGMA_NOLIST },
+	{ "autobranchlength", "noautobranchlength", PRAGMA_AUTOBRANCHLENGTH },
 	{ 0, 0, 0}
 };
 
