@@ -1605,6 +1605,37 @@ symbols.</para>
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term>autobranchlength</term>
+<listitem>
+
+<para>One of the perennial annoyances for 6809 programmers is that the
+mneumonics for the short and long branch instructions are different (bxx vs. 
+lbxx), which is at odds with the rest of the instruction set.  This pragma
+is a solution to those annoying byte overflow errors that short branch
+instructions tend to aquire.</para>
+
+<para>When this pragma is in effect, which is not the default, whenever any
+relative branch instruction is used, its size will be automatically
+determined based on the actual distance to the destination.  In other words,
+one can write code with long or short branches everywhere and the assembler
+will choose a size for the branch.</para>
+
+<para>Also, while this pragma is in effect, the > and < symbols can be used
+to force the branch size, analogous to their use for other instructions with
+< forcing 8 bit offsets and > forcing 16 bit offets.</para>
+
+<para>Because this pragma leads to source that is incompatible with other
+assemblers, it is strongly recommended that it be invoked using the PRAGMA
+directive within the source code rather than on the command line or via the
+*PRAGMA directive.  This way, an error will be raised if someone tries to
+* assemble the code under a different assembler.</para>
+
+
+
+</listitem>
+</varlistentry>
+
 </variablelist>
 
 <para>As a convenience, each input file has a pragma state stack. This
