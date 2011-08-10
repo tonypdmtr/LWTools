@@ -22,98 +22,205 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 for handling relative mode instructions
 */
 
+#include <ctype.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <lw_expr.h>
 
 #include "lwasm.h"
 #include "instab.h"
 
-PARSEFUNC(insn_parse_rel8)
-{
-//	int v;
-	lw_expr_t t, e1, e2;
-//	int r;
+/*
+For generic relative, the first "opcode" is the natural opcode for the
+mneumonic. The second "opcode" is the natural size of the relative offset.
+These will be used when pragma autobranchlength is NOT in effect.
 
+The third "opcode" is the short (8 bit) version of the branch. The final one
+is the long (16 bit) version of the branch. These will be used when pragma
+autobranchlength is in effect.
+
+When autobranchlength is in effect, the branch target can be prefixed with
+either < or > to force a short or long branch. Note that in this mode,
+a > or < on its own still specifies a branch point.
+
+*/
+PARSEFUNC(insn_parse_relgen)
+{
+	lw_expr_t t, e1, e2;
+	
+	l -> lint = -1;
+	if (CURPRAGMA(l, PRAGMA_AUTOBRANCHLENGTH) == 0)
+	{
+		l -> lint = instab[l -> insn].ops[1];
+	}
+	else
+	{
+		if (**p == '>' && (((*p)[1]) && !isspace((*p)[1])))
+		{
+			(*p)++;
+			l -> lint = 16;
+		}
+		else if (**p == '<' && (((*p)[1]) && !isspace((*p)[1])))
+		{
+			(*p)++;
+			l -> lint = 8;
+		}
+	}
+	
+	/* forced sizes handled */
+	
 	// sometimes there is a "#", ignore if there
 	if (**p == '#')
 		(*p)++;
 
 	t = lwasm_parse_expr(as, p);
+
 	if (!t)
 	{
 		lwasm_register_error(as, l, "Bad operand");
 		return;
 	}
-	l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
-	
-	e1 = lw_expr_build(lw_expr_type_special, lwasm_expr_linelen, l);
-	e2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, e1, l -> addr);
-	lw_expr_destroy(e1);
+
+	// if we know the length of the instruction, set it now
+	if (l -> lint == 8)
+	{
+		l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+	}
+	else if (l -> lint == 16)
+	{
+		l -> len = OPLEN(instab[l -> insn].ops[3]) + 1;
+	}
+
+	// the offset calculation here depends on the length of this line!
+	// how to calculate requirements?
+	// this is the same problem faced by ,pcr indexing
+	e2 = lw_expr_build(lw_expr_type_special, lwasm_expr_linelen, l);
 	e1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, t, e2);
 	lw_expr_destroy(e2);
+	e2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, e1, l -> addr);
+	lw_expr_destroy(e1);
+	lwasm_save_expr(l, 0, e2);
 	lw_expr_destroy(t);
-	lwasm_save_expr(l, 0, e1);
+
+	if (l -> len == -1)
+	{
+		e1 = lw_expr_copy(e2);
+		l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+		lwasm_reduce_expr(as, e1);
+		l -> len = -1;
+		if (lw_expr_istype(e1, lw_expr_type_int))
+		{
+			int v;
+			v = lw_expr_intval(e1);
+			if (v >= -128 && v <= 127)
+			{
+				l -> lint = 8;
+				l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+			}
+			else
+			{
+				l -> lint = 16;
+				l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
+			}
+		}
+		lw_expr_destroy(e1);
+	}
 }
 
-EMITFUNC(insn_emit_rel8)
+RESOLVEFUNC(insn_resolve_relgen)
+{
+	lw_expr_t e, e2;
+	int offs;
+	
+	if (l -> lint == -1)
+	{
+		e = lwasm_fetch_expr(l, 0);
+		if (!lw_expr_istype(e, lw_expr_type_int))
+		{
+			// temporarily set the instruction length to see if we get a
+			// constant for our expression; if so, we can select an instruction
+			// size
+			e2 = lw_expr_copy(e);
+			// size of 8-bit opcode + 8 bit offset
+			l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+			lwasm_reduce_expr(as, e2);
+			l -> len = -1;
+			if (lw_expr_istype(e2, lw_expr_type_int))
+			{
+				// it reduced to an integer; is it in 8 bit range?
+				offs = lw_expr_intval(e2);
+				if (offs >= -128 && offs <= 127)
+				{
+					// fits in 8 bits
+					l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+					l -> lint = 8;
+				}
+				else
+				{
+					// requires 16 bits
+					l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
+					l -> lint = 16;
+				}
+			}
+			lw_expr_destroy(e2);
+		}
+		if (lw_expr_istype(e, lw_expr_type_int))
+		{
+			// it reduced to an integer; is it in 8 bit range?
+			offs = lw_expr_intval(e);
+			if (offs >= -128 && offs <= 127)
+			{
+				// fits in 8 bits
+				l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+				l -> lint = 8;
+			}
+			else
+			{
+				// requires 16 bits
+				l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
+				l -> lint = 16;
+			}
+		}
+	}
+	if (!force)
+		return;
+		
+	if (l -> len == -1)
+	{
+		l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
+		l -> lint = 16;
+	}
+}
+
+EMITFUNC(insn_emit_relgen)
 {
 	lw_expr_t e;
 	int offs;
 	
 	e = lwasm_fetch_expr(l, 0);
-	if (!lw_expr_istype(e, lw_expr_type_int))
+	if (l -> lint == 8)
 	{
-		lwasm_register_error(as, l, "Illegal non-constant expression");
-		return;
-	}
+		if (!lw_expr_istype(e, lw_expr_type_int))
+		{
+			lwasm_register_error(as, l, "Illegal non-constant expression");
+			return;
+		}
 	
-	offs = lw_expr_intval(e);
-	if (offs < -128 || offs > 127)
+		offs = lw_expr_intval(e);
+		if (l -> lint == 8 && (offs < -128 || offs > 127))
+		{
+			lwasm_register_error(as, l, "Byte overflow");
+			return;
+		}
+	
+
+		lwasm_emitop(l, instab[l -> insn].ops[2]);
+		lwasm_emit(l, offs);
+	}
+	else
 	{
-		lwasm_register_error(as, l, "Byte overflow");
-		return;
+		lwasm_emitop(l, instab[l -> insn].ops[3]);
+		lwasm_emitexpr(l, e, 2);
 	}
-	
-	lwasm_emitop(l, instab[l -> insn].ops[0]);
-	lwasm_emit(l, offs);
-}
-
-PARSEFUNC(insn_parse_rel16)
-{
-//	int v;
-	lw_expr_t t, e1, e2;
-//	int r;
-
-	// sometimes there is a "#", ignore if there
-	if (**p == '#')
-		(*p)++;
-
-	t = lwasm_parse_expr(as, p);
-	if (!t)
-	{
-		lwasm_register_error(as, l, "Bad operand");
-		lw_expr_destroy(t);
-		return;
-	}
-	l -> len = OPLEN(instab[l -> insn].ops[0]) + 2;
-	
-	e1 = lw_expr_build(lw_expr_type_special, lwasm_expr_linelen, l);
-	e2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, e1, l -> addr);
-	lw_expr_destroy(e1);
-	e1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, t, e2);
-	lw_expr_destroy(e2);
-	lw_expr_destroy(t);
-	lwasm_save_expr(l, 0, e1);
-}
-
-EMITFUNC(insn_emit_rel16)
-{
-	lw_expr_t e;
-//	int offs;
-	
-	e = lwasm_fetch_expr(l, 0);
-	
-	lwasm_emitop(l, instab[l -> insn].ops[0]);
-	lwasm_emitexpr(l, e, 2);
 }
