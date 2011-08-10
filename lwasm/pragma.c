@@ -47,6 +47,7 @@ struct pragma_stack_entry
 static const struct pragma_list set_pragmas[] =
 {
 	{ "dollarnotlocal", "nodollarnotlocal", PRAGMA_DOLLARNOTLOCAL },
+	{ "nodollarlocal", "dollarlocal", PRAGMA_DOLLARNOTLOCAL },
 	{ "noindex0tonone", "index0tonone", PRAGMA_NOINDEX0TONONE },
 	{ "undefextern", "noundefextern", PRAGMA_UNDEFEXTERN },
 	{ "cescapes", "nocescapes", PRAGMA_CESCAPES },
