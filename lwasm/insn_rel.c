@@ -89,7 +89,7 @@ PARSEFUNC(insn_parse_relgen)
 	}
 	else if (l -> lint == 16)
 	{
-		l -> len = OPLEN(instab[l -> insn].ops[3]) + 1;
+		l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
 	}
 
 	// the offset calculation here depends on the length of this line!
