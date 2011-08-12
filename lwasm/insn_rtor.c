@@ -34,7 +34,7 @@ PARSEFUNC(insn_parse_rtor)
 	// D,X,Y,U,S,PC,W,V
 	// A,B,CC,DP,0,0,E,F
 
-	r0 = lwasm_lookupreg2((as -> target == TARGET_6309) ? regs9 : regs, p);
+	r0 = lwasm_lookupreg2((as -> target == TARGET_6309) ? regs : regs9, p);
 	if (r0 < 0 || *(*p)++ != ',')
 	{
 		lwasm_register_error(as, l, "Bad operand");
@@ -42,7 +42,7 @@ PARSEFUNC(insn_parse_rtor)
 	}
 	else
 	{
-		r1 = lwasm_lookupreg2((as -> target = TARGET_6309) ? regs9 : regs, p);
+		r1 = lwasm_lookupreg2((as -> target == TARGET_6309) ? regs : regs9, p);
 		if (r1 < 0)
 		{
 			lwasm_register_error(as, l, "Bad operand");
