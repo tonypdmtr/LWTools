@@ -1086,15 +1086,17 @@ again:
 	
 	lw_free(sym);
 	
-	if (!s && **p != '|')
+	if (!s)
 	{
+		if (**p == '|')
+		{
+			(*p)++;
+			goto again;
+		}
 		as -> skipcond = 1;
 		as -> skipcount = 1;
-		skip_operand(p);
-		return;
 	}
-	(*p)++;
-	goto again;
+	skip_operand(p);
 }
 
 PARSEFUNC(pseudo_parse_ifndef)
