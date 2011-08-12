@@ -1181,6 +1181,7 @@ lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec)
 		
 		{ lw_expr_oper_bwand, "&", 50 },
 		{ lw_expr_oper_bwor, "|", 50 },
+		{ lw_expr_oper_bwor, "!", 50 },
 		{ lw_expr_oper_bwxor, "^", 50 },
 		
 		{ lw_expr_oper_none, "", 0 }
