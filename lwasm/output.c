@@ -146,8 +146,8 @@ void write_code_os9(asmstate_t *as, FILE *of)
 	
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
-		if (cl -> inmod == 0)
-			continue;
+//		if (cl -> inmod == 0)
+//			continue;
 		if (cl -> len > 0 && cl -> outputl == 0)
 		{
 			int i;
