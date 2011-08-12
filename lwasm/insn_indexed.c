@@ -190,7 +190,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		(*p)++;
 	}
 
-	if (**p == '0' && *(*p+1) == ',')
+	if (**p == '0' && *((*p)+1) == ',')
 	{
 		f0 = 1;
 	}
@@ -228,6 +228,20 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		}
 		else
 			(*p)++;
+	}
+
+	if (rn <= 3)
+	{
+		// X,Y,U,S
+		if (l -> lint == 1)
+		{
+			l -> pb = 0x88 | (rn << 5) | (indir ? 0x10 : 0);
+		}
+		else if (l -> lint == 2)
+		{
+			l -> pb = 0x89 | (rn << 5) | (indir ? 0x10 : 0);
+		}
+		return;
 	}
 
 	// nnnn,W is only 16 bit (or 0 bit)
