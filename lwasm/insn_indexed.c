@@ -161,6 +161,9 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	// if no "," and indirect, do extended indir
 	if (!rn && indir)
 	{
+		// eat the extended addressing indicator if present
+		if (**p == '>')
+			(*p)++;
 		// extended indir
 		l -> pb = 0x9f;
 		e = lwasm_parse_expr(as, p);
