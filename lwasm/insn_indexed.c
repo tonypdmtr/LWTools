@@ -236,12 +236,13 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		if (l -> lint == 1)
 		{
 			l -> pb = 0x88 | (rn << 5) | (indir ? 0x10 : 0);
+			return;
 		}
 		else if (l -> lint == 2)
 		{
 			l -> pb = 0x89 | (rn << 5) | (indir ? 0x10 : 0);
+			return;
 		}
-		return;
 	}
 
 	// nnnn,W is only 16 bit (or 0 bit)
@@ -337,7 +338,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 	
 	if (l -> len != -1)
 		return;
-	
+
 	e = lwasm_fetch_expr(l, 0);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
@@ -438,7 +439,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 			}
 			else
 			{
-				// we have X,Y,U,S and a possible 16 bit here
+				// we have X,Y,U,S and a possible 5 bit here
 				l -> lint = 0;
 				
 				if (v == 0 && !(CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) || l -> pb & 0x40))
@@ -447,7 +448,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				}	
 				else
 				{
-					pb = (l -> pb & 0x03) << 5 | (v & 0x1F);
+					pb = ((l -> pb & 0x03) << 5) | (v & 0x1F);
 				}
 				l -> pb = pb;
 				lw_expr_destroy(e2);
@@ -539,7 +540,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 		}
 		else
 		{
-			// we have X,Y,U,S and a possible 16 bit here
+			// we have X,Y,U,S and a possible 5 bit here
 			l -> lint = 0;
 			
 			if (v == 0 && !(CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) || l -> pb & 0x40))
@@ -548,7 +549,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 			}
 			else
 			{
-				pb = (l -> pb & 0x03) << 5 | (v & 0x1F);
+				pb = ((l -> pb & 0x03) << 5) | (v & 0x1F);
 			}
 			l -> pb = pb;
 			return;
