@@ -23,6 +23,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <lw_alloc.h>
 
@@ -33,6 +34,49 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include "lw_string.h"
 
 extern void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab_t *ss);
+
+// for "dts"
+PARSEFUNC(pseudo_parse_dts)
+{
+	skip_operand(p);
+}
+
+EMITFUNC(pseudo_emit_dts)
+{
+	time_t tp;
+	char *t;
+	
+	tp = time(NULL);
+	t = ctime(&tp);
+
+	while (*t)
+	{
+		lwasm_emit(l, *t);
+		t++;
+	}
+}
+
+// for "dtb"
+PARSEFUNC(pseudo_parse_dtb)
+{
+	skip_operand(p);
+}
+
+EMITFUNC(pseudo_emit_dtb)
+{
+	time_t tp;
+	struct tm *t;
+	
+	tp = time(NULL);
+	t = localtime(&tp);
+
+	lwasm_emit(l, t -> tm_year);
+	lwasm_emit(l, t -> tm_mon + 1);
+	lwasm_emit(l, t -> tm_mday);
+	lwasm_emit(l, t -> tm_hour);
+	lwasm_emit(l, t -> tm_min);
+	lwasm_emit(l, t -> tm_sec);
+}
 
 // for "end"
 PARSEFUNC(pseudo_parse_end)
@@ -1031,7 +1075,8 @@ PARSEFUNC(pseudo_parse_ifdef)
 		return;
 	}
 
-	for (i = 0; (*p)[i] && !isspace((*p)[i]); i++)
+again:
+	for (i = 0; (*p)[i] && !isspace((*p)[i]) && (*p)[i] != '|' && (*p)[i] != '&'; i++)
 		/* do nothing */ ;
 	
 	sym = lw_strndup(*p, i);
@@ -1041,11 +1086,15 @@ PARSEFUNC(pseudo_parse_ifdef)
 	
 	lw_free(sym);
 	
-	if (!s)
+	if (!s && **p != '|')
 	{
 		as -> skipcond = 1;
 		as -> skipcount = 1;
+		skip_operand(p);
+		return;
 	}
+	(*p)++;
+	goto again;
 }
 
 PARSEFUNC(pseudo_parse_ifndef)
@@ -1062,8 +1111,7 @@ PARSEFUNC(pseudo_parse_ifndef)
 		skip_operand(p);
 		return;
 	}
-
-	for (i = 0; (*p)[i] && !isspace((*p)[i]); i++)
+	for (i = 0; (*p)[i] && !isspace((*p)[i]) && (*p)[i] != '&' && (*p)[i] != '|'; i++)
 		/* do nothing */ ;
 	
 	sym = lw_strndup(*p, i);
@@ -1077,6 +1125,7 @@ PARSEFUNC(pseudo_parse_ifndef)
 	{
 		as -> skipcond = 1;
 		as -> skipcount = 1;
+		return;
 	}
 }
 

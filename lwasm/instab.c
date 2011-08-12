@@ -116,6 +116,14 @@ extern PARSEFUNC(pseudo_parse_endm);
 #define pseudo_resolve_noop NULL
 #define pseudo_emit_noop NULL
 
+extern PARSEFUNC(pseudo_parse_dts);
+#define pseudo_resolve_dts NULL
+extern EMITFUNC(pseudo_emit_dts);
+
+extern PARSEFUNC(pseudo_parse_dtb);
+#define pseudo_resolve_dtb NULL
+extern EMITFUNC(pseudo_emit_dtb);
+
 extern PARSEFUNC(pseudo_parse_end);
 #define pseudo_resolve_end NULL
 extern EMITFUNC(pseudo_emit_end);
@@ -687,6 +695,10 @@ instab_t instab[] =
 
 	// for compatibility
 	{ ".end", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_end,		pseudo_resolve_end,				pseudo_emit_end,			lwasm_insn_normal},
+
+	// date and time stamps
+	{ "dts",		{	-1,		-1,		-1,		-1 },	pseudo_parse_dts,		pseudo_resolve_dts,				pseudo_emit_dts,			lwasm_insn_normal},
+	{ "dtb",		{	-1,		-1,		-1,		-1 },	pseudo_parse_dtb,		pseudo_resolve_dtb,				pseudo_emit_dtb,			lwasm_insn_normal},
 
 	// extra ops that are ignored because they are generally only for
 	// pretty printing the listing
