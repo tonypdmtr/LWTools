@@ -106,7 +106,7 @@ PARSEFUNC(insn_parse_tfm)
 		return;
 	}
 	l -> pb = (r0 << 4) | r1;
-	l -> len = OPLEN(l -> lint);
+	l -> len = OPLEN(l -> lint) + 1;
 }
 
 EMITFUNC(insn_emit_tfm)
