@@ -38,14 +38,12 @@ extern void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab
 // for "dts"
 PARSEFUNC(pseudo_parse_dts)
 {
-	skip_operand(p);
-}
-
-EMITFUNC(pseudo_emit_dts)
-{
 	time_t tp;
 	char *t;
 	
+	skip_operand(p);
+	l -> len = 0;
+
 	tp = time(NULL);
 	t = ctime(&tp);
 
@@ -53,13 +51,19 @@ EMITFUNC(pseudo_emit_dts)
 	{
 		lwasm_emit(l, *t);
 		t++;
+		l -> len += 1;
 	}
+}
+
+EMITFUNC(pseudo_emit_dts)
+{
 }
 
 // for "dtb"
 PARSEFUNC(pseudo_parse_dtb)
 {
 	skip_operand(p);
+	l -> len = 6;
 }
 
 EMITFUNC(pseudo_emit_dtb)
