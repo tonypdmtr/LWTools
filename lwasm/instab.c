@@ -545,7 +545,7 @@ instab_t instab[] =
 	{ "sube",		{	0x1190,	0x11a0,	0x11b0,	0x1180},insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_is6309},
 	{ "subf",		{	0x11d0,	0x11e0,	0x11f0,	0x11c0},insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_is6309},
 	{ "subr",		{	0x1032,	-1,		-1,		-1	},	insn_parse_rtor,		insn_resolve_rtor,				insn_emit_rtor,				lwasm_insn_is6309},
-	{ "subw",		{	0x1090,	0x10a0,	0x1090,	0x1080},insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_is6309},
+	{ "subw",		{	0x1090,	0x10a0,	0x1090,	0x1080},insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6309},
 	{ "swi",		{	0x3f,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "swi2",		{	0x103f,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "swi3",		{	0x113f,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
