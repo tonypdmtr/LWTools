@@ -35,7 +35,7 @@ extern void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p);
 extern void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen);
 
 // "extra" is required due to the way OIM, EIM, TIM, and AIM work
-void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p)
+void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 {
 	const char *optr2;
 	int v1, tv;
@@ -115,15 +115,15 @@ out:
 	{
 		if (l -> lint2 == 0)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + 1 + elen;
 		}
 		else if (l -> lint2 == 2)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[2]) + 2;
+			l -> len = OPLEN(instab[l -> insn].ops[2]) + 2 + elen;
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
+			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
 		}
 	}
 }
@@ -168,15 +168,15 @@ out:
 	{
 		if (l -> lint2 == 0)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + 1 + elen;
 		}
 		else if (l -> lint2 == 2)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[2]) + 2;
+			l -> len = OPLEN(instab[l -> insn].ops[2]) + 2 + elen;
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
+			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
 		}
 	}
 }
@@ -215,7 +215,7 @@ PARSEFUNC(insn_parse_gen0)
 	}
 	
 	// handle non-immediate
-	insn_parse_gen_aux(as, l, p);
+	insn_parse_gen_aux(as, l, p, 0);
 }
 
 RESOLVEFUNC(insn_resolve_gen0)
@@ -252,7 +252,7 @@ PARSEFUNC(insn_parse_gen8)
 	}
 	
 	// handle non-immediate
-	insn_parse_gen_aux(as, l, p);
+	insn_parse_gen_aux(as, l, p, 0);
 	if (l -> lint2 != -1)
 	{
 		if (l -> lint2 == 0)
@@ -313,7 +313,7 @@ PARSEFUNC(insn_parse_gen16)
 	}
 	
 	// handle non-immediate
-	insn_parse_gen_aux(as, l, p);
+	insn_parse_gen_aux(as, l, p, 0);
 	if (l -> lint2 != -1)
 	{
 		if (l -> lint2 == 0)
@@ -374,7 +374,7 @@ PARSEFUNC(insn_parse_gen32)
 	}
 	
 	// handle non-immediate
-	insn_parse_gen_aux(as, l, p);
+	insn_parse_gen_aux(as, l, p, 0);
 	if (l -> lint2 != -1)
 	{
 		if (l -> lint2 == 0)

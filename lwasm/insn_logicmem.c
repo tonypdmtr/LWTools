@@ -29,7 +29,7 @@ Contains code for handling logic/mem instructions
 #include "lwasm.h"
 #include "instab.h"
 
-extern void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **optr);
+extern void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **optr, int elen);
 extern void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen);
 extern void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra);
 
@@ -59,7 +59,7 @@ PARSEFUNC(insn_parse_logicmem)
 	(*p)++;
 
 	// now we have a general addressing mode - call for it
-	insn_parse_gen_aux(as, l, p);
+	insn_parse_gen_aux(as, l, p, 1);
 }
 
 RESOLVEFUNC(insn_resolve_logicmem)
@@ -83,11 +83,12 @@ EMITFUNC(insn_emit_logicmem)
 	}
 	
 	v = lw_expr_intval(e);
-	if (v < -128 || v > 255)
+/*	if (v < -128 || v > 255)
 	{
+		fprintf(stderr, "BYTE: %d\n", v);
 		lwasm_register_error(as, l, "Byte overflow");
 		return;
 	}
-	
-	insn_emit_gen_aux(as, l, v);
+*/	
+	insn_emit_gen_aux(as, l, v & 0xff);
 }
