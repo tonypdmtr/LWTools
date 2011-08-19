@@ -256,7 +256,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 
 		if (l -> lint == 2)
 		{
-			l -> pb = indir ? 0xb0 : 0xcf;
+			l -> pb = indir ? 0xb0 : 0xaf;
 			l -> lint = 2;
 			return;
 		}
@@ -386,7 +386,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 					break;
 			
 				case 4: // W
-					pb = (l -> pb & 0x80) ? 0xD0 : 0xCF;
+					pb = (l -> pb & 0x80) ? 0xB0 : 0xAF;
 					break;
 				
 				case 5: // PCR
@@ -422,7 +422,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 					}
 					else
 					{
-						pb = (l -> pb & 0x80) ? 0xD0 : 0xCF;
+						pb = (l -> pb & 0x80) ? 0xB0 : 0xAF;
 						l -> lint = 2;
 					}
 					break;
@@ -490,7 +490,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				break;
 			
 			case 4: // W
-				pb = (l -> pb & 0x80) ? 0xD0 : 0xCF;
+				pb = (l -> pb & 0x80) ? 0xB0 : 0xAF;
 				break;
 				
 			case 5: // PCR
@@ -524,7 +524,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				}
 				else
 				{
-					pb = (l -> pb & 0x80) ? 0xD0 : 0xCF;
+					pb = (l -> pb & 0x80) ? 0xB0 : 0xAF;
 					l -> lint = 2;
 				}
 				break;
