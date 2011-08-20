@@ -114,12 +114,25 @@ there is no benefit to restricting the inclusion to the first assembly pass.
 
 <para>
 
-It is also critical to understand that unlike many OS9 assemblers, LWASM
-does NOT maintain a separate data address counter.  Thus, you must define
-all your data offsets and so on outside of the mod/emod segment.  It is,
-therefore, likely that source code targeted at other assemblers will require
-edits to build correctly.
+As of version 4.5, LWASM also implements the standard data/code address
+streams for OS9 modules.  That means that between MOD and EMOD, any RMB,
+RMD, RMQ, or equivalent directives will move the data address ahead and
+leave the code address unmodified.  Outside of an actual module, both the
+code and data addresses are moved ahead equally.  That last bit is critical
+to understand because it means any directives that follow an EMOD directive
+may have different results than other assemblers.
 
+</para>
+<para>
+
+Additionally, within a module body, the ORG directive sets only the data
+address, not the code address. However, outside a module body, ORG sets both
+addresses.
+
+</para>
+
+<para>
+Both code and data addresses are reset to 0 by the MOD directive.
 </para>
 
 <para>
