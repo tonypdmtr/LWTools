@@ -71,12 +71,14 @@ PARSEFUNC(pseudo_parse_mod)
 	if (as -> output_format != OUTPUT_OS9)
 	{
 		lwasm_register_error(as, l,  "mod directive only valid for OS9 target");
+		skip_operand(p);
 		return;
 	}
 	
 	if (as -> inmod)
 	{
 		lwasm_register_error(as, l,  "Already in a module!");
+		skip_operand(p);
 		return;
 	}
 
@@ -168,6 +170,7 @@ EMITFUNC(pseudo_emit_mod)
 
 PARSEFUNC(pseudo_parse_emod)
 {
+	skip_operand(p);
 	if (as -> output_format != OUTPUT_OS9)
 	{
 		lwasm_register_error(as, l, "emod directive only valid for OS9 target");
