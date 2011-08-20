@@ -415,8 +415,8 @@ instab_t instab[] =
 	{ "dece",		{	0x114a,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "decf",		{	0x115a,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "decw",		{	0x105a,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
-	{ "divd",		{	0x118d,	0x119d,	0x11ad,	0x11bd},insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_is6309},
-	{ "divq",		{	0x118e,	0x119e,	0x11ae,	0x11be},insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6309},
+	{ "divd",		{	0x119d,	0x11ad,	0x11bd,	0x118d},insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_is6309},
+	{ "divq",		{	0x119e,	0x11ae,	0x11be,	0x118e},insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6309},
 
 	{ "eim",		{	0x05,	0x65,	0x75,	-1	},	insn_parse_logicmem,	insn_resolve_logicmem,			insn_emit_logicmem,			lwasm_insn_is6309},
 	{ "eora",		{	0x98,	0xa8,	0xb8,	0x88},	insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_normal},
