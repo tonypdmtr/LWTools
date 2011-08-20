@@ -44,8 +44,9 @@ void dump_state(asmstate_t *as)
 	
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
-		debug_message(as, 100, "%p INSN %d (%s) LEN %d PRAGMA %x", cl, cl -> insn, (cl -> insn >= 0) ? instab[cl -> insn].opcode : "<none>", cl -> len, cl -> pragmas);
+		debug_message(as, 100, "%p INSN %d (%s) LEN %d DLEN %d PRAGMA %x", cl, cl -> insn, (cl -> insn >= 0) ? instab[cl -> insn].opcode : "<none>", cl -> len, cl -> dlen, cl -> pragmas);
 		debug_message(as, 100, "    ADDR: %s", lw_expr_print(cl -> addr));
+		debug_message(as, 100, "    DADDR: %s", lw_expr_print(cl -> daddr));
 		debug_message(as, 100, "    PB: %02X; LINT: %X; LINT2: %X", cl -> pb, cl -> lint, cl -> lint2);
 		for (le = cl -> exprs; le; le = le -> next)
 		{

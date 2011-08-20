@@ -110,11 +110,11 @@ void do_list(asmstate_t *as)
 				memmove(obytes, cl -> output, cl -> outputl);
 			}
 		}
-		if (cl -> len < 1 && obytelen < 1)
+		if ((cl -> len < 1 && cl -> dlen < 1) && obytelen < 1)
 		{
 			if (cl -> soff >= 0)
 			{
-				fprintf(of, "%04X                  ", cl -> soff & 0xffff);
+				fprintf(of, "%04Xs                 ", cl -> soff & 0xffff);
 			}
 			else if (cl -> dshow >= 0)
 			{
@@ -153,13 +153,16 @@ void do_list(asmstate_t *as)
 		else
 		{
 			lw_expr_t te;
-			te = lw_expr_copy(cl -> addr);
+			if (instab[cl -> insn].flags & lwasm_insn_setdata)
+				te = lw_expr_copy(cl -> daddr);
+			else
+				te = lw_expr_copy(cl -> addr);
 			as -> exportcheck = 1;
 			as -> csect = cl -> csect;
 			lwasm_reduce_expr(as, te);
 			as -> exportcheck = 0;
 //			fprintf(of, "%s\n", lw_expr_print(te));
-			fprintf(of, "%04X ", lw_expr_intval(te) & 0xffff);
+			fprintf(of, "%04X%c", lw_expr_intval(te) & 0xffff, ((cl -> inmod || (cl -> dlen != cl -> len)) && instab[cl -> insn].flags & lwasm_insn_setdata) ? '.' : ' ');
 			lw_expr_destroy(te);
 			for (i = 0; i < obytelen && i < 8; i++)
 			{

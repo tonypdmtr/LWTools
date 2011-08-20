@@ -104,7 +104,16 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 				return lw_expr_build(lw_expr_type_int, 0);
 			return NULL;
 		}
-			
+
+	case lwasm_expr_linedlen:
+		{
+			line_t *cl = ptr;
+			if (cl -> dlen == -1)
+				return NULL;
+			return lw_expr_build(lw_expr_type_int, cl -> dlen);
+		}
+		break;
+					
 	case lwasm_expr_linelen:
 		{
 			line_t *cl = ptr;
@@ -114,6 +123,12 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 		}
 		break;
 		
+	case lwasm_expr_linedaddr:
+		{
+			line_t *cl = ptr;
+			return lw_expr_copy(cl -> daddr);
+		}
+	
 	case lwasm_expr_lineaddr:
 		{
 			line_t *cl = ptr;
@@ -284,14 +299,19 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 	if (!**p)
 		return NULL;
 	
-	if (**p == '*' || (
-			**p == '.'
+	if (**p == '.'
 			&& !((*p)[1] >= 'A' && (*p)[1] <= 'Z')
 			&& !((*p)[1] >= 'a' && (*p)[1] <= 'z')
 			&& !((*p)[1] >= '0' && (*p)[1] <= '9')
-		))
+		)
 	{
-		// special "symbol" for current line addr (*, .)
+		(*p)++;
+		return lw_expr_build(lw_expr_type_special, lwasm_expr_linedaddr, as -> cl);
+	}
+	
+	if (**p == '*')
+	{
+		// special "symbol" for current line addr (*)
 		(*p)++;
 		return lw_expr_build(lw_expr_type_special, lwasm_expr_lineaddr, as -> cl);
 	}

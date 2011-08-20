@@ -77,6 +77,9 @@ void do_pass5(asmstate_t *as)
 		lwasm_reduce_expr(as, cl -> addr);
 		if (!exprok(as, cl -> addr))
 			cnt++;
+		lwasm_reduce_expr(as, cl -> daddr);
+		if (!exprok(as, cl -> daddr))
+			cnt++;
 	}
 
 	sl = as -> line_head;
@@ -85,7 +88,7 @@ void do_pass5(asmstate_t *as)
 		ocnt = cnt;
 		
 		// find an unresolved address
-		for ( ; sl && exprok(as, sl -> addr); sl = sl -> next)
+		for ( ; sl && exprok(as, sl -> addr) && exprok(as, sl -> daddr); sl = sl -> next)
 			/* do nothing */ ;
 
 		// simplify address
@@ -96,7 +99,13 @@ void do_pass5(asmstate_t *as)
 		
 			if (exprok(as, cl -> addr))
 			{
-				if (0 == --cnt);
+				if (0 == --cnt)
+					return;
+			}
+			lwasm_reduce_expr(as, sl -> daddr);
+			if (exprok(as, cl -> addr))
+			{
+				if (0 == --cnt)
 					return;
 			}
 		}
@@ -113,6 +122,10 @@ void do_pass5(asmstate_t *as)
 			if (!exprok(as, cl -> addr))
 			{
 				lwasm_register_error(as, cl, "Cannot resolve line address");
+			}
+			if (!exprok(as, cl -> daddr))
+			{
+				lwasm_register_error(as, cl, "Cannot resolve line data address");
 			}
 		}
 	}

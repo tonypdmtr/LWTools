@@ -494,7 +494,14 @@ PARSEFUNC(pseudo_parse_rmb)
 			l -> symset = 1;
 		}
 	}
-	
+	else
+	{
+		if (l -> inmod)
+		{
+			l -> dlen = -1;
+			l -> len = 0;
+		}
+	}
 	lwasm_save_expr(l, 0, expr);
 }
 
@@ -505,14 +512,25 @@ RESOLVEFUNC(pseudo_resolve_rmb)
 	if (l -> lint)
 		return;
 	
-	if (l -> len >= 0)
-		return;
-	
+	if (l -> inmod)
+	{
+		if (l -> dlen >= 0)
+			return;
+	}
+	else
+	{
+		if (l -> len >= 0)
+			return;
+	}
+			
 	expr = lwasm_fetch_expr(l, 0);
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
-		l -> len = lw_expr_intval(expr);
+		if (l -> inmod)
+			l -> dlen = lw_expr_intval(expr);
+		else
+			l -> len = lw_expr_intval(expr);
 	}
 }
 
@@ -521,7 +539,7 @@ EMITFUNC(pseudo_emit_rmb)
 	if (l -> lint)
 		return;
 
-	if (l -> len < 0)
+	if (l -> len < 0 || l -> dlen < 0)
 		lwasm_register_error(as, l, "Expression not constant");
 }
 
@@ -553,6 +571,14 @@ PARSEFUNC(pseudo_parse_rmd)
 			l -> lint = 1;
 		}
 	}
+	else
+	{
+		if (l -> inmod)
+		{
+			l -> dlen = -1;
+			l -> len = 0;
+		}
+	}
 	lwasm_save_expr(l, 0, expr);
 }
 
@@ -563,14 +589,25 @@ RESOLVEFUNC(pseudo_resolve_rmd)
 	if (l -> lint)
 		return;
 	
-	if (l -> len >= 0)
-		return;
+	if (l -> inmod)
+	{
+		if (l -> dlen >= 0)
+			return;
+	}
+	else
+	{
+		if (l -> len >= 0)
+			return;
+	}
 	
 	expr = lwasm_fetch_expr(l, 0);
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
-		l -> len = lw_expr_intval(expr) * 2;
+		if (l -> inmod)
+			l -> dlen = lw_expr_intval(expr) * 2;
+		else
+			l -> len = lw_expr_intval(expr) * 2;
 	}
 }
 
@@ -579,7 +616,7 @@ EMITFUNC(pseudo_emit_rmd)
 	if (l -> lint)
 		return;
 
-	if (l -> len < 0)
+	if (l -> len < 0 || l -> dlen < 0)
 		lwasm_register_error(as, l, "Expression not constant");
 }
 
@@ -611,7 +648,14 @@ PARSEFUNC(pseudo_parse_rmq)
 			l -> lint = 1;
 		}
 	}
-	
+	else
+	{
+		if (as -> inmod)
+		{
+			l -> dlen = -1;
+			l -> len = 0;
+		}
+	}
 	lwasm_save_expr(l, 0, expr);
 }
 
@@ -622,14 +666,25 @@ RESOLVEFUNC(pseudo_resolve_rmq)
 	if (l -> lint)
 		return;
 	
-	if (l -> len >= 0)
-		return;
+	if (l -> inmod)
+	{
+		if (l -> dlen >= 0)
+			return;
+	}
+	else
+	{
+		if (l -> len >= 0)
+			return;
+	}
 	
 	expr = lwasm_fetch_expr(l, 0);
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
-		l -> len = lw_expr_intval(expr) * 4;
+		if (l -> inmod)
+			l -> dlen = lw_expr_intval(expr) * 4;
+		else 
+			l -> len = lw_expr_intval(expr) * 4;
 	}
 }
 
@@ -638,7 +693,7 @@ EMITFUNC(pseudo_emit_rmq)
 	if (l -> lint)
 		return;
 
-	if (l -> len < 0)
+	if (l -> len < 0 || l -> dlen < 0)
 		lwasm_register_error(as, l, "Expression not constant");
 }
 
@@ -783,8 +838,14 @@ PARSEFUNC(pseudo_parse_org)
 		return;
 	}
 	
-	lw_expr_destroy(l -> addr);
-	l -> addr = e;
+	lw_expr_destroy(l -> daddr);
+	l -> daddr = e;
+	
+	if (l -> inmod == 0)
+	{
+		lw_expr_destroy(l -> addr);
+		l -> addr = e;
+	}
 	l -> len = 0;
 }
 

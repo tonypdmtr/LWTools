@@ -56,7 +56,8 @@ void do_pass4_aux(asmstate_t *as, int force)
 		{
 			as -> cl = sl;
 			lwasm_reduce_expr(as, sl -> addr);
-		
+			lwasm_reduce_expr(as, sl -> daddr);
+	
 			// simplify each expression
 			for (le = sl -> exprs; le; le = le -> next)
 				lwasm_reduce_expr(as, le -> expr);
@@ -65,7 +66,8 @@ void do_pass4_aux(asmstate_t *as, int force)
 		// simplify address
 		as -> cl = sl;
 		lwasm_reduce_expr(as, sl -> addr);
-		
+		lwasm_reduce_expr(as, sl -> daddr);
+			
 		// simplify each expression
 		for (le = sl -> exprs; le; le = le -> next)
 			lwasm_reduce_expr(as, le -> expr);
@@ -93,7 +95,7 @@ void do_pass4_aux(asmstate_t *as, int force)
 			
 				// simplify address
 				lwasm_reduce_expr(as, cl -> addr);
-		
+				lwasm_reduce_expr(as, cl -> daddr);
 				// simplify each expression
 				for (le = cl -> exprs; le; le = le -> next)
 					lwasm_reduce_expr(as, le -> expr);
@@ -105,7 +107,14 @@ void do_pass4_aux(asmstate_t *as, int force)
 					if (cl -> insn >= 0 && instab[cl -> insn].resolve)
 					{
 						(instab[cl -> insn].resolve)(as, cl, 0);
-						if (cl -> len != -1)
+						if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
+						{
+							if (cl -> len == 0)
+								cl -> len = cl -> dlen;
+							else
+								cl -> dlen = cl -> len;
+						}
+						if (cl -> len != -1 && cl -> dlen != -1)
 						{
 							rc++;
 							cnt--;

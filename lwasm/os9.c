@@ -114,6 +114,10 @@ PARSEFUNC(pseudo_parse_mod)
 	lw_expr_destroy(l -> addr);
 	l -> addr = lw_expr_build(lw_expr_type_int, 0);
 
+	// likewise for data pointer
+	lw_expr_destroy(l -> daddr);
+	l -> daddr = lw_expr_build(lw_expr_type_int, 0);
+
 	// init crc
 	as -> inmod = 1;
 	

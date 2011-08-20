@@ -43,6 +43,7 @@ enum
 	lwasm_insn_setsym = 4,		/* insn sets symbol address */
 	lwasm_insn_is6309 = 8,		/* insn is 6309 only */
 	lwasm_insn_struct = 16,		/* insn allowed in a struct */
+	lwasm_insn_setdata = 32,	/* insn uses the data address for symbols */
 	lwasm_insn_normal = 0
 };
 

@@ -118,11 +118,13 @@ void do_pass1(asmstate_t *as)
 		cl -> dsize = 0;
 		cl -> dptr = NULL;
 		cl -> isbrpt = 0;
+		cl -> dlen = 0;
 		as -> cl = cl;
 		if (!as -> line_tail)
 		{
 			as -> line_head = cl;
 			cl -> addr = lw_expr_build(lw_expr_type_int, 0);
+			cl -> daddr = lw_expr_build(lw_expr_type_int, 0);
 		}
 		else
 		{
@@ -137,6 +139,12 @@ void do_pass1(asmstate_t *as)
 			lw_expr_destroy(te);
 			lwasm_reduce_expr(as, cl -> addr);
 //			lw_expr_simplify(cl -> addr, as);
+
+			// set the data address if relevant
+			te = lw_expr_build(lw_expr_type_special, lwasm_expr_linedlen, cl -> prev);
+			cl -> daddr = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, cl -> prev -> daddr, te);
+			lw_expr_destroy(te);
+			lwasm_reduce_expr(as, cl -> daddr);
 
 			// carry DP value forward
 			cl -> dpval = cl -> prev -> dpval;
@@ -321,7 +329,15 @@ void do_pass1(asmstate_t *as)
 
 						cl -> len = -1;
 						// call parse function
+					debug_message(as, 100, "len = %d, dlen = %d", cl -> len, cl -> dlen);
 						(instab[opnum].parse)(as, cl, &p1);
+						if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
+						{
+							if (cl -> len == 0)
+								cl -> len = cl -> dlen;
+							else
+								cl -> dlen = cl -> len;
+						}
 					
 						if (*p1 && !isspace(*p1))
 						{
@@ -343,6 +359,13 @@ void do_pass1(asmstate_t *as)
 						if (cl -> insn >= 0 && instab[cl -> insn].resolve)
 						{
 							(instab[cl -> insn].resolve)(as, cl, 0);
+							if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
+							{
+								if (cl -> len == 0)
+									cl -> len = cl -> dlen;
+								else
+									cl -> dlen = cl -> len;
+							}
 						}
 
 					}
@@ -362,10 +385,21 @@ void do_pass1(asmstate_t *as)
 				debug_message(as, 50, "Register symbol %s: %s", cl -> sym, lw_expr_print(cl -> addr));
 	
 				// register symbol at line address
-				if (!register_symbol(as, cl, cl -> sym, cl -> addr, symbol_flag_none))
+				if (instab[cl -> insn].flags & lwasm_insn_setdata)
 				{
-					// symbol error
-					// lwasm_register_error(as, cl, "Bad symbol '%s'", cl -> sym);
+					if (!register_symbol(as, cl, cl -> sym, cl -> daddr, symbol_flag_none))
+					{
+						// symbol error
+						// lwasm_register_error(as, cl, "Bad symbol '%s'", cl -> sym);
+					}
+				}
+				else
+				{
+					if (!register_symbol(as, cl, cl -> sym, cl -> addr, symbol_flag_none))
+					{
+						// symbol error
+						// lwasm_register_error(as, cl, "Bad symbol '%s'", cl -> sym);
+					}
 				}
 			}
 			debug_message(as, 40, "Line address: %s", lw_expr_print(cl -> addr));

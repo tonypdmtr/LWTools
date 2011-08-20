@@ -590,10 +590,10 @@ instab_t instab[] =
 	{ "export",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_export,	pseudo_resolve_export,			pseudo_emit_export,			lwasm_insn_setsym},
 	{ "extdep",		{	-1,		-1,		-1,		-1 },	pseudo_parse_extdep,	pseudo_resolve_extdep,			pseudo_emit_extdep,			lwasm_insn_setsym},
 
-	{ "rmb", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmb,		pseudo_resolve_rmb,				pseudo_emit_rmb,			lwasm_insn_struct},
-	{ "rmd", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmd,		pseudo_resolve_rmd,				pseudo_emit_rmd,			lwasm_insn_struct},
-	{ "rmw", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmd,		pseudo_resolve_rmd,				pseudo_emit_rmd,			lwasm_insn_struct},
-	{ "rmq", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmq,		pseudo_resolve_rmq,				pseudo_emit_rmq,			lwasm_insn_struct},
+	{ "rmb", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmb,		pseudo_resolve_rmb,				pseudo_emit_rmb,			lwasm_insn_struct | lwasm_insn_setdata},
+	{ "rmd", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmd,		pseudo_resolve_rmd,				pseudo_emit_rmd,			lwasm_insn_struct | lwasm_insn_setdata},
+	{ "rmw", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmd,		pseudo_resolve_rmd,				pseudo_emit_rmd,			lwasm_insn_struct | lwasm_insn_setdata},
+	{ "rmq", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmq,		pseudo_resolve_rmq,				pseudo_emit_rmq,			lwasm_insn_struct | lwasm_insn_setdata},
 
 	{ "zmb", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmb,		pseudo_resolve_zmb,				pseudo_emit_zmb,			lwasm_insn_normal},
 	{ "zmd", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmd,		pseudo_resolve_zmd,				pseudo_emit_zmd,			lwasm_insn_normal},
@@ -689,9 +689,9 @@ instab_t instab[] =
 	{ ".asciz",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fcn,		pseudo_resolve_fcn,				pseudo_emit_fcn,			lwasm_insn_normal},
 	{ ".strz",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fcn,		pseudo_resolve_fcn,				pseudo_emit_fcn,			lwasm_insn_normal},
 
-	{ ".blkb",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_rmb,		pseudo_resolve_rmb,				pseudo_emit_rmb,			lwasm_insn_struct},
-	{ ".ds",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_rmb,		pseudo_resolve_rmb,				pseudo_emit_rmb,			lwasm_insn_struct},
-	{ ".rs",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_rmb,		pseudo_resolve_rmb,				pseudo_emit_rmb,			lwasm_insn_struct},
+	{ ".blkb",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_rmb,		pseudo_resolve_rmb,				pseudo_emit_rmb,			lwasm_insn_struct | lwasm_insn_setdata},
+	{ ".ds",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_rmb,		pseudo_resolve_rmb,				pseudo_emit_rmb,			lwasm_insn_struct | lwasm_insn_setdata},
+	{ ".rs",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_rmb,		pseudo_resolve_rmb,				pseudo_emit_rmb,			lwasm_insn_struct | lwasm_insn_setdata},
 
 	// for compatibility
 	{ ".end", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_end,		pseudo_resolve_end,				pseudo_emit_end,			lwasm_insn_normal},

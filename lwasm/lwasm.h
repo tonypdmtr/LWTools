@@ -42,7 +42,9 @@ enum
 	lwasm_expr_prevbp = 4,			// previous branch point
 	lwasm_expr_syment = 5,			// symbol table entry
 	lwasm_expr_import = 6,			// symbol import entry
-	lwasm_expr_secbase = 7			// section base address
+	lwasm_expr_secbase = 7,			// section base address
+	lwasm_expr_linedaddr = 8,		// data address of the line
+	lwasm_expr_linedlen = 9			// data length of the line
 };
 
 enum lwasm_output_e
@@ -147,7 +149,9 @@ struct importlist_s
 struct line_s
 {
 	lw_expr_t addr;						// assembly address of the line
+	lw_expr_t daddr;					// data address of the line (os9 only)
 	int len;							// the "size" this line occupies (address space wise) (-1 if unknown)
+	int dlen;							// the data "size" this line occupies (-1 if unknown)
 	int insn;							// number of insn in insn table
 	int symset;							// set if the line symbol was consumed by the instruction
 	char *sym;							// symbol, if any, on the line

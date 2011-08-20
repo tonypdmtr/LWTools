@@ -86,6 +86,9 @@ void do_pass2(asmstate_t *as)
 		
 		// simplify address
 		lwasm_reduce_expr(as, cl -> addr);
+
+		// simplify data address
+		lwasm_reduce_expr(as, cl -> daddr);
 		
 		// simplify each expression
 		for (le = cl -> exprs; le; le = le -> next)

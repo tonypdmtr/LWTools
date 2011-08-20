@@ -51,18 +51,29 @@ void do_pass3(asmstate_t *as)
 			// simplify address
 			lwasm_reduce_expr(as, cl -> addr);
 		
+			// simplify data address
+			lwasm_reduce_expr(as, cl -> daddr);
+
 			// simplify each expression
 			for (le = cl -> exprs; le; le = le -> next)
 				lwasm_reduce_expr(as, le -> expr);
 			
-			if (cl -> len == -1)
+			if (cl -> len == -1 || cl -> dlen == -1)
 			{
 				// try resolving the instruction length
 				// but don't force resolution
 				if (cl -> insn >= 0 && instab[cl -> insn].resolve)
 				{
 					(instab[cl -> insn].resolve)(as, cl, 0);
-					if (cl -> len != -1)
+					debug_message(as, 100, "len = %d, dlen = %d", cl -> len, cl -> dlen);
+					if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
+					{
+						if (cl -> len == 0)
+							cl -> len = cl -> dlen;
+						else
+							cl -> dlen = cl -> len;
+					}
+					if (cl -> len != -1 && cl -> dlen != -1)
 						rc++;
 				}
 			}
