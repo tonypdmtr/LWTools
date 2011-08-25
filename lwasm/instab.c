@@ -629,6 +629,7 @@ instab_t instab[] =
 	{ "iflt",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_iflt,		pseudo_resolve_iflt,			pseudo_emit_iflt,			lwasm_insn_cond},
 	{ "ifle",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_ifle,		pseudo_resolve_ifle,			pseudo_emit_ifle,			lwasm_insn_cond},
 	{ "endc",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_endc,		pseudo_resolve_endc,			pseudo_emit_endc,			lwasm_insn_cond},
+	{ "endif",      {	-1,		-1,		-1,		-1},	pseudo_parse_endc,		pseudo_resolve_endc,			pseudo_emit_endc,			lwasm_insn_cond},
 	{ "else",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_else,		pseudo_resolve_else,			pseudo_emit_else,			lwasm_insn_cond},
 	{ "ifdef",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_ifdef,		pseudo_resolve_ifdef,			pseudo_emit_ifdef,			lwasm_insn_cond},
 	{ "ifndef",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_ifndef,	pseudo_resolve_ifndef,			pseudo_emit_ifndef,			lwasm_insn_cond},
