@@ -1097,6 +1097,7 @@ PARSEFUNC(pseudo_parse_ifle)
 PARSEFUNC(pseudo_parse_endc)
 {
 	l -> len = 0;
+	skip_operand(p);
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount--;
