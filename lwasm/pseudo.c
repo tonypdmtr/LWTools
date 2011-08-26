@@ -138,7 +138,7 @@ PARSEFUNC(pseudo_parse_fcb)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad expression (#%s)", i);
+			lwasm_register_error(as, l, "Bad expression (#%d)", i);
 			break;
 		}
 		lwasm_save_expr(l, i++, e);
@@ -208,7 +208,7 @@ PARSEFUNC(pseudo_parse_fqb)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad expression (#%s)", i);
+			lwasm_register_error(as, l, "Bad expression (#%d)", i);
 			break;
 		}
 		lwasm_save_expr(l, i++, e);

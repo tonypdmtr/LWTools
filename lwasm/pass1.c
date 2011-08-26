@@ -339,7 +339,7 @@ void do_pass1(asmstate_t *as)
 								cl -> dlen = cl -> len;
 						}
 					
-						if (*p1 && !isspace(*p1))
+						if (*p1 && !isspace(*p1) && !(cl -> err))
 						{
 							// flag bad operand error
 							lwasm_register_error(as, cl, "Bad operand (%s)", p1);
