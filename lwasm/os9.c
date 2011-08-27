@@ -36,7 +36,7 @@ PARSEFUNC(pseudo_parse_os9)
 {
 	lw_expr_t e;
 	
-	if (as -> output_format != OUTPUT_OS9)
+	if (as -> output_format != OUTPUT_OS9 && as -> output_format != OUTPUT_OBJ)
 	{
 		lwasm_register_error(as, l, "os9 directive only valid for OS9 target");
 		return;
