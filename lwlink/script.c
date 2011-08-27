@@ -33,13 +33,15 @@ Read and parse linker scripts
 #include "lwlink.h"
 
 // the built-in OS9 script
+// the 000D bit is to handle the module header!
 static char *os9_script =
-	"section code load 0000\n"
+	"section code load 000D\n"
 	"section .text\n"
 	"section data\n"
 	"section .data\n"
 	"section bss,bss load 0000\n"
 	"section .bss,bss\n"
+	"entry __start\n"
 	;
 
 // the built-in DECB target linker script

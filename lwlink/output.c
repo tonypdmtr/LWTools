@@ -244,6 +244,7 @@ void do_output_os9(FILE *of)
 	int sn;
 	int codedatasize = 0;
 	int bsssize = 0;
+	int nameoff;
 	int i;
 		
 	unsigned char buf[16];
@@ -265,7 +266,9 @@ void do_output_os9(FILE *of)
 	// and codesize is the length of the module minus the module header
 	// and CRC
 
-	codedatasize += 16; // add in headers
+	codedatasize += 13; // add in headers
+	nameoff = codedatasize; // we'll put the name at the end
+	codedatasize += 3;	// add in CRC
 	codedatasize += strlen(linkscript.name); // add in name length
 	
 	// output the file header
@@ -273,8 +276,8 @@ void do_output_os9(FILE *of)
 	buf[1] = 0xCD;
 	buf[2] = (codedatasize >> 8) & 0xff;
 	buf[3] = codedatasize & 0xff;
-	buf[4] = 0;
-	buf[5] = 13;
+	buf[4] = (nameoff >> 8) & 0xff;
+	buf[5] = nameoff & 0xff;
 	buf[6] = (linkscript.modtype << 4) | (linkscript.modlang);
 	buf[7] = (linkscript.modattr << 4) | (linkscript.modrev);
 	buf[8] = (~(buf[0] ^ buf[1] ^ buf[2] ^ buf[3] ^ buf[4] ^ buf[5] ^ buf[6] ^ buf[7])) & 0xff;
@@ -304,16 +307,6 @@ void do_output_os9(FILE *of)
 	
 	writebytes(buf, 1, 13, of);
 	
-	// output the name
-	for (i = 0; linkscript.name[i + 1]; i++)
-	{
-		writebytes(linkscript.name + i, 1, 1, of);
-		os9crc(crc, linkscript.name[i]);
-	}
-	buf[0] = linkscript.name[i] | 0x80;
-	writebytes(buf, 1, 1, of);
-	os9crc(crc, buf[0]);
-	
 	// output the data
 	// NOTE: disjoint load addresses will not work correctly!!!!!
 	for (sn = 0; sn < nsects; sn++)
@@ -327,6 +320,16 @@ void do_output_os9(FILE *of)
 		for (i = 0; i < sectlist[sn].ptr -> codesize; i++)
 			os9crc(crc, sectlist[sn].ptr -> code[i]);
 	}
+	
+	// output the name
+	for (i = 0; linkscript.name[i + 1]; i++)
+	{
+		writebytes(linkscript.name + i, 1, 1, of);
+		os9crc(crc, linkscript.name[i]);
+	}
+	buf[0] = linkscript.name[i] | 0x80;
+	writebytes(buf, 1, 1, of);
+	os9crc(crc, buf[0]);
 	
 	crc[0] ^= 0xff;
 	crc[1] ^= 0xff;
