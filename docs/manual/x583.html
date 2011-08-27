@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Assembler Modes and Pragmas</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="LW Tool Chain"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="LWASM"
+HREF="c45.html"><LINK
+REL="PREVIOUS"
+TITLE="Object Files and Sections"
+HREF="x520.html"><LINK
+REL="NEXT"
+TITLE="LWLINK"
+HREF="c661.html"></HEAD
+><BODY
+CLASS="SECTION"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>LW Tool Chain</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x520.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. LWASM</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c661.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="AEN583"
+>3.10. Assembler Modes and Pragmas</A
+></H1
+><P
+>There are a number of options that affect the way assembly is performed.
+Some of these options can only be specified on the command line because
+they determine something absolute about the assembly process. These include
+such things as the output target. Other things may be switchable during
+the assembly process. These are known as pragmas and are, by definition,
+not portable between assemblers.</P
+><P
+>LWASM supports a number of pragmas that affect code generation or
+otherwise affect the behaviour of the assembler. These may be specified by
+way of a command line option or by assembler directives. The directives
+are as follows.</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>PRAGMA <CODE
+CLASS="PARAMETER"
+>pragma[,...]</CODE
+></DT
+><DD
+><P
+>Specifies that the assembler should bring into force all <CODE
+CLASS="PARAMETER"
+>pragma</CODE
+>s
+specified. Any unrecognized pragma will cause an assembly error. The new
+pragmas will take effect immediately. This directive should be used when
+the program will assemble incorrectly if the pragma is ignored or not supported.</P
+></DD
+><DT
+>*PRAGMA <CODE
+CLASS="PARAMETER"
+>pragma[,...]</CODE
+></DT
+><DD
+><P
+>This is identical to the PRAGMA directive except no error will occur with
+unrecognized or unsupported pragmas. This directive, by virtue of starting
+with a comment character, will also be ignored by assemblers that do not
+support this directive. Use this variation if the pragma is not required
+for correct functioning of the code.</P
+></DD
+><DT
+>*PRAGMAPUSH <CODE
+CLASS="PARAMETER"
+>pragma[,...]</CODE
+></DT
+><DD
+><P
+>This directive saves the current state of the specified pragma(s) for later retrieval. See discussion below for more information.</P
+><P
+>This directive will not throw any errors for any reason.</P
+></DD
+><DT
+>*PRAGMAPOP <CODE
+CLASS="PARAMETER"
+>pragma[,...]</CODE
+></DT
+><DD
+><P
+>This directive restores the previously saved state of the specified pragma(s). See discussion below for more information.</P
+><P
+>This directive will not throw any errors for any reason.</P
+></DD
+></DL
+></DIV
+><P
+>Each pragma supported has a positive version and a negative version.
+The positive version enables the pragma while the negative version disables
+it. The negatitve version is simply the positive version with "no" prefixed
+to it. For instance, "pragma" vs. "nopragma". Only the positive version is
+listed below.</P
+><P
+>Pragmas are not case sensitive.</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>index0tonone</DT
+><DD
+><P
+>When in force, this pragma enables an optimization affecting indexed addressing
+modes. When the offset expression in an indexed mode evaluates to zero but is
+not explicity written as 0, this will replace the operand with the equivalent
+no offset mode, thus creating slightly faster code. Because of the advantages
+of this optimization, it is enabled by default.</P
+></DD
+><DT
+>cescapes</DT
+><DD
+><P
+>This pragma will cause strings in the FCC, FCS, and FCN pseudo operations to
+have C-style escape sequences interpreted. The one departure from the official
+spec is that unrecognized escape sequences will return either the character
+immediately following the backslash or some undefined value. Do not rely
+on the behaviour of undefined escape sequences.</P
+></DD
+><DT
+>importundefexport</DT
+><DD
+><P
+>This pragma is only valid for targets that support external references. When
+in force, it will cause the EXPORT directive to act as IMPORT if the symbol
+to be exported is not defined.  This is provided for compatibility with the
+output of gcc6809 and should not be used in hand written code.  Because of
+the confusion this pragma can cause, it is disabled by default.</P
+></DD
+><DT
+>undefextern</DT
+><DD
+><P
+>This pragma is only valid for targets that support external references. When in
+force, if the assembler sees an undefined symbol on the second pass, it will
+automatically define it as an external symbol. This automatic definition will
+apply for the remainder of the assembly process, even if the pragma is
+subsequently turned off. Because this behaviour would be potentially surprising,
+this pragma defaults to off.</P
+><P
+>The primary use for this pragma is for projects that share a large number of
+symbols between source files. In such cases, it is impractical to enumerate
+all the external references in every source file. This allows the assembler
+and linker to do the heavy lifting while not preventing a particular source
+module from defining a local symbol of the same name as an external symbol
+if it does not need the external symbol. (This pragma will not cause an
+automatic external definition if there is already a locally defined symbol.)</P
+><P
+>This pragma will often be specified on the command line for large projects.
+However, depending on the specific dynamics of the project, it may be sufficient
+for one or two files to use this pragma internally.</P
+></DD
+><DT
+>dollarlocal</DT
+><DD
+><P
+>When set, a "$" in a symbol makes it local. When not set, "$" does not
+cause a symbol to be local.  It is set by default except when using the OS9
+target.</P
+></DD
+><DT
+>dollarnotlocal</DT
+><DD
+><P
+> This is the same as the "dollarlocal" pragma except its sense is
+reversed.  That is, "dollarlocal" and "nodollarnotlocal" are equivalent and
+"nodollarlocal" and "dollarnotlocal" are equivalent.  </P
+></DD
+><DT
+>pcaspcr</DT
+><DD
+><P
+> Normally, LWASM makes a distinction between PC and PCR in program
+counter relative addressing. In particular, the use of PC means an absolute
+offset from PC while PCR causes the assembler to calculate the offset to the
+specified operand and use that as the offset from PC. By setting this
+pragma, you can have PC treated the same as PCR. </P
+></DD
+><DT
+>shadow</DT
+><DD
+><P
+>When this pragma is in effect, it becomes possible to define a macro
+that matches an internal operation code. Thus, it makes it possible to
+redefine either CPU instructions or pseudo operations. Because this feature
+is of dubious utility, it is disabled by default.</P
+></DD
+><DT
+>nolist</DT
+><DD
+><P
+>Lines where this pragma is in effect will not appear in the assembly
+listing.  Also, any symbols defined under this pragma will not show up in
+the symbol list.  This is most useful in include files to avoid spamming the
+assembly listing with dozens, hundreds, or thousands of irrelevant
+symbols.</P
+></DD
+><DT
+>autobranchlength</DT
+><DD
+><P
+>One of the perennial annoyances for 6809 programmers is that the
+mneumonics for the short and long branch instructions are different (bxx vs. 
+lbxx), which is at odds with the rest of the instruction set.  This pragma
+is a solution to those annoying byte overflow errors that short branch
+instructions tend to aquire.</P
+><P
+>When this pragma is in effect, which is not the default, whenever any
+relative branch instruction is used, its size will be automatically
+determined based on the actual distance to the destination.  In other words,
+one can write code with long or short branches everywhere and the assembler
+will choose a size for the branch.</P
+><P
+>Also, while this pragma is in effect, the &#62; and &#60; symbols can be used
+to force the branch size, analogous to their use for other instructions with
+&#60; forcing 8 bit offsets and &#62; forcing 16 bit offets.</P
+><P
+>Because this pragma leads to source that is incompatible with other
+assemblers, it is strongly recommended that it be invoked using the PRAGMA
+directive within the source code rather than on the command line or via the
+*PRAGMA directive.  This way, an error will be raised if someone tries to
+* assemble the code under a different assembler.</P
+></DD
+></DL
+></DIV
+><P
+>As a convenience, each input file has a pragma state stack. This
+allows, through the use of *PRAGMAPUSH and *PRAGMAPOP, a file to change a
+pragma state and then restore it to the precise state it had previously. 
+If, at the end of an input file, all pragma states have not been popped,
+they will be removed from the stack.  Thus, it is critical to employ
+*PRAGMAPOP correctly. Because each input file has its own pragma stack,
+using *PRAGMAPUSH in one file and *PRAGMAPOP in another file will not
+work.</P
+><P
+>Pragma stacks are more useful in include files, in particular in
+conjunction with the nolist pragma.  One can push the state of the nolist
+pragma, engage the nolist pragma, and then pop the state of the nolist
+pragma at the end of the include file.  This will cause the entire include
+file to operate under the nolist pragma.  However, if the file is included
+while nolist is already engaged, it will not undo that state.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x520.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c661.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Object Files and Sections</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c45.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>LWLINK</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
