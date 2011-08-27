@@ -32,6 +32,16 @@ Read and parse linker scripts
 
 #include "lwlink.h"
 
+// the built-in OS9 script
+static char *os9_script =
+	"section code load 0000\n"
+	"section .text\n"
+	"section data\n"
+	"section .data\n"
+	"section bss,bss load 0000\n"
+	"section .bss,bss\n"
+	;
+
 // the built-in DECB target linker script
 static char *decb_script =
 	"section init load 2000\n"
@@ -125,6 +135,10 @@ void setup_script()
 		case OUTPUT_LWEX0:
 			script = lwex0_script;
 			break;
+		
+		case OUTPUT_OS9:
+			script = os9_script;
+			break;
 			
 		default:
 			script = simple_script;
@@ -153,6 +167,15 @@ void setup_script()
 
 	if (outformat == OUTPUT_LWEX0)
 		linkscript.stacksize = 0x100;
+
+	if (outformat == OUTPUT_OS9)
+	{
+		linkscript.modtype = 0x01;
+		linkscript.modlang = 0x01;
+		linkscript.modattr = 0x08;
+		linkscript.modrev = 0x00;
+		linkscript.name = NULL;
+	}
 
 	oscript = script;
 	// now parse the script file

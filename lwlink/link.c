@@ -30,6 +30,8 @@ Resolve section and symbol addresses; handle incomplete references
 #include "expr.h"
 #include "lwlink.h"
 
+void check_os9(void);
+
 struct section_list *sectlist = NULL;
 int nsects = 0;
 static int nforced = 0;
@@ -390,6 +392,9 @@ void resolve_references(void)
 	
 	if (symerr)
 		exit(1);
+	
+	if (outformat == OUTPUT_OS9)
+		check_os9();	
 }
 
 /*
@@ -459,4 +464,107 @@ void resolve_files(void)
 		
 		fprintf(stderr, "Warning: %s (%d) does not resolve any symbols\n", inputfiles[fn] -> filename, fn);
 	}
+}
+void find_section_by_name_once_aux(char *name, fileinfo_t *fn, section_t **rval, int *found);
+void find_section_by_name_once_aux(char *name, fileinfo_t *fn, section_t **rval, int *found)
+{
+	int sn;
+	
+	if (fn -> forced == 0)
+		return;
+
+	for (sn = 0; sn < fn -> nsections; sn++)
+	{
+		if (!strcmp(name, (char *)(fn -> sections[sn].name)))
+		{
+			(*found)++;
+			*rval = &(fn -> sections[sn]);
+		}
+	}
+	for (sn = 0; sn < fn -> nsubs; sn++)
+	{
+		find_section_by_name_once_aux(name, fn -> subs[sn], rval, found);
+	}
+}
+
+section_t *find_section_by_name_once(char *name)
+{
+	int fn;
+	int found = 0;
+	section_t *rval = NULL;
+	
+	for (fn = 0; fn < ninputfiles; fn++)
+	{
+		find_section_by_name_once_aux(name, inputfiles[fn], &rval, &found);
+	}
+	if (found != 1)
+	{
+		rval = NULL;
+		fprintf(stderr, "Warning: multiple instances of section %s found; ignoring all of them which is probably not what you want\n", name);
+	}
+	return rval;
+}
+
+void check_os9(void)
+{
+	section_t *s;
+	symtab_t *sym;
+	
+	s = find_section_by_name_once("__os9");
+	linkscript.name = outfile;
+	
+	if (!s)
+	{
+		// use defaults if not found
+		return;
+	}	
+
+	// this section is special
+	// several symbols may be defined as LOCAL symbols:
+	// type: module type
+	// lang: module language
+	// attr: module attributes
+	// rev: module revision
+	//
+	// the symbols are not case sensitive
+	//
+	// any unrecognized symbols are ignored
+	
+	// the contents of the actual data to the first NUL
+	// is assumed to be the module name unless it is an empty string
+	if (s -> codesize > 0 && (s -> flags & SECTION_BSS) == 0 && s -> code[0] != 0)
+	{
+		linkscript.name = (char *)(s -> code);
+	}
+	
+	for (sym = s -> localsyms; s; sym = sym -> next)
+	{
+		char *sm = (char *)(sym -> sym);
+		if (!strcasecmp(sm, "type"))
+		{
+			linkscript.modtype = sym -> offset;
+		}
+		else if (!strcasecmp(sm, "lang"))
+		{
+			linkscript.modlang = sym -> offset;
+		}
+		else if (!strcasecmp(sm, "attr"))
+		{
+			linkscript.modlang = sym -> offset;
+		}
+		else if (!strcasecmp(sm, "rev"))
+		{
+			linkscript.modrev = sym -> offset;
+		}
+	}
+	if (linkscript.modtype > 15)
+		linkscript.modtype = linkscript.modtype >> 4;
+	
+	if (linkscript.modattr > 15)
+		linkscript.modattr = linkscript.modattr >> 4;
+	
+	linkscript.modlang &= 15;
+	linkscript.modtype &= 15;
+	linkscript.modrev &= 15;
+	linkscript.modattr &= 15;
 }

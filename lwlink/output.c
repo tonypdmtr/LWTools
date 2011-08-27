@@ -32,6 +32,7 @@ Actually output the binary
 // better in the future
 #define writebytes(s, l, c, f)	do { int r; r = fwrite((s), (l), (c), (f)); } while (0)
 
+void do_output_os9(FILE *of);
 void do_output_decb(FILE *of);
 void do_output_raw(FILE *of);
 void do_output_lwex0(FILE *of);
@@ -62,6 +63,10 @@ void do_output(void)
 		do_output_lwex0(of);
 		break;
 	
+	case OUTPUT_OS9:
+		do_output_os9(of);
+		break;
+		
 	default:
 		fprintf(stderr, "Unknown output format doing output!\n");
 		exit(111);
@@ -212,4 +217,119 @@ void do_output_lwex0(FILE *of)
 		}
 		writebytes(sectlist[sn].ptr -> code, 1, sectlist[sn].ptr -> codesize, of);
 	}
+}
+
+void os9crc(unsigned char crc[3], unsigned char b)
+{
+	b ^= crc[0];
+	crc[0] = crc[1];
+	crc[1] = crc[2];
+	crc[1] ^= b >> 7;
+	crc[2] = b << 1;
+	crc[1] ^= b >> 2;
+	crc[2] ^= b << 6;
+	b ^= b << 1;
+	b ^= b << 2;
+	b ^= b << 4;
+	if (b & 0x80)
+	{
+		crc[0] ^= 0x80;
+		crc[2] ^= 0x21;
+	}
+}
+ 
+
+void do_output_os9(FILE *of)
+{
+	int sn;
+	int codedatasize = 0;
+	int bsssize = 0;
+	int i;
+		
+	unsigned char buf[16];
+	unsigned char crc[3];
+	
+	// calculate items for the file header
+	for (sn = 0; sn < nsects; sn++)
+	{
+		if (sectlist[sn].ptr -> flags & SECTION_BSS)
+		{
+			// no output for a BSS section
+			bsssize += sectlist[sn].ptr -> codesize;
+			continue;
+		}
+		codedatasize += sectlist[sn].ptr -> codesize;
+	}
+
+	// now bss size is the data size for the module
+	// and codesize is the length of the module minus the module header
+	// and CRC
+
+	codedatasize += 16; // add in headers
+	codedatasize += strlen(linkscript.name); // add in name length
+	
+	// output the file header
+	buf[0] = 0x87;
+	buf[1] = 0xCD;
+	buf[2] = (codedatasize >> 8) & 0xff;
+	buf[3] = codedatasize & 0xff;
+	buf[4] = 0;
+	buf[5] = 13;
+	buf[6] = (linkscript.modtype << 4) | (linkscript.modlang);
+	buf[7] = (linkscript.modattr << 4) | (linkscript.modrev);
+	buf[8] = (~(buf[0] ^ buf[1] ^ buf[2] ^ buf[3] ^ buf[4] ^ buf[5] ^ buf[6] ^ buf[7])) & 0xff;
+	buf[9] = (linkscript.execaddr >> 8) & 0xff;
+	buf[10] = linkscript.execaddr & 0xff;
+	buf[11] = (bsssize >> 8) & 0xff;
+	buf[12] = bsssize & 0xff;
+	
+	crc[0] = 0xff;
+	crc[1] = 0xff;
+	crc[2] = 0xff;
+	
+	os9crc(crc, buf[0]);
+	os9crc(crc, buf[1]);
+	os9crc(crc, buf[2]);
+	os9crc(crc, buf[3]);
+	os9crc(crc, buf[4]);
+	os9crc(crc, buf[5]);
+	os9crc(crc, buf[6]);
+	os9crc(crc, buf[7]);
+	os9crc(crc, buf[8]);
+	os9crc(crc, buf[9]);
+	os9crc(crc, buf[10]);
+	os9crc(crc, buf[11]);
+	os9crc(crc, buf[12]);
+	
+	
+	writebytes(buf, 1, 13, of);
+	
+	// output the name
+	for (i = 0; linkscript.name[i + 1]; i++)
+	{
+		writebytes(linkscript.name + i, 1, 1, of);
+		os9crc(crc, linkscript.name[i]);
+	}
+	buf[0] = linkscript.name[i] | 0x80;
+	writebytes(buf, 1, 1, of);
+	os9crc(crc, buf[0]);
+	
+	// output the data
+	// NOTE: disjoint load addresses will not work correctly!!!!!
+	for (sn = 0; sn < nsects; sn++)
+	{
+		if (sectlist[sn].ptr -> flags & SECTION_BSS)
+		{
+			// no output for a BSS section
+			continue;
+		}
+		writebytes(sectlist[sn].ptr -> code, 1, sectlist[sn].ptr -> codesize, of);
+		for (i = 0; i < sectlist[sn].ptr -> codesize; i++)
+			os9crc(crc, sectlist[sn].ptr -> code[i]);
+	}
+	
+	crc[0] ^= 0xff;
+	crc[1] ^= 0xff;
+	crc[2] ^= 0xff;
+	writebytes(crc, 1, 3, of);
 }

@@ -29,6 +29,7 @@ Contains the main defs used by the linker
 #define OUTPUT_DECB		0	// DECB multirecord format
 #define OUTPUT_RAW		1	// raw sequence of bytes
 #define OUTPUT_LWEX0	2	// LWOS LWEX binary version 0
+#define OUTPUT_OS9		3	// OS9 object code module
 
 typedef struct symtab_s symtab_t;
 struct symtab_s
@@ -147,6 +148,11 @@ typedef struct
 	char *execsym;				// entry point symbol
 	int execaddr;				// execution address (entry point)
 	int stacksize;				// stack size
+	int modtype;				// module type
+	int modlang;				// module language
+	int modattr;				// module attributes
+	int modrev;					// module revision
+	char *name;					// module name
 } linkscript_t;
 
 #ifndef __script_c_seen__
