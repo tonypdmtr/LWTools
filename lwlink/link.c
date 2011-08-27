@@ -500,7 +500,8 @@ section_t *find_section_by_name_once(char *name)
 	if (found != 1)
 	{
 		rval = NULL;
-		fprintf(stderr, "Warning: multiple instances of section %s found; ignoring all of them which is probably not what you want\n", name);
+		if (found > 1)
+			fprintf(stderr, "Warning: multiple instances of section %s found; ignoring all of them which is probably not what you want\n", name);
 	}
 	return rval;
 }
@@ -537,7 +538,7 @@ void check_os9(void)
 		linkscript.name = (char *)(s -> code);
 	}
 	
-	for (sym = s -> localsyms; s; sym = sym -> next)
+	for (sym = s -> localsyms; sym; sym = sym -> next)
 	{
 		char *sm = (char *)(sym -> sym);
 		if (!strcasecmp(sm, "type"))
