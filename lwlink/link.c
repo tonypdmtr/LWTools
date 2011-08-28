@@ -213,8 +213,10 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 		{
 			if (!strcmp(sym, (char *)(se -> sym)))
 			{
+//				fprintf(stderr, "Found symbol %s in %s\n", sym, fn -> filename);
 				if (!(fn -> forced))
 				{
+//					fprintf(stderr, "   Forced\n");
 					fn -> forced = 1;
 					nforced = 1;
 				}
@@ -233,8 +235,10 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 		r = find_external_sym_recurse(sym, fn -> subs[sn]);
 		if (r)
 		{
+//			fprintf(stderr, "Found symbol %s in %s\n", sym, fn -> filename);
 			if (!(fn -> forced))
 			{
+//				fprintf(stderr, "    Forced\n");
 				nforced = 1;
 				fn -> forced = 1;
 			}
@@ -255,6 +259,8 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 	lw_expr_stack_t *s;
 	symtab_t *se;
 	fileinfo_t *fp;
+
+//	fprintf(stderr, "Looking up %s\n", sym);
 
 	if (symtype == 1)
 	{
@@ -397,17 +403,47 @@ void resolve_references(void)
 		check_os9();	
 }
 
+void resolve_files_aux(fileinfo_t *fn)
+{
+	int sn;
+	reloc_t *rl;
+	lw_expr_stack_t *te;
+	
+	int rval;
+
+	
+	if (fn -> forced == 0)
+		return;
+	
+	for (sn = 0; sn < fn -> nsections; sn++)
+	{
+		for (rl = fn -> sections[sn].incompletes; rl; rl = rl -> next)
+		{
+			// do a "simplify" on the expression
+			te = lw_expr_stack_dup(rl -> expr);
+			rval = lw_expr_reval(te, resolve_sym, &(fn -> sections[sn]));
+			
+			// is it constant? error out if not
+			if (rval != 0 || !lw_expr_is_constant(te))
+			{
+				fprintf(stderr, "Incomplete reference at %s:%s+%02X\n", fn -> filename, fn -> sections[sn].name, rl -> offset);
+				symerr = 1;
+			}
+			lw_expr_stack_free(te);
+		}
+	}
+
+	// handle any sub files
+	for (sn = 0; sn < fn -> nsubs; sn++)
+		resolve_files_aux(fn -> subs[sn]);
+}
+
 /*
 This is just a pared down version of the algo for resolving references.
 */
 void resolve_files(void)
 {
-	int sn;
 	int fn;
-	reloc_t *rl;
-	lw_expr_stack_t *te;
-	
-	int rval;
 
 	// resolve entry point if required
 	// this must resolve to an *exported* symbol and will resolve to the
@@ -429,26 +465,7 @@ void resolve_files(void)
 		nforced = 0;
 		for (fn = 0; fn < ninputfiles; fn++)
 		{
-			if (inputfiles[fn] -> forced == 0)
-				continue;
-	
-			for (sn = 0; sn < inputfiles[fn] -> nsections; sn++)
-			{
-				for (rl = inputfiles[fn] -> sections[sn].incompletes; rl; rl = rl -> next)
-				{
-					// do a "simplify" on the expression
-					te = lw_expr_stack_dup(rl -> expr);
-					rval = lw_expr_reval(te, resolve_sym, &(inputfiles[fn] -> sections[sn]));
-					
-					// is it constant? error out if not
-					if (rval != 0 || !lw_expr_is_constant(te))
-					{
-						fprintf(stderr, "Incomplete reference at %s:%s+%02X\n", inputfiles[fn] -> filename, inputfiles[fn] -> sections[sn].name, rl -> offset);
-						symerr = 1;
-					}
-					lw_expr_stack_free(te);
-				}
-			}
+			resolve_files_aux(inputfiles[fn]);
 		}
 	}
 	while (nforced == 1);
