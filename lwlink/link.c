@@ -35,19 +35,25 @@ void check_os9(void);
 struct section_list *sectlist = NULL;
 int nsects = 0;
 static int nforced = 0;
+static int resolveonly = 0;
 
 void check_section_name(char *name, int *base, fileinfo_t *fn)
 {
 	int sn;
 
+//	fprintf(stderr, "Considering sections in %s (%d) for %s\n", fn -> filename, fn -> forced, name);
 	if (fn -> forced == 0)
 		return;
 
 	for (sn = 0; sn < fn -> nsections; sn++)
 	{
-		if (!strcmp(name, (char *)(fn -> sections[sn].name)) && (fn -> sections[sn].flags | SECTION_CONST) == 0)
+//		fprintf(stderr, "    Considering section %s\n", fn -> sections[sn].name);
+		if (!strcmp(name, (char *)(fn -> sections[sn].name)))
 		{
+			if (fn -> sections[sn].flags & SECTION_CONST)
+				continue;
 			// we have a match
+//			fprintf(stderr, "    Found\n");
 			sectlist = lw_realloc(sectlist, sizeof(struct section_list) * (nsects + 1));
 			sectlist[nsects].ptr = &(fn -> sections[sn]);
 					
@@ -55,6 +61,7 @@ void check_section_name(char *name, int *base, fileinfo_t *fn)
 			fn -> sections[sn].loadaddress = *base;
 			*base += fn -> sections[sn].codesize;
 			nsects++;
+//			fprintf(stderr, "Adding section %s (%s)\n",fn -> sections[sn].name, fn -> filename);
 		}
 	}
 	for (sn = 0; sn < fn -> nsubs; sn++)
@@ -68,12 +75,14 @@ void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
 {
 	int sn;
 
+//	fprintf(stderr, "Considering sections in %s (%d) for %x/%x\n", fn -> filename, fn -> forced, yesflags, noflags);
+
 	if (fn -> forced == 0)
 		return;
 
 	for (sn = 0; sn < fn -> nsections; sn++)
 	{
-		// ignore "constant" sections
+		// ignore "constant" sections - they're added during the file resolve stage
 		if (fn -> sections[sn].flags & SECTION_CONST)
 			continue;
 		// ignore if the noflags tell us to
@@ -87,6 +96,7 @@ void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
 			continue;
 
 		// we have a match - now collect *all* sections of the same name!
+//		fprintf(stderr, "    Found\n");
 		add_matching_sections((char *)(fn -> sections[sn].name), 0, 0, base);
 		
 		// and then continue looking for sections
@@ -217,8 +227,10 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 	{
 		for (se = fn -> sections[sn].exportedsyms; se; se = se -> next)
 		{
+//			fprintf(stderr, "    Considering %s\n", se -> sym);
 			if (!strcmp(sym, (char *)(se -> sym)))
 			{
+//				fprintf(stderr, "    Match (%d)\n", fn -> sections[sn].processed);
 				// if the section was not previously processed and is CONSTANT, force it in
 				// otherwise error out if it is not being processed
 				if (fn -> sections[sn].processed == 0)
@@ -234,8 +246,11 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 					}
 					else
 					{
-						// if we're in a non-processed section, bail!
-						continue;
+						if (resolveonly == 0)
+						{
+							fprintf(stderr, "Symbol %s found in section %s (%s) which is not going to be included\n", sym, fn -> sections[sn].name, fn -> filename);
+							continue;
+						}
 					}
 				}
 //				fprintf(stderr, "Found symbol %s in %s\n", sym, fn -> filename);
@@ -261,6 +276,7 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 		
 	for (sn = 0; sn < fn -> nsubs; sn++)
 	{
+//		fprintf(stderr, "Looking in %s\n", fn -> subs[sn] -> filename);
 		r = find_external_sym_recurse(sym, fn -> subs[sn]);
 		if (r)
 		{
@@ -340,6 +356,7 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 		{
 			for (fp = sect -> file; fp; fp = fp -> parent)
 			{
+//				fprintf(stderr, "Looking in %s\n", fp -> filename);
 				s = find_external_sym_recurse(sym, fp);
 				if (s)
 					return s;
@@ -348,6 +365,7 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 
 		for (fn = 0; fn < ninputfiles; fn++)
 		{
+//			fprintf(stderr, "Looking in %s\n", inputfiles[fn] -> filename);
 			s = find_external_sym_recurse(sym, inputfiles[fn]);
 			if (s)
 				return s;
@@ -480,20 +498,22 @@ void resolve_files(void)
 {
 	int fn;
 
+	resolveonly = 1;
+
 	// resolve entry point if required
 	// this must resolve to an *exported* symbol and will resolve to the
 	// first instance of that symbol
-	if (linkscript.execsym)
-	{
-		lw_expr_stack_t *s;
-		
-		s = resolve_sym(linkscript.execsym, 0, NULL);
-		if (!s)
-		{
-			fprintf(stderr, "Cannot resolve exec address '%s'\n", sanitize_symbol(linkscript.execsym));
-			symerr = 1;
-		}
-	}
+//	if (linkscript.execsym)
+//	{
+//		lw_expr_stack_t *s;
+//		
+//		s = resolve_sym(linkscript.execsym, 0, NULL);
+//		if (!s)
+//		{
+//			fprintf(stderr, "Cannot resolve exec address '%s'\n", sanitize_symbol(linkscript.execsym));
+//			symerr = 1;
+//		}
+//	}
 	
 	do
 	{
@@ -505,9 +525,12 @@ void resolve_files(void)
 	}
 	while (nforced == 1);
 
-	if (symerr)
-		exit(1);
-	
+	resolveonly = 0;
+
+//	if (symerr)
+//		exit(1);
+
+	symerr = 0;	
 	// theoretically, all files referenced by other files now have "forced" set to 1
 	for (fn = 0; fn < ninputfiles; fn++)
 	{
