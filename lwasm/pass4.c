@@ -76,7 +76,7 @@ void do_pass4_aux(asmstate_t *as, int force)
 		if (sl -> len == -1 && sl -> insn >= 0 && instab[sl -> insn].resolve)
 		{
 			(instab[sl -> insn].resolve)(as, sl, 1);
-			if (force && sl -> len == -1)
+			if (force && sl -> len == -1 && sl -> dlen == -1)
 			{
 				lwasm_register_error(as, sl, "Instruction failed to resolve.");
 				return;
