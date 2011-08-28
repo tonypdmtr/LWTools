@@ -707,6 +707,7 @@ instab_t instab[] =
 	{ "pag",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ "page",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ "opt",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
+	{ "spc",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ "ttl",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ ".bank",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 
