@@ -127,7 +127,8 @@ PARSEFUNC(pseudo_parse_section)
 	
 	lw_expr_destroy(l -> addr);
 	l -> addr = lw_expr_copy(s -> offset);
-	
+	lw_expr_destroy(l -> daddr);
+	l -> daddr = lw_expr_copy(s -> offset);
 	as -> csect = s;
 	as -> context = lwasm_next_context(as);
 
