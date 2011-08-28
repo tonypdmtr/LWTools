@@ -54,7 +54,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		{"f,x",	0x8a},		{"f,y",	0xaa},		{"f,u", 0xca},		{"f,s", 0xea},
 		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xed},
 		{"w,x", 0x8e},		{"w,y", 0xae},		{"w,u", 0xce},		{"w,s", 0xee},
-		{",w", 0x8f},							{",w++", 0xcf},		{",--w", 0xef},
+		{",w", 0xAf},							{",w++", 0xcf},		{",--w", 0xef},
 		
 		{"[,x]", 0x94},		{"[,y]", 0xb4},		{"[,u]", 0xd4},		{"[,s]", 0xf4},
 		{"[,x++]", 0x91},	{"[,y++]", 0xb1},	{"[,u++]", 0xd1},	{"[,s++]", 0xf1},
@@ -65,7 +65,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		{"[f,x]", 0x9a},	{"[f,y]", 0xba},	{"[f,u]", 0xda},	{"[f,s]", 0xfa},
 		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfd},
 		{"[w,x]", 0x9e},	{"[w,y]", 0xbe},	{"[w,u]", 0xde},	{"[w,s]", 0xfe},
-		{"[,w]", 0x90},							{"[,w++]", 0xd0},	{"[,--w]", 0xf0},
+		{"[,w]", 0xB0},							{"[,w++]", 0xd0},	{"[,--w]", 0xf0},
 		
 		{ "", -1 }
 	};
