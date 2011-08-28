@@ -527,6 +527,13 @@ RESOLVEFUNC(pseudo_resolve_rmb)
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
+		if (lw_expr_intval(expr) < 0)
+		{
+			lwasm_register_error(as, l, "Negative reservation sizes make no sense!");
+			l -> len = 0;
+			l -> dlen = 0;
+			return;
+		}
 		if (l -> inmod)
 			l -> dlen = lw_expr_intval(expr);
 		else
@@ -540,7 +547,7 @@ EMITFUNC(pseudo_emit_rmb)
 		return;
 
 	if (l -> len < 0 || l -> dlen < 0)
-		lwasm_register_error(as, l, "Expression not constant");
+		lwasm_register_error(as, l, "Expression not constant: %d %d", l -> len, l -> dlen);
 }
 
 PARSEFUNC(pseudo_parse_rmd)
@@ -604,6 +611,13 @@ RESOLVEFUNC(pseudo_resolve_rmd)
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
+		if (lw_expr_intval(expr) < 0)
+		{
+			lwasm_register_error(as, l, "Negative reservation sizes make no sense!");
+			l -> len = 0;
+			l -> dlen = 0;
+			return;
+		}
 		if (l -> inmod)
 			l -> dlen = lw_expr_intval(expr) * 2;
 		else
@@ -681,6 +695,13 @@ RESOLVEFUNC(pseudo_resolve_rmq)
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
+		if (lw_expr_intval(expr) < 0)
+		{
+			lwasm_register_error(as, l, "Negative reservation sizes make no sense!");
+			l -> len = 0;
+			l -> dlen = 0;
+			return;
+		}
 		if (l -> inmod)
 			l -> dlen = lw_expr_intval(expr) * 4;
 		else 
@@ -722,6 +743,12 @@ RESOLVEFUNC(pseudo_resolve_zmq)
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
+		if (lw_expr_intval(expr) < 0)
+		{
+			lwasm_register_error(as, l, "Negative block sizes make no sense!");
+			l -> len = 0;
+			return;
+		}
 		l -> len = lw_expr_intval(expr) * 4;
 	}
 }
@@ -765,6 +792,12 @@ RESOLVEFUNC(pseudo_resolve_zmd)
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
+		if (lw_expr_intval(expr) < 0)
+		{
+			lwasm_register_error(as, l, "Negative block sizes make no sense!");
+			l -> len = 0;
+			return;
+		}
 		l -> len = lw_expr_intval(expr) * 2;
 	}
 }
@@ -807,6 +840,12 @@ RESOLVEFUNC(pseudo_resolve_zmb)
 	
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
+		if (lw_expr_intval(expr) < 0)
+		{
+			lwasm_register_error(as, l, "Negative block sizes make no sense!");
+			l -> len = 0;
+			return;
+		}
 		l -> len = lw_expr_intval(expr);
 	}
 }
