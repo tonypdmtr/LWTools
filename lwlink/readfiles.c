@@ -198,6 +198,10 @@ void read_lwobj16v0(fileinfo_t *fn)
 				s -> flags |= SECTION_BSS;
 				break;
 
+			case 0x02:
+				s -> flags |= SECTION_CONST;
+				break;
+				
 			default:
 				fprintf(stderr, "%s (%s): unrecognized section flag %02X\n", fn -> filename, s -> name, (int)(CURBYTE()));
 				exit(1);

@@ -154,6 +154,7 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 	long cc;
 	int val;
 	int bss;
+	int constant;
 
 	static char *opernames[] = {
 		"?",
@@ -179,6 +180,7 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 	while (1)
 	{
 		bss = 0;
+		constant = 0;
 		
 		// bail out if no more sections
 		if (!(CURBYTE()))
@@ -197,7 +199,11 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 				printf("    FLAG: BSS\n");
 				bss = 1;
 				break;
-
+			case 0x02:
+				printf("    FLAG: CONSTANT\n");
+				constant = 1;
+				break;
+				
 			default:
 				printf("    FLAG: %02X (unknown)\n", CURBYTE());
 				break;

@@ -89,6 +89,7 @@ enum lwasm_pragmas_e
 enum
 {
 	section_flag_bss = 1,				// BSS section
+	section_flag_constant = 2,			// constants - no base offset
 	section_flag_none = 0				// no flags
 };
 

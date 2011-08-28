@@ -54,6 +54,7 @@ struct reloc_s
 typedef struct fileinfo_s fileinfo_t;
 
 #define SECTION_BSS		1
+#define SECTION_CONST	2
 typedef struct
 {
 	unsigned char *name;	// name of the section

@@ -427,17 +427,22 @@ void write_code_obj(asmstate_t *as, FILE *of)
 		// write the flags
 		if (s -> flags & section_flag_bss)
 			writebytes("\x01", 1, 1, of);
-		
+		if (s -> flags & section_flag_constant)
+			writebytes("\x02", 1, 1, of);
+			
 		// indicate end of flags - the "" is NOT an error
 		writebytes("", 1, 1, of);
 		
 		// now the local symbols
 		
 		// a symbol for section base address
-		writebytes("\x02", 1, 1, of);
-		writebytes(s -> name, strlen(s -> name) + 1, 1, of);
-		// address 0; "\0" is not an error
-		writebytes("\0", 2, 1, of);
+		if ((s -> flags & section_flag_constant) == 0)
+		{
+			writebytes("\x02", 1, 1, of);
+			writebytes(s -> name, strlen(s -> name) + 1, 1, of);
+			// address 0; "\0" is not an error
+			writebytes("\0", 2, 1, of);
+		}
 		for (se = as -> symtab.head; se; se = se -> next)
 		{
 			lw_expr_t te;
@@ -582,11 +587,20 @@ void write_code_obj(asmstate_t *as, FILE *of)
 		// now blast out the code
 		
 		// length
-		buf[0] = s -> oblen >> 8 & 0xff;
-		buf[1] = s -> oblen & 0xff;
+		if (s -> flags & section_flag_constant)
+		{
+			buf[0] = 0;
+			buf[1] = 0;
+		}
+		else
+		{
+			buf[0] = s -> oblen >> 8 & 0xff;
+			buf[1] = s -> oblen & 0xff;
+		}
 		writebytes(buf, 2, 1, of);
 		
-		if (!(s -> flags & section_flag_bss))
+		
+		if (!(s -> flags & section_flag_bss) && !(s -> flags & section_flag_constant))
 		{
 			writebytes(s -> obytes, s -> oblen, 1, of);
 		}

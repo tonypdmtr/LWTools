@@ -45,7 +45,7 @@ void check_section_name(char *name, int *base, fileinfo_t *fn)
 
 	for (sn = 0; sn < fn -> nsections; sn++)
 	{
-		if (!strcmp(name, (char *)(fn -> sections[sn].name)))
+		if (!strcmp(name, (char *)(fn -> sections[sn].name)) && (fn -> sections[sn].flags | SECTION_CONST) == 0)
 		{
 			// we have a match
 			sectlist = lw_realloc(sectlist, sizeof(struct section_list) * (nsects + 1));
@@ -73,6 +73,9 @@ void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
 
 	for (sn = 0; sn < fn -> nsections; sn++)
 	{
+		// ignore "constant" sections
+		if (fn -> sections[sn].flags & SECTION_CONST)
+			continue;
 		// ignore if the noflags tell us to
 		if (noflags && (fn -> sections[sn].flags & noflags))
 			continue;
@@ -154,6 +157,9 @@ void resolve_sections(void)
 			{
 				for (sn0 = 0; sn0 < inputfiles[fn0] -> nsections; sn0++)
 				{
+					// ignore "constant" sections
+					if (inputfiles[fn0] -> sections[sn0].flags & SECTION_CONST)
+						continue;
 					// ignore if the "no flags" bit says to
 					if (linkscript.lines[ln].noflags && (inputfiles[fn0] -> sections[sn0].flags & linkscript.lines[ln].noflags))
 						continue;
@@ -213,6 +219,25 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 		{
 			if (!strcmp(sym, (char *)(se -> sym)))
 			{
+				// if the section was not previously processed and is CONSTANT, force it in
+				// otherwise error out if it is not being processed
+				if (fn -> sections[sn].processed == 0)
+				{
+					if (fn -> sections[sn].flags & SECTION_CONST)
+					{
+						// add to section list
+						sectlist = lw_realloc(sectlist, sizeof(struct section_list) * (nsects + 1));
+						sectlist[nsects].ptr = &(fn -> sections[sn]);
+						fn -> sections[sn].processed = 1;
+						fn -> sections[sn].loadaddress = 0;
+						nsects++;
+					}
+					else
+					{
+						// if we're in a non-processed section, bail!
+						continue;
+					}
+				}
 //				fprintf(stderr, "Found symbol %s in %s\n", sym, fn -> filename);
 				if (!(fn -> forced))
 				{
@@ -220,11 +245,15 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 					fn -> forced = 1;
 					nforced = 1;
 				}
-				val = se -> offset + fn -> sections[sn].loadaddress;
+				if (fn -> sections[sn].flags & SECTION_CONST)
+					val = se -> offset;
+				else
+					val = se -> offset + fn -> sections[sn].loadaddress;
 				r = lw_expr_stack_create();
 				term = lw_expr_term_create_int(val & 0xffff);
 				lw_expr_stack_push(r, term);
 				lw_expr_term_free(term);
+
 				return r;
 			}
 		}
@@ -276,7 +305,10 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 		{
 			if (!strcmp((char *)(se -> sym), sym))
 			{
-				val = se -> offset + sect -> loadaddress;
+				if (sect -> flags & SECTION_CONST)
+					val = se -> offset;
+				else
+					val = se -> offset + sect -> loadaddress;
 				goto out;
 			}
 		}
@@ -287,7 +319,10 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 			{
 				if (!strcmp((char *)(se -> sym), sym))
 				{
-					val = se -> offset + sect -> file -> sections[i].loadaddress;
+					if (sect -> file -> sections[i].flags & SECTION_CONST)
+						val = se -> offset;
+					else
+						val = se -> offset + sect -> file -> sections[i].loadaddress;
 					goto out;
 				}
 			}

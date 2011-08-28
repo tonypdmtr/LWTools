@@ -98,6 +98,11 @@ PARSEFUNC(pseudo_parse_section)
 		{
 			s -> flags |= section_flag_bss;
 		}
+		if (!strcasecmp(sn, "_constant"))
+		{
+			s -> flags |= section_flag_constant;
+		}
+		
 		// parse options
 		if (opts)
 		{
@@ -109,6 +114,14 @@ PARSEFUNC(pseudo_parse_section)
 			else if (!strcasecmp(opts, "!bss"))
 			{
 				s -> flags &= ~section_flag_bss;
+			}
+			else if (!strcasecmp(opts, "constant"))
+			{
+				s -> flags |= section_flag_constant;
+			}
+			else if (!strcasecmp(opts, "!constant"))
+			{
+				s -> flags |= section_flag_constant;
 			}
 			else
 			{

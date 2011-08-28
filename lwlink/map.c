@@ -94,7 +94,10 @@ void display_map(void)
 			}
 			ne = lw_alloc(sizeof(struct symliste));
 			ne -> ext = 0;
-			ne -> addr = sym -> offset + sectlist[sn].ptr -> loadaddress;
+			if (sectlist[sn].ptr -> flags & SECTION_CONST)
+				ne -> addr = sym -> offset;
+			else
+				ne -> addr = sym -> offset + sectlist[sn].ptr -> loadaddress;
 			ne -> next = ce;
 			ne -> name = (char *)(sym -> sym);
 			ne -> fn = sectlist[sn].ptr -> file -> filename;
