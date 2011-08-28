@@ -98,7 +98,7 @@ PARSEFUNC(pseudo_parse_section)
 		{
 			s -> flags |= section_flag_bss;
 		}
-		if (!strcasecmp(sn, "_constant"))
+		if (!strcasecmp(sn, "_constant") || !strcasecmp(sn, "_constants"))
 		{
 			s -> flags |= section_flag_constant;
 		}
