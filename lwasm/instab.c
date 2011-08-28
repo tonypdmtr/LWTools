@@ -483,7 +483,7 @@ instab_t instab[] =
 	{ "lsrw",		{	0x1054,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 
 	{ "mul",		{	0x3d,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
-	{ "muld",		{	0x118f,	0x119f,	0x11af,	0x11bf},insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6309},
+	{ "muld",		{	0x119f,	0x11af,	0x11bf,	0x118f},insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6309},
 	
 	{ "neg",		{	0x00,	0x60,	0x70,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
 	{ "nega",		{	0x40,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
