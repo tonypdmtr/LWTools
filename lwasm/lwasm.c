@@ -102,6 +102,8 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 			asmstate_t *as = priv;
 			if (as -> exportcheck && ptr == as -> csect)
 				return lw_expr_build(lw_expr_type_int, 0);
+			if (((sectiontab_t *)ptr) -> flags & section_flag_constant)
+				return lw_expr_build(lw_expr_type_int, 0);
 			return NULL;
 		}
 
