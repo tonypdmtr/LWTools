@@ -141,10 +141,17 @@ void do_pass1(asmstate_t *as)
 //			lw_expr_simplify(cl -> addr, as);
 
 			// set the data address if relevant
-			te = lw_expr_build(lw_expr_type_special, lwasm_expr_linedlen, cl -> prev);
-			cl -> daddr = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, cl -> prev -> daddr, te);
-			lw_expr_destroy(te);
-			lwasm_reduce_expr(as, cl -> daddr);
+			if (as -> output_format == OUTPUT_OS9)
+			{
+				te = lw_expr_build(lw_expr_type_special, lwasm_expr_linedlen, cl -> prev);
+				cl -> daddr = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, cl -> prev -> daddr, te);
+				lw_expr_destroy(te);
+				lwasm_reduce_expr(as, cl -> daddr);
+			}
+			else
+			{
+				cl -> daddr = lw_expr_copy(cl -> addr);
+			}
 
 			// carry DP value forward
 			cl -> dpval = cl -> prev -> dpval;
