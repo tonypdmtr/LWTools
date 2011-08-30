@@ -17,7 +17,7 @@ TITLE="Structures"
 HREF="x499.html"><LINK
 REL="NEXT"
 TITLE="Assembler Modes and Pragmas"
-HREF="x583.html"></HEAD
+HREF="x584.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x583.html"
+HREF="x584.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -173,16 +173,21 @@ CLASS="PARAMETER"
 > may only be specified on the first
 instance of the section.</P
 ><P
->There is a single flag supported in <CODE
+><CODE
 CLASS="PARAMETER"
 >flags</CODE
->. The
-flag <CODE
-CLASS="PARAMETER"
->bss</CODE
-> will cause the section to be treated as a BSS
-section and, thus, no code will be included in the object file nor will any
-bytes be permitted to be output.</P
+> is a comma separated list of flags. If a
+flag is "bss", the section will be treated as a BSS section and no
+statements that generate output are permitted.</P
+><P
+>If the flag is "constant",
+the same restrictions apply as for BSS sections.  Additionally, all symbols
+defined in a constant section define absolute values and will not be
+adjusted by the linker at link time.  Constant sections cannot define
+complex expressions for symbols; the value must be fully defined at assembly
+time.  Additionally, multiple instances of a constant section do not
+coalesce into a single addressing unit; each instance starts again at offset
+0.</P
 ><P
 >If the section name is "bss" or ".bss" in any combination of upper and
 lower case, the section is assumed to be a BSS section. In that case,
@@ -190,6 +195,11 @@ the flag <CODE
 CLASS="PARAMETER"
 >!bss</CODE
 > can be used to override this assumption.</P
+><P
+> If the section name is "_constants" or "_constant", in any
+combination of upper and lower case, the section is assumed to be a constant
+section.  This assumption can be overridden with the "!constant"
+flag.</P
 ><P
 >If assembly is already happening within a section, the section is implicitly
 ended and the new section started. This is not considered an error although
@@ -309,7 +319,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x583.html"
+HREF="x584.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

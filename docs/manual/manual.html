@@ -169,43 +169,43 @@ HREF="#AEN520"
 ></DT
 ><DT
 >3.10. <A
-HREF="#AEN583"
+HREF="#AEN584"
 >Assembler Modes and Pragmas</A
 ></DT
 ></DL
 ></DD
 ><DT
 >4. <A
-HREF="#AEN661"
+HREF="#AEN662"
 >LWLINK</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.1. <A
-HREF="#AEN664"
+HREF="#AEN665"
 >Command Line Options</A
 ></DT
 ><DT
 >4.2. <A
-HREF="#AEN761"
+HREF="#AEN762"
 >Linker Operation</A
 ></DT
 ><DT
 >4.3. <A
-HREF="#AEN775"
+HREF="#AEN776"
 >Linking Scripts</A
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN809"
+HREF="#AEN810"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN812"
+HREF="#AEN813"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -214,14 +214,14 @@ HREF="#AEN812"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN824"
+HREF="#AEN825"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN828"
+HREF="#AEN829"
 >Command Line Options</A
 ></DT
 ></DL
@@ -243,12 +243,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN911"
+HREF="#AEN912"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN941"
+HREF="#AEN942"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -1828,16 +1828,21 @@ CLASS="PARAMETER"
 > may only be specified on the first
 instance of the section.</P
 ><P
->There is a single flag supported in <CODE
+><CODE
 CLASS="PARAMETER"
 >flags</CODE
->. The
-flag <CODE
-CLASS="PARAMETER"
->bss</CODE
-> will cause the section to be treated as a BSS
-section and, thus, no code will be included in the object file nor will any
-bytes be permitted to be output.</P
+> is a comma separated list of flags. If a
+flag is "bss", the section will be treated as a BSS section and no
+statements that generate output are permitted.</P
+><P
+>If the flag is "constant",
+the same restrictions apply as for BSS sections.  Additionally, all symbols
+defined in a constant section define absolute values and will not be
+adjusted by the linker at link time.  Constant sections cannot define
+complex expressions for symbols; the value must be fully defined at assembly
+time.  Additionally, multiple instances of a constant section do not
+coalesce into a single addressing unit; each instance starts again at offset
+0.</P
 ><P
 >If the section name is "bss" or ".bss" in any combination of upper and
 lower case, the section is assumed to be a BSS section. In that case,
@@ -1845,6 +1850,11 @@ the flag <CODE
 CLASS="PARAMETER"
 >!bss</CODE
 > can be used to override this assumption.</P
+><P
+> If the section name is "_constants" or "_constant", in any
+combination of upper and lower case, the section is assumed to be a constant
+section.  This assumption can be overridden with the "!constant"
+flag.</P
 ><P
 >If assembly is already happening within a section, the section is implicitly
 ended and the new section started. This is not considered an error although
@@ -1935,7 +1945,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN583"
+NAME="AEN584"
 >3.10. Assembler Modes and Pragmas</A
 ></H2
 ><P
@@ -2168,7 +2178,7 @@ while nolist is already engaged, it will not undo that state.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN661"
+NAME="AEN662"
 ></A
 >Chapter 4. LWLINK</H1
 ><P
@@ -2179,7 +2189,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN664"
+NAME="AEN665"
 >4.1. Command Line Options</A
 ></H2
 ><P
@@ -2376,7 +2386,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN761"
+NAME="AEN762"
 >4.2. Linker Operation</A
 ></H2
 ><P
@@ -2432,7 +2442,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN775"
+NAME="AEN776"
 >4.3. Linking Scripts</A
 ></H2
 ><P
@@ -2540,7 +2550,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN809"
+NAME="AEN810"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2553,7 +2563,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN812"
+NAME="AEN813"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2629,7 +2639,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN824"
+NAME="AEN825"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2648,7 +2658,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN828"
+NAME="AEN829"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -2849,7 +2859,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN911"
+NAME="AEN912"
 ></A
 ><P
 ><B
@@ -2921,7 +2931,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN941"
+NAME="AEN942"
 ></A
 ><P
 ><B
