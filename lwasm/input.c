@@ -274,7 +274,7 @@ FILE *input_open_standalone(asmstate_t *as, char *s)
 
 	/* relative path, check relative to "current file" directory */
 	p = lw_stack_top(as -> file_dir);
-	p2 = make_filename(p, s);
+	p2 = make_filename(p ? p : "", s);
 	debug_message(as, 2, "Open file (st cd) %s", p2);
 	fp = fopen(p2, "rb");
 	if (fp)
