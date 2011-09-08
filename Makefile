@@ -70,9 +70,6 @@ lwar/lwar$(PROGSUFFIX): $(lwar_objs) lwlib lwar/rules.make
 	@echo Linking $@
 	@$(CC) -o $@ $(lwar_objs) $(LDFLAGS)
 
-test: test.c lwlib
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ test.c $(LDFLAGS)
-
 #.PHONY: lwlib
 .INTERMEDIATE: lwlib
 lwlib: lwlib/liblw.a
@@ -121,4 +118,8 @@ print-%:
 .PHONY: install
 install:
 	cp $(MAIN_TARGETS) /usr/local/bin/
+
+.PHONY: test
+test: all test/runtests
+	@test/runtests
 	
