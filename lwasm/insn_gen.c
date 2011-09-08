@@ -432,6 +432,10 @@ PARSEFUNC(insn_parse_imm8)
 		l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
 		lwasm_save_expr(l, 0, e);
 	}
+	else
+	{
+		lwasm_register_error(as, l, "Bad operand");
+	}
 }
 
 EMITFUNC(insn_emit_imm8)
