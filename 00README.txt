@@ -8,4 +8,8 @@ programs may work but GNU make is known to work.
 To see if a quick build will work, just type "make". If it works, you're
 ready to go ahead with "make install". This will install in /usr/local/bin.
 
+If you feel adventurous, you can also run the test suite by running "make
+test". However, be warned that it is likely not going to work unless you are
+running on a fairly standard unix system with perl in /usr/bin/perl.
+
 See docs/ for additional information.
