@@ -4,4 +4,5 @@ all:
 	docbook2html -o manual manual.docbook.sgml
 	docbook2html -u manual.docbook.sgml && mv manual.docbook.html manual/manual.html
 	docbook2pdf -u manual.docbook.sgml && mv manual.docbook.pdf manual/manual.pdf
+	rm -f manual.docbook.html
 	hg add manual/*
