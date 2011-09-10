@@ -140,7 +140,7 @@ PARSEFUNC(pseudo_parse_section)
 	
 	// cause all instances of "constant" sections to start at 0
 	if (s -> flags & section_flag_constant)
-		s -> offset = 0;
+		s -> offset = lw_expr_build(lw_expr_type_int, 0);
 	lw_expr_destroy(l -> addr);
 	l -> addr = lw_expr_copy(s -> offset);
 	lw_expr_destroy(l -> daddr);
