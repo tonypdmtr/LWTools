@@ -49,6 +49,8 @@ char **libdirs = NULL;
 int nscriptls = 0;
 char **scriptls = NULL;
 
+char *sysroot = "/";
+
 void add_input_file(char *fn)
 {
 	inputfiles = lw_realloc(inputfiles, sizeof(fileinfo_t *) * (ninputfiles + 1));

@@ -77,9 +77,19 @@ void read_files(void)
 			
 			for (j = 0; j < nlibdirs; j++)
 			{
-				s = strlen(libdirs[j]) + 7 + strlen(inputfiles[i] -> filename);
-				tf = lw_alloc(s + 1);
-				sprintf(tf, "%s/lib%s.a", libdirs[j], inputfiles[i] -> filename);
+				if (libdirs[j][0] == '=')
+				{
+					// handle sysroot
+					s = strlen(libdirs[j]) + 7 + strlen(sysroot) + strlen(inputfiles[i] -> filename);
+					tf = lw_alloc(s + 1);
+					sprintf(tf, "%s/%s/lib%s.a", sysroot, libdirs[j] + 1, inputfiles[i] -> filename);
+				}
+				else
+				{
+					s = strlen(libdirs[j]) + 7 + strlen(inputfiles[i] -> filename);
+					tf = lw_alloc(s + 1);
+					sprintf(tf, "%s/lib%s.a", libdirs[j], inputfiles[i] -> filename);
+				}
 				f = fopen(tf, "rb");
 				if (!f)
 				{

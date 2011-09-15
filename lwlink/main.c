@@ -100,6 +100,10 @@ static int parse_opts(int key, char *arg, void *state)
 		add_section_base(arg);
 		break;
 	
+	case 0x101:
+		sysroot = arg;
+		break;
+	
 	case 'm':
 		map_file = arg;
 		break;
@@ -134,6 +138,8 @@ static struct lw_cmdline_options options[] =
 				"Add DIR to the library search path" },
 	{ "section-base", 0x100,	"SECT=BASE",	0,
 				"Load section SECT at BASE" },
+	{ "sysroot", 0x101,	"DIR",	0,
+				"Specify the path to replace an initial = with in library paths" },
 	{ "map",		'm',	"FILE",		0,
 				"Output informaiton about the link" },
 	{ 0 }

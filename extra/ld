@@ -28,7 +28,13 @@ path_to_lwlink=lwlink
 output_file=a.out
 libpaths=
 libs=
+stdlibpaths="-L=/usr/local/lib -L=/usr/lib -L=/lib"
 verbose=
+
+if [ "$verbose" = 1 ]; then
+	echo "$0 $@"
+fi
+
 case $0 in
 	*m6809-coco-*)
 		options="--format=decb"
@@ -101,6 +107,14 @@ while [ "$1" != "" ]; do
 		--format-lwex)
 			options="$options --format=lwex"
 			;;
+		
+		--sysroot=*)
+			options="$options $arg"
+			;;
+			
+		-nostdlib)
+			stdlibpaths=
+			;;
 
 		-*)
 			echo "ld (m6809): unknown option $arg"
@@ -115,7 +129,7 @@ done
 options="$options -o $output_file"
 
 if [ "$verbose" = "1" ]; then
-	echo "$path_to_lwlink $options $input_files $startup_files $libpaths $libs"
+	echo "$path_to_lwlink $options $input_files $startup_files $libpaths $stdlibpaths $libs"
 fi
 
 $path_to_lwlink $options $input_files $startup_files $libpaths $libs

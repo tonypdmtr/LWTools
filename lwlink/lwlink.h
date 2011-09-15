@@ -120,6 +120,8 @@ extern int symerr;
 
 extern char *map_file;
 
+extern char *sysroot;
+
 #define __lwlink_E__ extern
 #else
 #define __lwlink_E__
