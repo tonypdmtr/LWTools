@@ -79,14 +79,6 @@ lwlib/liblw.a: $(lwlib_objs) lwlib/rules.make
 	@$(AR) rc $@ $(lwlib_objs)
 	@$(RANLIB) $@
 
-%.d: %.c
-	@echo "Building dependencies for $@"
-	@$(CC) -MM $(CPPFLAGS) -o $*.d $<
-	@mv -f $*.d $*.d.tmp
-	@sed -e 's|.*:|$*.o $*.d:|' < $*.d.tmp > $*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
-	@rm -f $*.d.tmp
-
 alldeps := $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) ($lwobjdump_deps)
 
 -include $(alldeps)
@@ -94,6 +86,12 @@ alldeps := $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) ($lwobjdump_d
 extra_clean := $(extra_clean) *~ */*~
 
 %.o: %.c
+	@echo "Building dependencies for $@"
+	@$(CC) -MM $(CPPFLAGS) -o $*.d $<
+	@mv -f $*.d $*.d.tmp
+	@sed -e 's|.*:|$*.o $*.d:|' < $*.d.tmp > $*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+	@rm -f $*.d.tmp
 	@echo Building $@
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 	
