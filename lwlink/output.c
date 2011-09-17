@@ -201,6 +201,7 @@ void do_output_lwex0(FILE *of)
 	writebytes(buf, 1, 32, of);
 	// output the data
 	// NOTE: disjoint load addresses will not work correctly!!!!!
+	nskips = 0;
 	for (sn = 0; sn < nsects; sn++)
 	{
 		if (sectlist[sn].ptr -> flags & SECTION_BSS)
