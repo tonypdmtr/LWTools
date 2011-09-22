@@ -4,12 +4,8 @@ purposes.
 as
 
 This is a sort of front-end script that makes lwasm look approximately like
-gnu as which is useful for using lwasm as a backend to gcc. You will
-probably need to edit it to make it work fully. Simply put this in place
-of whatever gcc6809 installed for "as" (in the "m6809/bin" folder in
-"--prefix") after editing it to point to the real location of the "lwasm"
-binary.
-
+gnu as which is useful for using lwasm as a backend to gcc.  You may need to
+edit it to make it work fully.
 
 ld
 
@@ -20,13 +16,23 @@ ar
 
 Similar to the "as" script above except for lwar.
 
+gcc6809lw-4.6.1-1.patch
+
+These are patches to the main gcc source distribution for specific releases. 
+The last number after the dash is a patch level for the specific patch. 
+These are different to the official gcc6809 releases in the following ways. 
+First, all the source for as-6809 is removed.  Also, the special "helper"
+makefile and directory is removed.  Also, as of this writing, the
+distribution side for gcc6809 has been down for months and the latest
+release was for gcc 4.3.4 which does not build on 64 bit linux.
+
 
 To use these scripts, you really need to understand how to build a gcc as a
 cross compiler. The basics are that you put the as, ld, and ar scripts
 whereever you plan to put your cross-development binaries. Then, when
 building the cross compiler, you tell it where the scripts are.
 
-The following worked with gcc6809 4.3.4-3:
+The following work
 
 1. Install the ar, as, and ld scripts named m6809-unknown-{as,ar,ld} in a
 directory in your path, say /usr/local/coco/bin/.
@@ -34,7 +40,8 @@ directory in your path, say /usr/local/coco/bin/.
 2. Make symbolic links to /bin/true for similarly named nm, objdump, ranlib,
 and strip in the same directory  Some of these may not be necessary.
 
-3. Unpack gcc and apply the gcc6809 patch.
+3. Unpack gcc and apply the gcc6809 patch. The gcc6809lw* patch file
+in this directory is known to work with these instructions.
 
 4. Make sure /usr/local/coco/bin is in your PATH
 
