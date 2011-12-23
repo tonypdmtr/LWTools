@@ -326,4 +326,25 @@ void setup_script()
 	
 	if (scriptfile || nscriptls)
 		lw_free(oscript);
+	
+	if (entrysym)
+	{
+			int eaddr;
+			char *ptr2;
+			
+			lw_free(linkscript.execsym);
+			
+			eaddr = strtol(entrysym, &ptr2, 0);
+			if (*ptr2)
+			{
+				linkscript.execaddr = -1;
+				linkscript.execsym = lw_strdup(entrysym);
+			}
+			else
+			{
+				linkscript.execaddr = eaddr;
+				linkscript.execsym = NULL;
+			}
+
+	}
 }

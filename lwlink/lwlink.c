@@ -51,6 +51,8 @@ char **scriptls = NULL;
 
 char *sysroot = "/";
 
+char *entrysym = NULL;
+
 void add_input_file(char *fn)
 {
 	inputfiles = lw_realloc(inputfiles, sizeof(fileinfo_t *) * (ninputfiles + 1));

@@ -109,6 +109,7 @@ extern char *outfile;
 extern int ninputfiles;
 extern fileinfo_t **inputfiles;
 extern char *scriptfile;
+extern char *entrysym;
 
 extern int nlibdirs;
 extern char **libdirs;

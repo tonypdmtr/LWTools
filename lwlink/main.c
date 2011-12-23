@@ -55,6 +55,11 @@ static int parse_opts(int key, char *arg, void *state)
 		// debug
 		debug_level++;
 		break;
+
+	case 'e':
+		// entry symbol
+		entrysym = arg;
+		break;
 	
 	case 'b':
 		// decb output
@@ -138,6 +143,8 @@ static struct lw_cmdline_options options[] =
 				"Add DIR to the library search path" },
 	{ "section-base", 0x100,	"SECT=BASE",	0,
 				"Load section SECT at BASE" },
+	{ "entry", 		'e',		"SYM",			0,
+				"Specify SYM as program entry point" },
 	{ "sysroot", 0x101,	"DIR",	0,
 				"Specify the path to replace an initial = with in library paths" },
 	{ "map",		'm',	"FILE",		0,
