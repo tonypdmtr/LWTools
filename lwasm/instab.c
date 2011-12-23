@@ -312,6 +312,10 @@ extern PARSEFUNC(pseudo_parse_align);
 extern RESOLVEFUNC(pseudo_resolve_align);
 extern EMITFUNC(pseudo_emit_align);
 
+extern PARSEFUNC(pseudo_parse_fill);
+extern RESOLVEFUNC(pseudo_resolve_fill);
+extern EMITFUNC(pseudo_emit_fill);
+
 extern PARSEFUNC(pseudo_parse_struct);
 #define pseudo_resolve_struct NULL
 #define pseudo_emit_struct NULL
@@ -613,6 +617,7 @@ instab_t instab[] =
 	{ "use",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_include,	pseudo_resolve_include,			pseudo_emit_include,		lwasm_insn_normal},
 	
 	{ "align", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_align,		pseudo_resolve_align,			pseudo_emit_align,			lwasm_insn_normal},
+	{ "fill",		{	-1,		-1,		-1,		-1 },	pseudo_parse_fill,		pseudo_resolve_fill,			pseudo_emit_fill,			lwasm_insn_normal},
 
 	{ "error",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_error,		pseudo_resolve_error,			pseudo_emit_error,			lwasm_insn_normal},
 	{ "warning",	{	-1, 	-1, 	-1, 	-1},	pseudo_parse_warning,	pseudo_resolve_warning,			pseudo_emit_warning,		lwasm_insn_normal},

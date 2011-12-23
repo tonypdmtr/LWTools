@@ -264,6 +264,8 @@ FILE *input_open_standalone(asmstate_t *as, char *s)
 	{
 		/* absolute path */
 		debug_message(as, 2, "Open file (st abs) %s", s);
+		if (as -> flags & FLAG_DEPEND)
+			printf("%s\n", s);
 		fp = fopen(s, "rb");
 		if (!fp)
 		{
@@ -279,6 +281,8 @@ FILE *input_open_standalone(asmstate_t *as, char *s)
 	fp = fopen(p2, "rb");
 	if (fp)
 	{
+		if (as -> flags & FLAG_DEPEND)
+			printf("%s\n", p2);
 		lw_free(p2);
 		return fp;
 	}
@@ -293,11 +297,22 @@ FILE *input_open_standalone(asmstate_t *as, char *s)
 		fp = fopen(p2, "rb");
 		if (fp)
 		{
+			if (as -> flags & FLAG_DEPEND)
+				printf("%s\n", p2);
 			lw_free(p2);
 			return fp;
 		}
 		lw_free(p2);
 		lw_stringlist_next(as -> include_list);
+	}
+
+	// last ditch output for dependencies
+	if (as -> flags & FLAG_DEPEND)
+	{
+		p = lw_stack_top(as -> file_dir);
+		p2 = make_filename(p ? p : "", s);
+		printf("%s\n", p2);
+		lw_free(p2);
 	}
 	
 	return NULL;

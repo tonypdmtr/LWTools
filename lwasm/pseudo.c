@@ -1448,6 +1448,76 @@ EMITFUNC(pseudo_emit_align)
 	}
 }
 
+PARSEFUNC(pseudo_parse_fill)
+{
+	lw_expr_t e, e1;
+	if (!**p)
+	{
+		lwasm_register_error(as, l, "Bad operand");
+		return;
+	}
+	
+	e1 = lwasm_parse_expr(as, p);
+	if (**p != ',')
+	{
+		lwasm_register_error(as, l, "Bad operand");
+		return;
+	}
+	(*p)++;
+	e = lwasm_parse_expr(as, p);
+	
+	if (!e)
+	{
+		lwasm_register_error(as, l, "Bad operand");
+		return;
+	}
+	
+	lwasm_save_expr(l, 0, e);
+	lwasm_save_expr(l, 1, e1);
+
+	if (!e1)
+	{
+		lwasm_register_error(as, l, "Bad padding");
+		return;
+	}
+}
+
+RESOLVEFUNC(pseudo_resolve_fill)
+{
+	lw_expr_t e;
+	int align;
+
+	e = lwasm_fetch_expr(l, 0);
+	
+	if (lw_expr_istype(e, lw_expr_type_int))
+	{
+		align = lw_expr_intval(e);
+		if (align < 1)
+		{
+			lwasm_register_error(as, l, "Invalid fill length");
+			return;
+		}
+	}
+	
+	if (lw_expr_istype(l -> addr, lw_expr_type_int))
+	{
+		l -> len = align;
+		return;
+	}
+}
+
+EMITFUNC(pseudo_emit_fill)
+{
+	lw_expr_t e;
+	int i;
+	
+	e = lwasm_fetch_expr(l, 1);
+	for (i = 0; i < l -> len; i++)
+	{
+		lwasm_emitexpr(l, e, 1);
+	}
+}
+
 /* string conditional argument parser */
 /*
 argument syntax:

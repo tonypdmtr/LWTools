@@ -280,7 +280,7 @@ int main(int argc, char **argv)
 
 	if (asmstate.flags & FLAG_DEPEND)
 	{
-		// output dependencies
+		// output dependencies (other than "includebin")
 		char *n;
 		
 		while ((n = lw_stack_pop(asmstate.includelist)))
