@@ -1,0 +1,10 @@
+lwcc is based on the PCC compiler code. However, the code has been
+substantially modified to elminate autoconf, automake, and support for
+targets not supported by lwtools.
+
+In addition, many parts have been substantially rewritten to match the
+lwtools code style or generally improve readability.
+
+Some source files are substantially similar to the same files from PCC and
+retain the original PCC license. Others, containing original or rewritten
+code are licensed under the same license as the rest of lwtools.
