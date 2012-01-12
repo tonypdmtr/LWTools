@@ -34,7 +34,7 @@ lwar_srcs := $(addprefix lwar/,$(lwar_srcs))
 
 lwlib_srcs := lw_alloc.c lw_realloc.c lw_free.c lw_error.c lw_expr.c \
 	lw_stack.c lw_string.c lw_stringlist.c lw_cmdline.c
-lwlib_srcs := $(addprefix lwlib/,$(lwlib_srcs_local))
+lwlib_srcs := $(addprefix lwlib/,$(lwlib_srcs))
 
 lwlink_srcs := main.c lwlink.c readfiles.c expr.c script.c link.c output.c map.c
 lwobjdump_srcs := objdump.c
@@ -99,7 +99,7 @@ lwcc/lwcc$(PROGSUFFIX): $(lwcc_objs) lwlib
 .INTERMEDIATE: lwlib
 lwlib: lwlib/liblw.a
 
-lwlib/liblw.a: $(lwlib_objs) lwlib/rules.make
+lwlib/liblw.a: $(lwlib_objs)
 	@echo Linking $@
 	@$(AR) rc $@ $(lwlib_objs)
 	@$(RANLIB) $@
