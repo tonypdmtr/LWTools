@@ -29,14 +29,27 @@ MAIN_TARGETS := lwasm/lwasm$(PROGSUFFIX) \
 .PHONY: all
 all: $(MAIN_TARGETS)
 
-subdirs := lwasm lwlink lwar lwlib lwbasic docs
+lwar_srcs := add.c extract.c list.c lwar.c main.c remove.c replace.c
+lwar_srcs := $(addprefix lwar/,$(lwar_srcs))
 
--include $(subdirs:=/rules.make)
+lwlib_srcs := lw_alloc.c lw_realloc.c lw_free.c lw_error.c lw_expr.c \
+	lw_stack.c lw_string.c lw_stringlist.c lw_cmdline.c
+lwlib_srcs := $(addprefix lwlib/,$(lwlib_srcs_local))
+
+lwlink_srcs := main.c lwlink.c readfiles.c expr.c script.c link.c output.c map.c
+lwobjdump_srcs := objdump.c
+lwlink_srcs := $(addprefix lwlink/,$(lwlink_srcs))
+lwobjdump_srcs := $(addprefix lwlink/,$(lwobjdump_srcs))
 
 lwcc_srcs :=  lwcc.c
-
 lwcc_srcs := $(addprefix lwcc/,$(lwcc_srcs))
 
+lwasm_srcs :=  debug.c input.c insn_bitbit.c insn_gen.c insn_indexed.c \
+	insn_inh.c insn_logicmem.c insn_rel.c insn_rlist.c insn_rtor.c insn_tfm.c \
+	instab.c list.c lwasm.c macro.c main.c os9.c output.c pass1.c pass2.c \
+	pass3.c pass4.c pass5.c pass6.c pass7.c pragma.c pseudo.c section.c \
+	struct.c symbol.c
+lwasm_srcs := $(addprefix lwasm/,$(lwasm_srcs))
 
 lwasm_objs := $(lwasm_srcs:.c=.o)
 lwlink_objs := $(lwlink_srcs:.c=.o)
@@ -62,19 +75,19 @@ lwcc: lwcc/lwcc$(PROGSUFFIX)
 .PHONY: lwbasic
 lwbasic: lwbasic/lwbasic$(PROGSUFFIX)
 
-lwasm/lwasm$(PROGSUFFIX): $(lwasm_objs) lwlib lwasm/rules.make
+lwasm/lwasm$(PROGSUFFIX): $(lwasm_objs) lwlib
 	@echo Linking $@
 	@$(CC) -o $@ $(lwasm_objs) $(LDFLAGS)
 
-lwlink/lwlink$(PROGSUFFIX): $(lwlink_objs) lwlib lwlink/rules.make
+lwlink/lwlink$(PROGSUFFIX): $(lwlink_objs) lwlib
 	@echo Linking $@
 	@$(CC) -o $@ $(lwlink_objs) $(LDFLAGS)
 
-lwlink/lwobjdump$(PROGSUFFIX): $(lwobjdump_objs) lwlib lwlink/rules.make
+lwlink/lwobjdump$(PROGSUFFIX): $(lwobjdump_objs) lwlib
 	@echo Linking $@
 	@$(CC) -o $@ $(lwobjdump_objs) $(LDFLAGS)
 
-lwar/lwar$(PROGSUFFIX): $(lwar_objs) lwlib lwar/rules.make
+lwar/lwar$(PROGSUFFIX): $(lwar_objs) lwlib
 	@echo Linking $@
 	@$(CC) -o $@ $(lwar_objs) $(LDFLAGS)
 
@@ -132,4 +145,25 @@ install:
 .PHONY: test
 test: all test/runtests
 	@test/runtests
-	
+
+.PHONY: manual
+manual: manual-html manual-htmlm manual-pdf
+
+.PHONY: manual-html
+manual-html: docs/manual/manual.html
+
+.PHONY: manual-htmlm
+manual-htmlm: docs/manual/index.html
+
+.PHONY: manual-pdf
+manual-pdf: docs/manual/manual.pdf
+
+docs/manual/manual.html: docs/manual.docbook.sgml
+	docbook2html -o docs -u docs/manual.docbook.sgml && mv docs/manual.docbook.html docs/manual/manual.html
+
+docs/manual/index.html: docs/manual.docbook.sgml
+	docbook2html -o docs/manual docsmanual.docbook.sgml
+
+docs/manual/manual.pdf: docs/manual.docbook.sgml
+	docbook2pdf -o docs -u docsmanual.docbook.sgml && mv docs/manual.docbook.pdf docs/manual/manual.pdf && rm -f docs/manual.docbook.html
+
