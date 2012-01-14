@@ -2,7 +2,7 @@
 
 This is the front-end program for the C compiler.
 
-Copyright © 2011 William Astle
+Copyright © 2012 William Astle
 
 This file is part of LWTOOLS.
 
