@@ -103,6 +103,8 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 	t = 0;
 	for (i = 0; i < nopt + 3; i++)
 	{
+		if (slist[i]->flags & lw_cmdline_opt_hidden)
+			continue;
 		if (slist[i]->key > 0x20 && slist[i]->key < 0x7f)
 		{
 			if (slist[i]->arg == NULL)
@@ -127,6 +129,8 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 	/* print short options that take args */
 	for (i = 0; i < nopt + 3; i++)
 	{
+		if (slist[i]->flags & lw_cmdline_opt_hidden)
+			continue;
 		if (slist[i]->key > 0x20 && slist[i]->key < 0x7f && slist[i] -> arg)
 		{
 			if (slist[i]->flags & lw_cmdline_opt_optional)
@@ -157,6 +161,8 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 	/* print long options */
 	for (i = 0; i < nopt + 3; i++)
 	{
+		if (slist[i]->flags & lw_cmdline_opt_hidden)
+			continue;
 		if (!(llist[i]->name))
 			continue;
 		if (llist[i]->arg)
@@ -264,6 +270,8 @@ static void lw_cmdline_help(struct lw_cmdline_parser *parser, char *name)
 	/* display options - do it the naïve way for now */
 	for (i = 0; i < (nopt + 3); i++)
 	{
+		if (llist[i]->flags & lw_cmdline_opt_hidden)
+			continue;
 		noequ = 0;
 		if (llist[i] -> flags & lw_cmdline_opt_doc)
 		{
