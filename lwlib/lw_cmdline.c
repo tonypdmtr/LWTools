@@ -45,7 +45,7 @@ static int cmpr(const void *e1, const void *e2)
 	o1 = (struct lw_cmdline_options **)e1;
 	o2 = (struct lw_cmdline_options **)e2;
 	
-	return strcmp((*o1) -> name, (*o2) -> name);
+	return strcmp((*o1) -> name ? (*o1) -> name : "", (*o2) -> name ? (*o2) -> name : "");
 }
 
 static int cmpr2(const void *e1, const void *e2)
@@ -69,7 +69,7 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 	int t;
 	int col;
 		
-	for (nopt = 0; parser -> options[nopt].name; nopt++)
+	for (nopt = 0; parser -> options[nopt].name || parser -> options[nopt].key || parser -> options[nopt].doc; nopt++)
 		/* do nothing */ ;
 	
 	slist = lw_alloc(sizeof(struct lw_cmdline_options *) * (nopt + 3));
@@ -157,6 +157,8 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 	/* print long options */
 	for (i = 0; i < nopt + 3; i++)
 	{
+		if (!(llist[i]->name))
+			continue;
 		if (llist[i]->arg)
 		{
 			t = strlen(llist[i] -> name) + 6 + strlen(llist[i] -> arg);
@@ -167,11 +169,19 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 				printf("\n       ");
 				col = 7;
 			}
-			printf(" [--%s%s=%s%s]", 
-				llist[i] -> name,
-				(llist[i] -> flags & lw_cmdline_opt_optional) ? "[" : "",
-				llist[i] -> arg,
-				(llist[i] -> flags & lw_cmdline_opt_optional) ? "]" : "");
+			if (llist[i] -> flags & lw_cmdline_opt_doc)
+			{
+				printf(" [%s%s]", llist[i] -> name, llist[i] -> arg);
+				t = strlen(llist[i] -> name) + strlen(llist[i] -> arg) + 3;
+			}
+			else
+			{
+				printf(" [--%s%s=%s%s]", 
+					llist[i] -> name,
+					(llist[i] -> flags & lw_cmdline_opt_optional) ? "[" : "",
+					llist[i] -> arg,
+					(llist[i] -> flags & lw_cmdline_opt_optional) ? "]" : "");
+			}
 			col += t;
 		}
 		else
@@ -182,7 +192,15 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 				printf("\n       ");
 				col = 7;
 			}
-			printf(" [--%s]", llist[i] -> name);
+			if (llist[i] -> flags & lw_cmdline_opt_doc)
+			{
+				t -= 2;
+				printf(" [%s]", llist[i] -> name);
+			}
+			else
+			{
+				printf(" [--%s]", llist[i] -> name);
+			}
 			col += t;
 		}
 	}
@@ -210,9 +228,10 @@ static void lw_cmdline_help(struct lw_cmdline_parser *parser, char *name)
 	int i;
 	char *tstr;
 	int col = 0;
+	int noequ;
 	
 	tstr = parser -> doc;
-	for (nopt = 0; parser -> options[nopt].name; nopt++)
+	for (nopt = 0; parser -> options[nopt].name || parser -> options[nopt].key || parser -> options[nopt].doc; nopt++)
 		/* do nothing */ ;
 	
 	llist = lw_alloc(sizeof(struct lw_cmdline_options *) * (nopt + 3));	
@@ -245,28 +264,52 @@ static void lw_cmdline_help(struct lw_cmdline_parser *parser, char *name)
 	/* display options - do it the naïve way for now */
 	for (i = 0; i < (nopt + 3); i++)
 	{
-		if (llist[i] -> key > 0x20 && llist[i] -> key < 0x7F)
+		noequ = 0;
+		if (llist[i] -> flags & lw_cmdline_opt_doc)
 		{
-			printf("  -%c, ", llist[i] -> key);
+			col = strlen(llist[i] -> name) + 2;
+			printf("  %s", llist[i] -> name);
+			noequ = 1;
+		}
+		else if (llist[i] -> key > 0x20 && llist[i] -> key < 0x7F)
+		{
+			printf("  -%c", llist[i] -> key);
+			col = 5;
+			if (llist[i] -> name)
+			{
+				col++;
+				fputc(',', stdout);
+			}
+			fputc(' ', stdout);
 		}
 		else
 		{
 			printf("      ");
+			col = 6;
 		}
-		col = 8 + strlen(llist[i] -> name);
-		
-		printf("--%s", llist[i] -> name);
+		if (llist[i] -> name && !(llist[i] -> flags & lw_cmdline_opt_doc))
+		{
+			col += 2 + strlen(llist[i] -> name);
+			printf("--%s", llist[i] -> name);
+		}
 		if (llist[i] -> arg)
 		{
 			if (llist[i] -> flags & lw_cmdline_opt_optional)
 			{
-				printf("[=%s]", llist[i] -> arg);
-				col += 3 + strlen(llist[i] -> arg);
+				col++;
+				fputc('[', stdout);
 			}
-			else
+			if (noequ)
 			{
-				printf("=%s", llist[i] -> arg);
-				col += 1 + strlen(llist[i] -> arg);
+				fputc('=', stdout);
+				col++;
+			}
+			printf("%s", llist[i] -> arg);
+			col += strlen(llist[i] -> arg);
+			if (llist[i] -> flags & lw_cmdline_opt_optional)
+			{
+				col++;
+				fputc(']', stdout);
 			}
 		}
 		if (llist[i] -> doc)
@@ -390,7 +433,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 		if (argv[i][cch] == 'V')
 			goto do_version;
 		/* look up key */
-		for (j = 0; parser -> options[j].name; j++)
+		for (j = 0; parser -> options[j].name || parser -> options[j].key || parser -> options[j].doc; j++)
 			if (parser -> options[j].key == argv[i][cch])
 				break;
 		cch++;
@@ -424,9 +467,9 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 		if (argv[i][j] == '=')
 			j++;
 		cch = j;
-		for (j = 0; parser -> options[j].name; j++)
+		for (j = 0; parser -> options[j].name || parser -> options[j].key || parser -> options[j].doc; j++)
 		{
-			if (strcmp(parser -> options[j].name, tstr) == 0)
+			if (parser -> options[j].name && strcmp(parser -> options[j].name, tstr) == 0)
 				break;
 		}
 		lw_free(tstr);
