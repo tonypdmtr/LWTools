@@ -203,7 +203,7 @@ void do_list(asmstate_t *as)
 			}
 		}
 		fputc('\n', of);
-		if (cl -> outputl > 8)
+		if (obytelen > 8)
 		{
 			for (i = 8; i < obytelen; i++)
 			{
