@@ -367,6 +367,66 @@ int write_code_obj_expraux(lw_expr_t e, void *of)
 	return 0;
 }
 
+void write_code_obj_auxsym(asmstate_t *as, FILE *of, sectiontab_t *s, struct symtabe *se2)
+{
+	struct symtabe *se;
+	unsigned char buf[16];
+		
+	if (!se2)
+		return;
+	write_code_obj_auxsym(as, of, s, se2 -> left);
+	
+	for (se = se2; se; se = se -> nextver)
+	{
+		lw_expr_t te;
+		
+		debug_message(as, 200, "Consider symbol %s (%p) for export in section %p", se -> symbol, se -> section, s);
+		
+		// ignore symbols not in this section
+		if (se -> section != s)
+			continue;
+		
+		debug_message(as, 200, "  In section");
+			
+		if (se -> flags & symbol_flag_set)
+			continue;
+			
+		debug_message(as, 200, "  Not symbol_flag_set");
+			
+		te = lw_expr_copy(se -> value);
+		debug_message(as, 200, "  Value=%s", lw_expr_print(te));
+		as -> exportcheck = 1;
+		as -> csect = s;
+		lwasm_reduce_expr(as, te);
+		as -> exportcheck = 0;
+
+		debug_message(as, 200, "  Value2=%s", lw_expr_print(te));
+			
+		// don't output non-constant symbols
+		if (!lw_expr_istype(te, lw_expr_type_int))
+		{
+			lw_expr_destroy(te);
+			continue;
+		}
+
+		writebytes(se -> symbol, strlen(se -> symbol), 1, of);
+		if (se -> context >= 0)
+		{
+			writebytes("\x01", 1, 1, of);
+			sprintf((char *)buf, "%d", se -> context);
+			writebytes(buf, strlen((char *)buf), 1, of);
+		}
+		// the "" is NOT an error
+		writebytes("", 1, 1, of);
+			
+		// write the address
+		buf[0] = (lw_expr_intval(te) >> 8) & 0xff;
+		buf[1] = lw_expr_intval(te) & 0xff;
+		writebytes(buf, 2, 1, of);
+		lw_expr_destroy(te);
+	}
+	write_code_obj_auxsym(as, of, s, se2 -> right);
+}
 
 void write_code_obj(asmstate_t *as, FILE *of)
 {
@@ -374,7 +434,6 @@ void write_code_obj(asmstate_t *as, FILE *of)
 	sectiontab_t *s;
 	reloctab_t *re;
 	exportlist_t *ex;
-	struct symtabe *se;
 
 	int i;
 	unsigned char buf[16];
@@ -443,55 +502,8 @@ void write_code_obj(asmstate_t *as, FILE *of)
 			// address 0; "\0" is not an error
 			writebytes("\0", 2, 1, of);
 		}
-		for (se = as -> symtab.head; se; se = se -> next)
-		{
-			lw_expr_t te;
-			
-			debug_message(as, 200, "Consider symbol %s (%p) for export in section %p", se -> symbol, se -> section, s);
-			
-			// ignore symbols not in this section
-			if (se -> section != s)
-				continue;
-			
-			debug_message(as, 200, "  In section");
-			
-			if (se -> flags & symbol_flag_set)
-				continue;
-			
-			debug_message(as, 200, "  Not symbol_flag_set");
-			
-			te = lw_expr_copy(se -> value);
-			debug_message(as, 200, "  Value=%s", lw_expr_print(te));
-			as -> exportcheck = 1;
-			as -> csect = s;
-			lwasm_reduce_expr(as, te);
-			as -> exportcheck = 0;
-
-			debug_message(as, 200, "  Value2=%s", lw_expr_print(te));
-			
-			// don't output non-constant symbols
-			if (!lw_expr_istype(te, lw_expr_type_int))
-			{
-				lw_expr_destroy(te);
-				continue;
-			}
-
-			writebytes(se -> symbol, strlen(se -> symbol), 1, of);
-			if (se -> context >= 0)
-			{
-				writebytes("\x01", 1, 1, of);
-				sprintf((char *)buf, "%d", se -> context);
-				writebytes(buf, strlen((char *)buf), 1, of);
-			}
-			// the "" is NOT an error
-			writebytes("", 1, 1, of);
-			
-			// write the address
-			buf[0] = (lw_expr_intval(te) >> 8) & 0xff;
-			buf[1] = lw_expr_intval(te) & 0xff;
-			writebytes(buf, 2, 1, of);
-			lw_expr_destroy(te);
-		}	
+		
+		write_code_obj_auxsym(as, of, s, as -> symtab.head);
 		// flag end of local symbol table - "" is NOT an error
 		writebytes("", 1, 1, of);
 		

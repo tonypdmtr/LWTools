@@ -204,7 +204,9 @@ struct symtabe
 	int flags;							// flags for the symbol
 	sectiontab_t *section;				// section the symbol is defined in
 	lw_expr_t value;					// symbol value
-	struct symtabe *next;				// next symbol in the table
+	struct symtabe *left;				// left subtree pointer
+	struct symtabe *right;				// right subtree pointer
+	struct symtabe *nextver;			// next lower version
 };
 
 typedef struct

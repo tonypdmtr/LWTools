@@ -29,6 +29,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "lwasm.h"
 
+#if 0
 struct symtabe *symbol_findprev(asmstate_t *as, struct symtabe *se)
 {
 	struct symtabe *se1, *se2;
@@ -72,16 +73,17 @@ struct symtabe *symbol_findprev(asmstate_t *as, struct symtabe *se)
 	}
 	return se2;
 }
-
+#endif
 struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t val, int flags)
 {
-	struct symtabe *se;
+	struct symtabe *se, *nse;
 	struct symtabe *sprev;
 	int islocal = 0;
 	int context = -1;
 	int version = -1;
 	char *cp;
-
+	int cdir;
+	
 	debug_message(as, 200, "Register symbol %s (%02X), %s", sym, flags, lw_expr_print(val));
 
 	if (!(flags & symbol_flag_nocheck))
@@ -123,24 +125,33 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 		context = cl -> context;
 	
 	// first, look up symbol to see if it is already defined
-	for (se = as -> symtab.head; se; se = se -> next)
+	cdir = 0;
+	for (se = as -> symtab.head, sprev = NULL; se; )
 	{
-		debug_message(as, 300, "Symbol add lookup: %p, %p", se, se -> next);
-		if (!strcmp(sym, se -> symbol))
+		int ndir;
+		debug_message(as, 300, "Symbol add lookup: %p", se);
+		ndir = strcmp(sym, se->symbol);
+		if (!ndir && se -> context != context)
 		{
-			if (se -> context != context)
-				continue;
+			ndir = (context < se -> context) ? -1 : 1;
+		}
+		if (!ndir)
+		{
 			if ((flags & symbol_flag_set) && (se -> flags & symbol_flag_set))
 			{
-				if (version < se -> version)
-					version = se -> version;
-					continue;
+				version = se -> version;
 			}
 			break;
 		}
+		cdir = ndir;
+		sprev = se;
+		if (cdir < 0)
+			se = se -> left;
+		else
+			se = se -> right;
 	}
 
-	if (se)
+	if (se && version == -1)
 	{
 		// multiply defined symbol
 		lwasm_register_error(as, cl, "Multiply defined symbol (%s)", sym);
@@ -156,34 +167,45 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	// symbol table entries
 	lwasm_reduce_expr(as, val);
 
-	se = lw_alloc(sizeof(struct symtabe));
-	se -> context = context;
-	se -> version = version;
-	se -> flags = flags;
+	nse = lw_alloc(sizeof(struct symtabe));
+	nse -> context = context;
+	nse -> version = version;
+	nse -> flags = flags;
 	if (CURPRAGMA(cl, PRAGMA_NOLIST))
 	{
-		se -> flags |= symbol_flag_nolist;
+		nse -> flags |= symbol_flag_nolist;
 	}
-	se -> value = lw_expr_copy(val);
-	se -> symbol = lw_strdup(sym);
+	nse -> value = lw_expr_copy(val);
+	nse -> symbol = lw_strdup(sym);
+	nse -> right = NULL;
+	nse -> left = NULL;
+	nse -> nextver = NULL;
+	if (se)
+	{
+		nse -> nextver = se;
+		nse -> left = se -> left;
+		nse -> right = se -> right;
+		se -> left = NULL;
+		se -> right = NULL;
+	}
 	if (cl)
-		se -> section = cl -> csect;
+		nse -> section = cl -> csect;
 	else
-		se -> section = NULL;
-	sprev = symbol_findprev(as, se);
+		nse -> section = NULL;
 	if (!sprev)
 	{
 		debug_message(as, 200, "Adding symbol at head of symbol table");
-		se -> next = as -> symtab.head;
-		as -> symtab.head = se;
+		as -> symtab.head = nse;
 	}
 	else
 	{
 		debug_message(as, 200, "Adding symbol in middle of symbol table");
-		se -> next = sprev -> next;
-		sprev -> next = se;
+		if (cdir < 0)
+			sprev -> left = nse;
+		else
+			sprev -> right = nse;
 	}
-	return se;
+	return nse;
 }
 
 // for "SET" symbols, always returns the LAST definition of the
@@ -199,8 +221,9 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 {
 	int local = 0;
-	struct symtabe *s, *s2;
-
+	struct symtabe *s;
+	int cdir;
+	
 	// check if this is a local symbol
 	if (strchr(sym, '@') || strchr(sym, '?'))
 		local = 1;
@@ -214,27 +237,26 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 	if (!cl && local)
 		return NULL;
 	
-	for (s = as -> symtab.head, s2 = NULL; s; s = s -> next)
+	for (s = as -> symtab.head; s; )
 	{
-		if (!strcmp(sym, s -> symbol))
+		cdir = strcmp(sym, s->symbol);
+		if (!cdir)
 		{
 			if (local && s -> context != cl -> context)
-				continue;
-			
-			if (s -> flags & symbol_flag_set)
 			{
-				// look for highest version of symbol
-				if (!s2 || (s -> version > s2 -> version))
-					s2 = s;
-				continue;
-			}
-			break;
+				cdir = (cl -> context < s -> context) ? -1 : 1;
+			}	
 		}
+		
+		if (!cdir)
+			return s;
+		
+		if (cdir < 0)
+			s = s -> left;
+		else
+			s = s -> right;
 	}
-	if (!s && s2)
-		s = s2;
-	
-	return s;
+	return NULL;
 }
 
 struct listinfo
@@ -268,18 +290,21 @@ int list_symbols_test(lw_expr_t e, void *p)
 	return 0;
 }
 
-void list_symbols(asmstate_t *as, FILE *of)
+void list_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 {
 	struct symtabe *s;
 	lw_expr_t te;
 	struct listinfo li;
 
 	li.as = as;
-		
-	fprintf(of, "\nSymbol Table:\n");
 	
-	for (s = as -> symtab.head; s; s = s -> next)
-	{
+	if (!se)
+		return;
+	
+	list_symbols_aux(as, of, se -> left);
+	
+	for (s = se; s; s = s -> nextver)
+	{	
 		if (s -> flags & symbol_flag_nolist)
 			continue;
 		lwasm_reduce_expr(as, s -> value);
@@ -332,4 +357,12 @@ void list_symbols(asmstate_t *as, FILE *of)
 		}
 		lw_expr_destroy(te);
 	}
+	
+	list_symbols_aux(as, of, se -> right);
+}
+
+void list_symbols(asmstate_t *as, FILE *of)
+{
+	fprintf(of, "\nSymbol Table:\n");
+	list_symbols_aux(as, of, as -> symtab.head);
 }
