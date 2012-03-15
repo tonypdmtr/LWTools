@@ -177,7 +177,7 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 			}
 			if (llist[i] -> flags & lw_cmdline_opt_doc)
 			{
-				printf(" [%s%s]", llist[i] -> name, llist[i] -> arg);
+				printf(" [%s=%s]", llist[i] -> name, llist[i] -> arg);
 				t = strlen(llist[i] -> name) + strlen(llist[i] -> arg) + 3;
 			}
 			else
@@ -307,7 +307,7 @@ static void lw_cmdline_help(struct lw_cmdline_parser *parser, char *name)
 				col++;
 				fputc('[', stdout);
 			}
-			if (noequ)
+			if (!noequ)
 			{
 				fputc('=', stdout);
 				col++;
