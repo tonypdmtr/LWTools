@@ -84,16 +84,22 @@ while [ "$*" != "" ]; do
 			;;
 		--section-start)
 			section_value=$1; shift
-			options="$options --section-start=$section_value"
+			options="$options --section-base=$section_value"
 			;;
+		
+		--map)
+			map_file=$1; shift
+			options="$options --map=$map_file"
+			;;
+			
 		-Tbss)
-			options="$options --section-start=.bss=$1"; shift
+			options="$options --section-base=.bss=$1"; shift
 			;;
 		-Tdata)
-			options="$options --section-start=.data=$1"; shift
+			options="$options --section-base=.data=$1"; shift
 			;;
 		-Ttext|-Tcode)
-			options="$options --section-start=.text=$1"; shift
+			options="$options --section-base=.text=$1"; shift
 			;;
 		-v|--verbose)
 			verbose=1
