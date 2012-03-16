@@ -22,6 +22,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <time.h>
 
 #include "lwasm.h"
 #include "instab.h"
@@ -83,7 +84,7 @@ void debug_message(asmstate_t *as, int level, const char *fmt, ...)
 
 	va_start(args, fmt);
 	
-	fprintf(as -> debug_file, "DEBUG %03d: ", level);
+	fprintf(as -> debug_file, "DEBUG %03d (%ld): ", level, (long)time(NULL));
 	vfprintf(as -> debug_file, fmt, args);
 	fputc('\n', as -> debug_file);
 
