@@ -56,6 +56,7 @@ void do_pass4_aux(asmstate_t *as, int force)
 		// find an unresolved instruction
 		for ( ; sl && sl -> len != -1; sl = sl -> next)
 		{
+			debug_message(as, 200, "Search line %p", sl);
 			as -> cl = sl;
 			lwasm_reduce_expr(as, sl -> addr);
 			lwasm_reduce_expr(as, sl -> daddr);
@@ -64,7 +65,8 @@ void do_pass4_aux(asmstate_t *as, int force)
 			for (le = sl -> exprs; le; le = le -> next)
 				lwasm_reduce_expr(as, le -> expr);
 		}
-				
+		
+		debug_message(as, 200, "Found line %p", sl);
 		// simplify address
 		as -> cl = sl;
 		lwasm_reduce_expr(as, sl -> addr);
@@ -78,21 +80,31 @@ void do_pass4_aux(asmstate_t *as, int force)
 		if (sl -> len == -1 && sl -> insn >= 0 && instab[sl -> insn].resolve)
 		{
 			(instab[sl -> insn].resolve)(as, sl, 1);
+			debug_message(as, 200, "Try resolve = %d/%d", sl -> len, sl -> dlen);
 			if (force && sl -> len == -1 && sl -> dlen == -1)
 			{
 				lwasm_register_error(as, sl, "Instruction failed to resolve.");
 				return;
 			}
 		}
-		cnt--;
-		if (cnt == 0)
-			return;
+		if (sl -> len != -1 && sl -> dlen != -1)
+		{
+			cnt--;
+			if (cnt == 0)
+				return;
+			
+			// this one resolved - try looking for the next one instead
+			// of wasting time running through the rest of the lines
+			continue;
+		}
 
 		do
 		{
+			debug_message(as, 200, "Flatten after...");
 			rc = 0;
 			for (cl = sl; cl; cl = cl -> next)
 			{
+				debug_message(as, 200, "Flatten line %p", cl);
 				as -> cl = cl;
 			
 				// simplify address
@@ -116,6 +128,7 @@ void do_pass4_aux(asmstate_t *as, int force)
 							else
 								cl -> dlen = cl -> len;
 						}
+						debug_message(as, 200, "Flatten resolve returns %d", cl -> len);
 						if (cl -> len != -1 && cl -> dlen != -1)
 						{
 							rc++;
