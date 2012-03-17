@@ -676,7 +676,8 @@ again:
 	
 	// simplify operands
 	for (o = E -> operands; o; o = o -> next)
-		lw_expr_simplify_l(o -> p, priv);
+		if (o -> p -> type != lw_expr_type_int)
+			lw_expr_simplify_l(o -> p, priv);
 
 	for (o = E -> operands; o; o = o -> next)
 	{
@@ -1070,6 +1071,8 @@ void lw_expr_simplify_l(lw_expr_t E, void *priv)
 
 void lw_expr_simplify(lw_expr_t E, void *priv)
 {
+	if (E -> type == lw_expr_type_int)
+		return;
 	lw_expr_simplify_l(E, priv);
 }
 

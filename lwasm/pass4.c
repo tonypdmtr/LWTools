@@ -51,6 +51,8 @@ void do_pass4_aux(asmstate_t *as, int force)
 	sl = as -> line_head;
 	while (cnt > 0)
 	{
+		debug_message(as, 60, "%d unresolved instructions", cnt);
+
 		// find an unresolved instruction
 		for ( ; sl && sl -> len != -1; sl = sl -> next)
 		{
