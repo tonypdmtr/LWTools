@@ -82,7 +82,8 @@ enum lwasm_pragmas_e
 	PRAGMA_PCASPCR = 0x0020,			// treats ,PC as ,PCR instead of constant offset
 	PRAGMA_SHADOW = 0x0040,				// allow macros to shadow builtin operations
 	PRAGMA_NOLIST = 0x0080,				// don't show line in listing
-	PRAGMA_AUTOBRANCHLENGTH = 0x0100	// automatically select proper length for relative branches
+	PRAGMA_AUTOBRANCHLENGTH = 0x0100,	// automatically select proper length for relative branches
+	PRAGMA_EXPORT = 0x0200				// export symbols by default, unless local
 };
 
 

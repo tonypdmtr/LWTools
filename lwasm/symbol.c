@@ -205,6 +205,18 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 		else
 			sprev -> right = nse;
 	}
+	if (CURPRAGMA(cl, PRAGMA_EXPORT) && cl -> csect && !islocal)
+	{
+		exportlist_t *e;
+		
+		/* export symbol if not already exported */
+		e = lw_alloc(sizeof(exportlist_t));
+		e -> next = as -> exportlist;
+		e -> symbol = lw_strdup(sym);
+		e -> line = cl;
+		e -> se = nse;
+		as -> exportlist = e;
+	}
 	return nse;
 }
 
