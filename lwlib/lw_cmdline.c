@@ -518,6 +518,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 			if (!tstr && (parser -> options[j].flags & lw_cmdline_opt_optional) == 0)
 			{
 				fprintf(stderr, "Option %s requires argument.\n", parser -> options[j].name);
+				continue;
 			}
 		}
 		r = (*(parser -> parser))(parser -> options[j].key, tstr, input);
