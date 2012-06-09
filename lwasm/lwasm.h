@@ -84,7 +84,8 @@ enum lwasm_pragmas_e
 	PRAGMA_NOLIST = 0x0080,				// don't show line in listing
 	PRAGMA_AUTOBRANCHLENGTH = 0x0100,	// automatically select proper length for relative branches
 	PRAGMA_EXPORT = 0x0200,				// export symbols by default, unless local
-	PRAGMA_SYMBOLNOCASE = 0x400			// symbols defined under this pragma are matched case insensitively
+	PRAGMA_SYMBOLNOCASE = 0x400,		// symbols defined under this pragma are matched case insensitively
+	PRAGMA_CONDUNDEFZERO = 0x800		// treat undefined symbols as zero in conditionals during pass 1
 };
 
 
@@ -269,6 +270,7 @@ struct asmstate_s
 	int endseen;						// have we seen an "end" pseudo?
 	int execaddr;						// address from "end"
 	int inmod;							// inside an os9 module?
+	int undefzero;						// used for handling "condundefzero"
 	unsigned char crc[3];				// crc accumulator
 	int badsymerr;						// throw error on undef sym if set
 

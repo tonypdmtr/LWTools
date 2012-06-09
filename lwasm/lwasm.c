@@ -58,6 +58,12 @@ lw_expr_t lwasm_evaluate_var(char *var, void *priv)
 		return e;
 	}
 	
+	if (as -> undefzero)
+	{
+		e = lw_expr_build(lw_expr_type_int, 0);
+		return e;
+	}
+	
 	// undefined here is undefied unless output is object
 	if (as -> output_format != OUTPUT_OBJ)
 		goto nomatch;
@@ -894,6 +900,14 @@ lw_expr_t lwasm_parse_cond(asmstate_t *as, char **p)
 	{
 		lwasm_register_error(as, as -> cl, "Bad expression");
 		return NULL;
+	}
+
+	/* handle condundefzero */
+	if (CURPRAGMA(as -> cl, PRAGMA_CONDUNDEFZERO))
+	{
+		as -> undefzero = 1;
+		lwasm_reduce_expr(as, e);
+		as -> undefzero = 0;
 	}
 
 	/* we need to simplify the expression here */

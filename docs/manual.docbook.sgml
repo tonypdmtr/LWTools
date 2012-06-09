@@ -1673,6 +1673,25 @@ is referenced.</para>
 all cases when using the object file assembly target.  It is intended for
 use only when the assembler will be producing the final binary.</para>
 
+<varlistentry>
+<term>condundefzero</term>
+<listitem>
+
+<para>This pragma will cause the assembler to change the way it handles
+symbols in conditional expressions.  Ordinarily, any symbol that is not
+defined prior to the conditional will throw an undefined symbol error.  With
+this pragma in effect, symbols that are not yet defined at the point the
+conditional is encountered will be treated as zero.</para>
+
+<para>This is not the default because it encourages poor code design. One
+should use the "IFDEF" or "IFNDEF" conditionals to test for the presence of
+a symbol.</para>
+
+<para>It is important to note that if a symbol is defined but it does not
+yet evaluate to a constant value at the point where the conditional appears,
+the assembler will still complain about a non constant condition.</para>
+
+
 </listitem>
 </varlistentry>
 

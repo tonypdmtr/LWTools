@@ -59,6 +59,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "export", "noexport", PRAGMA_EXPORT },
 	{ "symbolnocase", "nosymbolnocase", PRAGMA_SYMBOLNOCASE },
 	{ "nosymbolcase", "symbolcase", PRAGMA_SYMBOLNOCASE },
+	{ "condundefzero", "nocondundefzero", PRAGMA_CONDUNDEFZERO },
 	{ 0, 0, 0}
 };
 
