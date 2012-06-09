@@ -1014,7 +1014,8 @@ PARSEFUNC(pseudo_parse_ifeq)
 	}
 
 	e = lwasm_parse_cond(as, p);
-	lwasm_reduce_expr(as, e);
+	if (e)
+		lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) != 0)
 	{
 		as -> skipcond = 1;
@@ -1036,7 +1037,8 @@ PARSEFUNC(pseudo_parse_ifne)
 	}
 
 	e = lwasm_parse_cond(as, p);
-	lwasm_reduce_expr(as, e);
+	if (e)
+		lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) == 0)
 	{
 		as -> skipcond = 1;
@@ -1059,7 +1061,8 @@ PARSEFUNC(pseudo_parse_ifgt)
 	}
 
 	e = lwasm_parse_cond(as, p);
-	lwasm_reduce_expr(as, e);
+	if (e)
+		lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) <= 0)
 	{
 		as -> skipcond = 1;
@@ -1081,7 +1084,8 @@ PARSEFUNC(pseudo_parse_ifge)
 	}
 
 	e = lwasm_parse_cond(as, p);
-	lwasm_reduce_expr(as, e);
+	if (e)
+		lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) < 0)
 	{
 		as -> skipcond = 1;
@@ -1103,7 +1107,8 @@ PARSEFUNC(pseudo_parse_iflt)
 	}
 
 	e = lwasm_parse_cond(as, p);
-	lwasm_reduce_expr(as, e);
+	if (e)
+		lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) >= 0)
 	{
 		as -> skipcond = 1;
@@ -1125,7 +1130,8 @@ PARSEFUNC(pseudo_parse_ifle)
 	}
 
 	e = lwasm_parse_cond(as, p);
-	lwasm_reduce_expr(as, e);
+	if (e)
+		lwasm_reduce_expr(as, e);
 	if (e && lw_expr_intval(e) > 0)
 	{
 		as -> skipcond = 1;
