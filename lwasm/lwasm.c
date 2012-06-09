@@ -189,8 +189,7 @@ void lwasm_register_error(asmstate_t *as, line_t *l, const char *msg, ...)
 	lwasm_error_t *e;
 	va_list args;
 	char errbuff[1024];
-	int r;
-	
+
 	if (!l)
 		return;
 
@@ -203,7 +202,7 @@ void lwasm_register_error(asmstate_t *as, line_t *l, const char *msg, ...)
 	
 	as -> errorcount++;
 	
-	r = vsnprintf(errbuff, 1024, msg, args);
+	(void)vsnprintf(errbuff, 1024, msg, args);
 	e -> mess = lw_strdup(errbuff);
 	
 	va_end(args);
@@ -214,7 +213,6 @@ void lwasm_register_warning(asmstate_t *as, line_t *l, const char *msg, ...)
 	lwasm_error_t *e;
 	va_list args;
 	char errbuff[1024];
-	int r;
 	
 	if (!l)
 		return;
@@ -223,12 +221,12 @@ void lwasm_register_warning(asmstate_t *as, line_t *l, const char *msg, ...)
 	
 	e = lw_alloc(sizeof(lwasm_error_t));
 	
-	e -> next = l -> err;
-	l -> err = e;
+	e -> next = l -> warn;
+	l -> warn = e;
 	
-	as -> errorcount++;
+	as -> warningcount++;
 	
-	r = vsnprintf(errbuff, 1024, msg, args);
+	(void)vsnprintf(errbuff, 1024, msg, args);
 	e -> mess = lw_strdup(errbuff);
 	
 	va_end(args);

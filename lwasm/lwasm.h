@@ -260,6 +260,7 @@ struct asmstate_s
 	int flags;							// assembly flags
 	int pragmas;						// pragmas currently in effect
 	int errorcount;						// number of errors encountered
+	int warningcount;					// number of warnings issued
 	int inmacro;						// are we in a macro?
 	int instruct;						// are w in a structure?
 	int skipcond;						// skipping a condition?
