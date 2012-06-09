@@ -83,7 +83,8 @@ enum lwasm_pragmas_e
 	PRAGMA_SHADOW = 0x0040,				// allow macros to shadow builtin operations
 	PRAGMA_NOLIST = 0x0080,				// don't show line in listing
 	PRAGMA_AUTOBRANCHLENGTH = 0x0100,	// automatically select proper length for relative branches
-	PRAGMA_EXPORT = 0x0200				// export symbols by default, unless local
+	PRAGMA_EXPORT = 0x0200,				// export symbols by default, unless local
+	PRAGMA_SYMBOLNOCASE = 0x400			// symbols defined under this pragma are matched case insensitively
 };
 
 
@@ -194,6 +195,7 @@ enum
 	symbol_flag_set = 1,				// symbol was used with "set"
 	symbol_flag_nocheck = 2,			// do not check symbol characters
 	symbol_flag_nolist = 4,				// no not show symbol in symbol table
+	symbol_flag_nocase = 8,				// do not match case of symbol
 	symbol_flag_none = 0				// no flags
 };
 

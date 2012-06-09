@@ -1496,11 +1496,12 @@ This directive restores the previously saved state of the specified pragma(s). S
 </varlistentry>
 </variablelist>
 
-<para>Each pragma supported has a positive version and a negative version.
+<para>Each pragma supported has a positive version and a negative version. 
 The positive version enables the pragma while the negative version disables
-it. The negatitve version is simply the positive version with "no" prefixed
-to it. For instance, "pragma" vs. "nopragma". Only the positive version is
-listed below.</para>
+it.  The negatitve version is simply the positive version with "no" prefixed
+to it.  For instance, "pragma" vs.  "nopragma".  When only one version is
+listed below, its opposite can be obtained by prepending "no" if it is not
+present or removing "no" from the beginning if it is present.</para>
 
 <para>Pragmas are not case sensitive.</para>
 
@@ -1657,9 +1658,20 @@ to force the branch size, analogous to their use for other instructions with
 assemblers, it is strongly recommended that it be invoked using the PRAGMA
 directive within the source code rather than on the command line or via the
 *PRAGMA directive.  This way, an error will be raised if someone tries to
-* assemble the code under a different assembler.</para>
+assemble the code under a different assembler.</para>
 
+<varlistentry>
+<term>nosymbolcase</term>
+<term>symbolnocase</term>
+<listitem>
 
+<para>Any symbol defined while this pragma is in force will be treated as
+case insensitive, regardless whether the pragma is in force when the symbol
+is referenced.</para>
+
+<para>It is important to note that this pragma will not work as expected in
+all cases when using the object file assembly target.  It is intended for
+use only when the assembler will be producing the final binary.</para>
 
 </listitem>
 </varlistentry>
