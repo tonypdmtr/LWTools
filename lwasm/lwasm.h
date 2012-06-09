@@ -156,6 +156,7 @@ struct line_s
 	lw_expr_t daddr;					// data address of the line (os9 only)
 	int len;							// the "size" this line occupies (address space wise) (-1 if unknown)
 	int dlen;							// the data "size" this line occupies (-1 if unknown)
+	int maxlen;							// maximum length; will be zero if not relevant
 	int insn;							// number of insn in insn table
 	int symset;							// set if the line symbol was consumed by the instruction
 	char *sym;							// symbol, if any, on the line
@@ -271,6 +272,7 @@ struct asmstate_s
 	int execaddr;						// address from "end"
 	int inmod;							// inside an os9 module?
 	int undefzero;						// used for handling "condundefzero"
+	int pretendmax;						// set if we need to pretend the instruction is max length
 	unsigned char crc[3];				// crc accumulator
 	int badsymerr;						// throw error on undef sym if set
 

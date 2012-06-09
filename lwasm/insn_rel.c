@@ -50,6 +50,7 @@ PARSEFUNC(insn_parse_relgen)
 	lw_expr_t t, e1, e2;
 	
 	l -> lint = -1;
+	l -> maxlen = OPLEN(instab[l -> insn].ops[3]) + 2;
 	if (CURPRAGMA(l, PRAGMA_AUTOBRANCHLENGTH) == 0)
 	{
 		l -> lint = instab[l -> insn].ops[1];
@@ -161,6 +162,23 @@ RESOLVEFUNC(insn_resolve_relgen)
 					// requires 16 bits
 					l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
 					l -> lint = 16;
+				}
+			}
+			// size of 8-bit opcode + 8 bit offset
+			l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+			as -> pretendmax = 1;
+			lwasm_reduce_expr(as, e2);
+			as -> pretendmax = 0;
+			l -> len = -1;
+			if (lw_expr_istype(e2, lw_expr_type_int))
+			{
+				// it reduced to an integer; is it in 8 bit range?
+				offs = lw_expr_intval(e2);
+				if (offs >= -128 && offs <= 127)
+				{
+					// fits in 8 bits with a worst case scenario
+					l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+					l -> lint = 8;
 				}
 			}
 			lw_expr_destroy(e2);
