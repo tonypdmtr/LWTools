@@ -662,7 +662,8 @@ lw_expr_t lwasm_parse_expr(asmstate_t *as, char **p)
 
 int lwasm_reduce_expr(asmstate_t *as, lw_expr_t expr)
 {
-	lw_expr_simplify(expr, as);
+	if (expr)
+		lw_expr_simplify(expr, as);
 	return 0;
 }
 
