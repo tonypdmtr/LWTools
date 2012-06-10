@@ -274,7 +274,7 @@ void do_pass1(asmstate_t *as)
 				if (!strcasecmp(instab[opnum].opcode, sym))
 					break;
 			}
-			if ((as -> target == TARGET_6309) && (instab[opnum].flags & lwasm_insn_is6309))
+			if ((as -> target != TARGET_6309) && (instab[opnum].flags & lwasm_insn_is6309))
 				lwasm_register_error(as, cl, "Illegal use of 6309 instruction in 6809 mode (%s)", sym);
 			
 			// have to go to linedone here in case there was a symbol
