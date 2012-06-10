@@ -1154,6 +1154,7 @@ PARSEFUNC(pseudo_parse_endc)
 PARSEFUNC(pseudo_parse_else)
 {
 	l -> len = 0;
+	skip_operand(p);
 	
 	if (as -> skipmacro)
 		return;
@@ -1164,13 +1165,11 @@ PARSEFUNC(pseudo_parse_else)
 		{
 			as -> skipcount = 0;
 			as -> skipcond = 0;
-			skip_operand(p);
 		}
 		return;
 	}
 	as -> skipcond = 1;
 	as -> skipcount = 1;
-	skip_operand(p);
 }
 
 PARSEFUNC(pseudo_parse_ifdef)
