@@ -600,6 +600,7 @@ instab_t instab[] =
 	{ "rmq", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmq,		pseudo_resolve_rmq,				pseudo_emit_rmq,			lwasm_insn_struct | lwasm_insn_setdata},
 
 	{ "zmb", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmb,		pseudo_resolve_zmb,				pseudo_emit_zmb,			lwasm_insn_normal},
+	{ "fzb", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmb,		pseudo_resolve_zmb,				pseudo_emit_zmb,			lwasm_insn_normal},
 	{ "zmd", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmd,		pseudo_resolve_zmd,				pseudo_emit_zmd,			lwasm_insn_normal},
 	{ "zmq", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmq,		pseudo_resolve_zmq,				pseudo_emit_zmq,			lwasm_insn_normal},
 

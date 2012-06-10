@@ -130,10 +130,13 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	{
 		int ndir;
 		debug_message(as, 300, "Symbol add lookup: %p", se);
-		if (se -> flags & symbol_flag_nocase)
-			ndir = strcasecmp(sym, se->symbol);
-		else
-			ndir = strcmp(sym, se->symbol);
+		ndir = strcasecmp(sym, se -> symbol);
+//		if (!ndir && !CURPRAGMA(cl, PRAGMA_SYMBOLNOCASE) && !(se -> flags & symbol_flag_set))
+		if (!ndir && !(se -> flags & symbol_flag_set))
+		{
+			if (strcmp(sym, se -> symbol))
+				ndir = 1;
+		}
 		if (!ndir && se -> context != context)
 		{
 			ndir = (context < se -> context) ? -1 : 1;
@@ -258,10 +261,12 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 	
 	for (s = as -> symtab.head; s; )
 	{
-		if (s->flags & symbol_flag_nocase)
-			cdir = strcasecmp(sym, s->symbol);
-		else
-			cdir = strcmp(sym, s->symbol);
+		cdir = strcasecmp(sym, s -> symbol);
+		if (!cdir && !(s->flags & symbol_flag_nocase))
+		{
+			if (strcmp(sym, s -> symbol))
+				cdir = 1;
+		}
 		if (!cdir)
 		{
 			if (local && s -> context != cl -> context)
