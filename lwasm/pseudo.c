@@ -198,6 +198,49 @@ EMITFUNC(pseudo_emit_fdb)
 	}
 }
 
+PARSEFUNC(pseudo_parse_fdbs)
+{
+	int i = 0;
+	lw_expr_t e;
+	
+	for (;;)
+	{
+		e = lwasm_parse_expr(as, p);
+		if (!e)
+		{
+			lwasm_register_error(as, l, "Bad expression (#%d)", i);
+			break;
+		}
+		lwasm_save_expr(l, i++, e);
+		if (**p != ',')
+			break;
+		(*p)++;
+	}
+	
+	l -> len = i * 2;
+}
+
+EMITFUNC(pseudo_emit_fdbs)
+{
+	int i;
+	lw_expr_t e;
+	lw_expr_t t;
+	lw_expr_t t2;
+//	int v;
+	
+	for (i = 0; i < (l -> len)/2; i++)
+	{
+		e = lwasm_fetch_expr(l, i);
+		t = lw_expr_build(lw_expr_type_int, 256);
+		t2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_divide, e, t);
+		lwasm_reduce_expr(as, t2);
+		lw_expr_destroy(t);
+		lwasm_emitexpr(l, e, 1);
+		lwasm_emitexpr(l, t2, 1);
+		lw_expr_destroy(t2);
+	}
+}
+
 PARSEFUNC(pseudo_parse_fqb)
 {
 	int i = 0;

@@ -136,6 +136,10 @@ extern PARSEFUNC(pseudo_parse_fdb);
 #define pseudo_resolve_fdb NULL
 extern EMITFUNC(pseudo_emit_fdb);
 
+extern PARSEFUNC(pseudo_parse_fdbs);
+#define pseudo_resolve_fdbs NULL
+extern EMITFUNC(pseudo_emit_fdbs);
+
 extern PARSEFUNC(pseudo_parse_fqb);
 #define pseudo_resolve_fqb NULL
 extern EMITFUNC(pseudo_emit_fqb);
@@ -610,6 +614,7 @@ instab_t instab[] =
 
 	{ "fcb",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fcb,		pseudo_resolve_fcb,				pseudo_emit_fcb,			lwasm_insn_normal},
 	{ "fdb",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fdb,		pseudo_resolve_fdb,				pseudo_emit_fdb,			lwasm_insn_normal},
+	{ "fdbs",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fdbs,		pseudo_resolve_fdbs,			pseudo_emit_fdbs,			lwasm_insn_normal},
 	{ "fqb",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fqb,		pseudo_resolve_fqb,				pseudo_emit_fqb,			lwasm_insn_normal},
 	{ "end", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_end,		pseudo_resolve_end,				pseudo_emit_end,			lwasm_insn_normal},
 
