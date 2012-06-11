@@ -41,7 +41,7 @@ less difficult.
 Data type for storing input buffers
 */
 
-#define IGNOREERROR (errno == ENOENT && (as -> flags & FLAG_DEPENDNOERR))
+#define IGNOREERROR (errno == ENOENT && (as -> preprocess || as -> flags & FLAG_DEPENDNOERR))
 
 enum input_types_e
 {
@@ -195,6 +195,10 @@ void input_open(asmstate_t *as, char *s)
 			{
 				lw_error("Cannot open file '%s': %s\n", s, strerror(errno));
 			}
+			else
+			{
+				as -> fileerr = 1;
+			}
 			input_pushpath(as, s);
 			return;
 		}
@@ -233,6 +237,7 @@ void input_open(asmstate_t *as, char *s)
 		if (IGNOREERROR)
 		{
 			input_pushpath(as, s);
+			as -> fileerr = 1;
 			return;
 		}
 		lw_error("Cannot open include file '%s': %s\n", s, strerror(errno));

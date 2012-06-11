@@ -1017,6 +1017,7 @@ PARSEFUNC(pseudo_parse_setdp)
 PARSEFUNC(pseudo_parse_ifp1)
 {
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1032,6 +1033,7 @@ PARSEFUNC(pseudo_parse_ifp1)
 PARSEFUNC(pseudo_parse_ifp2)
 {
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1048,6 +1050,7 @@ PARSEFUNC(pseudo_parse_ifeq)
 	lw_expr_t e;
 	
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1071,6 +1074,7 @@ PARSEFUNC(pseudo_parse_ifne)
 	lw_expr_t e;
 	
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1095,6 +1099,7 @@ PARSEFUNC(pseudo_parse_ifgt)
 	lw_expr_t e;
 	
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1118,6 +1123,7 @@ PARSEFUNC(pseudo_parse_ifge)
 	lw_expr_t e;
 	
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1141,6 +1147,7 @@ PARSEFUNC(pseudo_parse_iflt)
 	lw_expr_t e;
 	
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1163,6 +1170,7 @@ PARSEFUNC(pseudo_parse_ifle)
 {
 	lw_expr_t e;
 
+	l -> hideline = 1;
 	l -> len = 0;
 	
 	if (as -> skipcond && !(as -> skipmacro))
@@ -1184,6 +1192,7 @@ PARSEFUNC(pseudo_parse_ifle)
 
 PARSEFUNC(pseudo_parse_endc)
 {
+	l -> hideline = 1;
 	l -> len = 0;
 	skip_operand(p);
 	if (as -> skipcond && !(as -> skipmacro))
@@ -1197,6 +1206,7 @@ PARSEFUNC(pseudo_parse_endc)
 PARSEFUNC(pseudo_parse_else)
 {
 	l -> len = 0;
+	l -> hideline = 1;
 	skip_operand(p);
 	
 	if (as -> skipmacro)
@@ -1222,6 +1232,7 @@ PARSEFUNC(pseudo_parse_ifdef)
 	struct symtabe *s;
 	
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1261,6 +1272,7 @@ PARSEFUNC(pseudo_parse_ifndef)
 	struct symtabe *s;
 	
 	l -> len = 0;
+	l -> hideline = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1409,9 +1421,12 @@ PARSEFUNC(pseudo_parse_include)
 	len = strlen(fn) + 8;
 	p3 = lw_alloc(len + 1);
 	sprintf(p3, "include:%s", fn);
+	as -> fileerr = 0;
 	input_open(as, p3);
 	lw_free(p3);
 
+	if (as -> fileerr == 0)
+		l -> hideline = 1;
 	l -> len = 0;
 	lw_free(fn);
 }

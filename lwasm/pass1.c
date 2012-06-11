@@ -413,13 +413,20 @@ void do_pass1(asmstate_t *as)
 			}
 			debug_message(as, 40, "Line address: %s", lw_expr_print(cl -> addr));
 		}
-		
+		if (as -> skipcond || as -> inmacro || cl -> ltext[0] == 1)
+			cl -> hideline = 1;
+			
 	nextline:
 		if (sym)
 			lw_free(sym);
 		sym = NULL;
 		
 		lw_free(line);
+		
+		if (cl -> hideline == 0)
+		{
+			printf("%s\n", cl -> ltext);
+		}
 		
 		// if we've hit the "end" bit, finish out
 		if (as -> endseen)

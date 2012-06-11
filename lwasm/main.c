@@ -55,6 +55,7 @@ static struct lw_cmdline_options options[] =
 	{ "6309",		'3',	0,			0,							"Set assembler to 6309 mode (default)" },
 	{ "includedir",	'I',	"PATH",		0,							"Add entry to include path" },
 	{ "define", 'D', "SYM[=VAL]", 0, "Automatically define SYM to be VAL (or 1)"},
+	{ "preprocess",	'P',	0,			0,							"Preprocess macros and conditionals and output revised source to stdout" },
 	{ 0 }
 };
 
@@ -172,6 +173,10 @@ static int parse_opts(int key, char *arg, void *state)
 		as -> target = TARGET_6309;
 		break;
 
+	case 'P':
+		as -> preprocess = 1;
+		break;
+		
 	case lw_cmdline_key_end:
 		break;
 	
@@ -265,7 +270,12 @@ int main(int argc, char **argv)
 		(passlist[passnum].fn)(&asmstate);
 		debug_message(&asmstate, 50, "After pass %d (%s)\n", passnum, passlist[passnum].passname);
 		dump_state(&asmstate);
-		
+
+		if (asmstate.preprocess)
+		{
+			/* we're done if we were preprocessing */
+			exit(0);
+		}
 		if (asmstate.errorcount > 0)
 		{
 			if (asmstate.flags & FLAG_DEPEND)

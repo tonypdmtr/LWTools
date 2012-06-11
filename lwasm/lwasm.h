@@ -189,7 +189,7 @@ struct line_s
 
 	int noexpand_start;					// start of a no-expand block
 	int noexpand_end;					// end of a no-expand block
-	
+	int hideline;						// set if we're going to hide this line on output	
 };
 
 enum
@@ -304,6 +304,8 @@ struct asmstate_s
 	lw_expr_t savedaddr;				// old address counter before struct started	
 	int exportcheck;					// set if we need to collapse out the section base to 0
 	int passno;							// set to the current pass number
+	int preprocess;						// set if we are prepocessing
+	int fileerr;						// flags error opening file
 };
 
 #ifndef ___symbol_c_seen___

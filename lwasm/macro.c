@@ -39,7 +39,7 @@ PARSEFUNC(pseudo_parse_macro)
 	char tc;
 		
 	l -> len = 0;
-	
+	l -> hideline = 1;
 	if (as -> skipcond)
 	{
 		as -> skipmacro = 1;
@@ -90,6 +90,7 @@ PARSEFUNC(pseudo_parse_macro)
 
 PARSEFUNC(pseudo_parse_endm)
 {
+	l -> hideline = 1;
 	l -> len = 0;
 
 	if (as -> skipcond)
@@ -332,5 +333,6 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 	}
 
 	// indicate a macro was expanded
+	l -> hideline = 1;
 	return 0;	
 }
