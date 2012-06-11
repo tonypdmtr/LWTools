@@ -423,7 +423,7 @@ void do_pass1(asmstate_t *as)
 		
 		lw_free(line);
 		
-		if (cl -> hideline == 0)
+		if (as -> preprocess && cl -> hideline == 0)
 		{
 			printf("%s\n", cl -> ltext);
 		}
