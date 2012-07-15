@@ -37,7 +37,8 @@ void write_code_obj(asmstate_t *as, FILE *of);
 void write_code_os9(asmstate_t *as, FILE *of);
 
 // this prevents warnings about not using the return value of fwrite()
-#define writebytes(s, l, c, f)	do { int r; r = fwrite((s), (l), (c), (f)); } while (0)
+// r++ prevents the "set but not used" warnings; should be optimized out
+#define writebytes(s, l, c, f)	do { int r; r = fwrite((s), (l), (c), (f)); r++; } while (0)
 
 void do_output(asmstate_t *as)
 {
