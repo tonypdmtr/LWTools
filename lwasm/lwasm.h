@@ -68,6 +68,7 @@ enum lwasm_flags_e
 	FLAG_DEPEND = 0x0002,
 	FLAG_SYMBOLS = 0x004,
 	FLAG_DEPENDNOERR = 0x0008,
+	FLAG_UNICORNS = 0x0010,
 	FLAG_NONE = 0
 };
 
@@ -227,6 +228,7 @@ struct macrotab_s
 	int numlines;						// number lines in macro
 	int flags;							// flags for the macro
 	macrotab_t *next;					// next macro in list
+	line_t *definedat;					// the line where the macro definition starts
 };
 
 enum

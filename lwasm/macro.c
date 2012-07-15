@@ -75,6 +75,7 @@ PARSEFUNC(pseudo_parse_macro)
 	m -> lines = NULL;
 	m -> numlines = 0;
 	m -> flags = 0;
+	m -> definedat = l;
 	as -> macros = m;
 
 	t = *p;

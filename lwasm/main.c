@@ -32,6 +32,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include "lwasm.h"
 #include "input.h"
 
+extern void lwasm_do_unicorns(asmstate_t *as);
+
 extern int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr);
 
 /* command line option handling */
@@ -56,6 +58,7 @@ static struct lw_cmdline_options options[] =
 	{ "includedir",	'I',	"PATH",		0,							"Add entry to include path" },
 	{ "define", 'D', "SYM[=VAL]", 0, "Automatically define SYM to be VAL (or 1)"},
 	{ "preprocess",	'P',	0,			0,							"Preprocess macros and conditionals and output revised source to stdout" },
+	{ "unicorns",	0x4242,	0,			0,							"Add sooper sekrit sauce"},
 	{ 0 }
 };
 
@@ -136,6 +139,10 @@ static int parse_opts(int key, char *arg, void *state)
 
 	case 0x102:
 		as -> flags |= FLAG_DEPEND | FLAG_DEPENDNOERR;
+		break;
+	
+	case 0x4242:
+		as -> flags |= FLAG_UNICORNS;
 		break;
 
 	case 'f':
@@ -284,6 +291,7 @@ int main(int argc, char **argv)
 				// stop processing immediately
 				break;
 			}
+			lwasm_do_unicorns(&asmstate);
 			lwasm_show_errors(&asmstate);
 			exit(1);
 		}
@@ -291,13 +299,16 @@ int main(int argc, char **argv)
 
 	if (asmstate.flags & FLAG_DEPEND)
 	{
-		// output dependencies (other than "includebin")
-		char *n;
-		
-		while ((n = lw_stack_pop(asmstate.includelist)))
+		if ((asmstate.flags & FLAG_UNICORNS) == 0)
 		{
-			fprintf(stdout, "%s\n", n);
-			lw_free(n);
+			// output dependencies (other than "includebin")
+			char *n;
+		
+			while ((n = lw_stack_pop(asmstate.includelist)))
+			{
+				fprintf(stdout, "%s\n", n);
+				lw_free(n);
+			}
 		}
 	}	
 	else
@@ -307,8 +318,14 @@ int main(int argc, char **argv)
 	}
 	
 	debug_message(&asmstate, 50, "Done assembly");
-	
-	do_list(&asmstate);
-	
+
+	if (asmstate.flags & FLAG_UNICORNS)
+	{	
+		lwasm_do_unicorns(&asmstate);
+	}
+	else
+	{
+		do_list(&asmstate);
+	}
 	exit(0);
 }
