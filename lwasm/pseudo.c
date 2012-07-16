@@ -1307,6 +1307,7 @@ PARSEFUNC(pseudo_parse_error)
 PARSEFUNC(pseudo_parse_warning)
 {
 	lwasm_register_warning(as, l, "User warning: %s", *p);
+	l -> len = 0;
 	skip_operand(p);
 }
 
