@@ -253,6 +253,7 @@ struct structtab_s
 	int size;							// number of bytes taken by struct
 	structtab_field_t *fields;			// fields in the structure
 	structtab_t *next;					// next structure
+	line_t *definedat;					// line where structure is defined
 };
 
 struct asmstate_s

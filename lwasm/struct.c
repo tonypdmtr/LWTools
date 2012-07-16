@@ -63,6 +63,7 @@ PARSEFUNC(pseudo_parse_struct)
 	s -> next = as -> structs;
 	s -> fields = NULL;
 	s -> size = 0;
+	s -> definedat = l;
 	as -> structs = s;
 	as -> cstruct = s;
 	

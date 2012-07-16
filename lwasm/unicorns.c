@@ -30,21 +30,61 @@ that are interesting in the doings of the assembler.
 #include "lwasm.h"
 #include "lw_alloc.h"
 
+static void print_urlencoding(FILE *stream, const char *string)
+{
+	for ( ; *string; string++)
+	{
+		if (*string < 33 || *string > 126 || strchr("$&+,/:;=?@\"<>#%{}|\\^~[]`", *string))
+		{
+			fprintf(stream, "%%%02X", *string);
+		}
+		else
+		{
+			fputc(*string, stream);
+		}
+	}
+}
+
 void lwasm_do_unicorns(asmstate_t *as)
 {
 	char *n;
 	macrotab_t *me;
-	
+	structtab_t *se;
+	int i;
+			
 	/* output file list */	
 	while ((n = lw_stack_pop(as -> includelist)))
 	{
-		fprintf(stdout, "RESOURCE: file:%s\n", n);
-			lw_free(n);
+		fputs("RESOURCE: type=file,filename=", stdout);
+		print_urlencoding(stdout, n);
+		fputc('\n', stdout);
+		lw_free(n);
 	}
 	
 	/* output macro list */
 	for (me = as -> macros; me; me = me -> next)
 	{
-		fprintf(stdout, "RESOURCE: macro:%s,%d,%s\n", me -> name, me -> definedat -> lineno, me -> definedat -> linespec);
+		fprintf(stdout, "RESOURCE: type=macro,name=%s,lineno=%d,filename=", me -> name, me -> definedat -> lineno);
+		print_urlencoding(stdout, me -> definedat -> linespec);
+		fputs(",flags=", stdout);
+		if (me -> flags & macro_noexpand)
+			fputs("noexpand", stdout);
+		fputs(",def=", stdout);
+		for (i = 0; i < me -> numlines; i++)
+		{
+			if (i)
+				fputc(';', stdout);
+			print_urlencoding(stdout, me -> lines[i]);
+		}
+		fputc('\n', stdout);
 	}
+	
+	/* output structure list */
+	for (se = as -> structs; se; se = se -> next)
+	{
+		fprintf(stdout, "RESOURCE: type=struct,name=%s,lineno=%d,filename=", se -> name, se -> definedat -> lineno);
+		print_urlencoding(stdout, se -> definedat -> linespec);
+		fputc('\n', stdout);
+	}
+	
 }
