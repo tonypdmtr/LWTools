@@ -37,6 +37,14 @@ extern void input_openstring(asmstate_t *as, char *s, char *str);
 extern void input_open(asmstate_t *as, char *s);
 extern char *input_readline(asmstate_t *as);
 extern char *input_curspec(asmstate_t *as);
-extern FILE *input_open_standalone(asmstate_t *as, char *s);
+extern FILE *input_open_standalone(asmstate_t *as, char *s, char **rfn);
+
+struct ifl
+{
+	const char *fn;
+	struct ifl *next;
+};
+
+extern struct ifl *ifl_head;
 
 #endif

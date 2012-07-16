@@ -80,6 +80,28 @@ static char *make_filename(char *p, char *f)
 
 #define IS	((struct input_stack *)(as -> input_data))
 
+struct ifl *ifl_head = NULL;
+
+/* this adds real filenames that were opened to a list */
+void input_add_to_resource_list(asmstate_t *as, const char *s)
+{
+	struct ifl *ifl;
+	
+	/* first see if the file is already referenced */
+	for (ifl = ifl_head; ifl; ifl = ifl -> next)
+	{
+		if (strcmp(s, ifl -> fn) == 0)
+			break;
+	}
+	if (!ifl)
+	{
+		ifl = lw_alloc(sizeof(struct ifl));
+		ifl -> next = ifl_head;
+		ifl_head = ifl;
+		ifl -> fn = lw_strdup(s);
+	}
+}
+
 void input_init(asmstate_t *as)
 {
 	struct input_stack *t;
@@ -200,6 +222,7 @@ void input_open(asmstate_t *as, char *s)
 				as -> fileerr = 1;
 			}
 			input_pushpath(as, s);
+			input_add_to_resource_list(as, s);
 			return;
 		}
 		
@@ -211,6 +234,7 @@ void input_open(asmstate_t *as, char *s)
 		if (IS -> data)
 		{
 			input_pushpath(as, p2);
+			input_add_to_resource_list(as, p2);
 			lw_free(p2);
 			return;
 		}
@@ -227,6 +251,7 @@ void input_open(asmstate_t *as, char *s)
 			if (IS -> data)
 			{
 				input_pushpath(as, p2);
+				input_add_to_resource_list(as, p2);
 				lw_free(p2);
 				return;
 			}
@@ -252,18 +277,20 @@ void input_open(asmstate_t *as, char *s)
 			lw_error("Cannot open file '%s': %s\n", s, strerror(errno));
 		}
 		input_pushpath(as, s);
+		input_add_to_resource_list(as, s);
 		return;
 	}
 
 	lw_error("Cannot figure out how to open '%s'.\n", t -> filespec);
 }
 
-FILE *input_open_standalone(asmstate_t *as, char *s)
+FILE *input_open_standalone(asmstate_t *as, char *s, char **rfn)
 {
 //	char *s2;
 	FILE *fp;
 	char *p, *p2;
 
+	debug_message(as, 2, "Open file (st) %s", s);
 	/* first check for absolute path and if so, skip path */
 	if (*s == '/')
 	{
@@ -276,6 +303,9 @@ FILE *input_open_standalone(asmstate_t *as, char *s)
 		{
 			return NULL;
 		}
+		if (rfn)
+			*rfn = lw_strdup(s);
+		input_add_to_resource_list(as, s);
 		return fp;
 	}
 
@@ -288,6 +318,9 @@ FILE *input_open_standalone(asmstate_t *as, char *s)
 	{
 		if (as -> flags & FLAG_DEPEND)
 			printf("%s\n", p2);
+		input_add_to_resource_list(as, p2);
+		if (rfn)
+			*rfn = lw_strdup(p2);
 		lw_free(p2);
 		return fp;
 	}
@@ -304,6 +337,9 @@ FILE *input_open_standalone(asmstate_t *as, char *s)
 		{
 			if (as -> flags & FLAG_DEPEND)
 				printf("%s\n", p2);
+			input_add_to_resource_list(as, p2);
+			if (rfn)
+				*rfn = lw_strdup(p2);
 			lw_free(p2);
 			return fp;
 		}

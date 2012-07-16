@@ -58,7 +58,7 @@ static struct lw_cmdline_options options[] =
 	{ "includedir",	'I',	"PATH",		0,							"Add entry to include path" },
 	{ "define", 'D', "SYM[=VAL]", 0, "Automatically define SYM to be VAL (or 1)"},
 	{ "preprocess",	'P',	0,			0,							"Preprocess macros and conditionals and output revised source to stdout" },
-	{ "unicorns",	0x4242,	0,			0,							"Add sooper sekrit sauce"},
+	{ "unicorns",	0x142,	0,			0,							"Add sooper sekrit sauce"},
 	{ 0 }
 };
 
@@ -141,7 +141,7 @@ static int parse_opts(int key, char *arg, void *state)
 		as -> flags |= FLAG_DEPEND | FLAG_DEPENDNOERR;
 		break;
 	
-	case 0x4242:
+	case 0x142:
 		as -> flags |= FLAG_UNICORNS;
 		break;
 
@@ -299,16 +299,13 @@ int main(int argc, char **argv)
 
 	if (asmstate.flags & FLAG_DEPEND)
 	{
-		if ((asmstate.flags & FLAG_UNICORNS) == 0)
-		{
-			// output dependencies (other than "includebin")
-			char *n;
+		// output dependencies (other than "includebin")
+		char *n;
 		
-			while ((n = lw_stack_pop(asmstate.includelist)))
-			{
-				fprintf(stdout, "%s\n", n);
-				lw_free(n);
-			}
+		while ((n = lw_stack_pop(asmstate.includelist)))
+		{
+			fprintf(stdout, "%s\n", n);
+			lw_free(n);
 		}
 	}	
 	else
@@ -321,6 +318,7 @@ int main(int argc, char **argv)
 
 	if (asmstate.flags & FLAG_UNICORNS)
 	{	
+		debug_message(&asmstate, 50, "Invoking unicorns");
 		lwasm_do_unicorns(&asmstate);
 	}
 	else

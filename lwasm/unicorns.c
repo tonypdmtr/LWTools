@@ -27,6 +27,7 @@ that are interesting in the doings of the assembler.
 #include <stdio.h>
 #include <string.h>
 
+#include "input.h"
 #include "lwasm.h"
 #include "lw_alloc.h"
 
@@ -47,18 +48,17 @@ static void print_urlencoding(FILE *stream, const char *string)
 
 void lwasm_do_unicorns(asmstate_t *as)
 {
-	char *n;
+	struct ifl *ifl;
 	macrotab_t *me;
 	structtab_t *se;
 	int i;
 			
 	/* output file list */	
-	while ((n = lw_stack_pop(as -> includelist)))
+	for (ifl = ifl_head; ifl; ifl = ifl -> next)
 	{
 		fputs("RESOURCE: type=file,filename=", stdout);
-		print_urlencoding(stdout, n);
+		print_urlencoding(stdout, ifl -> fn);
 		fputc('\n', stdout);
-		lw_free(n);
 	}
 	
 	/* output macro list */

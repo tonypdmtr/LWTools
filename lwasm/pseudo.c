@@ -1316,6 +1316,7 @@ PARSEFUNC(pseudo_parse_includebin)
 	int delim = 0;
 	FILE *fp;
 	long flen;
+	char *rfn;
 	
 	if (!**p)
 	{
@@ -1341,7 +1342,7 @@ PARSEFUNC(pseudo_parse_includebin)
 	if (delim && **p)
 		(*p)++;
 	
-	fp = input_open_standalone(as, fn);
+	fp = input_open_standalone(as, fn, &rfn);
 	if (!fp)
 	{
 		lwasm_register_error(as, l, "Cannot open file");
@@ -1349,7 +1350,7 @@ PARSEFUNC(pseudo_parse_includebin)
 		return;
 	}
 	
-	l -> lstr = fn;
+	l -> lstr = rfn;
 	
 	fseek(fp, 0, SEEK_END);
 	flen = ftell(fp);
@@ -1363,7 +1364,7 @@ EMITFUNC(pseudo_emit_includebin)
 	FILE *fp;
 	int c;
 	
-	fp = input_open_standalone(as, l -> lstr);
+	fp = fopen(l -> lstr, "r");
 	if (!fp)
 	{
 		lwasm_register_error(as, l, "Cannot open file (emit)!");
