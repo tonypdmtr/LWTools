@@ -323,9 +323,6 @@ int main(int argc, char **argv)
 		debug_message(&asmstate, 50, "Invoking unicorns");
 		lwasm_do_unicorns(&asmstate);
 	}
-	else
-	{
-		do_list(&asmstate);
-	}
+	do_list(&asmstate);
 	exit(0);
 }

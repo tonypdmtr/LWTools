@@ -122,5 +122,5 @@ void lwasm_do_unicorns(asmstate_t *as)
 		}
 	}
 	
-	do_list(as);
+	fprintf(stdout, "UNICORNSAWAY:\n");
 }
