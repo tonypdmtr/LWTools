@@ -31,6 +31,8 @@ that are interesting in the doings of the assembler.
 #include "lwasm.h"
 #include "lw_alloc.h"
 
+void do_list(asmstate_t *as);
+
 static void print_urlencoding(FILE *stream, const char *string)
 {
 	for ( ; *string; string++)
@@ -119,4 +121,6 @@ void lwasm_do_unicorns(asmstate_t *as)
 			}
 		}
 	}
+	
+	do_list(as);
 }
