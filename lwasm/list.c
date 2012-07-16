@@ -238,6 +238,6 @@ void do_list(asmstate_t *as)
 		lw_free(obytes);
 		obytes = NULL;
 	}
-	if ((as -> flags & FLAG_SYMBOLS) && (as -> flags & FLAG_UNICORNS) == 0)
+	if ((as -> flags & FLAG_SYMBOLS))
 		list_symbols(as, of);
 }
