@@ -84,6 +84,14 @@ void do_list(asmstate_t *as)
 				
 				if (nl -> outputl > 0)
 					obytelen += nl -> outputl;
+				if (nl -> warn)
+				{
+					lwasm_error_t *e;
+					for (e = nl -> warn; e; e = e -> next)
+					{
+						printf("Warning: %s\n", e -> mess);
+					}
+				}
 				if (nc == 0)
 					break;
 			}
@@ -103,6 +111,14 @@ void do_list(asmstate_t *as)
 		}
 		else
 		{
+			if (cl -> warn)
+			{
+				lwasm_error_t *e;
+				for (e = cl -> warn; e; e = e -> next)
+				{
+					printf("Warning: %s\n", e -> mess);
+				}
+			}
 			obytelen = cl -> outputl;
 			if (obytelen > 0)
 			{
@@ -222,6 +238,6 @@ void do_list(asmstate_t *as)
 		lw_free(obytes);
 		obytes = NULL;
 	}
-	if (as -> flags & FLAG_SYMBOLS)
+	if ((as -> flags & FLAG_SYMBOLS) && (as -> flags & FLAG_UNICORNS) == 0)
 		list_symbols(as, of);
 }
