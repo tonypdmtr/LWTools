@@ -46,12 +46,25 @@ static void print_urlencoding(FILE *stream, const char *string)
 	}
 }
 
+static void show_unicorn_error(FILE *fp, line_t *l, lwasm_error_t *ee, const char *tag)
+{
+	fprintf(fp, "%s: lineno=%d,filename=", tag, l -> lineno);
+	print_urlencoding(fp, l -> linespec);
+	fputs(",message=", fp);
+	print_urlencoding(fp, ee -> mess);
+	if (ee -> charpos > 0)
+		fprintf(fp, ",col=%d", ee -> charpos);
+	fputc('\n', fp);
+}
+
 void lwasm_do_unicorns(asmstate_t *as)
 {
 	struct ifl *ifl;
 	macrotab_t *me;
 	structtab_t *se;
 	int i;
+	line_t *l;
+	lwasm_error_t *ee;
 			
 	/* output file list */	
 	for (ifl = ifl_head; ifl; ifl = ifl -> next)
@@ -86,5 +99,24 @@ void lwasm_do_unicorns(asmstate_t *as)
 		print_urlencoding(stdout, se -> definedat -> linespec);
 		fputc('\n', stdout);
 	}
-	
+
+	/* output error and warning lists */
+	for (l = as -> line_head; l; l = l -> next)
+	{
+		if (l -> err)
+		{
+			for (ee = l -> err; ee; ee = ee -> next)
+			{
+				show_unicorn_error(stdout, l, ee, "ERROR");
+			}
+		}
+		
+		if (l -> warn)
+		{
+			for (ee = l -> warn; ee; ee = ee -> next)
+			{
+				show_unicorn_error(stdout, l, ee, "WARNING");
+			}
+		}
+	}
 }

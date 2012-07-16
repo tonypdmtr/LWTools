@@ -291,8 +291,10 @@ int main(int argc, char **argv)
 				// stop processing immediately
 				break;
 			}
-			lwasm_do_unicorns(&asmstate);
-			lwasm_show_errors(&asmstate);
+			if (asmstate.flags & FLAG_UNICORNS)
+				lwasm_do_unicorns(&asmstate);
+			else
+				lwasm_show_errors(&asmstate);
 			exit(1);
 		}
 	}

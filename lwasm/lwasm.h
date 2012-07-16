@@ -123,6 +123,7 @@ typedef struct lwasm_error_s lwasm_error_t;
 struct lwasm_error_s
 {
 	char *mess;							// actual error message
+	int charpos;						// character position on line where parsing stopped
 	lwasm_error_t *next;				// ptr to next error
 };
 
@@ -322,6 +323,10 @@ extern struct symtabe *lookup_symbol(asmstate_t *as, line_t *cl, char *sym);
 
 extern void lwasm_register_error(asmstate_t *as, line_t *cl, const char *msg, ...);
 extern void lwasm_register_warning(asmstate_t *as, line_t *cl, const char *msg, ...);
+
+extern void lwasm_register_error_n(asmstate_t *as, line_t *cl, char *iptr, const char *msg, ...);
+extern void lwasm_register_warning_n(asmstate_t *as, line_t *cl, char *iptr, const char *msg, ...);
+
 extern int lwasm_next_context(asmstate_t *as);
 extern void lwasm_emit(line_t *cl, int byte);
 extern void lwasm_emitop(line_t *cl, int opc);

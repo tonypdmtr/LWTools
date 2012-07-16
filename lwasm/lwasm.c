@@ -199,50 +199,92 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 	return NULL;
 }
 
-void lwasm_register_error(asmstate_t *as, line_t *l, const char *msg, ...)
+void lwasm_register_error_real(asmstate_t *as, line_t *l, char *iptr, const char *msg, va_list args)
 {
 	lwasm_error_t *e;
-	va_list args;
 	char errbuff[1024];
 
 	if (!l)
 		return;
 
-	va_start(args, msg);
-	
 	e = lw_alloc(sizeof(lwasm_error_t));
 	
 	e -> next = l -> err;
 	l -> err = e;
+	e -> charpos = -1;
+	
+	if (iptr)
+		e -> charpos = iptr - l -> ltext + 1;
 	
 	as -> errorcount++;
 	
 	(void)vsnprintf(errbuff, 1024, msg, args);
 	e -> mess = lw_strdup(errbuff);
+}
+
+void lwasm_register_error(asmstate_t *as, line_t *l, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	
+	lwasm_register_error_real(as, l, NULL, msg, args);
 	
 	va_end(args);
 }
 
-void lwasm_register_warning(asmstate_t *as, line_t *l, const char *msg, ...)
+void lwasm_register_error_n(asmstate_t *as, line_t *l, char *iptr, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	
+	lwasm_register_error_real(as, l, iptr, msg, args);
+	
+	va_end(args);
+}
+
+void lwasm_register_warning_real(asmstate_t *as, line_t *l, char *iptr, const char *msg, va_list args)
 {
 	lwasm_error_t *e;
-	va_list args;
 	char errbuff[1024];
 	
 	if (!l)
 		return;
 
-	va_start(args, msg);
-	
 	e = lw_alloc(sizeof(lwasm_error_t));
 	
 	e -> next = l -> warn;
 	l -> warn = e;
 	
+	e -> charpos = -1;
+	if (iptr)
+		e -> charpos = iptr - l -> ltext + 1;
+	
 	as -> warningcount++;
 	
 	(void)vsnprintf(errbuff, 1024, msg, args);
 	e -> mess = lw_strdup(errbuff);
+}
+
+void lwasm_register_warning(asmstate_t *as, line_t *l, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	
+	lwasm_register_warning_real(as, l, NULL, msg, args);
+	
+	va_end(args);
+}
+
+void lwasm_register_warning_n(asmstate_t *as, line_t *l, char *iptr, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	
+	lwasm_register_warning_real(as, l, iptr, msg, args);
 	
 	va_end(args);
 }
