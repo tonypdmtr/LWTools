@@ -14,7 +14,7 @@ TITLE="Object Files"
 HREF="x37.html"><LINK
 REL="NEXT"
 TITLE="Dialects"
-HREF="x163.html"></HEAD
+HREF="x170.html"></HEAD
 ><BODY
 CLASS="CHAPTER"
 BGCOLOR="#FFFFFF"
@@ -56,7 +56,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x163.html"
+HREF="x170.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -269,6 +269,22 @@ CLASS="OPTION"
 ><DT
 ><CODE
 CLASS="OPTION"
+>--define=SYM[=VAL]</CODE
+>, <CODE
+CLASS="OPTION"
+>-I SYM[=VAL]</CODE
+></DT
+><DD
+><P
+>Pre-defines the symbol SYM as either the specified VAL. If VAL is omitted,
+the symbol is defined as 1.  The symbol will be defined as though it were
+defined using the SET directive in the assembly source.  That means it can
+be overridden by a SET directive within the source code.  Attempting to
+redefine SYM using EQU will result in a multiply defined symbol error.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
 >--help</CODE
 >, <CODE
 CLASS="OPTION"
@@ -350,7 +366,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x163.html"
+HREF="x170.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

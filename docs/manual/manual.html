@@ -100,112 +100,112 @@ HREF="#AEN48"
 ></DT
 ><DT
 >3.2. <A
-HREF="#AEN163"
+HREF="#AEN170"
 >Dialects</A
 ></DT
 ><DT
 >3.3. <A
-HREF="#AEN170"
+HREF="#AEN177"
 >Source Format</A
 ></DT
 ><DT
 >3.4. <A
-HREF="#AEN180"
+HREF="#AEN187"
 >Symbols</A
 ></DT
 ><DT
 >3.5. <A
-HREF="#AEN185"
+HREF="#AEN192"
 >Numbers and Expressions</A
 ></DT
 ><DT
 >3.6. <A
-HREF="#AEN193"
+HREF="#AEN200"
 >Assembler Directives</A
 ></DT
 ><DD
 ><DL
 ><DT
 >3.6.1. <A
-HREF="#AEN196"
+HREF="#AEN203"
 >Data Directives</A
 ></DT
 ><DT
 >3.6.2. <A
-HREF="#AEN299"
+HREF="#AEN306"
 >Address Definition</A
 ></DT
 ><DT
 >3.6.3. <A
-HREF="#AEN346"
+HREF="#AEN353"
 >Conditional Assembly</A
 ></DT
 ><DT
 >3.6.4. <A
-HREF="#AEN411"
+HREF="#AEN418"
 >OS9 Target Directives</A
 ></DT
 ><DT
 >3.6.5. <A
-HREF="#AEN436"
+HREF="#AEN443"
 >Miscelaneous Directives</A
 ></DT
 ></DL
 ></DD
 ><DT
 >3.7. <A
-HREF="#AEN476"
+HREF="#AEN483"
 >Macros</A
 ></DT
 ><DT
 >3.8. <A
-HREF="#AEN499"
+HREF="#AEN506"
 >Structures</A
 ></DT
 ><DT
 >3.9. <A
-HREF="#AEN520"
+HREF="#AEN527"
 >Object Files and Sections</A
 ></DT
 ><DT
 >3.10. <A
-HREF="#AEN584"
+HREF="#AEN591"
 >Assembler Modes and Pragmas</A
 ></DT
 ></DL
 ></DD
 ><DT
 >4. <A
-HREF="#AEN662"
+HREF="#AEN681"
 >LWLINK</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.1. <A
-HREF="#AEN665"
+HREF="#AEN684"
 >Command Line Options</A
 ></DT
 ><DT
 >4.2. <A
-HREF="#AEN762"
+HREF="#AEN781"
 >Linker Operation</A
 ></DT
 ><DT
 >4.3. <A
-HREF="#AEN776"
+HREF="#AEN795"
 >Linking Scripts</A
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN810"
+HREF="#AEN829"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN813"
+HREF="#AEN832"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -214,14 +214,14 @@ HREF="#AEN813"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN825"
+HREF="#AEN844"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN829"
+HREF="#AEN848"
 >Command Line Options</A
 ></DT
 ></DL
@@ -243,12 +243,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN912"
+HREF="#AEN931"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN942"
+HREF="#AEN961"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -623,6 +623,22 @@ CLASS="OPTION"
 ><DT
 ><CODE
 CLASS="OPTION"
+>--define=SYM[=VAL]</CODE
+>, <CODE
+CLASS="OPTION"
+>-I SYM[=VAL]</CODE
+></DT
+><DD
+><P
+>Pre-defines the symbol SYM as either the specified VAL. If VAL is omitted,
+the symbol is defined as 1.  The symbol will be defined as though it were
+defined using the SET directive in the assembly source.  That means it can
+be overridden by a SET directive within the source code.  Attempting to
+redefine SYM using EQU will result in a multiply defined symbol error.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
 >--help</CODE
 >, <CODE
 CLASS="OPTION"
@@ -674,7 +690,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN163"
+NAME="AEN170"
 >3.2. Dialects</A
 ></H2
 ><P
@@ -708,7 +724,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN170"
+NAME="AEN177"
 >3.3. Source Format</A
 ></H2
 ><P
@@ -754,7 +770,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN180"
+NAME="AEN187"
 >3.4. Symbols</A
 ></H2
 ><P
@@ -782,7 +798,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN185"
+NAME="AEN192"
 >3.5. Numbers and Expressions</A
 ></H2
 ><P
@@ -827,7 +843,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN193"
+NAME="AEN200"
 >3.6. Assembler Directives</A
 ></H2
 ><P
@@ -840,7 +856,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN196"
+NAME="AEN203"
 >3.6.1. Data Directives</A
 ></H3
 ><P
@@ -1056,7 +1072,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN299"
+NAME="AEN306"
 >3.6.2. Address Definition</A
 ></H3
 ><P
@@ -1192,7 +1208,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN346"
+NAME="AEN353"
 >3.6.3. Conditional Assembly</A
 ></H3
 ><P
@@ -1355,7 +1371,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN411"
+NAME="AEN418"
 >3.6.4. OS9 Target Directives</A
 ></H3
 ><P
@@ -1422,7 +1438,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN436"
+NAME="AEN443"
 >3.6.5. Miscelaneous Directives</A
 ></H3
 ><P
@@ -1536,7 +1552,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN476"
+NAME="AEN483"
 >3.7. Macros</A
 ></H2
 ><P
@@ -1635,7 +1651,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN499"
+NAME="AEN506"
 >3.8. Structures</A
 ></H2
 ><P
@@ -1728,7 +1744,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN520"
+NAME="AEN527"
 >3.9. Object Files and Sections</A
 ></H2
 ><P
@@ -1945,7 +1961,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN584"
+NAME="AEN591"
 >3.10. Assembler Modes and Pragmas</A
 ></H2
 ><P
@@ -2018,11 +2034,12 @@ CLASS="PARAMETER"
 ></DL
 ></DIV
 ><P
->Each pragma supported has a positive version and a negative version.
+>Each pragma supported has a positive version and a negative version. 
 The positive version enables the pragma while the negative version disables
-it. The negatitve version is simply the positive version with "no" prefixed
-to it. For instance, "pragma" vs. "nopragma". Only the positive version is
-listed below.</P
+it.  The negatitve version is simply the positive version with "no" prefixed
+to it.  For instance, "pragma" vs.  "nopragma".  When only one version is
+listed below, its opposite can be obtained by prepending "no" if it is not
+present or removing "no" from the beginning if it is present.</P
 ><P
 >Pragmas are not case sensitive.</P
 ><P
@@ -2152,7 +2169,37 @@ to force the branch size, analogous to their use for other instructions with
 assemblers, it is strongly recommended that it be invoked using the PRAGMA
 directive within the source code rather than on the command line or via the
 *PRAGMA directive.  This way, an error will be raised if someone tries to
-* assemble the code under a different assembler.</P
+assemble the code under a different assembler.</P
+></DD
+><DT
+>nosymbolcase, symbolnocase</DT
+><DD
+><P
+>Any symbol defined while this pragma is in force will be treated as
+case insensitive, regardless whether the pragma is in force when the symbol
+is referenced.</P
+><P
+>It is important to note that this pragma will not work as expected in
+all cases when using the object file assembly target.  It is intended for
+use only when the assembler will be producing the final binary.</P
+></DD
+><DT
+>condundefzero</DT
+><DD
+><P
+>This pragma will cause the assembler to change the way it handles
+symbols in conditional expressions.  Ordinarily, any symbol that is not
+defined prior to the conditional will throw an undefined symbol error.  With
+this pragma in effect, symbols that are not yet defined at the point the
+conditional is encountered will be treated as zero.</P
+><P
+>This is not the default because it encourages poor code design. One
+should use the "IFDEF" or "IFNDEF" conditionals to test for the presence of
+a symbol.</P
+><P
+>It is important to note that if a symbol is defined but it does not
+yet evaluate to a constant value at the point where the conditional appears,
+the assembler will still complain about a non constant condition.</P
 ></DD
 ></DL
 ></DIV
@@ -2178,7 +2225,7 @@ while nolist is already engaged, it will not undo that state.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN662"
+NAME="AEN681"
 ></A
 >Chapter 4. LWLINK</H1
 ><P
@@ -2189,7 +2236,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN665"
+NAME="AEN684"
 >4.1. Command Line Options</A
 ></H2
 ><P
@@ -2386,7 +2433,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN762"
+NAME="AEN781"
 >4.2. Linker Operation</A
 ></H2
 ><P
@@ -2442,7 +2489,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN776"
+NAME="AEN795"
 >4.3. Linking Scripts</A
 ></H2
 ><P
@@ -2550,7 +2597,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN810"
+NAME="AEN829"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2563,7 +2610,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN813"
+NAME="AEN832"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2639,7 +2686,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN825"
+NAME="AEN844"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2658,7 +2705,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN829"
+NAME="AEN848"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -2859,7 +2906,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN912"
+NAME="AEN931"
 ></A
 ><P
 ><B
@@ -2931,7 +2978,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN942"
+NAME="AEN961"
 ></A
 ><P
 ><B

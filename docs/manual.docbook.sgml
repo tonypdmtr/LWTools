@@ -324,6 +324,21 @@ Add <option>path</option> to the end of the include path.
 </varlistentry>
 
 <varlistentry>
+<term><option>--define=SYM[=VAL]</option></term>
+<term><option>-I SYM[=VAL]</option></term>
+<listitem>
+<para>
+Pre-defines the symbol SYM as either the specified VAL. If VAL is omitted,
+the symbol is defined as 1.  The symbol will be defined as though it were
+defined using the SET directive in the assembly source.  That means it can
+be overridden by a SET directive within the source code.  Attempting to
+redefine SYM using EQU will result in a multiply defined symbol error.
+</para>
+</listitem>
+</varlistentry>
+
+
+<varlistentry>
 <term><option>--help</option></term>
 <term><option>-?</option></term>
 <listitem>

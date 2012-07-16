@@ -14,10 +14,10 @@ TITLE="LWASM"
 HREF="c45.html"><LINK
 REL="PREVIOUS"
 TITLE="Object Files and Sections"
-HREF="x520.html"><LINK
+HREF="x527.html"><LINK
 REL="NEXT"
 TITLE="LWLINK"
-HREF="c662.html"></HEAD
+HREF="c681.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x520.html"
+HREF="x527.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c662.html"
+HREF="c681.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,7 +73,7 @@ CLASS="SECTION"
 ><H1
 CLASS="SECTION"
 ><A
-NAME="AEN584"
+NAME="AEN591"
 >3.10. Assembler Modes and Pragmas</A
 ></H1
 ><P
@@ -146,11 +146,12 @@ CLASS="PARAMETER"
 ></DL
 ></DIV
 ><P
->Each pragma supported has a positive version and a negative version.
+>Each pragma supported has a positive version and a negative version. 
 The positive version enables the pragma while the negative version disables
-it. The negatitve version is simply the positive version with "no" prefixed
-to it. For instance, "pragma" vs. "nopragma". Only the positive version is
-listed below.</P
+it.  The negatitve version is simply the positive version with "no" prefixed
+to it.  For instance, "pragma" vs.  "nopragma".  When only one version is
+listed below, its opposite can be obtained by prepending "no" if it is not
+present or removing "no" from the beginning if it is present.</P
 ><P
 >Pragmas are not case sensitive.</P
 ><P
@@ -280,7 +281,37 @@ to force the branch size, analogous to their use for other instructions with
 assemblers, it is strongly recommended that it be invoked using the PRAGMA
 directive within the source code rather than on the command line or via the
 *PRAGMA directive.  This way, an error will be raised if someone tries to
-* assemble the code under a different assembler.</P
+assemble the code under a different assembler.</P
+></DD
+><DT
+>nosymbolcase, symbolnocase</DT
+><DD
+><P
+>Any symbol defined while this pragma is in force will be treated as
+case insensitive, regardless whether the pragma is in force when the symbol
+is referenced.</P
+><P
+>It is important to note that this pragma will not work as expected in
+all cases when using the object file assembly target.  It is intended for
+use only when the assembler will be producing the final binary.</P
+></DD
+><DT
+>condundefzero</DT
+><DD
+><P
+>This pragma will cause the assembler to change the way it handles
+symbols in conditional expressions.  Ordinarily, any symbol that is not
+defined prior to the conditional will throw an undefined symbol error.  With
+this pragma in effect, symbols that are not yet defined at the point the
+conditional is encountered will be treated as zero.</P
+><P
+>This is not the default because it encourages poor code design. One
+should use the "IFDEF" or "IFNDEF" conditionals to test for the presence of
+a symbol.</P
+><P
+>It is important to note that if a symbol is defined but it does not
+yet evaluate to a constant value at the point where the conditional appears,
+the assembler will still complain about a non constant condition.</P
 ></DD
 ></DL
 ></DIV
@@ -317,7 +348,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x520.html"
+HREF="x527.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -335,7 +366,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c662.html"
+HREF="c681.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
