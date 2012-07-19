@@ -49,6 +49,8 @@ PARSEFUNC(pseudo_parse_dts)
 
 	while (*t)
 	{
+		if (*t == '\n')
+			break;
 		lwasm_emit(l, *t);
 		t++;
 		l -> len += 1;
