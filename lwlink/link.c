@@ -38,6 +38,8 @@ int nsects = 0;
 static int nforced = 0;
 static int resolveonly = 0;
 
+int quietsym = 1;
+
 symlist_t *symlist = NULL;
 
 void check_section_name(char *name, int *base, fileinfo_t *fn)
@@ -226,10 +228,8 @@ void generate_symbols(void)
 	char sym[256];
 	int len;
 	symlist_t *se;
-fprintf(stderr, "Generating symbols\n");	
 	for (sn = 0; sn < nsects; sn++)
 	{
-		fprintf(stderr, "Section %s (%s)\n", sectlist[sn].ptr -> name, lastsect);
 		if (!lastsect || strcmp(lastsect, (char *)(sectlist[sn].ptr -> name)))
 		{
 			if (lastsect && linkscript.lensympat)
@@ -399,8 +399,11 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 			}
 		}
 		// not found
-		symerr = 1;
-		fprintf(stderr, "Local symbol %s not found in %s:%s\n", sanitize_symbol(sym), sect -> file -> filename, sect -> name);
+		if (!quietsym)
+		{
+			symerr = 1;
+			fprintf(stderr, "Local symbol %s not found in %s:%s\n", sanitize_symbol(sym), sect -> file -> filename, sect -> name);
+		}
 		goto outerr;
 	}
 	else
@@ -437,15 +440,18 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 			if (s)
 				return s;
 		}
-		if (sect)
+		if (!quietsym)
 		{
-			fprintf(stderr, "External symbol %s not found in %s:%s\n", sanitize_symbol(sym), sect -> file -> filename, sect -> name);
+			if (sect)
+			{
+				fprintf(stderr, "External symbol %s not found in %s:%s\n", sanitize_symbol(sym), sect -> file -> filename, sect -> name);
+			}
+			else
+			{
+				fprintf(stderr, "External symbol %s not found\n", sym);
+			}
+			symerr = 1;
 		}
-		else
-		{
-			fprintf(stderr, "External symbol %s not found\n", sym);
-		}
-		symerr = 1;
 		goto outerr;
 	}
 	fprintf(stderr, "Shouldn't ever get here!!!\n");
@@ -466,6 +472,8 @@ void resolve_references(void)
 	reloc_t *rl;
 	int rval;
 
+	quietsym = 0;
+
 	// resolve entry point if required
 	// this must resolve to an *exported* symbol and will resolve to the
 	// first instance of that symbol
@@ -476,8 +484,8 @@ void resolve_references(void)
 		s = resolve_sym(linkscript.execsym, 0, NULL);
 		if (!s)
 		{
-			fprintf(stderr, "Cannot resolve exec address '%s'\n", linkscript.execsym);
-			symerr = 1;
+				fprintf(stderr, "Cannot resolve exec address '%s'\n", linkscript.execsym);
+				symerr = 1;
 		}
 		else
 		{
@@ -496,8 +504,8 @@ void resolve_references(void)
 			// is it constant? error out if not
 			if (rval != 0 || !lw_expr_is_constant(rl -> expr))
 			{
-				fprintf(stderr, "Incomplete reference at %s:%s+%02X\n", sectlist[sn].ptr -> file -> filename, sectlist[sn].ptr -> name, rl -> offset);
-				symerr = 1;
+					fprintf(stderr, "Incomplete reference at %s:%s+%02X\n", sectlist[sn].ptr -> file -> filename, sectlist[sn].ptr -> name, rl -> offset);
+					symerr = 1;
 			}
 			else
 			{
@@ -544,11 +552,12 @@ void resolve_files_aux(fileinfo_t *fn)
 			rval = lw_expr_reval(te, resolve_sym, &(fn -> sections[sn]));
 			
 			// is it constant? error out if not
-			if (rval != 0 || !lw_expr_is_constant(te))
-			{
-				fprintf(stderr, "Incomplete reference at %s:%s+%02X\n", fn -> filename, fn -> sections[sn].name, rl -> offset);
-				symerr = 1;
-			}
+			// incompletes will error out during resolve_references()
+			//if (rval != 0 || !lw_expr_is_constant(te))
+			//{
+			//	fprintf(stderr, "Incomplete reference at %s:%s+%02X\n", fn -> filename, fn -> sections[sn].name, rl -> offset);
+			//	symerr = 1;
+			//}
 			lw_expr_stack_free(te);
 		}
 	}
