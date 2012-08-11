@@ -48,6 +48,7 @@ void display_map(void)
 	struct symliste *ce, *pe, *ne;
 	symtab_t *sym;
 	int i;
+	symlist_t *se;
 	
 	if (!strcmp(map_file, "-"))
 	{
@@ -77,6 +78,31 @@ void display_map(void)
 	}
 
 	// generate a sorted list of symbols and display it
+	
+	for (se = symlist; se; se = se -> next)
+	{
+		for (pe = NULL, ce = slist; ce; ce = ce -> next)
+		{
+			i = strcmp(ce -> name, se -> sym);
+			if (i > 0)
+			{
+				break;
+			}
+			pe = ce;
+		}
+		
+		ne = lw_alloc(sizeof(struct symliste));
+		ne -> ext = 1;
+		ne -> addr = se -> val;
+		ne -> next = ce;
+		ne -> name = se -> sym;
+		ne -> fn = "<synthetic>";
+		if (pe)
+			pe -> next = ne;
+		else
+			slist = ne;
+	}
+	
 	for (sn = 0; sn < nsects; sn++)
 	{
 		for (sym = sectlist[sn].ptr -> localsyms; sym; sym = sym -> next)

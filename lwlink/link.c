@@ -26,6 +26,7 @@ Resolve section and symbol addresses; handle incomplete references
 #include <string.h>
 
 #include <lw_alloc.h>
+#include <lw_string.h>
 
 #include "expr.h"
 #include "lwlink.h"
@@ -36,6 +37,8 @@ struct section_list *sectlist = NULL;
 int nsects = 0;
 static int nforced = 0;
 static int resolveonly = 0;
+
+symlist_t *symlist = NULL;
 
 void check_section_name(char *name, int *base, fileinfo_t *fn)
 {
@@ -215,6 +218,58 @@ void resolve_sections(void)
 	// theoretically, all the base addresses are set now
 }
 
+/* run through all sections and generate any synthetic symbols */
+void generate_symbols(void)
+{
+	int sn;
+	char *lastsect = NULL;
+	char sym[256];
+	int len;
+	symlist_t *se;
+fprintf(stderr, "Generating symbols\n");	
+	for (sn = 0; sn < nsects; sn++)
+	{
+		fprintf(stderr, "Section %s (%s)\n", sectlist[sn].ptr -> name, lastsect);
+		if (!lastsect || strcmp(lastsect, (char *)(sectlist[sn].ptr -> name)))
+		{
+			if (lastsect && linkscript.lensympat)
+			{
+				/* handle length symbol */
+				se = lw_alloc(sizeof(symlist_t));
+				se -> val = len;
+				snprintf(sym, 255, linkscript.lensympat, lastsect);
+				se -> sym = lw_strdup(sym);
+				se -> next = symlist;
+				symlist = se;
+			}
+			lastsect = (char *)(sectlist[sn].ptr -> name);
+			len = 0;
+			/* handle base symbol */
+			if (lastsect && linkscript.basesympat)
+			{
+				se = lw_alloc(sizeof(symlist_t));
+				se -> val = sectlist[sn].ptr -> loadaddress;
+				snprintf(sym, 255, linkscript.basesympat, lastsect);
+				se -> sym = lw_strdup(sym);
+				se -> next = symlist;
+				symlist = se;
+			}
+		}
+		len += sectlist[sn].ptr -> codesize;
+	}
+	if (lastsect && linkscript.lensympat)
+	{
+		/* handle length symbol */
+		se = lw_alloc(sizeof(symlist_t));
+		se -> val = len;
+		snprintf(sym, 255, linkscript.lensympat, lastsect);
+		se -> sym = lw_strdup(sym);
+		se -> next = symlist;
+		symlist = se;
+	}
+
+}
+
 lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 {
 	int sn;
@@ -350,7 +405,19 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 	}
 	else
 	{
+		symlist_t *se;
+		
 		// external symbol
+		// first look up synthesized symbols
+		for (se = symlist; se; se = se -> next)
+		{
+			if (!strcmp(se -> sym, sym))
+			{
+				val = se -> val;
+				goto out;
+			}
+		}
+		
 		// read all files in order until found (or not found)
 		if (sect)
 		{

@@ -198,14 +198,14 @@ HREF="#AEN795"
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN829"
+HREF="#AEN843"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN832"
+HREF="#AEN846"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -214,14 +214,14 @@ HREF="#AEN832"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN844"
+HREF="#AEN858"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN848"
+HREF="#AEN862"
 >Command Line Options</A
 ></DT
 ></DL
@@ -243,12 +243,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN931"
+HREF="#AEN945"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN961"
+HREF="#AEN975"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -2520,6 +2520,44 @@ bss will be matched.</P
 CLASS="VARIABLELIST"
 ><DL
 ><DT
+>define basesympat <CODE
+CLASS="PARAMETER"
+>string</CODE
+></DT
+><DD
+><P
+>&#13;This causes the linker to define a symbol for the ultimate base address of
+each section using the pattern specified by <CODE
+CLASS="PARAMETER"
+>string</CODE
+>. 
+In the string, %s can appear exactly once and will be replaced with the
+section name.  The base address is calculated after all instances of each
+section have been collapsed together.&#13;</P
+><P
+>  If the pattern resolves to the same string for multiple
+sections, the results are undefined.&#13;</P
+></DD
+><DT
+>define lensympat <CODE
+CLASS="PARAMETER"
+>string</CODE
+></DT
+><DD
+><P
+>&#13;This causes the linker to define a symbol for the ultimate length of each
+section using the pattern specified by <CODE
+CLASS="PARAMETER"
+>string</CODE
+>.  In
+the string, %s can appear exactly once and will be replaced with the section
+name.  The length is calculated after all instances of a section have been
+collapsed together.&#13;</P
+><P
+>If the pattern resolves to the same string for multiple
+sections, the results are undefined.&#13;</P
+></DD
+><DT
 >section <CODE
 CLASS="PARAMETER"
 >name</CODE
@@ -2597,7 +2635,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN829"
+NAME="AEN843"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2610,7 +2648,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN832"
+NAME="AEN846"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2686,7 +2724,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN844"
+NAME="AEN858"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2705,7 +2743,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN848"
+NAME="AEN862"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -2906,7 +2944,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN931"
+NAME="AEN945"
 ></A
 ><P
 ><B
@@ -2978,7 +3016,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN961"
+NAME="AEN975"
 ></A
 ><P
 ><B

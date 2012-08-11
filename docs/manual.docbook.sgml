@@ -1982,6 +1982,46 @@ bss will be matched.
 
 <para>The following directives are understood in a linker script.</para>
 <variablelist>
+
+<varlistentry>
+<term>define basesympat <parameter>string</parameter></term>
+<listitem>
+
+<para>
+
+This causes the linker to define a symbol for the ultimate base address of
+each section using the pattern specified by <parameter>string</parameter>. 
+In the string, %s can appear exactly once and will be replaced with the
+section name.  The base address is calculated after all instances of each
+section have been collapsed together.
+
+</para>
+<para>  If the pattern resolves to the same string for multiple
+sections, the results are undefined.
+
+</para>
+</listitem>
+
+<varlistentry>
+<term>define lensympat <parameter>string</parameter></term>
+<listitem>
+
+<para>
+
+This causes the linker to define a symbol for the ultimate length of each
+section using the pattern specified by <parameter>string</parameter>.  In
+the string, %s can appear exactly once and will be replaced with the section
+name.  The length is calculated after all instances of a section have been
+collapsed together.
+
+</para>
+<para>
+If the pattern resolves to the same string for multiple
+sections, the results are undefined.
+
+</para>
+</listitem>
+
 <varlistentry>
 <term>section <parameter>name</parameter> load <parameter>addr</parameter></term>
 <listitem><para>

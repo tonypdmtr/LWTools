@@ -165,6 +165,7 @@ extern void read_files(void);
 extern void setup_script(void);
 extern void resolve_files(void);
 extern void resolve_sections(void);
+extern void generate_symbols(void);
 extern void resolve_references(void);
 extern void do_output(void);
 extern void display_map(void);
@@ -196,6 +197,9 @@ int main(int argc, char **argv)
 	
 	// resolve section bases and section order
 	resolve_sections();
+
+	// generate symbols
+	generate_symbols();
 	
 	// resolve incomplete references
 	resolve_references();

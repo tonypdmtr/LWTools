@@ -35,6 +35,8 @@ Read and parse linker scripts
 // the built-in OS9 script
 // the 000D bit is to handle the module header!
 static char *os9_script =
+	"define basesympat s_%s\n"
+	"define lensympat l_%s\n"
 	"section code load 000D\n"
 	"section .text\n"
 	"section data\n"
@@ -46,6 +48,8 @@ static char *os9_script =
 
 // the built-in DECB target linker script
 static char *decb_script =
+	"define basesympat s_%s\n"
+	"define lensympat l_%s\n"
 	"section init load 2000\n"
 	"section code\n"
 	"section *,!bss\n"
@@ -55,6 +59,8 @@ static char *decb_script =
 
 // the built-in RAW target linker script
 static char *raw_script = 
+	"define basesympat s_%s\n"
+	"define lensympat l_%s\n"
 	"section init load 0000\n"
 	"section code\n"
 	"section *,!bss\n"
@@ -62,6 +68,8 @@ static char *raw_script =
 	;
 
 static char *lwex0_script =
+	"define basesympat s_%s\n"
+	"define lensympat l_%s\n"
 	"section init load 0100\n"
 	"section .text\n"
 	"section .data\n"
@@ -79,6 +87,8 @@ static char *lwex0_script =
 
 // the "simple" script
 static char *simple_script = 
+	"define basesympat s_%s\n"
+	"define lensympat l_%s\n"
 	"section *,!bss\n"
 	"section *,bss\n"
 	;
@@ -216,7 +226,38 @@ void setup_script()
 		for ( ; *ptr && isspace(*ptr); ptr++)
 			/* do nothing */ ;
 		
-		if (!strcmp(line, "pad"))
+		if (!strcmp(line, "define"))
+		{
+			// parse out the definition type
+			for (ptr2 = ptr; *ptr2 && !isspace(*ptr2); ptr2++)
+				/* do nothing */ ;
+			
+			if (*ptr2)
+				*ptr2++ = '\0';
+			
+			while (*ptr2 && isspace(*ptr2))
+				ptr2++;
+			
+			// now ptr points to the define type
+			if (!strcmp(ptr, "basesympat"))
+			{
+				/* section base symbol pattern */
+				lw_free(linkscript.basesympat);
+				linkscript.basesympat = lw_strdup(ptr2);
+			}
+			else if (!strcmp(ptr, "lensympat"))
+			{
+				/* section length symbol pattern */
+				lw_free(linkscript.lensympat);
+				linkscript.lensympat = lw_strdup(ptr2);
+			}
+			else
+			{
+				fprintf(stderr, "%s: bad script line: %s\n", scriptfile, line);
+				exit(1);
+			}
+		}
+		else if (!strcmp(line, "pad"))
 		{
 			// padding
 			// parse the hex number and stow it

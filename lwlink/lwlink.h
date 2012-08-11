@@ -157,10 +157,24 @@ typedef struct
 	int modattr;				// module attributes
 	int modrev;					// module revision
 	char *name;					// module name
+	char *basesympat;			// pattern for section base symbol (%s for section name)
+	char *lensympat;			// pattern for section length symbol (%s for section name)
 } linkscript_t;
 
 #ifndef __script_c_seen__
 extern linkscript_t linkscript;
 #endif
+
+typedef struct symlist_s symlist_t;
+
+struct symlist_s
+{
+	char *sym;
+	int val;
+	symlist_t *next;
+	
+};
+
+extern symlist_t *symlist;
 
 #endif //__lwlink_h_seen__
