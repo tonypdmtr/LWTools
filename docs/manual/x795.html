@@ -17,7 +17,7 @@ TITLE="Linker Operation"
 HREF="x781.html"><LINK
 REL="NEXT"
 TITLE="Format Specific Linking Notes"
-HREF="x843.html"></HEAD
+HREF="x852.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x843.html"
+HREF="x852.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -104,6 +104,26 @@ bss will be matched.</P
 CLASS="VARIABLELIST"
 ><DL
 ><DT
+>sectopt <CODE
+CLASS="PARAMETER"
+>section</CODE
+> padafter <CODE
+CLASS="PARAMETER"
+>byte,...</CODE
+></DT
+><DD
+><P
+>&#13;This will cause the linker to append the specified list of byte values
+(specified in hexadecimal separated by commas) to the end of the named
+section.  This is done once all instances of the specified section are
+collected together.  This has no effect if the specified section does not
+appear anywhere in any of the objects specified for linking. &#13;</P
+><P
+>&#13;If code depends on the presence of this padding somewhere, it is sufficient
+to include an empty section of the specified name in the object that depends
+on it.&#13;</P
+></DD
+><DT
 >define basesympat <CODE
 CLASS="PARAMETER"
 >string</CODE
@@ -118,6 +138,12 @@ CLASS="PARAMETER"
 In the string, %s can appear exactly once and will be replaced with the
 section name.  The base address is calculated after all instances of each
 section have been collapsed together.&#13;</P
+><P
+>&#13;It should be noted that if none of the objects to be linked contains a
+particular section name, there will be no base symbol defined for it, even
+if it is listed explicitly in the link script.  If code depends on the
+presence of these symbols, it is sufficient to include an empty section of
+the specified name in the object that depends on it.&#13;</P
 ><P
 >  If the pattern resolves to the same string for multiple
 sections, the results are undefined.&#13;</P
@@ -137,6 +163,12 @@ CLASS="PARAMETER"
 the string, %s can appear exactly once and will be replaced with the section
 name.  The length is calculated after all instances of a section have been
 collapsed together.&#13;</P
+><P
+>&#13;It should be noted that if none of the objects to be linked contains a
+particular section name, there will be no length symbol defined for it, even
+if it is listed explicitly in the link script.  If code depends on the
+presence of these symbols, it is sufficient to include an empty section of
+the specified name in the object that depends on it.&#13;</P
 ><P
 >If the pattern resolves to the same string for multiple
 sections, the results are undefined.&#13;</P
@@ -248,7 +280,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x843.html"
+HREF="x852.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

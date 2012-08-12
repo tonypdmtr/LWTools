@@ -198,14 +198,14 @@ HREF="#AEN795"
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN843"
+HREF="#AEN852"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN846"
+HREF="#AEN855"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -214,14 +214,14 @@ HREF="#AEN846"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN858"
+HREF="#AEN867"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN862"
+HREF="#AEN871"
 >Command Line Options</A
 ></DT
 ></DL
@@ -243,12 +243,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN945"
+HREF="#AEN954"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN975"
+HREF="#AEN984"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -2520,6 +2520,26 @@ bss will be matched.</P
 CLASS="VARIABLELIST"
 ><DL
 ><DT
+>sectopt <CODE
+CLASS="PARAMETER"
+>section</CODE
+> padafter <CODE
+CLASS="PARAMETER"
+>byte,...</CODE
+></DT
+><DD
+><P
+>&#13;This will cause the linker to append the specified list of byte values
+(specified in hexadecimal separated by commas) to the end of the named
+section.  This is done once all instances of the specified section are
+collected together.  This has no effect if the specified section does not
+appear anywhere in any of the objects specified for linking. &#13;</P
+><P
+>&#13;If code depends on the presence of this padding somewhere, it is sufficient
+to include an empty section of the specified name in the object that depends
+on it.&#13;</P
+></DD
+><DT
 >define basesympat <CODE
 CLASS="PARAMETER"
 >string</CODE
@@ -2534,6 +2554,12 @@ CLASS="PARAMETER"
 In the string, %s can appear exactly once and will be replaced with the
 section name.  The base address is calculated after all instances of each
 section have been collapsed together.&#13;</P
+><P
+>&#13;It should be noted that if none of the objects to be linked contains a
+particular section name, there will be no base symbol defined for it, even
+if it is listed explicitly in the link script.  If code depends on the
+presence of these symbols, it is sufficient to include an empty section of
+the specified name in the object that depends on it.&#13;</P
 ><P
 >  If the pattern resolves to the same string for multiple
 sections, the results are undefined.&#13;</P
@@ -2553,6 +2579,12 @@ CLASS="PARAMETER"
 the string, %s can appear exactly once and will be replaced with the section
 name.  The length is calculated after all instances of a section have been
 collapsed together.&#13;</P
+><P
+>&#13;It should be noted that if none of the objects to be linked contains a
+particular section name, there will be no length symbol defined for it, even
+if it is listed explicitly in the link script.  If code depends on the
+presence of these symbols, it is sufficient to include an empty section of
+the specified name in the object that depends on it.&#13;</P
 ><P
 >If the pattern resolves to the same string for multiple
 sections, the results are undefined.&#13;</P
@@ -2635,7 +2667,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN843"
+NAME="AEN852"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2648,7 +2680,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN846"
+NAME="AEN855"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2724,7 +2756,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN858"
+NAME="AEN867"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2743,7 +2775,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN862"
+NAME="AEN871"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -2944,7 +2976,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN945"
+NAME="AEN954"
 ></A
 ><P
 ><B
@@ -3016,7 +3048,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN975"
+NAME="AEN984"
 ></A
 ><P
 ><B

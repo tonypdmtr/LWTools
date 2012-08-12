@@ -42,10 +42,11 @@ int quietsym = 1;
 
 symlist_t *symlist = NULL;
 
+sectopt_t *section_opts = NULL;
+
 void check_section_name(char *name, int *base, fileinfo_t *fn)
 {
 	int sn;
-
 //	fprintf(stderr, "Considering sections in %s (%d) for %s\n", fn -> filename, fn -> forced, name);
 	if (fn -> forced == 0)
 		return;
@@ -79,6 +80,7 @@ void add_matching_sections(char *name, int yesflags, int noflags, int *base);
 void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
 {
 	int sn;
+	sectopt_t *so;
 
 //	fprintf(stderr, "Considering sections in %s (%d) for %x/%x\n", fn -> filename, fn -> forced, yesflags, noflags);
 
@@ -103,6 +105,20 @@ void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
 		// we have a match - now collect *all* sections of the same name!
 //		fprintf(stderr, "    Found\n");
 		add_matching_sections((char *)(fn -> sections[sn].name), 0, 0, base);
+
+		/* handle "after padding" */
+		for (so = section_opts; so; so = so -> next)
+			if (!strcmp(so -> name, (char *)(fn -> sections[sn].name)))
+				break;
+		if (so)
+		{
+			if (so -> aftersize)
+			{
+				sectlist[nsects - 1].ptr -> afterbytes = so -> afterbytes;
+				sectlist[nsects - 1].ptr -> aftersize = so -> aftersize;
+				*base += so -> aftersize;
+			}
+		}
 		
 		// and then continue looking for sections
 	}
@@ -146,15 +162,31 @@ void resolve_sections(void)
 {
 	int laddr = 0;
 	int ln, sn, fn;
+	sectopt_t *so;
 	
 	for (ln = 0; ln < linkscript.nlines; ln++)
 	{
 		if (linkscript.lines[ln].loadat >= 0)
 			laddr = linkscript.lines[ln].loadat;
+		fprintf(stderr, "Adding section %s\n", linkscript.lines[ln].sectname);
 		add_matching_sections(linkscript.lines[ln].sectname, linkscript.lines[ln].yesflags, linkscript.lines[ln].noflags, &laddr);
 		
 		if (linkscript.lines[ln].sectname)
 		{
+			char *sname = linkscript.lines[ln].sectname;
+			/* handle "after padding" */
+			for (so = section_opts; so; so = so -> next)
+				if (!strcmp(so -> name, sname))
+					break;
+			if (so)
+			{
+				if (so -> aftersize)
+				{
+					sectlist[nsects - 1].ptr -> afterbytes = so -> afterbytes;
+					sectlist[nsects - 1].ptr -> aftersize = so -> aftersize;
+					laddr += so -> aftersize;
+				}
+			}
 		}
 		else
 		{
@@ -184,6 +216,7 @@ void resolve_sections(void)
 					if (inputfiles[fn0] -> sections[sn0].processed == 0)
 					{
 						sname = (char *)(inputfiles[fn0] -> sections[sn0].name);
+						fprintf(stderr, "Adding sectoin %s\n", sname);
 						for (fn = 0; fn < ninputfiles; fn++)
 						{
 							for (sn = 0; sn < inputfiles[fn] -> nsections; sn++)
@@ -719,4 +752,23 @@ void check_os9(void)
 	linkscript.modtype &= 15;
 	linkscript.modrev &= 15;
 	linkscript.modattr &= 15;
+}
+
+void resolve_padding(void)
+{
+	int sn;
+	
+	for (sn = 0; sn < nsects; sn++)
+	{
+		if (sectlist[sn].ptr -> afterbytes)
+		{
+			unsigned char *t;
+			
+			t = lw_alloc(sectlist[sn].ptr -> codesize + sectlist[sn].ptr -> aftersize);
+			memmove(t, sectlist[sn].ptr -> code, sectlist[sn].ptr -> codesize);
+			sectlist[sn].ptr -> code = t;
+			memmove(sectlist[sn].ptr -> code + sectlist[sn].ptr -> codesize, sectlist[sn].ptr -> afterbytes, sectlist[sn].ptr -> aftersize);
+			sectlist[sn].ptr -> codesize += sectlist[sn].ptr -> aftersize;
+		}
+	}
 }

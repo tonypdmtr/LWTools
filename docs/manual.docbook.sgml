@@ -1984,6 +1984,30 @@ bss will be matched.
 <variablelist>
 
 <varlistentry>
+<term>sectopt <parameter>section</parameter> padafter <parameter>byte,...</parameter></term>
+<listitem>
+
+<para>
+
+This will cause the linker to append the specified list of byte values
+(specified in hexadecimal separated by commas) to the end of the named
+section.  This is done once all instances of the specified section are
+collected together.  This has no effect if the specified section does not
+appear anywhere in any of the objects specified for linking. 
+
+</para>
+
+<para>
+
+If code depends on the presence of this padding somewhere, it is sufficient
+to include an empty section of the specified name in the object that depends
+on it.
+
+</para>
+
+</listitem>
+
+<varlistentry>
 <term>define basesympat <parameter>string</parameter></term>
 <listitem>
 
@@ -1996,6 +2020,18 @@ section name.  The base address is calculated after all instances of each
 section have been collapsed together.
 
 </para>
+
+<para>
+
+It should be noted that if none of the objects to be linked contains a
+particular section name, there will be no base symbol defined for it, even
+if it is listed explicitly in the link script.  If code depends on the
+presence of these symbols, it is sufficient to include an empty section of
+the specified name in the object that depends on it.
+
+</para>
+
+
 <para>  If the pattern resolves to the same string for multiple
 sections, the results are undefined.
 
@@ -2015,6 +2051,18 @@ name.  The length is calculated after all instances of a section have been
 collapsed together.
 
 </para>
+
+<para>
+
+It should be noted that if none of the objects to be linked contains a
+particular section name, there will be no length symbol defined for it, even
+if it is listed explicitly in the link script.  If code depends on the
+presence of these symbols, it is sufficient to include an empty section of
+the specified name in the object that depends on it.
+
+</para>
+
+
 <para>
 If the pattern resolves to the same string for multiple
 sections, the results are undefined.

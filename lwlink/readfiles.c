@@ -198,6 +198,8 @@ void read_lwobj16v0(fileinfo_t *fn)
 		s -> incompletes = NULL;
 		s -> processed = 0;
 		s -> file = fn;
+		s -> afterbytes = NULL;
+		s -> aftersize = 0;
 		
 		// read flags
 		while (CURBYTE())

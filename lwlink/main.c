@@ -167,6 +167,7 @@ extern void resolve_files(void);
 extern void resolve_sections(void);
 extern void generate_symbols(void);
 extern void resolve_references(void);
+extern void resolve_padding(void);
 extern void do_output(void);
 extern void display_map(void);
 
@@ -203,6 +204,9 @@ int main(int argc, char **argv)
 	
 	// resolve incomplete references
 	resolve_references();
+
+	// resolve section padding bits
+	resolve_padding();
 	
 	// do the actual output
 	do_output();

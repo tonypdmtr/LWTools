@@ -70,6 +70,8 @@ static char *raw_script =
 static char *lwex0_script =
 	"define basesympat s_%s\n"
 	"define lensympat l_%s\n"
+	"sectopt .ctors padafter 00,00\n"
+	"sectopt .dtors padafter 00,00\n"
 	"section init load 0100\n"
 	"section .text\n"
 	"section .data\n"
@@ -226,7 +228,94 @@ void setup_script()
 		for ( ; *ptr && isspace(*ptr); ptr++)
 			/* do nothing */ ;
 		
-		if (!strcmp(line, "define"))
+		if (!strcmp(line, "sectopt"))
+		{
+			char *sn;
+			char *ptr3;
+			sectopt_t *so;
+			
+			for (ptr2 = ptr; *ptr && !isspace(*ptr2); ptr2++)
+				/* do nothing */ ;
+			
+			if (*ptr2)
+				*ptr2++ = '\0';
+			
+			while (*ptr2 && isspace(*ptr2))
+				ptr2++;
+			
+			// section name is at ptr
+			// ptr2 is the option type
+			sn = ptr;
+
+			// now ptr2 points to the section option name
+			for (ptr3 = ptr2; *ptr3 && !isspace(*ptr3); ptr3++)
+				/* do nothing */ ;
+			
+			if (*ptr3)
+				*ptr3++ = 0;
+			
+			while (*ptr3 && isspace(*ptr3))
+				ptr3++;
+			
+			// now ptr3 points to option value
+			for (so = section_opts; so; so = so -> next)
+			{
+				if (!strcmp(so -> name, sn))
+					break;
+			}
+			
+			if (!so)
+			{
+				so = lw_alloc(sizeof(sectopt_t));
+				so -> name = lw_strdup(sn);
+				so -> aftersize = 0;
+				so -> afterbytes = NULL;
+				so -> next = section_opts;
+				section_opts = so;
+			}
+			
+			if (!strcmp(ptr2, "padafter"))
+			{
+				if (so -> afterbytes)
+					lw_free(so -> afterbytes);
+				so -> aftersize = 0;
+				
+				for (;;)
+				{
+					int v;
+					char *ptr4;
+
+					while (*ptr3 && isspace(*ptr3))
+						ptr3++;
+					
+					if (!ptr3)
+						break;
+					
+					v = strtoul(ptr3, &ptr4, 16);
+					if (ptr3 == ptr4)
+						break;
+					
+					
+					so -> afterbytes = lw_realloc(so -> afterbytes, so -> aftersize + 1);
+					so -> afterbytes[so -> aftersize] = v;
+					so -> aftersize++;
+					ptr3 = ptr4;
+					while (*ptr3 && isspace(*ptr3))
+						ptr3++;
+
+					if (*ptr3 != ',')
+						break;
+
+					ptr3++;
+				}
+			}
+			else
+			{
+				fprintf(stderr, "%s: bad script line: %s %s\n", scriptfile, line, ptr2);
+				exit(1);
+			}
+		}
+		else if (!strcmp(line, "define"))
 		{
 			// parse out the definition type
 			for (ptr2 = ptr; *ptr2 && !isspace(*ptr2); ptr2++)
@@ -253,8 +342,6 @@ void setup_script()
 			}
 			else
 			{
-				fprintf(stderr, "%s: bad script line: %s\n", scriptfile, line);
-				exit(1);
 			}
 		}
 		else if (!strcmp(line, "pad"))

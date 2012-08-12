@@ -70,6 +70,9 @@ typedef struct
 	reloc_t *incompletes;	// table of incomplete references
 	
 	fileinfo_t *file;		// the file we are in
+	
+	int aftersize;			// add this many bytes after section on output
+	unsigned char *afterbytes;	// add these bytes after section on output
 } section_t;
 
 struct fileinfo_s
@@ -95,9 +98,20 @@ struct section_list
 	int forceaddr;		// was this force to an address by the link script?
 };
 
+
+typedef struct sectopt_s sectopt_t;
+struct sectopt_s
+{
+	char *name;					// section name
+	int aftersize;				// number of bytes to append to section
+	unsigned char *afterbytes;	// the bytes to store after the section
+	sectopt_t *next;			// next section option
+};
+
 #ifndef __link_c_seen__
 extern struct section_list *sectlist;
 extern int nsects;
+extern sectopt_t *section_opts;
 #endif
 
 
