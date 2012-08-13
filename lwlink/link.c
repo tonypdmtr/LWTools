@@ -168,7 +168,7 @@ void resolve_sections(void)
 	{
 		if (linkscript.lines[ln].loadat >= 0)
 			laddr = linkscript.lines[ln].loadat;
-		fprintf(stderr, "Adding section %s\n", linkscript.lines[ln].sectname);
+		//fprintf(stderr, "Adding section %s\n", linkscript.lines[ln].sectname);
 		add_matching_sections(linkscript.lines[ln].sectname, linkscript.lines[ln].yesflags, linkscript.lines[ln].noflags, &laddr);
 		
 		if (linkscript.lines[ln].sectname)
