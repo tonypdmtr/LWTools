@@ -40,6 +40,7 @@ void do_pass4_aux(asmstate_t *as, int force)
 	int cnt;
 	line_t *cl, *sl;
 	struct line_expr_s *le;
+	int trycount = 0;
 
 	// first, count the number of unresolved instructions
 	for (cnt = 0, cl = as -> line_head; cl; cl = cl -> next)
@@ -51,6 +52,7 @@ void do_pass4_aux(asmstate_t *as, int force)
 	sl = as -> line_head;
 	while (cnt > 0)
 	{
+		trycount = cnt;
 		debug_message(as, 60, "%d unresolved instructions", cnt);
 
 		// find an unresolved instruction
@@ -142,6 +144,8 @@ void do_pass4_aux(asmstate_t *as, int force)
 			if (as -> errorcount > 0)
 				return;
 		} while (rc > 0);
+		if (trycount == cnt)
+			break;
 	}
 }
 
