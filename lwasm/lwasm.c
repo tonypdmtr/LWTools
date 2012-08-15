@@ -132,7 +132,7 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 			{
 				if (cl -> maxlen != 0)
 				{
-					fprintf(stderr, "Pretending max, len = %d\n", cl -> maxlen);
+					//fprintf(stderr, "Pretending max, len = %d\n", cl -> maxlen);
 					return lw_expr_build(lw_expr_type_int, cl -> maxlen);
 				}
 			}
