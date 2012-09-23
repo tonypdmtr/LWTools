@@ -50,6 +50,8 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 		l -> lint = -1;
 		l -> lint2 = 1;
 		insn_parse_indexed_aux(as, l, p);
+		l -> minlen = OPLEN(instab[l -> insn].ops[1]) + 1 + elen;
+		l -> maxlen = OPLEN(instab[l -> insn].ops[1]) + 3 + elen;
 		goto out;
 	}
 
@@ -80,6 +82,8 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 		l -> lint2 = -1;
 	}
 
+	l -> minlen = OPLEN(instab[l -> insn].ops[0]) + 1 + elen;
+	l -> maxlen = OPLEN(instab[l -> insn].ops[2]) + 2 + elen;
 	s = lwasm_parse_expr(as, p);
 	if (!s)
 	{
@@ -108,6 +112,30 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 			goto out;
 		}
 		l -> lint2 = 2;
+	}
+	else
+	{
+		int min;
+		int max;
+		
+		if (lwasm_calculate_range(as, s, &min, &max) == 0)
+		{
+//			fprintf(stderr, "range (P) %d...%d for %s\n", min, max, lw_expr_print(s));
+			if (min > max)
+			{
+				// we don't know what to do in this case so don't do anything
+				goto out;
+			}
+			min = (min >> 8) & 0xff;
+			max = (max >> 8) & 0xff;
+			if ((l -> dpval & 0xff) < min || (l -> dpval & 0xff) > max)
+			{
+				l -> lint2 = 2;
+				goto out;
+			}
+			l -> lint2 = 0;
+			goto out;
+		}
 	}
 
 out:
@@ -143,6 +171,7 @@ void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen)
 		return;
 	
 	e = lwasm_fetch_expr(l, 0);
+	lwasm_reduce_expr(as, e);
 	if (lw_expr_istype(e, lw_expr_type_int))
 	{
 		int v;
@@ -156,6 +185,30 @@ void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen)
 		}
 		l -> lint2 = 2;
 		goto out;
+	}
+	else
+	{
+		int min;
+		int max;
+		
+		if (lwasm_calculate_range(as, e, &min, &max) == 0)
+		{
+//			fprintf(stderr, "range (R) %d...%d for %s\n", min, max, lw_expr_print(e));
+			if (min > max)
+			{
+				// we don't know what to do in this case so don't do anything
+				goto out;
+			}
+			min = (min >> 8) & 0xff;
+			max = (max >> 8) & 0xff;
+			if ((l -> dpval & 0xff) < min || (l -> dpval & 0xff) > max)
+			{
+				l -> lint2 = 2;
+				goto out;
+			}
+			l -> lint2 = 0;
+			goto out;
+		}
 	}
 
 	if (force)

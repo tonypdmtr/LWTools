@@ -988,3 +988,93 @@ lw_expr_t lwasm_parse_cond(asmstate_t *as, char **p)
 	debug_message(as, 250, "Returning expression");
 	return e;
 }
+
+struct range_data
+{
+	int min;
+	int max;
+	asmstate_t *as;
+};
+int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max);
+int lwasm_calculate_range_tf(lw_expr_t e, void *info)
+{
+	struct range_data *rd = info;
+	int i;
+	
+	if (lw_expr_istype(e, lw_expr_type_int))
+	{
+		i = lw_expr_intval(e);
+		rd -> min += i;
+		rd -> max += i;
+		return 0;
+	}
+	
+	if (lw_expr_istype(e, lw_expr_type_special))
+	{
+		line_t *l;
+		if (lw_expr_specint(e) != lwasm_expr_linelen)
+		{
+			rd -> min = -1;
+			return -1;
+		}
+		l = (line_t *)lw_expr_specptr(e);
+		if (l -> len == -1)
+		{
+			rd -> min += l -> minlen;
+			rd -> max += l -> maxlen;
+		}
+		else
+		{
+			rd -> min += l -> len;
+		}
+		return 0;
+	}
+	
+	if (lw_expr_istype(e, lw_expr_type_var))
+	{
+		lw_expr_t te;
+		te = lw_expr_copy(e);
+		lwasm_reduce_expr(rd -> as, te);
+		if (lw_expr_istype(te, lw_expr_type_int))
+		{
+			i = lw_expr_intval(te);
+			rd -> min += i;
+			rd -> max += i;
+		}
+		else
+		{
+			rd -> min = -1;
+		}
+		lw_expr_destroy(te);
+		if (rd -> min == -1)
+			return -1;
+		return 0;
+	}
+	
+	if (lw_expr_istype(e, lw_expr_type_oper))
+	{
+		if (lw_expr_whichop(e) == lw_expr_oper_plus)
+			return 0;
+		rd -> min = -1;
+		return -1;
+	}
+	
+	rd -> min = -1;
+	return -1;
+}
+
+int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max)
+{
+	struct range_data rd;
+	
+	rd.min = 0;
+	rd.max = 0;
+	rd.as = as;
+	
+	lw_expr_testterms(expr, lwasm_calculate_range_tf, (void *)&rd);
+	*min = rd.min;
+	*max = rd.max;
+	if (rd.min == -1)
+		return -1;
+	return 0;
+}

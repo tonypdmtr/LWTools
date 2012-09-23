@@ -158,7 +158,8 @@ struct line_s
 	lw_expr_t daddr;					// data address of the line (os9 only)
 	int len;							// the "size" this line occupies (address space wise) (-1 if unknown)
 	int dlen;							// the data "size" this line occupies (-1 if unknown)
-	int maxlen;							// maximum length; will be zero if not relevant
+	int minlen;							// minimum length
+	int maxlen;							// maximum length
 	int insn;							// number of insn in insn table
 	int symset;							// set if the line symbol was consumed by the instruction
 	char *sym;							// symbol, if any, on the line
@@ -346,6 +347,8 @@ extern void lwasm_show_errors(asmstate_t *as);
 extern int lwasm_reduce_expr(asmstate_t *as, lw_expr_t expr);
 
 extern lw_expr_t lwasm_parse_cond(asmstate_t *as, char **p);
+
+extern int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max);
 
 #endif
 

@@ -51,6 +51,7 @@ PARSEFUNC(insn_parse_relgen)
 	
 	l -> lint = -1;
 	l -> maxlen = OPLEN(instab[l -> insn].ops[3]) + 2;
+	l -> minlen = OPLEN(instab[l -> insn].ops[2]) + 1;
 	if (CURPRAGMA(l, PRAGMA_AUTOBRANCHLENGTH) == 0)
 	{
 		l -> lint = instab[l -> insn].ops[1];
