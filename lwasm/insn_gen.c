@@ -133,8 +133,16 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 				l -> lint2 = 2;
 				goto out;
 			}
-			l -> lint2 = 0;
-			goto out;
+			if (min == max && (l -> dpval & 0xff) == min)
+			{
+				l -> lint2 = 0;
+				goto out;
+			}
+			// if here, we don't know if the value is in the DP or not
+			{
+				l -> lint2 = -1;
+				goto out;
+			}
 		}
 	}
 
@@ -206,8 +214,16 @@ void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen)
 				l -> lint2 = 2;
 				goto out;
 			}
-			l -> lint2 = 0;
-			goto out;
+			if (min == max && (l -> dpval & 0xff) == min)
+			{
+				l -> lint2 = 0;
+				goto out;
+			}
+			// if here, we don't know if the value is in the DP or not
+			{
+				l -> lint2 = -1;
+				goto out;
+			}
 		}
 	}
 
