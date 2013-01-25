@@ -16,7 +16,7 @@ AR := $(BUILDTPREFIX)ar
 # ranlib
 RANLIB := $(BUILDTPREFIX)ranlib
 
-CPPFLAGS += -I lwlib -DPACKAGE_STRING='"lwtools 4.7"'
+CPPFLAGS += -I lwlib -DPACKAGE_STRING='"lwtools 4.7+"'
 LDFLAGS += -L$(PWD)/lwlib -llw
 
 CFLAGS ?= -g -Wall
