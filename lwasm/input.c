@@ -82,6 +82,28 @@ static char *make_filename(char *p, char *f)
 
 struct ifl *ifl_head = NULL;
 
+static int input_isabsolute(const char *s)
+{
+#if defined(WIN32) || defined(WIN64)
+	// aiming for the root of the current drive - treat as absolute
+	if (s[0] == '/')
+		return 1;
+	// check for drive letter stuff
+	if (!s[0] || !s[1])
+		return 0;
+	if (s[1] != ':')
+		return 0;
+	if (isalpha(s[0]))
+		return 1;
+	return 0;
+#else
+	/* this is suitable for unix-like systems */
+	if (s[0] == '/')
+		return 1;
+	return 0;
+#endif
+}
+
 /* this adds real filenames that were opened to a list */
 void input_add_to_resource_list(asmstate_t *as, const char *s)
 {
@@ -208,7 +230,7 @@ void input_open(asmstate_t *as, char *s)
 	{
 	case input_type_include:
 		/* first check for absolute path and if so, skip path */
-		if (*s == '/')
+		if (input_isabsolute(s))
 		{
 			/* absolute path */
 			IS -> data = fopen(s, "rb");
@@ -292,7 +314,7 @@ FILE *input_open_standalone(asmstate_t *as, char *s, char **rfn)
 
 	debug_message(as, 2, "Open file (st) %s", s);
 	/* first check for absolute path and if so, skip path */
-	if (*s == '/')
+	if (input_isabsolute(s))
 	{
 		/* absolute path */
 		debug_message(as, 2, "Open file (st abs) %s", s);
