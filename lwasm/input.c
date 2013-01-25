@@ -203,7 +203,7 @@ void input_open(asmstate_t *as, char *s)
 
 	for (s2 = s; *s2 && (*s2 != ':'); s2++)
 		/* do nothing */ ;
-	if (!*s2)
+	if (input_isabsolute(s) || !*s2)
 	{
 		t -> type = input_type_file;
 	}
