@@ -38,6 +38,21 @@ static lw_expr_fn3_t *parse_term = NULL;
 static int level = 0;
 static int bailing = 0;
 
+static void (*divzero)(void *priv) = NULL;
+
+void lw_expr_setdivzero(void (*fn)(void *priv))
+{
+	divzero = fn;
+}
+
+static void lw_expr_divzero(void *priv)
+{
+	if (divzero)
+		(*divzero)(priv);
+	else
+		fprintf(stderr, "Divide by zero in lw_expr!\n");
+}
+
 int lw_expr_istype(lw_expr_t e, int t)
 {
 	/* NULL expression is never of any type */
@@ -719,6 +734,12 @@ again:
 			break;
 
 		case lw_expr_oper_divide:
+			if (E -> operands -> next -> p -> value == 0)
+			{
+				tr = 0;
+				lw_expr_divzero(priv);
+				break;
+			}
 			tr = E -> operands -> p -> value / E -> operands -> next -> p -> value;
 			break;
 		
@@ -727,6 +748,12 @@ again:
 			break;
 		
 		case lw_expr_oper_intdiv:
+			if (E -> operands -> next -> p -> value == 0)
+			{
+				tr = 0;
+				lw_expr_divzero(priv);
+				break;
+			}
 			tr = E -> operands -> p -> value / E -> operands -> next -> p -> value;
 			break;
 

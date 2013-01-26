@@ -222,6 +222,7 @@ extern void do_list(asmstate_t *as);
 extern lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv);
 extern lw_expr_t lwasm_evaluate_var(char *var, void *priv);
 extern lw_expr_t lwasm_parse_term(char **p, void *priv);
+extern void lwasm_dividezero(void *priv);
 
 struct passlist_s
 {
@@ -251,6 +252,7 @@ int main(int argc, char **argv)
 	lw_expr_set_special_handler(lwasm_evaluate_special);
 	lw_expr_set_var_handler(lwasm_evaluate_var);
 	lw_expr_set_term_parser(lwasm_parse_term);
+	lw_expr_setdivzero(lwasm_dividezero);
 
 	/* initialize assembler state */
 	asmstate.include_list = lw_stringlist_create();

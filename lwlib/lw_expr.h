@@ -112,6 +112,8 @@ extern int lw_expr_operandcount(lw_expr_t e);
 // zero
 extern int lw_expr_testterms(lw_expr_t e, lw_expr_testfn_t *fn, void *priv);
 
+extern void lw_expr_setdivzero(void (*fn)(void *priv));
+
 #endif /* def ___lw_expr_c_seen___ */
 
 #endif /* ___lw_expr_h_seen___ */

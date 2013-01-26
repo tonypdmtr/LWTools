@@ -44,6 +44,12 @@ int lwasm_expr_exportval(asmstate_t *as, lw_expr_t expr)
 	return 0;
 }
 
+void lwasm_dividezero(void *priv)
+{
+	asmstate_t *as = (asmstate_t *)priv;
+	lwasm_register_error(as, as -> cl, "Division by zero");
+}
+
 lw_expr_t lwasm_evaluate_var(char *var, void *priv)
 {
 	asmstate_t *as = (asmstate_t *)priv;
