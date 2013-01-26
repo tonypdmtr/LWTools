@@ -574,7 +574,7 @@ RESOLVEFUNC(pseudo_resolve_rmb)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative reservation sizes make no sense!");
+			lwasm_register_error(as, l, "Negative reservation sizes make no sense! (%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			l -> dlen = 0;
 			return;
@@ -658,7 +658,7 @@ RESOLVEFUNC(pseudo_resolve_rmd)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative reservation sizes make no sense!");
+			lwasm_register_error(as, l, "Negative reservation sizes make no sense! (%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			l -> dlen = 0;
 			return;
@@ -742,7 +742,7 @@ RESOLVEFUNC(pseudo_resolve_rmq)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative reservation sizes make no sense!");
+			lwasm_register_error(as, l, "Negative reservation sizes make no sense! (%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			l -> dlen = 0;
 			return;
@@ -790,7 +790,7 @@ RESOLVEFUNC(pseudo_resolve_zmq)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative block sizes make no sense!");
+			lwasm_register_error(as, l, "Negative block sizes make no sense! (%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			return;
 		}
@@ -839,7 +839,7 @@ RESOLVEFUNC(pseudo_resolve_zmd)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative block sizes make no sense!");
+			lwasm_register_error(as, l, "Negative block sizes make no sense! (%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			return;
 		}
@@ -887,7 +887,7 @@ RESOLVEFUNC(pseudo_resolve_zmb)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative block sizes make no sense!");
+			lwasm_register_error(as, l, "Negative block sizes make no sense! (%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			return;
 		}
