@@ -93,7 +93,7 @@ static int input_isabsolute(const char *s)
 		return 0;
 	if (s[1] != ':')
 		return 0;
-	if (isalpha(s[0]))
+	if ((s[0] >= 'A' && s[0] <= 'Z') || (s[0] >= 'a' && s[0] <= 'A'))
 		return 1;
 	return 0;
 #else
