@@ -744,6 +744,12 @@ again:
 			break;
 		
 		case lw_expr_oper_mod:
+			if (E -> operands -> next -> p -> value == 0)
+			{
+				tr = 0;
+				lw_expr_divzero(priv);
+				break;
+			}
 			tr = E -> operands -> p -> value % E -> operands -> next -> p -> value;
 			break;
 		
