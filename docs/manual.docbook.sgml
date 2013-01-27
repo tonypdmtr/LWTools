@@ -1589,6 +1589,20 @@ for one or two files to use this pragma internally.
 </varlistentry>
 
 <varlistentry>
+<term>export</term>
+<listitem>
+
+<para>This pragma causes all symbols to be added to the export list
+automatically.  This is useful when a large number of symbols need to be
+exported but you do not wish to include an EXPORT directive for all of them. 
+This is often useful on the command line but might be useful even inline
+with the PRAGMA directive if a large number of symbols in a row are to be
+exported.</para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
 <term>dollarlocal</term>
 <listitem>
 

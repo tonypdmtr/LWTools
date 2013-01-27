@@ -176,36 +176,36 @@ HREF="#AEN591"
 ></DD
 ><DT
 >4. <A
-HREF="#AEN681"
+HREF="#AEN685"
 >LWLINK</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.1. <A
-HREF="#AEN684"
+HREF="#AEN688"
 >Command Line Options</A
 ></DT
 ><DT
 >4.2. <A
-HREF="#AEN781"
+HREF="#AEN785"
 >Linker Operation</A
 ></DT
 ><DT
 >4.3. <A
-HREF="#AEN795"
+HREF="#AEN799"
 >Linking Scripts</A
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN852"
+HREF="#AEN856"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN855"
+HREF="#AEN859"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -214,14 +214,14 @@ HREF="#AEN855"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN867"
+HREF="#AEN871"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN871"
+HREF="#AEN875"
 >Command Line Options</A
 ></DT
 ></DL
@@ -243,12 +243,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN954"
+HREF="#AEN958"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN984"
+HREF="#AEN988"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -2101,6 +2101,17 @@ However, depending on the specific dynamics of the project, it may be sufficient
 for one or two files to use this pragma internally.</P
 ></DD
 ><DT
+>export</DT
+><DD
+><P
+>This pragma causes all symbols to be added to the export list
+automatically.  This is useful when a large number of symbols need to be
+exported but you do not wish to include an EXPORT directive for all of them. 
+This is often useful on the command line but might be useful even inline
+with the PRAGMA directive if a large number of symbols in a row are to be
+exported.</P
+></DD
+><DT
 >dollarlocal</DT
 ><DD
 ><P
@@ -2225,7 +2236,7 @@ while nolist is already engaged, it will not undo that state.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN681"
+NAME="AEN685"
 ></A
 >Chapter 4. LWLINK</H1
 ><P
@@ -2236,7 +2247,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN684"
+NAME="AEN688"
 >4.1. Command Line Options</A
 ></H2
 ><P
@@ -2433,7 +2444,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN781"
+NAME="AEN785"
 >4.2. Linker Operation</A
 ></H2
 ><P
@@ -2489,7 +2500,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN795"
+NAME="AEN799"
 >4.3. Linking Scripts</A
 ></H2
 ><P
@@ -2667,7 +2678,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN852"
+NAME="AEN856"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2680,7 +2691,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN855"
+NAME="AEN859"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2756,7 +2767,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN867"
+NAME="AEN871"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2775,7 +2786,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN871"
+NAME="AEN875"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -2976,7 +2987,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN954"
+NAME="AEN958"
 ></A
 ><P
 ><B
@@ -3048,7 +3059,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN984"
+NAME="AEN988"
 ></A
 ><P
 ><B

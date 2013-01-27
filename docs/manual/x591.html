@@ -17,7 +17,7 @@ TITLE="Object Files and Sections"
 HREF="x527.html"><LINK
 REL="NEXT"
 TITLE="LWLINK"
-HREF="c681.html"></HEAD
+HREF="c685.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c681.html"
+HREF="c685.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -211,6 +211,17 @@ automatic external definition if there is already a locally defined symbol.)</P
 >This pragma will often be specified on the command line for large projects.
 However, depending on the specific dynamics of the project, it may be sufficient
 for one or two files to use this pragma internally.</P
+></DD
+><DT
+>export</DT
+><DD
+><P
+>This pragma causes all symbols to be added to the export list
+automatically.  This is useful when a large number of symbols need to be
+exported but you do not wish to include an EXPORT directive for all of them. 
+This is often useful on the command line but might be useful even inline
+with the PRAGMA directive if a large number of symbols in a row are to be
+exported.</P
 ></DD
 ><DT
 >dollarlocal</DT
@@ -366,7 +377,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c681.html"
+HREF="c685.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
