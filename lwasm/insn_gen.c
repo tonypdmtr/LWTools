@@ -41,6 +41,12 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 	int v1, tv;
 	lw_expr_t s;
 
+	if (!**p)
+	{
+		lwasm_register_error(as, l, "Bad operand");
+		return;
+	}
+
 	optr2 = *p;
 	while (*optr2 && !isspace(*optr2) && *optr2 != ',') optr2++
 		/* do nothing */ ;
