@@ -735,7 +735,7 @@ void check_os9(void)
 		}
 		else if (!strcasecmp(sm, "attr"))
 		{
-			linkscript.modlang = sym -> offset;
+			linkscript.modattr = sym -> offset;
 		}
 		else if (!strcasecmp(sm, "rev"))
 		{
