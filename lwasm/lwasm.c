@@ -1077,6 +1077,9 @@ int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max)
 	rd.max = 0;
 	rd.as = as;
 	
+	if (!expr)
+		return -1;
+	
 	lw_expr_testterms(expr, lwasm_calculate_range_tf, (void *)&rd);
 	*min = rd.min;
 	*max = rd.max;
