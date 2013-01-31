@@ -714,6 +714,17 @@ work, however.</para>
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term>FILL <parameter>size</parameter>,<parameter>byte</parameter></term>
+<listitem>
+
+<para>
+Insert <parameter>size</parameter> bytes of <parameter>byte</parameter>.
+</para>
+
+</listitem>
+</varlistentry>
+
 </variablelist>
 
 </section>
