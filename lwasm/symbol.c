@@ -185,6 +185,10 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	{
 		nse -> flags |= symbol_flag_nocase;
 	}
+	if (!cl && (as -> pragmas & PRAGMA_SYMBOLNOCASE))
+	{
+		nse -> flags |= symbol_flag_nocase;
+	}
 	nse -> value = lw_expr_copy(val);
 	nse -> symbol = lw_strdup(sym);
 	nse -> right = NULL;

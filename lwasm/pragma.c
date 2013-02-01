@@ -73,6 +73,7 @@ int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
 	while (np)
 	{
 		p = lw_token(np, ',', &np);
+		debug_message(as, 200, "Setting pragma %s", p);
 		for (i = 0; set_pragmas[i].setstr; i++)
 		{
 			if (!strcasecmp(p, set_pragmas[i].setstr))
