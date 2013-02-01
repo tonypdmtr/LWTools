@@ -690,19 +690,48 @@ section_t *find_section_by_name_once(char *name)
 	return rval;
 }
 
-void check_os9(void)
+void foreach_section_aux(char *name, fileinfo_t *fn, void (*fnp)(section_t *s, void *arg), void *arg)
 {
-	section_t *s;
-	symtab_t *sym;
+	int sn;
 	
-	s = find_section_by_name_once("__os9");
-	linkscript.name = outfile;
-	
-	if (!s)
-	{
-		// use defaults if not found
+	if (fn -> forced == 0)
 		return;
-	}	
+
+	for (sn = 0; sn < fn -> nsections; sn++)
+	{
+		if (!strcmp(name, (char *)(fn -> sections[sn].name)))
+		{
+			(*fnp)(&(fn -> sections[sn]), arg);
+		}
+	}
+	for (sn = 0; sn < fn -> nsubs; sn++)
+	{
+		foreach_section_aux(name, fn -> subs[sn], fnp, arg);
+	}
+}
+void foreach_section(char *name, void (*fnp)(section_t *s, void *arg), void *arg)
+{
+	int fn;
+	
+	for (fn = 0; fn < ninputfiles; fn++)
+	{
+		foreach_section_aux(name, inputfiles[fn], fnp, arg);
+	}
+}
+
+struct check_os9_aux_s
+{
+	int typeseen;
+	int attrseen;
+	int langseen;
+	int revseen;
+	int nameseen;
+};
+
+void check_os9_aux(section_t *s, void *arg)
+{
+	struct check_os9_aux_s *st = arg;
+	symtab_t *sym;
 
 	// this section is special
 	// several symbols may be defined as LOCAL symbols:
@@ -720,6 +749,7 @@ void check_os9(void)
 	if (s -> codesize > 0 && (s -> flags & SECTION_BSS) == 0 && s -> code[0] != 0)
 	{
 		linkscript.name = (char *)(s -> code);
+		st -> nameseen++;
 	}
 	
 	for (sym = s -> localsyms; sym; sym = sym -> next)
@@ -728,20 +758,36 @@ void check_os9(void)
 		if (!strcasecmp(sm, "type"))
 		{
 			linkscript.modtype = sym -> offset;
+			st -> typeseen++;
 		}
 		else if (!strcasecmp(sm, "lang"))
 		{
 			linkscript.modlang = sym -> offset;
+			st -> langseen++;
 		}
 		else if (!strcasecmp(sm, "attr"))
 		{
 			linkscript.modattr = sym -> offset;
+			st -> attrseen++;
 		}
 		else if (!strcasecmp(sm, "rev"))
 		{
 			linkscript.modrev = sym -> offset;
+			st -> revseen++;
+		}
+		else if (!strcasecmp(sm, "stack"))
+		{
+			linkscript.stacksize += sym -> offset;
 		}
 	}
+}
+
+void check_os9(void)
+{
+	struct check_os9_aux_s st = { 0 };
+
+	linkscript.name = outfile;
+	foreach_section("__os9", check_os9_aux, &st);
 	if (linkscript.modtype > 15)
 		linkscript.modtype = linkscript.modtype >> 4;
 	
@@ -752,6 +798,14 @@ void check_os9(void)
 	linkscript.modtype &= 15;
 	linkscript.modrev &= 15;
 	linkscript.modattr &= 15;
+	
+	if (st.attrseen > 1 || st.typeseen > 1 ||
+		st.langseen > 1 || st.revseen > 1 ||
+		st.nameseen > 1
+	)
+	{
+		fprintf(stderr, "Warning: multiple instances of __os9 found with duplicate settings of type, lang, attr, rev, or module name.\n");
+	}
 }
 
 void resolve_padding(void)

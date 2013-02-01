@@ -43,6 +43,7 @@ static char *os9_script =
 	"section .data\n"
 	"section bss,bss load 0000\n"
 	"section .bss,bss\n"
+	"stacksize 32\n"
 	"entry __start\n"
 	;
 

@@ -262,6 +262,7 @@ void do_output_os9(FILE *of)
 		}
 		codedatasize += sectlist[sn].ptr -> codesize;
 	}
+	bsssize += linkscript.stacksize;
 
 	// now bss size is the data size for the module
 	// and codesize is the length of the module minus the module header
