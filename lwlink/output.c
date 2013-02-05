@@ -272,6 +272,8 @@ void do_output_os9(FILE *of)
 	nameoff = codedatasize; // we'll put the name at the end
 	codedatasize += 3;	// add in CRC
 	codedatasize += strlen(linkscript.name); // add in name length
+	if (linkscript.edition >= 0)
+		codedatasize += 1;
 	
 	// output the file header
 	buf[0] = 0x87;
@@ -332,6 +334,13 @@ void do_output_os9(FILE *of)
 	buf[0] = linkscript.name[i] | 0x80;
 	writebytes(buf, 1, 1, of);
 	os9crc(crc, buf[0]);
+	
+	if (linkscript.edition >= 0)
+	{
+		buf[0] = linkscript.edition & 0x80;
+		writebytes(buf, 1, 1, of);
+		os9crc(crc, buf[0]);
+	}
 	
 	crc[0] ^= 0xff;
 	crc[1] ^= 0xff;

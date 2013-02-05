@@ -170,6 +170,7 @@ typedef struct
 	int modlang;				// module language
 	int modattr;				// module attributes
 	int modrev;					// module revision
+	int edition;				// module edition
 	char *name;					// module name
 	char *basesympat;			// pattern for section base symbol (%s for section name)
 	char *lensympat;			// pattern for section length symbol (%s for section name)

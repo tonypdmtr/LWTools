@@ -189,6 +189,7 @@ void setup_script()
 		linkscript.modlang = 0x01;
 		linkscript.modattr = 0x08;
 		linkscript.modrev = 0x00;
+		linkscript.edition = -1;
 		linkscript.name = NULL;
 	}
 

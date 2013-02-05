@@ -726,6 +726,7 @@ struct check_os9_aux_s
 	int langseen;
 	int revseen;
 	int nameseen;
+	int edseen;
 };
 
 void check_os9_aux(section_t *s, void *arg)
@@ -739,6 +740,7 @@ void check_os9_aux(section_t *s, void *arg)
 	// lang: module language
 	// attr: module attributes
 	// rev: module revision
+	// ed: module edition
 	//
 	// the symbols are not case sensitive
 	//
@@ -779,6 +781,11 @@ void check_os9_aux(section_t *s, void *arg)
 		{
 			linkscript.stacksize += sym -> offset;
 		}
+		else if (!strcasecmp(sm, 'edition'))
+		{
+			linkscript.edition = sym -> offset;
+			st -> edseen++;
+		}
 	}
 }
 
@@ -801,10 +808,10 @@ void check_os9(void)
 	
 	if (st.attrseen > 1 || st.typeseen > 1 ||
 		st.langseen > 1 || st.revseen > 1 ||
-		st.nameseen > 1
+		st.nameseen > 1 | st.edseen > 1
 	)
 	{
-		fprintf(stderr, "Warning: multiple instances of __os9 found with duplicate settings of type, lang, attr, rev, or module name.\n");
+		fprintf(stderr, "Warning: multiple instances of __os9 found with duplicate settings of type, lang, attr, rev, edition, or module name.\n");
 	}
 }
 
