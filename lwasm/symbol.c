@@ -135,7 +135,10 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 		if (!ndir && !(se -> flags & symbol_flag_set))
 		{
 			if (strcmp(sym, se -> symbol))
-				ndir = 1;
+			{
+				if (!CURPRAGMA(cl, PRAGMA_SYMBOLNOCASE) && !(se -> flags & symbol_flag_nocase))
+					ndir = 1;
+			}
 		}
 		if (!ndir && se -> context != context)
 		{
