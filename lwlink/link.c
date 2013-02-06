@@ -781,7 +781,7 @@ void check_os9_aux(section_t *s, void *arg)
 		{
 			linkscript.stacksize += sym -> offset;
 		}
-		else if (!strcasecmp(sm, 'edition'))
+		else if (!strcasecmp(sm, "edition"))
 		{
 			linkscript.edition = sym -> offset;
 			st -> edseen++;
