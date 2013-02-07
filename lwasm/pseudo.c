@@ -1475,7 +1475,7 @@ PARSEFUNC(pseudo_parse_align)
 RESOLVEFUNC(pseudo_resolve_align)
 {
 	lw_expr_t e;
-	int align;
+	int align = 1;
 
 	e = lwasm_fetch_expr(l, 0);
 	
@@ -1552,7 +1552,7 @@ PARSEFUNC(pseudo_parse_fill)
 RESOLVEFUNC(pseudo_resolve_fill)
 {
 	lw_expr_t e;
-	int align;
+	int align = 1;
 
 	e = lwasm_fetch_expr(l, 0);
 	

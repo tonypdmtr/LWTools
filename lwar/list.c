@@ -43,7 +43,7 @@ void do_list(void)
 		exit(1);
 	}
 	
-	fread(buf, 1, 6, f);
+	(void)(fread(buf, 1, 6, f) && 1);
 	if (memcmp("LWAR1V", buf, 6))
 	{
 		fprintf(stderr, "%s is not a valid archive file.\n", archive_file);

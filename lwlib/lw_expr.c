@@ -955,7 +955,7 @@ again:
 		}
 		if (c == 1)
 		{
-			lw_expr_t r;
+			lw_expr_t r = NULL;
 			// find the value and "move it up"
 			while (E -> operands)
 			{

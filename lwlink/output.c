@@ -30,7 +30,8 @@ Actually output the binary
 // this prevents warnings about not using the return value of fwrite()
 // and, theoretically, can be replaced with a function that handles things
 // better in the future
-#define writebytes(s, l, c, f)	do { int r; r = fwrite((s), (l), (c), (f)); } while (0)
+//#define writebytes(s, l, c, f)	do { int r; r = fwrite((s), (l), (c), (f)); (void)r; } while (0)
+#define writebytes(s, l, c, f)	do { (void)(fwrite((s), (l), (c), (f)) && 1); } while (0)
 
 void do_output_os9(FILE *of);
 void do_output_decb(FILE *of);

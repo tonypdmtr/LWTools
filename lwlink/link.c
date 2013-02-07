@@ -570,7 +570,7 @@ void resolve_files_aux(fileinfo_t *fn)
 	reloc_t *rl;
 	lw_expr_stack_t *te;
 	
-	int rval;
+//	int rval;
 
 	
 	if (fn -> forced == 0)
@@ -582,7 +582,7 @@ void resolve_files_aux(fileinfo_t *fn)
 		{
 			// do a "simplify" on the expression
 			te = lw_expr_stack_dup(rl -> expr);
-			rval = lw_expr_reval(te, resolve_sym, &(fn -> sections[sn]));
+			lw_expr_reval(te, resolve_sym, &(fn -> sections[sn]));
 			
 			// is it constant? error out if not
 			// incompletes will error out during resolve_references()
@@ -808,7 +808,7 @@ void check_os9(void)
 	
 	if (st.attrseen > 1 || st.typeseen > 1 ||
 		st.langseen > 1 || st.revseen > 1 ||
-		st.nameseen > 1 | st.edseen > 1
+		st.nameseen > 1 || st.edseen > 1
 	)
 	{
 		fprintf(stderr, "Warning: multiple instances of __os9 found with duplicate settings of type, lang, attr, rev, edition, or module name.\n");

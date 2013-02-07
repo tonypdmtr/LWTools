@@ -53,7 +53,7 @@ void do_add(void)
 		perror("Cannot open archive file");
 	}
 	
-	fread(buf, 1, 6, f);
+	(void)(fread(buf, 1, 6, f) && 1);
 	if (memcmp("LWAR1V", buf, 6))
 	{
 		fprintf(stderr, "%s is not a valid archive file.\n", archive_file);
@@ -113,7 +113,7 @@ doadd:
 			perror("");
 			exit(1);
 		}
-		fread(buf, 1, 6, f2);
+		(void)(fread(buf, 1, 6, f2) && 1);
 		if (mergeflag && !memcmp("LWAR1V", buf, 6))
 		{
 			// add archive contents...
