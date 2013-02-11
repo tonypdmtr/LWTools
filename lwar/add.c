@@ -38,12 +38,12 @@ void do_add(void)
 	FILE *f2;
 	int i;
 	
-	f = fopen(archive_file, "r+");
+	f = fopen(archive_file, "rb+");
 	if (!f)
 	{
 		if (errno == ENOENT)
 		{
-			f = fopen(archive_file, "w");
+			f = fopen(archive_file, "wb");
 			if (f)
 			{
 				fputs("LWAR1V", f);
@@ -106,7 +106,7 @@ void do_add(void)
 doadd:
 	for (i = 0; i < nfiles; i++)
 	{
-		f2 = fopen(files[i], "r");
+		f2 = fopen(files[i], "rb");
 		if (!f2)
 		{
 			fprintf(stderr, "Cannot open file %s:", files[i]);

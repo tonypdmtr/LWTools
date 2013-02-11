@@ -36,7 +36,7 @@ void do_extract(void)
 	int i;
 	FILE *nf;
 	
-	f = fopen(archive_file, "r");
+	f = fopen(archive_file, "rb");
 	if (!f)
 	{
 		perror("Opening archive file");
@@ -98,7 +98,7 @@ void do_extract(void)
 		if (i < nfiles || nfiles == 0)
 		{
 			// extract the file
-			nf = fopen(fnbuf, "w");
+			nf = fopen(fnbuf, "wb");
 			if (!nf)
 			{
 				fprintf(stderr, "Cannot extract '%s': %s\n", fnbuf, strerror(errno));

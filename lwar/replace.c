@@ -41,12 +41,12 @@ void do_replace(void)
 		
 	sprintf(fnbuf, "%s.tmp", archive_file);
 	
-	f = fopen(archive_file, "r+");
+	f = fopen(archive_file, "rb+");
 	if (!f)
 	{
 		if (errno == ENOENT)
 		{
-			nf = fopen(fnbuf, "w");
+			nf = fopen(fnbuf, "wb");
 			if (nf)
 			{
 				fputs("LWAR1V", nf);
@@ -63,7 +63,7 @@ void do_replace(void)
 		exit(1);
 	}
 
-	nf = fopen(fnbuf, "w");
+	nf = fopen(fnbuf, "wb");
 	if (!nf)
 	{
 		perror("Cannot create temp archive file");
@@ -146,7 +146,7 @@ void do_replace(void)
 doadd:
 	for (i = 0; i < nfiles; i++)
 	{
-		f2 = fopen(files[i], "r");
+		f2 = fopen(files[i], "rb");
 		if (!f2)
 		{
 			fprintf(stderr, "Cannot open file %s:", files[i]);

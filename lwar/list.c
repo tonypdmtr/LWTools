@@ -36,7 +36,7 @@ void do_list(void)
 	long l;
 	int c;
 		
-	f = fopen(archive_file, "r");
+	f = fopen(archive_file, "rb");
 	if (!f)
 	{
 		perror("Opening archive file");
