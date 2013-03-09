@@ -1476,7 +1476,9 @@ RESOLVEFUNC(pseudo_resolve_align)
 {
 	lw_expr_t e;
 	int align = 1;
-
+	lw_expr_t te;
+	int a;
+	
 	e = lwasm_fetch_expr(l, 0);
 	
 	if (lw_expr_istype(e, lw_expr_type_int))
@@ -1488,11 +1490,29 @@ RESOLVEFUNC(pseudo_resolve_align)
 			return;
 		}
 	}
-	
-	if (lw_expr_istype(l -> addr, lw_expr_type_int))
+	else
 	{
-		int a;
-		a = lw_expr_intval(l -> addr);
+		return;
+	}
+	
+
+	te = lw_expr_copy(l -> addr);
+	as -> exportcheck = 1;
+	lwasm_reduce_expr(as, te);
+	as -> exportcheck = 0;
+
+	if (lw_expr_istype(te, lw_expr_type_int))
+	{
+		a = lw_expr_intval(te);
+	}
+	else
+	{
+		a = -1;
+	}
+	lw_expr_destroy(te);
+
+	if (a >= 0)
+	{
 		if (a % align == 0)
 		{
 			l -> len = 0;
@@ -1508,6 +1528,8 @@ EMITFUNC(pseudo_emit_align)
 	lw_expr_t e;
 	int i;
 	
+	if (l -> csect && (l -> csect -> flags & (section_flag_bss | section_flag_constant)))
+		return;
 	e = lwasm_fetch_expr(l, 1);
 	for (i = 0; i < l -> len; i++)
 	{
@@ -1551,32 +1573,44 @@ PARSEFUNC(pseudo_parse_fill)
 
 RESOLVEFUNC(pseudo_resolve_fill)
 {
-	lw_expr_t e;
+	lw_expr_t e, te;
 	int align = 1;
 
 	e = lwasm_fetch_expr(l, 0);
 	
-	if (lw_expr_istype(e, lw_expr_type_int))
+	te = lw_expr_copy(e);
+	as -> exportcheck = 1;
+	lwasm_reduce_expr(as, te);
+	as -> exportcheck = 0;
+
+	if (lw_expr_istype(te, lw_expr_type_int))
 	{
-		align = lw_expr_intval(e);
-		if (align < 1)
+		align = lw_expr_intval(te);
+		if (align < 0)
 		{
+			lw_expr_destroy(te);
 			lwasm_register_error(as, l, "Invalid fill length");
 			return;
 		}
 	}
-	
-	if (lw_expr_istype(l -> addr, lw_expr_type_int))
+	else
 	{
-		l -> len = align;
+		lw_expr_destroy(te);
 		return;
 	}
+	lw_expr_destroy(te);
+	
+	l -> len = align;
 }
 
 EMITFUNC(pseudo_emit_fill)
 {
 	lw_expr_t e;
 	int i;
+	
+	/* don't emit anything in bss */
+	if (l -> csect && (l -> csect -> flags & (section_flag_bss | section_flag_constant)))
+		return;
 	
 	e = lwasm_fetch_expr(l, 1);
 	for (i = 0; i < l -> len; i++)
