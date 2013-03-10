@@ -1,4 +1,0 @@
-The lwbasic directory is an in-progress attempt to write a compiler for a
-dialect of basic specifically targetted at the 6809 CPU. It is still
-incomplete but is included in this distribution in case someone finds the
-code useful. It is not built by default.
