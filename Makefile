@@ -10,13 +10,13 @@
 DESTDIR ?= /usr/local/bin
 
 # C compiler
-CC := $(BUILDTPREFIX)cc
+CC ?= $(BUILDTPREFIX)cc
 
 # ar
-AR := $(BUILDTPREFIX)ar
+AR ?= $(BUILDTPREFIX)ar
 
 # ranlib
-RANLIB := $(BUILDTPREFIX)ranlib
+RANLIB ?= $(BUILDTPREFIX)ranlib
 
 CPPFLAGS += -I lwlib -DPACKAGE_STRING='"lwtools 4.7+"'
 LDFLAGS += -L$(PWD)/lwlib -llw
