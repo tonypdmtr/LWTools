@@ -7,6 +7,8 @@
 #PROGSUFFIX := .exe
 #BUILDTPREFIX=i586-mingw32msvc-
 
+DESTDIR ?= /usr/local/bin
+
 # C compiler
 CC := $(BUILDTPREFIX)cc
 
@@ -127,7 +129,8 @@ print-%:
 
 .PHONY: install
 install:
-	cp $(MAIN_TARGETS) /usr/local/bin/
+	mkdir -p $(DESTDIR)
+	cp $(MAIN_TARGETS) $(DESTDIR)
 
 .PHONY: test
 test: all test/runtests
