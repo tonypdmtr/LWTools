@@ -9,14 +9,19 @@
 
 DESTDIR ?= /usr/local/bin
 
-# C compiler
-CC ?= $(BUILDTPREFIX)cc
+# this are probably pointless but they will make sure
+# the variables are set without overriding the environment
+# or automatic values from make itself.
+CC ?= cc
+AR ?= ar
+RANLIB ?= ranlib
 
-# ar
-AR ?= $(BUILDTPREFIX)ar
-
-# ranlib
-RANLIB ?= $(BUILDTPREFIX)ranlib
+# Set variables for cross compiling
+ifneq ($(BUILDTPREFIX),)
+CC := $(BUILDTPREFIX)$(CC)
+AR := $(BUILDTPREFIX)$(AR)
+RANLIB := $(BUILDTPREFIX)$(RANLIB)
+endif
 
 CPPFLAGS += -I lwlib -DPACKAGE_STRING='"lwtools 4.7+"'
 LDFLAGS += -L$(PWD)/lwlib -llw
