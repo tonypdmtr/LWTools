@@ -75,12 +75,12 @@ void do_list(asmstate_t *as)
 		{
 			obytelen = 0;
 			int nc = 0;
-			for (nl = cl; ; nl = nl -> next)
+			for (nl = cl; nl; nl = nl -> next)
 			{
 				if (nl -> noexpand_start)
-					nc++;
+					nc += nl -> noexpand_start;
 				if (nl -> noexpand_end)
-					nc--;
+					nc -= nl -> noexpand_end;
 				
 				if (nl -> outputl > 0)
 					obytelen += nl -> outputl;
@@ -107,7 +107,8 @@ void do_list(asmstate_t *as)
 				if (nc >= obytelen)
 					break;
 			}
-			nl = nl -> next;
+			if (nl)
+				nl = nl -> next;
 		}
 		else
 		{
