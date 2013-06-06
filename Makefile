@@ -7,7 +7,11 @@
 #PROGSUFFIX := .exe
 #BUILDTPREFIX=i586-mingw32msvc-
 
-DESTDIR ?= /usr/local/bin
+ifneq ($(DESTDIR),)
+INSTALLDIR = $(DESTDIR)/usr/bin
+else
+INSTALLDIR ?= /usr/local/bin
+endif
 
 # this are probably pointless but they will make sure
 # the variables are set without overriding the environment
@@ -134,8 +138,8 @@ print-%:
 
 .PHONY: install
 install:
-	mkdir -p $(DESTDIR)
-	cp $(MAIN_TARGETS) $(DESTDIR)
+	install -d $(INSTALLDIR)
+	install $(MAIN_TARGETS) $(INSTALLDIR)
 
 .PHONY: test
 test: all test/runtests
