@@ -150,6 +150,8 @@ static int parse_opts(int key, char *arg, void *state)
 			as -> output_format = OUTPUT_DECB;
 		else if (!strcasecmp(arg, "raw"))
 			as -> output_format = OUTPUT_RAW;
+		else if (!strcasecmp(arg, "rawrel"))
+			as -> output_format = OUTPUT_RAWREL;
 		else if (!strcasecmp(arg, "obj"))
 			as -> output_format = OUTPUT_OBJ;
 		else if (!strcasecmp(arg, "os9"))
