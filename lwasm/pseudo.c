@@ -45,20 +45,25 @@ PARSEFUNC(pseudo_parse_dts)
 	l -> len = 0;
 
 	tp = time(NULL);
-	t = ctime(&tp);
+	t = l ->lstr = ctime(&tp);
 
 	while (*t)
 	{
 		if (*t == '\n')
 			break;
-		lwasm_emit(l, *t);
 		t++;
 		l -> len += 1;
 	}
+	
 }
 
 EMITFUNC(pseudo_emit_dts)
 {
+	char *t;
+	int i;
+	
+	for (t = l -> lstr, i = 0; i < l -> len; i++, t++)
+		lwasm_emit(l, *t);
 }
 
 // for "dtb"
