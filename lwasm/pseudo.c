@@ -45,7 +45,7 @@ PARSEFUNC(pseudo_parse_dts)
 	l -> len = 0;
 
 	tp = time(NULL);
-	t = l ->lstr = ctime(&tp);
+	t = l ->lstr = lw_strdup(ctime(&tp));
 
 	while (*t)
 	{
