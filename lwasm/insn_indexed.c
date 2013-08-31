@@ -581,6 +581,17 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 {
 	lw_expr_t e;
 	
+	if (l -> lint == 1 && (l -> pb == 0x9c || l -> pb == 0x8c))
+	{
+		int i;
+		e = lwasm_fetch_expr(l, 0);
+		i = lw_expr_intval(e);
+		if (i < -128 || i > 127)
+		{
+			lwasm_register_error(as, l, "Byte overflow");
+		}
+	}
+	
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	lwasm_emitop(l, l -> pb);
 	if (l -> lint > 0)
