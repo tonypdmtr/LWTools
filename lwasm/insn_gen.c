@@ -270,7 +270,16 @@ void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 	{
 		lwasm_emit(l, l -> pb);
 		if (l -> lint > 0)
+		{
+			int i;
+			i = lw_expr_intval(e);
+			if (l -> lint == 1)
+			{
+				if (i < -128 || i > 127)
+					lwasm_register_error(as, l, "Byte overflow");
+			}
 			lwasm_emitexpr(l, e, l -> lint);
+		}
 		return;
 	}
 	

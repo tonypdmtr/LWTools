@@ -581,7 +581,7 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 {
 	lw_expr_t e;
 	
-	if (l -> lint == 1 && (l -> pb == 0x9c || l -> pb == 0x8c))
+	if (l -> lint == 1)
 	{
 		int i;
 		e = lwasm_fetch_expr(l, 0);
