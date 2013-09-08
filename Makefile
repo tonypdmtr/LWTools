@@ -71,11 +71,17 @@ lwar_deps := $(lwar_srcs:.c=.d)
 lwlib_deps := $(lwlib_srcs:.c=.d)
 lwobjdump_deps := $(lwobjdump_srcs:.c=.d)
 
-.PHONY: lwlink lwasm lwar lwobjdump
+lwcc_driver_srcs := main.c
+lwcc_driver_srcs := $(addprefix lwcc/driver/,$(lwcc_driver_srcs))
+lwcc_driver_objs := $(lwcc_driver_srcs:.c=.o)
+lwcc_driver_deps := $(lwcc_driver_srcs:.c=.d)
+
+.PHONY: lwlink lwasm lwar lwobjdump lwcc
 lwlink: lwlink/lwlink$(PROGSUFFIX)
 lwasm: lwasm/lwasm$(PROGSUFFIX)
 lwar: lwar/lwar$(PROGSUFFIX)
 lwobjdump: lwlink/lwobjdump$(PROGSUFFIX)
+lwcc: lwcc/driver/lwcc
 
 lwasm/lwasm$(PROGSUFFIX): $(lwasm_objs) lwlib
 	@echo Linking $@
@@ -93,6 +99,10 @@ lwar/lwar$(PROGSUFFIX): $(lwar_objs) lwlib
 	@echo Linking $@
 	@$(CC) -o $@ $(lwar_objs) $(LDFLAGS)
 
+lwcc/driver/lwcc$(PROGSUFFIX): $(lwcc_driver_objs) lwlib
+	@echo Linking $@
+	@$(CC) -o $@ $(lwcc_driver_objs) $(LDFLAGS)
+
 #.PHONY: lwlib
 .INTERMEDIATE: lwlib
 lwlib: lwlib/liblw.a
@@ -102,7 +112,7 @@ lwlib/liblw.a: $(lwlib_objs)
 	@$(AR) rc $@ $(lwlib_objs)
 	@$(RANLIB) $@
 
-alldeps := $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) ($lwobjdump_deps)
+alldeps := $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) ($lwobjdump_deps) $(lwcc_deps)
 
 -include $(alldeps)
 
@@ -123,6 +133,8 @@ extra_clean := $(extra_clean) *~ */*~
 clean: $(cleantargs)
 	@echo "Cleaning up"
 	@rm -f lwlib/liblw.a lwasm/lwasm$(PROGSUFFIX) lwlink/lwlink$(PROGSUFFIX) lwlink/lwobjdump$(PROGSUFFIX) lwar/lwar$(PROGSUFFIX)
+	@rm -f lwcc/driver/lwcc$(PROGSUFFIX)
+	@rm -f $(lwcc_driver_ojbs)
 	@rm -f $(lwasm_objs) $(lwlink_objs) $(lwar_objs) $(lwlib_objs) $(lwobjdump_objs)
 	@rm -f $(extra_clean)
 	@rm -f */*.exe
@@ -131,6 +143,7 @@ clean: $(cleantargs)
 realclean: clean $(realcleantargs)
 	@echo "Cleaning up even more"
 	@rm -f $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) $(lwobjdump_deps)
+	@rm -f $(lwcc_driver_deps)
 	@rm -f docs/manual/*.html docs/manual/*.pdf
 
 print-%:
