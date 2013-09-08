@@ -9,5 +9,4 @@
 /lwobjdump$
 /lwar$
 /lwasm$
-/lwcc/lwcc$
-/lwcc/lwcpp$
+/lwcc$
