@@ -7,11 +7,28 @@
 #PROGSUFFIX := .exe
 #BUILDTPREFIX=i586-mingw32msvc-
 
+LWTOOLS_VERSION = 4.8
+LWTOOLS_VERSION_SUFFIX = -devcc
+
+PACKAGE_VERSION = $(LWTOOLS_VERSION)$(LWTOOLS_VERSION_SUFFIX)
+
+ifeq ($(PREFIX),)
 ifneq ($(DESTDIR),)
-INSTALLDIR = $(DESTDIR)/usr/bin
+PREFIX = /usr
 else
-INSTALLDIR ?= /usr/local/bin
+PREFIX = /usr/local
 endif
+endif
+
+LIBDIR = $(PREFIX)/lib
+BINDIR = $(PREFIX)/bin
+
+INSTALLDIR = $(DESTDIR)$(PREFIX)
+INSTALLBIN = $(DESTDIR)$(BINDIR)
+INSTALLLIB = $(DESTDIR)$(LIBDIR)
+
+LWCC_LIBDIR = $(LIBDIR)/lwcc/$(PACKAGE_VERSION)
+LWCC_INSTALLLIBDIR = $(DESTDIR)$(LWCC_LIBDIR)
 
 # this are probably pointless but they will make sure
 # the variables are set without overriding the environment
@@ -27,7 +44,9 @@ AR := $(BUILDTPREFIX)$(AR)
 RANLIB := $(BUILDTPREFIX)$(RANLIB)
 endif
 
-CPPFLAGS += -I lwlib -DPACKAGE_STRING='"lwtools 4.8"'
+CPPFLAGS += -I lwlib -DPACKAGE_STRING='"lwtools $(PACKAGE_VERSION)"'
+CPPFLAGS += -DPREFIX=$(PREFIX) -DLWCC_LIBDIR=$(LWCC_LIBDIR)
+CPPFLAGS += -DPROGSUFFIX=$(PROGSUFFIX)
 LDFLAGS += -L$(PWD)/lwlib -llw
 
 CFLAGS ?= -O3 -Wall
@@ -35,7 +54,12 @@ CFLAGS ?= -O3 -Wall
 MAIN_TARGETS := lwasm/lwasm$(PROGSUFFIX) \
 	lwlink/lwlink$(PROGSUFFIX) \
 	lwar/lwar$(PROGSUFFIX) \
-	lwlink/lwobjdump$(PROGSUFFIX)
+	lwlink/lwobjdump$(PROGSUFFIX) \
+	lwcc/driver/lwcc$(PROGSUFFIX)
+
+LWCC_LIBBIN_FILES =
+LWCC_LIBLIB_FILES =
+LWCC_LIBINC_FILES =
 
 .PHONY: all
 all: $(MAIN_TARGETS)
@@ -151,8 +175,21 @@ print-%:
 
 .PHONY: install
 install:
-	install -d $(INSTALLDIR)
-	install $(MAIN_TARGETS) $(INSTALLDIR)
+	install -d $(INSTALLBIN)
+	install $(MAIN_TARGETS) $(INSTALLBIN)
+	install -d $(LWCC_INSTALLLIBDIR)
+	install -d $(LWCC_INSTALLLIBDIR)/bin
+	install -d $(LWCC_INSTALLLIBDIR)/lib
+	install -d $(LWCC_INSTALLLIBDIR)/include
+ifneq ($(LWCC_LIBBIN_FILES),)
+	install $(LWCC_LIBBIN_FILES) $(LIBCC_INSTALLLIBDIR)/bin
+endif
+ifneq ($(LWCC_LIBLIB_FILES),)
+	install $(LWCC_LIBLIB_FILES) $(LIBCC_INSTALLLIBDIR)/lib
+endif
+ifneq ($(LWCC_LIBINC_FILES),)
+	install $(LWCC_LIBINC_FILES) $(LIBCC_INSTALLLIBDIR)/include
+endif
 
 .PHONY: test
 test: all test/runtests
