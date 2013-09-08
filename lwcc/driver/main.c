@@ -34,6 +34,10 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_stringlist.h>
 
 #define VERSTRING "lwcc from " PACKAGE_STRING
+#define S(x) S2(x)
+#define S2(x) #x
+
+#define BASEDIR S(LWCC_LIBDIR)
 
 /* list of compilation phases */
 enum phase_t {
@@ -77,7 +81,7 @@ int pic_mode = 0;				// set to 1 if -fpic, 2 if -fPIC; last one specified wins
 const char *output_file;		// set to the value of the -o option (output file)
 
 /* compiler base directory  - from -B */
-const char *basedir = NULL;
+const char *basedir = BASEDIR;
 
 /* used to ensure a unique temporary file at every stage */
 static int file_counter = 0;
@@ -98,6 +102,7 @@ lw_stringlist_t linker_args;		// recorded arguments to pass through to the linke
 lw_stringlist_t sysincdirs;			// the standard system include directories
 lw_stringlist_t tempfiles;			// a list of temporary files created which need to be cleaned up
 lw_stringlist_t compiler_args;		// recorded arguments to pass through to the compiler
+lw_stringlist_t priv_sysincdirs;	// system include directories for lwcc itself
 
 /* forward delcarations */
 static void parse_command_line(int, char **);
@@ -156,9 +161,9 @@ static void print_array(char **arr)
 static void expand_sysroot(void)
 {
 	/* list of path lists to process for replacements of = */
-	lw_stringlist_t *lists[] = { &runtime_dirs, &sysincdirs, &include_dirs, &user_sysincdirs, &lib_dirs, NULL };
+	lw_stringlist_t *lists[] = { &sysincdirs, &include_dirs, &user_sysincdirs, &lib_dirs, NULL };
 	/* list of replacement strings for = in the same order */
-	const char *sysroots[] = { sysroot, isysroot, isysroot, isysroot, sysroot, NULL };
+	const char *sysroots[] = { isysroot, isysroot, isysroot, sysroot, NULL };
 	size_t i, sysroot_len, value_len;
 	char *path;
 	lw_stringlist_t newlist;
@@ -530,6 +535,12 @@ static int preprocess_file(const char *file, char *input, char **output, const c
 	/* and, if not -nostdinc, the standard system include directories */
 	if (!nostdinc)
 	{
+		lw_stringlist_reset(priv_sysincdirs);
+		for (s = lw_stringlist_current(priv_sysincdirs); s; s = lw_stringlist_next(priv_sysincdirs))
+		{	
+			lw_stringlist_addstring(args, "-S");
+			lw_stringlist_addstring(args, s);
+		}
 		lw_stringlist_reset(sysincdirs);
 		for (s = lw_stringlist_current(sysincdirs); s; s = lw_stringlist_next(sysincdirs))
 		{	
@@ -747,7 +758,8 @@ int main(int argc, char **argv)
 	includes = lw_stringlist_create();
 	tempfiles = lw_stringlist_create();
 	compiler_args = lw_stringlist_create();
-	
+	priv_sysincdirs = lw_stringlist_create();
+		
 	parse_command_line(argc, argv);
 	if (stop_after == PHASE_DEFAULT)
 		stop_after = PHASE_LINK;
@@ -772,6 +784,17 @@ int main(int argc, char **argv)
 		do_error("No input files specified");
 
 	/* handle -B here */
+	ap = lw_alloc(strlen(basedir) + 10);
+	strcpy(ap, basedir);
+	strcat(ap, "/bin");
+	lw_stringlist_addstring(program_dirs, ap);
+	strcpy(ap, basedir);
+	strcat(ap, "/lib");
+	lw_stringlist_addstring(runtime_dirs, ap);
+	strcpy(ap, basedir);
+	strcat(ap, "/include");
+	lw_stringlist_addstring(priv_sysincdirs, ap);
+	lw_free(ap);
 	
 	retval = 0;
 	/* make sure we exit if interrupted */
@@ -828,7 +851,7 @@ int main(int argc, char **argv)
 	lw_stringlist_destroy(includes);
 	lw_stringlist_destroy(tempfiles);
 	lw_stringlist_destroy(compiler_args);
-	
+	lw_stringlist_destroy(priv_sysincdirs);
 	return retval;	
 }
 
