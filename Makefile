@@ -55,9 +55,10 @@ MAIN_TARGETS := lwasm/lwasm$(PROGSUFFIX) \
 	lwlink/lwlink$(PROGSUFFIX) \
 	lwar/lwar$(PROGSUFFIX) \
 	lwlink/lwobjdump$(PROGSUFFIX) \
-	lwcc/driver/lwcc$(PROGSUFFIX)
+	lwcc/driver/lwcc$(PROGSUFFIX) \
+	lwcc/cpp/lwcc-cpp$(PROGSUFFIX)
 
-LWCC_LIBBIN_FILES =
+LWCC_LIBBIN_FILES = lwcc/cpp/lwcc-cpp$(PROGSUFFIX)
 LWCC_LIBLIB_FILES =
 LWCC_LIBINC_FILES =
 
@@ -100,12 +101,18 @@ lwcc_driver_srcs := $(addprefix lwcc/driver/,$(lwcc_driver_srcs))
 lwcc_driver_objs := $(lwcc_driver_srcs:.c=.o)
 lwcc_driver_deps := $(lwcc_driver_srcs:.c=.d)
 
+lwcc_cpp_srcs := main.c error.c file.c
+lwcc_cpp_srcs := $(addprefix lwcc/cpp/,$(lwcc_cpp_srcs))
+lwcc_cpp_objs := $(lwcc_cpp_srcs:.c=.o)
+lwcc_cpp_deps := $(lwcc_cpp_srcs:.c=.d)
+
 .PHONY: lwlink lwasm lwar lwobjdump lwcc
 lwlink: lwlink/lwlink$(PROGSUFFIX)
 lwasm: lwasm/lwasm$(PROGSUFFIX)
 lwar: lwar/lwar$(PROGSUFFIX)
 lwobjdump: lwlink/lwobjdump$(PROGSUFFIX)
-lwcc: lwcc/driver/lwcc
+lwcc: lwcc/driver/lwcc$(PROGSUFFIX)
+lwcc-cpp: lwcc/cpp/lwcc-cpp$(PROGSUFFIX)
 
 lwasm/lwasm$(PROGSUFFIX): $(lwasm_objs) lwlib
 	@echo Linking $@
@@ -126,6 +133,10 @@ lwar/lwar$(PROGSUFFIX): $(lwar_objs) lwlib
 lwcc/driver/lwcc$(PROGSUFFIX): $(lwcc_driver_objs) lwlib
 	@echo Linking $@
 	@$(CC) -o $@ $(lwcc_driver_objs) $(LDFLAGS)
+
+lwcc/cpp/lwcc-cpp$(PROGSUFFIX): $(lwcc_cpp_objs) lwlib
+	@echo Linking $@
+	@$(CC) -o $@ $(lwcc_cpp_objs) $(LDFLAGS)
 
 #.PHONY: lwlib
 .INTERMEDIATE: lwlib
@@ -157,8 +168,8 @@ extra_clean := $(extra_clean) *~ */*~
 clean: $(cleantargs)
 	@echo "Cleaning up"
 	@rm -f lwlib/liblw.a lwasm/lwasm$(PROGSUFFIX) lwlink/lwlink$(PROGSUFFIX) lwlink/lwobjdump$(PROGSUFFIX) lwar/lwar$(PROGSUFFIX)
-	@rm -f lwcc/driver/lwcc$(PROGSUFFIX)
-	@rm -f $(lwcc_driver_ojbs)
+	@rm -f lwcc/driver/lwcc$(PROGSUFFIX) lwcc/cpp/lwcc-cpp$(PROGSUFFIX)
+	@rm -f $(lwcc_driver_ojbs) $(lwcc_preproc_objs)
 	@rm -f $(lwasm_objs) $(lwlink_objs) $(lwar_objs) $(lwlib_objs) $(lwobjdump_objs)
 	@rm -f $(extra_clean)
 	@rm -f */*.exe
@@ -182,13 +193,13 @@ install:
 	install -d $(LWCC_INSTALLLIBDIR)/lib
 	install -d $(LWCC_INSTALLLIBDIR)/include
 ifneq ($(LWCC_LIBBIN_FILES),)
-	install $(LWCC_LIBBIN_FILES) $(LIBCC_INSTALLLIBDIR)/bin
+	install $(LWCC_LIBBIN_FILES) $(LWCC_INSTALLLIBDIR)/bin
 endif
 ifneq ($(LWCC_LIBLIB_FILES),)
-	install $(LWCC_LIBLIB_FILES) $(LIBCC_INSTALLLIBDIR)/lib
+	install $(LWCC_LIBLIB_FILES) $(LWCC_INSTALLLIBDIR)/lib
 endif
 ifneq ($(LWCC_LIBINC_FILES),)
-	install $(LWCC_LIBINC_FILES) $(LIBCC_INSTALLLIBDIR)/include
+	install $(LWCC_LIBINC_FILES) $(LWCC_INSTALLLIBDIR)/include
 endif
 
 .PHONY: test

@@ -17,6 +17,13 @@ and linker (lwasm, lwlink) do have defined public interfaces are are not
 likely to change substantially.
 
 
+cpp/
+
+This is the actual C preprocessor. Its specific interface is deliberately
+undocumented. Do not call it directly. Ever. Just don't. Bad Things(tm) will
+happen if you do.
+
+
 liblwcc/
 
 This contains any runtime libraries the compiler needs to support its
