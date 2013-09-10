@@ -101,7 +101,7 @@ lwcc_driver_srcs := $(addprefix lwcc/driver/,$(lwcc_driver_srcs))
 lwcc_driver_objs := $(lwcc_driver_srcs:.c=.o)
 lwcc_driver_deps := $(lwcc_driver_srcs:.c=.d)
 
-lwcc_cpp_srcs := main.c error.c file.c
+lwcc_cpp_srcs := main.c error.c file.c preproc.c char_p.c
 lwcc_cpp_srcs := $(addprefix lwcc/cpp/,$(lwcc_cpp_srcs))
 lwcc_cpp_objs := $(lwcc_cpp_srcs:.c=.o)
 lwcc_cpp_deps := $(lwcc_cpp_srcs:.c=.d)
@@ -169,7 +169,7 @@ clean: $(cleantargs)
 	@echo "Cleaning up"
 	@rm -f lwlib/liblw.a lwasm/lwasm$(PROGSUFFIX) lwlink/lwlink$(PROGSUFFIX) lwlink/lwobjdump$(PROGSUFFIX) lwar/lwar$(PROGSUFFIX)
 	@rm -f lwcc/driver/lwcc$(PROGSUFFIX) lwcc/cpp/lwcc-cpp$(PROGSUFFIX)
-	@rm -f $(lwcc_driver_ojbs) $(lwcc_preproc_objs)
+	@rm -f $(lwcc_driver_ojbs) $(lwcc_cpp_objs)
 	@rm -f $(lwasm_objs) $(lwlink_objs) $(lwar_objs) $(lwlib_objs) $(lwobjdump_objs)
 	@rm -f $(extra_clean)
 	@rm -f */*.exe
@@ -178,7 +178,7 @@ clean: $(cleantargs)
 realclean: clean $(realcleantargs)
 	@echo "Cleaning up even more"
 	@rm -f $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) $(lwobjdump_deps)
-	@rm -f $(lwcc_driver_deps)
+	@rm -f $(lwcc_driver_deps) $(lwcc_cpp_deps)
 	@rm -f docs/manual/*.html docs/manual/*.pdf
 
 print-%:
