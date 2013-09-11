@@ -34,8 +34,28 @@ enum
 enum
 {
 	TOK_NONE = 0,
+	TOK_EOF,
+	TOK_EOL,
 	TOK_WSPACE,
 	TOK_IDENT,
+	TOK_NUMBER,
+	TOK_STRING,
+	TOK_CHAR,
+	TOK_DIV,
+	TOK_MUL,
+	TOK_ADD,
+	TOK_SUB,
+	TOK_OPAREN,
+	TOK_CPAREN,
+	TOK_NE,
+	TOK_EQ,
+	TOK_LE,
+	TOK_LT,
+	TOK_GE,
+	TOK_GT,
+	TOK_BAND,
+	TOK_BOR,
+	TOK_BNOT,
 	TOK_MAX
 };
 
@@ -90,6 +110,7 @@ extern int fetch_byte(void);
 extern void unfetch_byte(int);
 extern void outchr(int);
 extern void outstr(char *);
+extern void skip_eol(void);
 
 extern int is_whitespace(int);
 extern int is_ep(int);

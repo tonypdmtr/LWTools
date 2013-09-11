@@ -101,7 +101,7 @@ lwcc_driver_srcs := $(addprefix lwcc/driver/,$(lwcc_driver_srcs))
 lwcc_driver_objs := $(lwcc_driver_srcs:.c=.o)
 lwcc_driver_deps := $(lwcc_driver_srcs:.c=.d)
 
-lwcc_cpp_srcs := main.c error.c file.c preproc.c char_p.c
+lwcc_cpp_srcs := main.c error.c file.c preproc.c char_p.c symbol.c
 lwcc_cpp_srcs := $(addprefix lwcc/cpp/,$(lwcc_cpp_srcs))
 lwcc_cpp_objs := $(lwcc_cpp_srcs:.c=.o)
 lwcc_cpp_deps := $(lwcc_cpp_srcs:.c=.d)

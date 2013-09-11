@@ -269,6 +269,30 @@ again:
 	return c;
 }
 
+void skip_eol(void)
+{
+	int c;
+	for (;;)
+	{
+		c = fetch_byte();
+		if (c == CPP_EOF || c == CPP_EOL)
+		{
+			unfetch_byte(c);
+			return;
+		}
+		if (c == '/')
+		{
+			c = munch_comment();
+			if (c > 0)
+			{
+				while (c--)
+					outchr(CPP_EOL);
+			}
+		}
+	}
+}
+
+
 /* This function opens (if not stdin) the file f and pushes it onto the
    top of the input file stack. It then proceeds to process the file
    and return. Nonzero return means the file could not be opened. */
