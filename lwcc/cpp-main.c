@@ -1,5 +1,5 @@
 /*
-lwcc/cpp/main.c
+lwcc/cpp-main.c
 
 Copyright © 2013 William Astle
 
@@ -20,6 +20,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <errno.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +29,9 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_cmdline.h>
 
 #include "cpp.h"
+
+int process_file(const char *);
+static void do_error(const char *f, ...);
 
 /* command line option handling */
 #define PROGVER "lwcc-cpp from " PACKAGE_STRING
@@ -51,7 +55,6 @@ static struct lw_cmdline_options options[] =
 	{ "trigraphs",	0x100,	NULL,		0,							"Enable interpretation of trigraphs" },
 	{ 0 }
 };
-
 
 static int parse_opts(int key, char *arg, void *state)
 {
@@ -117,6 +120,7 @@ int main(int argc, char **argv)
 	{
 		/* if no input files, work on stdin */
 		retval = process_file("-");
+		retval = 1;
 	}
 	else
 	{
@@ -130,5 +134,38 @@ int main(int argc, char **argv)
 		}
 	}
 	lw_stringlist_destroy(input_files);
+	
+//	symbol_dump();
 	exit(retval);
+}
+
+int process_file(const char *fn)
+{
+	struct preproc_info *pp;
+	struct token *tok;
+	
+	pp = preproc_init(fn);
+	if (!pp)
+		return -1;
+	
+	for (;;)
+	{
+		tok = preproc_next_token(pp);
+		if (tok -> ttype == TOK_EOF)
+			break;
+		token_print(tok, output_fp);
+	}
+	preproc_finish(pp);
+	return 0;
+}
+
+static void do_error(const char *f, ...)
+{
+	va_list args;
+	va_start(args, f);
+	fprintf(stderr, "ERROR: ");
+	vfprintf(stderr, f, args);
+	va_end(args);
+	fprintf(stderr, "\n");
+	exit(1);
 }

@@ -1,5 +1,5 @@
 /*
-lwcc/cpp/error.c
+lwcc/strbuf.h
 
 Copyright © 2013 William Astle
 
@@ -19,41 +19,18 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef strbuf_h_seen___
+#define strbuf_h_seen___
 
-#include "cpp.h"
-
-static void show_file_pos(void)
+struct strbuf
 {
-	if (file_stack == NULL)
-		return;
-	
-	fprintf(stderr, "(%s:%d): ", file_stack -> fn, file_stack -> line);
-}
+	char *str;
+	int bl;
+	int bo;
+};
 
-void do_error(const char *f, ...)
-{
-	va_list arg;
-	
-	va_start(arg, f);
-	fprintf(stderr, "ERROR: ");
-	show_file_pos();
-	vfprintf(stderr, f, arg);
-	fprintf(stderr, "\n");
-	va_end(arg);
-	exit(1);
-}
+extern struct strbuf *strbuf_new(void);
+extern void strbuf_add(struct strbuf *, int);
+extern char *strbuf_end(struct strbuf  *);
 
-void do_warning(const char *f, ...)
-{
-	va_list arg;
-	
-	va_start(arg, f);
-	fprintf(stderr, "WARNING: ");
-	show_file_pos();
-	vfprintf(stderr, f, arg);
-	fprintf(stderr, "\n");
-	va_end(arg);
-}
+#endif // strbufh_seen___
