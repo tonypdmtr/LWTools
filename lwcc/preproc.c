@@ -254,8 +254,7 @@ static void dir_endif(struct preproc_info *pp)
 
 static void dir_define(struct preproc_info *pp)
 {
-	struct token *tl = NULL;
-	struct token *ttl;
+	struct token_list *tl = NULL;
 	struct token *ct;
 	int nargs = -1;
 	int vargs = 0;
@@ -335,6 +334,7 @@ static void dir_define(struct preproc_info *pp)
 baddefine:
 		preproc_throw_error(pp, "bad #define");
 baddefine2:
+		token_list_destroy(tl);
 		skip_eol(pp);
 		lw_free(mname);
 		while (nargs > 0)
@@ -348,12 +348,7 @@ baddefine2:
 		ct = preproc_next_token(pp);
 		if (ct -> ttype == TOK_EOL)
 			break;
-		if (!tl)
-			tl = ct;
-		else
-			ttl -> next = ct;
-		ttl = ct;
-		pp -> curtok = NULL;			// tell *_next_token* not to clobber token
+		token_list_append(tl, token_dup(ct));
 	}
 out:
 	if (strcmp(mname, "defined") == 0)
@@ -767,10 +762,11 @@ long preproc_numval(struct token *t)
 /*
 Below here is the logic for expanding a macro
 */
-static char *stringify(struct token *tl)
+static char *stringify(struct token_list *tli)
 {
 	struct strbuf *s;
 	int ws = 0;
+	struct token *tl = tli -> head;
 	
 	s = strbuf_new();
 	strbuf_add(s, '"');
@@ -804,212 +800,141 @@ static char *stringify(struct token *tl)
 	return strbuf_end(s);
 }
 
-/* return list to tokens as a result of ## expansion */
-static struct token *paste_tokens(struct preproc_info *pp, struct symtab_e *s, struct token **arglist, struct token *t1, struct token *t2)
+static int macro_arg(struct symtab_e *s, char *str)
 {
-	struct token *rl = NULL, *rlt;
-	struct token *s1, *s2;
-	struct token *ws;
 	int i;
+	if (strcmp(str, "__VA_ARGS__") == 0)
+		i = s -> nargs;
+	else
+		for (i = 0; i < s -> nargs; i++)
+			if (strcmp(s -> params[i], str) == 0)
+				break;
+	if (i == s -> nargs)
+		if (s -> vargs == 0)
+			return -1;
+	return i;
+}
+
+/* return list to tokens as a result of ## expansion */
+static struct token_list *paste_tokens(struct preproc_info *pp, struct symtab_e *s, struct token_list **arglist, struct token *t1, struct token *t2)
+{
+	struct token_list *left;
+	struct token_list *right;
 	char *tstr;
+	struct token *ttok;
+	int i;
 	
 	if (t1 -> ttype == TOK_IDENT)
 	{
-		if (strcmp(t1 -> strval, "__VA_ARGS__") == 0)
+		i = macro_arg(s, t1 -> strval);
+		if (i == -1)
 		{
-			i = s -> nargs;
+			left = token_list_create();
+			token_list_append(left, token_dup(t1));
 		}
 		else
 		{
-			for (i = 0; i < s -> nargs; i++)
-			{
-				if (strcmp(s -> params[i], t1 -> strval) == 0)
-					break;
-			}
-		}
-		if ((i == s -> nargs) && !(s -> vargs))
-		{
-			s1 = token_dup(t1);
-		}
-		else
-		{
-			/* find last non-whitespace token */
-			ws = NULL;
-			for (t1 = s -> tl; t1; t1 = t1 -> next)
-			{
-				if (t1 -> ttype != TOK_WSPACE)
-					ws = t1;
-			}
-			if (!ws)
-			{
-				s1 = NULL;
-			}
-			else
-			{
-				if (ws != s -> tl)
-				{
-					/* output extra tokens */
-					for (t1 = s -> tl; t1 -> next != ws; t1 = t1 -> next)
-					{
-						if (!rl)
-						{
-							rl = token_dup(t1);
-							rlt = rl;
-						}
-						else
-						{
-							rlt -> next = token_dup(t1);
-							rlt = rlt -> next;
-						}
-					}
-				}
-				s1 = token_dup(ws);
-			}
+			left = token_list_dup(arglist[i]);
 		}
 	}
 	else
 	{
-		s1 = token_dup(t1);
+		left = token_list_create();
+		token_list_append(left, token_dup(t1));
 	}
+	// munch trailing white space
+	while (left -> tail && left -> tail -> ttype == TOK_WSPACE)
+	{
+		token_list_remove(left -> tail);
+	}
+
 	if (t2 -> ttype == TOK_IDENT)
 	{
-		if (strcmp(t1 -> strval, "__VA_ARGS__") == 0)
+		i = macro_arg(s, t2 -> strval);
+		if (i == -1)
 		{
-			i = s -> nargs;
+			right = token_list_create();
+			token_list_append(right, token_dup(t2));
 		}
 		else
 		{
-			for (i = 0; i < s -> nargs; i++)
-			{
-				if (strcmp(s -> params[i], t1 -> strval) == 0)
-					break;
-			}
-		}
-		if ((i == s -> nargs) && !(s -> vargs))
-		{
-			s2 = token_dup(t2);
-			t2 = NULL;
-		}
-		else
-		{
-			/* find last non-whitespace token */
-			ws = NULL;
-			for (t2 = s -> tl; t2; t2 = t2 -> next)
-			{
-				if (t2 -> ttype != TOK_WSPACE)
-				{
-					ws = t2;
-					t2 = t2 -> next;
-					break;
-				}
-			}
-			if (!ws)
-			{
-				s2 = NULL;
-			}
-			else
-			{
-				s2 = token_dup(ws);
-			}
+			right = token_list_dup(arglist[i]);
 		}
 	}
 	else
 	{
-		s2 = token_dup(t2);
+		right = token_list_create();
+		token_list_append(right, token_dup(t2));
 	}
-	
-	/* here, s1 is NULL if no left operand or a duplicated token for the actual left operand */
-	/* here, s2 is NULL if no right operand or a duplicated token for the actual right operand */
-	/* here, t2 points to a possibly empty list of extra tokens to output after the concatenated tokens */
-	/* here, rl,rlt is a possibly non-empty list of tokens preceding the concatenation */
-	
-	/* tokens combine if the combination exactly matches "combinelist", in which case the string values are
-	   concatenated and the new token type is used to create a new token. If the tokens do not combine,
-	   s1 and s2 are returned in sequence. */
-	
-	if (!s1 && s2)
+	// munch leading white space
+	while (right -> head && right -> head -> ttype == TOK_WSPACE)
 	{
-		if (!rl)
-			rl = s2;
-		else
-			rlt -> next = s2;
-		rlt = s2;
+		token_list_remove(right -> head);
 	}
-	else if (s1 && !s2)
-	{
-		if (!rl)
-			rl = s1;
-		else
-			rlt -> next = s1;
-		rlt = s1;
-	}
-	else if (s1 && s2)
-	{
-		tstr = lw_alloc(strlen(s1 -> strval) + strlen(s2 -> strval) + 1);
-		strcpy(tstr, s1 -> strval);
-		strcat(tstr, s2 -> strval);
-		/* now try to lex the string */
-		pp -> lexstr = tstr;
-		pp -> lexstrloc = 0;
-		t1 = preproc_lex_next_token(pp);
-		if (pp -> lexstr[pp -> lexstrloc])
-		{
-			// doesn't make a new token - pass through the original two
-			if (!rl)
-				rl = s1;
-			else
-				rlt -> next = s1;
-			s1 -> next = s2;
-			rlt = s2;
-		}
-		else
-		{
-			// does make a new token
-			t1 -> fn = s1 -> fn;
-			t1 -> column = s1 -> column;
-			t1 -> lineno = s1 -> lineno;
-			if (!rl)
-				rl = t1;
-			else
-				rlt -> next = t1;
-			rlt = t1;
-		}
-		lw_free(tstr);
-		pp -> lexstr = NULL;
-	}
-	
-	/* add in any extra tokens */
-	while (t2)
-	{
-		if (!rl)
-		{
-			rl = token_dup(t2);
-			rlt = rl;
-		}
-		else
-		{
-			rlt -> next = token_dup(t2);
-			rlt = rlt -> next;
-		}
-		t2 = t2 -> next;
-	}
-	
-	return rl;
-}
 
+	// nothing to append at all
+	if (left -> head != NULL && right -> head == NULL)
+	{
+		// right arg is empty - use left
+		token_list_destroy(right);
+		return left;
+	}
+	if (left -> head == NULL && right -> head != NULL)
+	{
+		// left arg is empty, use right
+		token_list_destroy(left);
+		return right;
+	}
+	if (left -> head == NULL && right -> head == NULL)
+	{
+		// both empty, use left
+		token_list_destroy(right);
+		return left;
+	}
+	
+	// both non-empty - past left tail with right head
+	// then past the right list onto the left
+	tstr = lw_alloc(strlen(left -> tail -> strval) + strlen(right -> head -> strval) + 1);
+	strcpy(tstr, left -> tail -> strval);
+	strcat(tstr, right -> head -> strval);
+	
+	pp -> lexstr = tstr;
+	pp -> lexstrloc = 0;
+	
+	ttok = preproc_lex_next_token(pp);
+	if (ttok -> ttype != TOK_ERROR && pp -> lexstr[pp -> lexstrloc] == 0)
+	{
+		// we have a new token here
+		token_list_remove(left -> tail);
+		token_list_remove(right -> head);
+		token_list_append(left, token_dup(ttok));
+	}
+	lw_free(tstr);
+	pp -> lexstr = NULL;
+	pp -> lexstrloc = 0;
+	for (ttok = right -> head; ttok; ttok = ttok -> next)
+	{
+		token_list_append(left, token_dup(ttok));
+	}
+	token_list_destroy(right);
+	return left;
+}
 
 static int expand_macro(struct preproc_info *pp, char *mname)
 {
 	struct symtab_e *s;
 	struct token *t, *t2, *t3;
-	struct token **arglist = NULL;
 	int nargs = 0;
 	struct expand_e *e;
-	struct token **exparglist = NULL;
+	struct token_list **exparglist = NULL;
+	struct token_list **arglist = NULL;
 	int i;
 	int pcount;
 	char *tstr;
-	
+	struct token_list *expand_list;
+	int repl;
+	struct token_list *rtl;
+			
 	s = symtab_find(pp, mname);
 	if (!s)
 		return 0;
@@ -1056,8 +981,8 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 	// parse parameters here
 	t = preproc_next_token_nws(pp);
 	nargs = 1;
-	arglist = lw_alloc(sizeof(struct token *));
-	arglist[0] = NULL;
+	arglist = lw_alloc(sizeof(struct token_list *));
+	arglist[0] = token_list_create();
 	t2 = NULL;
 	
 	while (t -> ttype != TOK_CPAREN)
@@ -1079,22 +1004,13 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 			if (!(s -> vargs) || (nargs > s -> nargs))
 			{
 				nargs++;
-				arglist = lw_realloc(arglist, sizeof(struct token *) * nargs);
-				arglist[nargs - 1] = NULL;
+				arglist = lw_realloc(arglist, sizeof(struct token_list *) * nargs);
+				arglist[nargs - 1] = token_list_create();
 				t2 = NULL;
 				continue;
 			}
 		}
-		if (t2)
-		{
-			t2 -> next = token_dup(t);
-			t2 = t2 -> next;
-		}
-		else
-		{
-			t2 = token_dup(t);
-			arglist[nargs - 1] = t2;
-		}
+		token_list_append(arglist[nargs - 1], token_dup(t));
 	}
 
 	if (s -> vargs)
@@ -1113,172 +1029,124 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 	}
 
 	/* now calculate the pre-expansions of the arguments */
-	exparglist = lw_alloc(nargs);
+	exparglist = lw_alloc(nargs * sizeof(struct token_list *));
 	for (i = 0; i < nargs; i++)
 	{
-		t2 = NULL;
-		exparglist[i] = NULL;
+		exparglist[i] = token_list_create();
 		// NOTE: do nothing if empty argument
-		if (arglist[i] == NULL)
+		if (arglist[i] == NULL || arglist[i] -> head == NULL)
 			continue;
-		pp -> sourcelist = arglist[i];
+		pp -> sourcelist = arglist[i]->head;
 		for (;;)
 		{
 			t = preproc_next_processed_token(pp);
 			if (t -> ttype == TOK_EOF)
 				break;
-			if (t2)
-			{
-				t2 -> next = token_dup(t);
-				t2 = t2 -> next;
-			}
-			else
-			{
-				t2 = token_dup(t);
-				exparglist[i] = t2;
-			}
+			token_list_append(exparglist[i], token_dup(t));
 		}
 	}
 
 expandmacro:
-	t2 = NULL;
-	t3 = NULL;
-	
-	for (t = s -> tl; t; t = t -> next)
-	{
-again:
-		if (t -> ttype != TOK_WSPACE && t -> next)
-		{
-			struct token *ct1, *ct2;
-			
-			for (ct1 = t -> next; ct1 && ct1 -> ttype == TOK_WSPACE; ct1 = ct1 -> next)
-			{
-				if (ct1 -> ttype == TOK_DBLHASH)
-				{
-					// possible concatenation here
-					for (ct2 = ct1 -> next; ct2 && ct2 -> ttype == TOK_WSPACE; ct2 = ct2 -> next)
-						/* do nothing */ ;
-					if (ct2)
-					{
-						// we have concatenation here so we paste str1 and str2 together and see what we get
-						// if we get NULL, the past didn't make a valid token
-						ct1 = paste_tokens(pp, s, arglist, t, ct2);
-						if (ct1)
-						{
-							if (t2)
-							{
-								t2 -> next = ct1;
-							}
-							else
-							{
-								t3 = ct1;
-							}
-							for (t2 = ct1; t2 -> next; t2 = t2 -> next)
-								/* do nothing */ ;
+	expand_list = token_list_dup(s -> tl);
 
-							/* because of the level of control structures, move to next token and restart loop */
-							t = ct2 -> next;
-							goto again;
-						}
-						goto nopaste;
-					}
-				}
-			}
-		}
-	
-nopaste:
-		if (t -> ttype == TOK_HASH)
+	// scan for stringification and handle it
+	repl = 0;
+	while (repl == 0)
+	{
+		for (t = expand_list -> head; t; t = t -> next)
 		{
-			if (t -> next && t -> next -> ttype == TOK_IDENT)
+			if (t -> ttype == TOK_HASH && t -> next && t -> next -> ttype == TOK_IDENT)
 			{
-				if (strcmp(t -> next -> strval, "__VA_ARGS__") == 0)
+				i = macro_arg(s, t -> next -> strval);
+				if (i != -1)
 				{
-					i = nargs;
-				}
-				else
-				{
-					for (i = 0; i < nargs; i++)
-					{
-						if (strcmp(t -> next -> strval, s -> params[i]) == 0)
-							break;
-					}
-				}
-				if (!((i == s -> nargs) && !(s -> vargs)))
-				{
-					// we have a stringification here
-					t = t -> next;
+					repl = 1;
 					tstr = stringify(arglist[i]);
-					if (t2)
-					{
-						t2 = token_create(TOK_STRING, tstr, t -> lineno, t -> column, t -> fn);
-						t2 = t2 -> next;
-					}
-					else
-					{
-						t3 = token_create(TOK_STRING, tstr, t -> lineno, t -> column, t -> fn);
-						t2 = t3;
-					}
+					token_list_remove(t -> next);
+					token_list_insert(expand_list, t, token_create(TOK_STRING, tstr, t -> lineno, t -> column, t -> fn));
+					token_list_remove(t);
 					lw_free(tstr);
-					continue;
+					break;
 				}
 			}
 		}
+	}
+
+
+	// scan for concatenation and handle it	
+	
+	for (t = expand_list -> head; t; t = t -> next)
+	{
+		if (t -> ttype == TOK_DBLHASH)
+		{
+			// have a concatenation operator here
+			for (t2 = t -> prev; t2; t2 = t2 -> prev)
+			{
+				if (t2 -> ttype != TOK_WSPACE)
+					break;
+			}
+			for (t3 = t -> next; t3; t3 = t3 -> next);
+			{
+				if (t3 -> ttype != TOK_WSPACE)
+					break;
+			}
+			// if no non-whitespace before or after, ignore it
+			if (!t2 || !t3)
+				continue;
+			// eat the whitespace before and after
+			while (t -> prev != t2)
+				token_list_remove(t -> prev);
+			while (t -> next != t3)
+				token_list_remove(t -> next);
+			// now paste t -> prev with t -> next and replace t with the result
+			// continue scanning for ## at t -> next -> next
+			t3 = t -> next -> next;
+			
+			rtl = paste_tokens(pp, s, arglist, t -> prev, t -> next);
+			token_list_remove(t -> next);
+			token_list_remove(t -> prev);
+			t2 = t -> prev;
+			token_list_remove(t);
+			for (t = rtl -> head; t; t = t -> next)
+			{
+				token_list_insert(expand_list, t2, token_dup(t));
+			}
+			t = t3 -> prev;
+			token_list_destroy(rtl);
+		}
+	}
+	
+	// now scan for arguments and expand them
+	for (t = expand_list -> head; t; t = t -> next)
+	{
+	again:
 		if (t -> ttype == TOK_IDENT)
 		{
 			/* identifiers might need expansion to arguments */
-			if (strcmp(t -> strval, "__VA_ARGS__") == 0)
+			i = macro_arg(s, t -> strval);
+			if (i != -1)
 			{
-				i = s -> nargs;
+				t3 = t -> next;
+				for (t2 = exparglist[i] -> tail; t2; t2 = t2 -> prev)
+					token_list_insert(expand_list, t, token_dup(t2));
+				token_list_remove(t);
+				t = t3;
+				goto again;
 			}
-			else
-			{
-				for (i = 0; i < nargs; i++)
-				{
-					if (strcmp(t -> strval, s -> params[i]) == 0)
-						break;
-				}
-			}
-			if ((i == s -> nargs) && !(s -> vargs))
-			{
-				struct token *te;
-				// expand argument
-				for (te = exparglist[i]; te; te = te -> next)
-				{
-					if (t2)
-					{
-						t2 -> next = token_dup(te);
-						t2 = t2 -> next;
-					}
-					else
-					{
-						t3 = token_dup(te);
-						t2 = t2;
-					}
-				}
-				continue;
-			}
-		}
-		if (t2)
-		{
-			t2 -> next = token_dup(t);
-			t2 = t2 -> next;
-		}
-		else
-		{
-			t3 = token_dup(t);
-			t2 = t3;
 		}
 	}
 
 	/* put the new expansion in front of the input, if relevant; if we
 	   expanded to nothing, no need to create an expansion record or
 	   put anything into the input queue */
-	if (t3)
+	if (expand_list -> head)
 	{
-		t2 -> next = token_create(TOK_ENDEXPAND, "", -1, -1, "");
-		t2 -> next -> next = pp -> tokqueue;
-		pp -> tokqueue = t3;
-
+		token_list_append(expand_list, token_create(TOK_ENDEXPAND, "", -1, -1, ""));
+		
+		// move the expanded list into the token queue
+		for (t = expand_list -> tail; t; t = t -> prev)
+			preproc_unget_token(pp, token_dup(t));
+		
 		/* set up expansion record */
 		e = lw_alloc(sizeof(struct expand_e));
 		e -> next = pp -> expand_list;
@@ -1287,10 +1155,11 @@ nopaste:
 	}
 	
 	/* now clean up */
+	token_list_destroy(expand_list);
 	for (i = 0; i < nargs; i++)
 	{
-		lw_free(arglist[i]);
-		lw_free(exparglist[i]);
+		token_list_destroy(arglist[i]);
+		token_list_destroy(exparglist[i]);
 	}
 	lw_free(arglist);
 	lw_free(exparglist);

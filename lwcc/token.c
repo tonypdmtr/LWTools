@@ -132,3 +132,112 @@ void token_print(struct token *t, FILE *f)
 	if (t -> strval)
 		fprintf(f, "%s", t -> strval);
 }
+
+/* token list management */
+struct token_list *token_list_create(void)
+{
+	struct token_list *tl;
+	tl = lw_alloc(sizeof(struct token_list));
+	tl -> head = NULL;
+	tl -> tail = NULL;
+	return tl;
+}
+
+void token_list_destroy(struct token_list *tl)
+{
+	if (tl == NULL)
+		return;
+	while (tl -> head)
+	{
+		tl -> tail = tl -> head;
+		tl -> head = tl -> head -> next;
+		token_free(tl -> tail);
+		lw_free(tl -> tail);
+	}
+	lw_free(tl);
+}
+
+void token_list_append(struct token_list *tl, struct token *tok)
+{
+	tok -> list = tl;
+	if (tl -> head == NULL)
+	{
+		tl -> head = tl -> tail = tok;
+		tok -> next = tok -> prev = NULL;
+		return;
+	}
+	tl -> tail -> next = tok;
+	tok -> prev = tl -> tail;
+	tl -> tail = tok;
+	tok -> next = NULL;
+	return;
+}
+
+void token_list_remove(struct token *tok)
+{
+	if (tok -> list == NULL)
+		return;
+
+	if (tok -> prev)
+		tok -> prev -> next = tok -> next;
+	if (tok -> next)
+		tok -> next -> prev = tok -> prev;
+	if (tok == tok -> list -> head)
+		tok -> list -> head = tok -> next;
+	if (tok == tok -> list -> tail)
+		tok -> list -> tail = tok -> prev;
+	tok -> list = NULL;
+}
+
+void token_list_prepend(struct token_list *tl, struct token *tok)
+{
+	tok -> list = tl;
+	if (tl -> head == NULL)
+	{
+		tl -> head = tl -> tail = tok;
+		tok -> next = tok -> prev = NULL;
+	}
+	tl -> head -> prev = tok;
+	tok -> next = tl -> head;
+	tl -> head = tok;
+	tok -> prev = NULL;
+}
+
+void token_list_insert(struct token_list *tl, struct token *after, struct token *newt)
+{
+	struct token *t;
+	
+	if (after == NULL || tl -> head == NULL)
+	{
+		token_list_prepend(tl, newt);
+		return;
+	}
+	
+	for (t = tl -> head; t && t != after; t = t -> next)
+		/* do nothing */ ;
+	if (!t)
+	{
+		token_list_append(tl, newt);
+		return;
+	}
+	newt -> prev = t;
+	newt -> next = t -> next;
+	if (t -> next)
+		t -> next -> prev = newt;
+	else
+		tl -> tail = newt;
+	t -> next = newt;
+}
+
+struct token_list *token_list_dup(struct token_list *tl)
+{
+	struct token_list *nl;
+	struct token *t;
+	
+	nl = token_list_create();
+	for (t = tl -> head; t; t = t -> next)
+	{
+		token_list_append(nl, token_dup(t));
+	}
+	return nl;
+}

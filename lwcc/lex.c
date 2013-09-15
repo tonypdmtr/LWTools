@@ -596,7 +596,9 @@ chrlit:
 				{
 					if (!pp -> lexstr)
 						preproc_throw_error(pp, "Invalid character constant");
-					break;
+					ttype = TOK_ERROR;
+					strval = strbuf_end(strbuf);
+					goto out;
 				}
 				cl++;
 				strbuf_add(strbuf, c);
@@ -604,10 +606,15 @@ chrlit:
 			}
 			strbuf_add(strbuf, c);
 		}
-		if (cl == 0 && !pp -> lexstr)
-			preproc_throw_error(pp, "Invalid character constant");
 		strval = strbuf_end(strbuf);
-		ttype = TOK_CHR_LIT;
+		if (cl == 0)
+		{
+			ttype = TOK_ERROR;
+			if (!pp -> lexstr)
+				preproc_throw_error(pp, "Invalid character constant");
+		}
+		else
+			ttype = TOK_CHR_LIT;
 		goto out;
 
 	case '"':
@@ -617,7 +624,15 @@ strlit:
 		for (;;)
 		{
 			c = preproc_lex_fetch_byte(pp);
-			if (c == CPP_EOF || c == CPP_EOL || c == '"')
+			if (c == CPP_EOF || c == CPP_EOL)
+			{
+				ttype = TOK_ERROR;
+				strval = strbuf_end(strbuf);
+				if (!pp -> lexstr)
+					preproc_throw_error(pp, "Invalid string constant");
+				goto out;
+			}
+			if (c == '"')
 				break;
 			if (c == '\\')
 			{
@@ -625,9 +640,11 @@ strlit:
 				c = preproc_lex_fetch_byte(pp);
 				if (c == CPP_EOF || c == CPP_EOL)
 				{
+					ttype = TOK_ERROR;
 					if (!pp -> lexstr)
 						preproc_throw_error(pp, "Invalid string constant");
-					break;
+					strval = strbuf_end(strbuf);
+					goto out;
 				}
 				cl++;
 				strbuf_add(strbuf, c);

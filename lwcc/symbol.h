@@ -28,7 +28,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 struct symtab_e
 {
 	char *name;				// symbol name
-	struct token *tl;		// token list the name is defined as, NULL for none
+	struct token_list *tl;	// token list the name is defined as, NULL for none
 	int nargs;				// number named of arguments - -1 for object like macro
 	int vargs;				// set if macro has varargs style
 	char **params;			// the names of the parameters
@@ -37,6 +37,6 @@ struct symtab_e
 
 struct symtab_e *symtab_find(struct preproc_info *, char *);
 void symtab_undef(struct preproc_info *, char *);
-void symtab_define(struct preproc_info *, char *, struct token *, int, char **, int);
+void symtab_define(struct preproc_info *, char *, struct token_list *, int, char **, int);
 
 #endif // symbol_h_seen___

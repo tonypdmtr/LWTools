@@ -31,19 +31,13 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 void symbol_free(struct symtab_e *s)
 {
 	int i;
-	struct token *t;
-	
+
 	lw_free(s -> name);
 	
 	for (i = 0; i < s -> nargs; i++)
 		lw_free(s -> params[i]);
 	lw_free(s -> params);
-	while (s -> tl)
-	{
-		t = s -> tl;
-		s -> tl = t -> next;
-		token_free(t);
-	}
+	token_list_destroy(s -> tl);
 }
 
 struct symtab_e *symtab_find(struct preproc_info *pp, char *name)
@@ -77,7 +71,7 @@ void symtab_undef(struct preproc_info *pp, char *name)
 	}
 }
 
-void symtab_define(struct preproc_info *pp, char *name, struct token *def, int nargs, char **params, int vargs)
+void symtab_define(struct preproc_info *pp, char *name, struct token_list *def, int nargs, char **params, int vargs)
 {
 	struct symtab_e *s;
 	

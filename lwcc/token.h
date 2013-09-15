@@ -93,6 +93,7 @@ enum
 	TOK_ARROW,
 	TOK_ENDEXPAND,
 	TOK_STARTEXPAND,
+	TOK_ERROR,
 	TOK_MAX
 };
 
@@ -102,23 +103,35 @@ struct token
 	char *strval;			// the token value if relevant
 	struct token *prev;		// previous token in a list
 	struct token *next;		// next token in a list
+	struct token_list *list;// pointer to head of list descriptor this token is on
 	int lineno;				// line number token came from
 	int column;				// character column token came from
 	const char *fn;			// file name token came from
+};
+
+struct token_list
+{
+	struct token *head;		// the head of the list
+	struct token *tail;		// the tail of the list
 };
 
 extern void token_free(struct token *);
 extern struct token *token_create(int, char *strval, int, int, const char *);
 extern struct token *token_dup(struct token *);
 /* add a token to the end of a list */
-extern void token_append(struct token *, struct token *);
+extern void token_list_append(struct token_list *, struct token *);
 /* add a token to the start of a list */
-extern void token_prepend(struct token *, struct token *);
+extern void token_list_prepend(struct token_list *, struct token *);
 /* remove individual token from whatever list it is on */
-extern void token_remove(struct token *);
+extern void token_list_remove(struct token *);
 /* replace token with list of tokens specified */
-extern void token_replace(struct token *, struct token *);
+extern void token_list_insert(struct token_list *, struct token *, struct token *);
+/* duplicate a list to a new list pointer */
+extern struct token_list *token_list_dup(struct token_list *);
 /* print a token out */
+extern struct token_list *token_list_create(void);
+extern void token_list_destroy(struct token_list *);
+
 extern void token_print(struct token *, FILE *);
 
 #endif // token_h_seen___
