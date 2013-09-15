@@ -705,7 +705,7 @@ static void skip_eoe(struct preproc_info *pp)
 }
 
 static long eval_expr_real(struct preproc_info *, int);
-static long preproc_numval(struct token *);
+static long preproc_numval(struct preproc_info *, struct token *);
 
 static long eval_term_real(struct preproc_info *pp)
 {
@@ -783,7 +783,7 @@ eval_next:
 	
 	/* numbers */
 	case TOK_NUMBER:
-		return preproc_numval(ct);	
+		return preproc_numval(pp, ct);	
 		
 	default:
 		preproc_throw_error(pp, "Bad expression");
@@ -930,10 +930,137 @@ static long eval_expr(struct preproc_info *pp)
 	return rv;
 }
 
-/* convert a numeric string to a number */
-long preproc_numval(struct token *t)
+static int eval_escape(char **t)
 {
-	return 0;
+	int c;
+	int c2;
+	
+	if (**t == 0)
+		return 0;
+	c = *(*t)++;
+	int rv = 0;
+	
+	switch (c)
+	{
+	case 'n':
+		return 10;
+	case 'r':
+		return 13;
+	case 'b':
+		return 8;
+	case 'e':
+		return 27;
+	case 'f':
+		return 12;
+	case 't':
+		return 9;
+	case 'v':
+		return 11;
+	case 'a':
+		return 7;
+	case '0': case '1': case '2': case '3': case '4':
+	case '5': case '6': case '7':
+		// octal constant
+		rv = c - '0';
+		c2 = 1;
+		for (; c2 < 3; c2++)
+		{
+			c = *(*t)++;
+			if (c < '0' || c > '7')
+				break;
+			rv = (rv << 3) | (c - '0');
+		}
+		return rv;
+	case 'x':
+		// hex constant
+		for (;;)
+		{
+			c = *(*t)++;
+			if (c < '0' || (c > '9' && c < 'A') || (c > 'F' && c < 'a') || c > 'f')
+				break;
+			c = c - '0';
+			if (c > 9)
+				c -= 7;
+			if (c > 15)
+				c -= 32;
+			rv = (rv << 4) | c;
+		}
+		return rv & 0xff;
+	default:
+		return c;
+	}
+}
+
+/* convert a numeric string to a number */
+long preproc_numval(struct preproc_info *pp, struct token *t)
+{
+	unsigned long long rv = 0;
+	unsigned long long rv2 = 0;
+	char *tstr = t -> strval;
+	int radix = 10;
+	int c;
+	int ovf = 0;
+	union { long sv; unsigned long uv; } tv;
+		
+	if (t -> ttype == TOK_CHR_LIT)
+	{
+		tstr++;
+		while (*tstr && *tstr != '\'')
+		{
+			if (*tstr == '\\')
+			{
+				tstr++;
+				c = eval_escape(&tstr);
+			}
+			else
+				c = *tstr++;
+			rv = (rv << 8) | c;
+			if (rv / radix < rv2)
+				ovf = 1;
+			rv2 = rv;
+			
+		}
+		goto done;
+	}
+	
+	
+	if (*tstr == '0')
+	{
+		radix = 8;
+		tstr++;
+		if (*tstr == 'x')
+		{
+			radix = 16;
+			tstr++;
+		}
+	}
+	while (*tstr)
+	{
+		c = *tstr++;
+		if (c < '0' || (c > '9' && c < 'A') || (c > 'F' && c < 'a') || c > 'f')
+			break;
+		c -= '0';
+		if (c > 9)
+			c -= 7;
+		if (c > 15)
+			c -= 32;
+		if (c >= radix)
+			break;
+		rv = rv * radix + c;
+		if (rv / radix < rv2)
+			ovf = 1;
+		rv2 = rv;
+	}
+	tstr--;
+	while (*tstr == 'l' || *tstr == 'L')
+		tstr++;
+	tv.uv = rv;
+	if (tv.sv < 0 && radix == 10)
+		ovf = 1;
+done:
+	if (ovf)
+		preproc_throw_error(pp, "Constant out of range: %s", t -> strval);
+	return rv;
 }
 
 /*
