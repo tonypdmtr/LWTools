@@ -24,23 +24,29 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 
+//#include "symbol.h"
 #include "token.h"
 
 #define TOKBUFSIZE 32
+
+struct expand_e
+{
+	struct expand_e *next;
+	struct symtab_e *s;		// symbol table entry of the expanding symbol
+};
 
 struct preproc_info
 {
 	const char *fn;
 	FILE *fp;
-	struct token *tokbuf[TOKBUFSIZE];
 	struct token *tokqueue;
-	int tokbuf_ptr;
+	struct token *curtok;
 	void (*errorcb)(const char *);
 	void (*warningcb)(const char *);
-	int eolstate;
-	int lineno;
-	int column;
-	int trigraphs;
+	int eolstate;			// internal for use in handling newlines
+	int lineno;				// the current input line number
+	int column;				// the current input column
+	int trigraphs;			// nonzero if we're going to handle trigraphs
 	int ra;
 	int qseen;
 	int ungetbufl;
@@ -49,13 +55,25 @@ struct preproc_info
 	int unget;
 	int eolseen;
 	int nlseen;
+	int ppeolseen;			// nonzero if we've seen only whitespace (or nothing) since a newline
+	int skip_level;			// nonzero if we're in a false conditional
+	int found_level;		// nonzero if we're in a true conditional
+	int else_level;			// for counting #else directives
+	int else_skip_level;	// ditto
+	struct symtab_e *sh;	// the preprocessor's symbol table
+	struct token *sourcelist;	// for expanding a list of tokens
+	struct expand_e *expand_list;	// record of which macros are currently being expanded
+	
 };
 
 extern struct preproc_info *preproc_init(const char *);
 extern struct token *preproc_next_token(struct preproc_info *);
+extern struct token *preproc_next_processed_token(struct preproc_info *);
 extern void preproc_finish(struct preproc_info *);
 extern void preproc_register_error_callback(struct preproc_info *, void (*)(const char *));
 extern void preproc_register_warning_callback(struct preproc_info *, void (*)(const char *));
 extern void preproc_throw_error(struct preproc_info *, const char *, ...);
 extern void preproc_throw_warning(struct preproc_info *, const char *, ...);
+extern void preproc_unget_token(struct preproc_info *, struct token *);
+
 #endif // cpp_h_seen___

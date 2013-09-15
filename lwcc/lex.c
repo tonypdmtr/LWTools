@@ -701,6 +701,7 @@ strlit:
 	case '5': case '6': case '7': case '8': case '9':
 		strbuf = strbuf_new();
 numlit:
+		ttype = TOK_NUMBER;
 		strbuf_add(strbuf, c);
 		for (;;)
 		{

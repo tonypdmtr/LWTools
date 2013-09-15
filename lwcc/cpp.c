@@ -52,6 +52,7 @@ struct preproc_info *preproc_init(const char *fn)
 	pp -> fn = lw_strdup(fn);
 	pp -> fp = fp;
 	pp -> ra = CPP_NOUNG;
+	pp -> ppeolseen = 1;
 	return pp;
 }
 
@@ -59,6 +60,23 @@ struct token *preproc_next_token(struct preproc_info *pp)
 {
 	struct token *t;
 	
+	if (pp -> curtok)
+		token_free(pp -> curtok);
+
+	/*
+	If there is a list of tokens to process, move it to the "unget" queue
+	with an EOF marker at the end of it.
+	*/	
+	if (pp -> sourcelist)
+	{
+		for (t = pp -> sourcelist; t -> next; t = t -> next)
+			/* do nothing */ ;
+		t -> next = token_create(TOK_EOF, NULL, -1, -1, "");
+		t -> next -> next = pp -> tokqueue;
+		pp -> tokqueue = pp -> sourcelist;
+		pp -> sourcelist = NULL;
+	}
+again:
 	if (pp -> tokqueue)
 	{
 		t = pp -> tokqueue;
@@ -67,15 +85,42 @@ struct token *preproc_next_token(struct preproc_info *pp)
 			pp -> tokqueue -> prev = NULL;
 		t -> next = NULL;
 		t -> prev = NULL;
-		return t;
+		pp -> curtok = t;
+		goto ret;
 	}
-	return(preproc_lex_next_token(pp));
+	pp -> curtok = preproc_lex_next_token(pp);
+	t = pp -> curtok;
+ret:
+	if (t -> ttype == TOK_ENDEXPAND)
+	{
+		struct expand_e *e;
+		e = pp -> expand_list;
+		pp -> expand_list = e -> next;
+		lw_free(e);
+		goto again;
+	}
+	return t;
+}
+
+void preproc_unget_token(struct preproc_info *pp, struct token *t)
+{
+	t -> next = pp -> tokqueue;
+	pp -> tokqueue = t;
+	if (pp -> curtok == t)
+		pp -> curtok = NULL;
 }
 
 void preproc_finish(struct preproc_info *pp)
 {
 	lw_free((void *)(pp -> fn));
 	fclose(pp -> fp);
+	if (pp -> curtok)
+		token_free(pp -> curtok);
+	while (pp -> tokqueue)
+	{
+		preproc_next_token(pp);
+		token_free(pp -> curtok);
+	}
 	lw_free(pp);
 }
 
