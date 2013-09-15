@@ -774,7 +774,8 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 	struct expand_e *e;
 	struct token **exparglist = NULL;
 	int i;
-	
+	int pcount;
+		
 	s = symtab_find(pp, mname);
 	if (!s)
 		return 0;
@@ -827,6 +828,7 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 	
 	while (t -> ttype != TOK_CPAREN)
 	{
+		pcount = 0;
 		if (t -> ttype == TOK_EOF)
 		{
 			preproc_throw_error(pp, "Unexpected EOF in macro call");
@@ -834,7 +836,11 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 		}
 		if (t -> ttype == TOK_EOL)
 			continue;
-		if (t -> ttype == TOK_COMMA)
+		if (t -> ttype == TOK_OPAREN)
+			pcount++;
+		else if (t -> ttype == TOK_CPAREN && pcount)
+			pcount--;
+		if (t -> ttype == TOK_COMMA && pcount == 0)
 		{
 			if (!(s -> vargs) || (nargs > s -> nargs))
 			{
