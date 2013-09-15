@@ -19,6 +19,8 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <lw_alloc.h>
@@ -448,10 +450,185 @@ static void dir_warning(struct preproc_info *pp)
 
 static void dir_include(struct preproc_info *pp)
 {
+	FILE *fp;
+	struct token *ct;
+	int sys = 0;
+	char *fn;
+	struct strbuf *strbuf;
+	int i;
+	struct preproc_info *fs;
+	
+	ct = preproc_next_token_nws(pp);
+	if (ct -> ttype == TOK_STRING)
+	{
+usrinc:
+		sys = strlen(ct -> strval);
+		fn = lw_alloc(sys - 1);
+		memcpy(fn, ct -> strval + 1, sys - 2);
+		fn[sys - 1] = 0;
+		sys = 0;
+		goto doinc;
+	}
+	else if (ct -> ttype == TOK_LT)
+	{
+		strbuf = strbuf_new();
+		for (;;)
+		{
+			ct = preproc_next_token(pp);
+			if (ct -> ttype == TOK_GT)
+				break;
+			if (ct -> ttype == TOK_EOL)
+			{
+				preproc_throw_error(pp, "Bad #include");
+				lw_free(strbuf_end(strbuf));
+				return;
+			}
+			for (i = 0; ct -> strval[i]; ct++)
+			{
+				strbuf_add(strbuf, ct -> strval[i]);
+			}
+		}
+		ct = preproc_next_token_nws(pp);
+		if (ct -> ttype != TOK_EOL)
+		{
+			preproc_throw_error(pp, "Bad #include");
+			skip_eol(pp);
+			lw_free(strbuf_end(strbuf));
+			return;
+		}
+		sys = 1;
+		fn = strbuf_end(strbuf);
+		goto doinc;
+	}
+	else
+	{
+		preproc_unget_token(pp, ct);
+		// computed include
+		ct = preproc_next_processed_token_nws(pp);
+		if (ct -> ttype == TOK_STRING)
+			goto usrinc;
+		else if (ct -> ttype == TOK_LT)
+		{
+			strbuf = strbuf_new();
+			for (;;)
+			{
+				ct = preproc_next_processed_token(pp);
+				if (ct -> ttype == TOK_GT)
+					break;
+				if (ct -> ttype == TOK_EOL)
+				{
+					preproc_throw_error(pp, "Bad #include");
+					lw_free(strbuf_end(strbuf));
+					return;
+				}
+				for (i = 0; ct -> strval[i]; ct++)
+				{
+					strbuf_add(strbuf, ct -> strval[i]);
+				}
+			}
+			ct = preproc_next_processed_token_nws(pp);
+			if (ct -> ttype != TOK_EOL)
+			{
+				preproc_throw_error(pp, "Bad #include");
+				skip_eol(pp);
+				lw_free(strbuf_end(strbuf));
+				return;
+			}
+			sys = 1;
+			fn = strbuf_end(strbuf);
+			goto doinc;
+		}
+		else
+		{
+			skip_eol(pp);
+			preproc_throw_error(pp, "Bad #include");
+			return;
+		}
+	}
+doinc:
+//	fn = preproc_find_file(pp, fn, sys);
+	fp = fopen(fn, "rb");
+	if (!fp)
+	{
+		preproc_throw_error(pp, "Cannot open #include file - this is fatal");
+		exit(1);
+	}
+	
+	/* save the current include file state, etc. */
+	fs = lw_alloc(sizeof(struct preproc_info));
+	*fs = *pp;
+	fs -> n = pp -> filestack;
+	pp -> filestack = fs;
+	pp -> fn = fn;
+	pp -> fp = fp;
+	pp -> ra = CPP_NOUNG;
+	pp -> ppeolseen = 1;
+	pp -> eolstate = 0;
+	pp -> lineno = 0;
+	pp -> column = 0;
+	pp -> qseen = 0;
+	pp -> ungetbufl = 0;
+	pp -> ungetbufs = 0;
+	pp -> ungetbuf = NULL;
+	pp -> unget = 0;
+	pp -> eolseen = 0;
+	pp -> nlseen = 0;
+	pp -> skip_level = 0;
+	pp -> found_level = 0;
+	pp -> else_level = 0;
+	pp -> else_skip_level = 0;
+	
+	// now get on with processing
 }
 
 static void dir_line(struct preproc_info *pp)
 {
+	struct token *ct;
+	long lineno;
+	char *estr;
+	
+	lineno = -1;
+	
+	ct = preproc_next_processed_token_nws(pp);
+	if (ct -> ttype == TOK_NUMBER)
+	{
+		lineno = strtoul(ct -> strval, &estr, 10);
+		if (*estr)
+		{
+			preproc_throw_error(pp, "Bad #line");
+			skip_eol(pp);
+			return;
+		}
+	}
+	else
+	{
+		preproc_throw_error(pp, "Bad #line");
+		skip_eol(pp);
+		return;
+	}
+	ct = preproc_next_processed_token_nws(pp);
+	if (ct -> ttype == TOK_EOL)
+	{
+		pp -> lineno = lineno;
+		return;
+	}
+	if (ct -> ttype != TOK_STRING)
+	{
+		preproc_throw_error(pp, "Bad #line");
+		skip_eol(pp);
+		return;
+	}
+	estr = lw_strdup(ct -> strval);
+	ct = preproc_next_processed_token_nws(pp);
+	if (ct -> ttype != TOK_EOL)
+	{
+		preproc_throw_error(pp, "Bad #line");
+		skip_eol(pp);
+		lw_free(estr);
+		return;
+	}
+	pp -> fn = estr;
+	pp -> lineno = lineno;
 }
 
 static void dir_pragma(struct preproc_info *pp)

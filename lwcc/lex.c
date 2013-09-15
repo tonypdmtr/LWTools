@@ -291,7 +291,7 @@ static int preproc_lex_fetch_byte(struct preproc_info *pp)
 		pp -> eolseen = 1;
 		return c;
 	}
-	
+
 	pp -> eolseen = 0;
 	
 	/* convert comments to a single space here */
@@ -351,7 +351,9 @@ struct token *preproc_lex_next_token(struct preproc_info *pp)
 	int cl;
 	struct strbuf *strbuf;
 	struct token *t;
-						
+	struct preproc_info *fs;
+					
+fileagain:
 	c = preproc_lex_fetch_byte(pp);
 	if (c == CPP_EOF)
 	{
@@ -363,8 +365,24 @@ struct token *preproc_lex_next_token(struct preproc_info *pp)
 	
 	if (c == CPP_EOF)
 	{
-		ttype = TOK_EOF;
-		goto out;
+		/* check if we fell off the end of an include file */
+		if (pp -> filestack)
+		{
+			if (pp -> skip_level || pp -> found_level)
+			{
+				preproc_throw_error(pp, "Unbalanced conditionals in include file");
+			}
+			fclose(pp -> fp);
+			fs = pp -> filestack;
+			*pp = *fs;
+			pp -> filestack = fs -> n;
+			goto fileagain;
+		}
+		else
+		{
+			ttype = TOK_EOF;
+			goto out;
+		}
 	}
 	if (c == CPP_EOL)
 	{
