@@ -63,7 +63,8 @@ struct preproc_info
 	struct symtab_e *sh;	// the preprocessor's symbol table
 	struct token *sourcelist;	// for expanding a list of tokens
 	struct expand_e *expand_list;	// record of which macros are currently being expanded
-	
+	char *lexstr;			// for lexing a string (token pasting)
+	int lexstrloc;			// ditto
 };
 
 extern struct preproc_info *preproc_init(const char *);

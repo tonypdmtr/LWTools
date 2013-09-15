@@ -209,6 +209,14 @@ static int fetch_byte(struct preproc_info *pp)
 {
 	int c;
 
+	if (pp -> lexstr)
+	{
+		if (pp -> lexstr[pp -> lexstrloc])
+			return pp -> lexstr[pp -> lexstrloc++];
+		else
+			return CPP_EOL;
+	}
+
 	if (pp -> ungetbufl > 0)
 	{
 		pp -> ungetbufl--;
@@ -586,7 +594,8 @@ chrlit:
 				c = preproc_lex_fetch_byte(pp);
 				if (c == CPP_EOF || c == CPP_EOL)
 				{
-					preproc_throw_error(pp, "Invalid character constant");
+					if (!pp -> lexstr)
+						preproc_throw_error(pp, "Invalid character constant");
 					break;
 				}
 				cl++;
@@ -595,7 +604,7 @@ chrlit:
 			}
 			strbuf_add(strbuf, c);
 		}
-		if (cl == 0)
+		if (cl == 0 && !pp -> lexstr)
 			preproc_throw_error(pp, "Invalid character constant");
 		strval = strbuf_end(strbuf);
 		ttype = TOK_CHR_LIT;
@@ -616,7 +625,8 @@ strlit:
 				c = preproc_lex_fetch_byte(pp);
 				if (c == CPP_EOF || c == CPP_EOL)
 				{
-					preproc_throw_error(pp, "Invalid string constant");
+					if (!pp -> lexstr)
+						preproc_throw_error(pp, "Invalid string constant");
 					break;
 				}
 				cl++;

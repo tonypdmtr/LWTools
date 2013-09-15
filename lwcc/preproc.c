@@ -32,6 +32,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 static int expand_macro(struct preproc_info *, char *);
 static void process_directive(struct preproc_info *);
 static long eval_expr(struct preproc_info *);
+extern struct token *preproc_lex_next_token(struct preproc_info *);
+
 
 struct token *preproc_next_processed_token(struct preproc_info *pp)
 {
@@ -765,6 +767,237 @@ long preproc_numval(struct token *t)
 /*
 Below here is the logic for expanding a macro
 */
+static char *stringify(struct token *tl)
+{
+	struct strbuf *s;
+	int ws = 0;
+	
+	s = strbuf_new();
+	strbuf_add(s, '"');
+
+	while (tl && tl -> ttype == TOK_WSPACE)
+		tl = tl -> next;
+	
+	for (; tl; tl = tl -> next)
+	{
+		if (tl -> ttype == TOK_WSPACE)
+		{
+			ws = 1;
+			continue;
+		}
+		if (ws)
+		{
+			strbuf_add(s, ' ');
+		}
+		for (ws = 0; tl -> strval[ws]; ws++)
+		{
+			if (tl -> ttype == TOK_STRING || tl -> ttype == TOK_CHR_LIT)
+			{
+				if (tl -> strval[ws] == '"' || tl -> strval[ws] == '\\')
+					strbuf_add(s, '\\');
+			}
+		}
+		ws = 0;
+	}
+	
+	strbuf_add(s, '"');
+	return strbuf_end(s);
+}
+
+/* return list to tokens as a result of ## expansion */
+static struct token *paste_tokens(struct preproc_info *pp, struct symtab_e *s, struct token **arglist, struct token *t1, struct token *t2)
+{
+	struct token *rl = NULL, *rlt;
+	struct token *s1, *s2;
+	struct token *ws;
+	int i;
+	char *tstr;
+	
+	if (t1 -> ttype == TOK_IDENT)
+	{
+		if (strcmp(t1 -> strval, "__VA_ARGS__") == 0)
+		{
+			i = s -> nargs;
+		}
+		else
+		{
+			for (i = 0; i < s -> nargs; i++)
+			{
+				if (strcmp(s -> params[i], t1 -> strval) == 0)
+					break;
+			}
+		}
+		if ((i == s -> nargs) && !(s -> vargs))
+		{
+			s1 = token_dup(t1);
+		}
+		else
+		{
+			/* find last non-whitespace token */
+			ws = NULL;
+			for (t1 = s -> tl; t1; t1 = t1 -> next)
+			{
+				if (t1 -> ttype != TOK_WSPACE)
+					ws = t1;
+			}
+			if (!ws)
+			{
+				s1 = NULL;
+			}
+			else
+			{
+				if (ws != s -> tl)
+				{
+					/* output extra tokens */
+					for (t1 = s -> tl; t1 -> next != ws; t1 = t1 -> next)
+					{
+						if (!rl)
+						{
+							rl = token_dup(t1);
+							rlt = rl;
+						}
+						else
+						{
+							rlt -> next = token_dup(t1);
+							rlt = rlt -> next;
+						}
+					}
+				}
+				s1 = token_dup(ws);
+			}
+		}
+	}
+	else
+	{
+		s1 = token_dup(t1);
+	}
+	if (t2 -> ttype == TOK_IDENT)
+	{
+		if (strcmp(t1 -> strval, "__VA_ARGS__") == 0)
+		{
+			i = s -> nargs;
+		}
+		else
+		{
+			for (i = 0; i < s -> nargs; i++)
+			{
+				if (strcmp(s -> params[i], t1 -> strval) == 0)
+					break;
+			}
+		}
+		if ((i == s -> nargs) && !(s -> vargs))
+		{
+			s2 = token_dup(t2);
+			t2 = NULL;
+		}
+		else
+		{
+			/* find last non-whitespace token */
+			ws = NULL;
+			for (t2 = s -> tl; t2; t2 = t2 -> next)
+			{
+				if (t2 -> ttype != TOK_WSPACE)
+				{
+					ws = t2;
+					t2 = t2 -> next;
+					break;
+				}
+			}
+			if (!ws)
+			{
+				s2 = NULL;
+			}
+			else
+			{
+				s2 = token_dup(ws);
+			}
+		}
+	}
+	else
+	{
+		s2 = token_dup(t2);
+	}
+	
+	/* here, s1 is NULL if no left operand or a duplicated token for the actual left operand */
+	/* here, s2 is NULL if no right operand or a duplicated token for the actual right operand */
+	/* here, t2 points to a possibly empty list of extra tokens to output after the concatenated tokens */
+	/* here, rl,rlt is a possibly non-empty list of tokens preceding the concatenation */
+	
+	/* tokens combine if the combination exactly matches "combinelist", in which case the string values are
+	   concatenated and the new token type is used to create a new token. If the tokens do not combine,
+	   s1 and s2 are returned in sequence. */
+	
+	if (!s1 && s2)
+	{
+		if (!rl)
+			rl = s2;
+		else
+			rlt -> next = s2;
+		rlt = s2;
+	}
+	else if (s1 && !s2)
+	{
+		if (!rl)
+			rl = s1;
+		else
+			rlt -> next = s1;
+		rlt = s1;
+	}
+	else if (s1 && s2)
+	{
+		tstr = lw_alloc(strlen(s1 -> strval) + strlen(s2 -> strval) + 1);
+		strcpy(tstr, s1 -> strval);
+		strcat(tstr, s2 -> strval);
+		/* now try to lex the string */
+		pp -> lexstr = tstr;
+		pp -> lexstrloc = 0;
+		t1 = preproc_lex_next_token(pp);
+		if (pp -> lexstr[pp -> lexstrloc])
+		{
+			// doesn't make a new token - pass through the original two
+			if (!rl)
+				rl = s1;
+			else
+				rlt -> next = s1;
+			s1 -> next = s2;
+			rlt = s2;
+		}
+		else
+		{
+			// does make a new token
+			t1 -> fn = s1 -> fn;
+			t1 -> column = s1 -> column;
+			t1 -> lineno = s1 -> lineno;
+			if (!rl)
+				rl = t1;
+			else
+				rlt -> next = t1;
+			rlt = t1;
+		}
+		lw_free(tstr);
+		pp -> lexstr = NULL;
+	}
+	
+	/* add in any extra tokens */
+	while (t2)
+	{
+		if (!rl)
+		{
+			rl = token_dup(t2);
+			rlt = rl;
+		}
+		else
+		{
+			rlt -> next = token_dup(t2);
+			rlt = rlt -> next;
+		}
+		t2 = t2 -> next;
+	}
+	
+	return rl;
+}
+
+
 static int expand_macro(struct preproc_info *pp, char *mname)
 {
 	struct symtab_e *s;
@@ -775,7 +1008,8 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 	struct token **exparglist = NULL;
 	int i;
 	int pcount;
-		
+	char *tstr;
+	
 	s = symtab_find(pp, mname);
 	if (!s)
 		return 0;
@@ -912,6 +1146,83 @@ expandmacro:
 	
 	for (t = s -> tl; t; t = t -> next)
 	{
+again:
+		if (t -> ttype != TOK_WSPACE && t -> next)
+		{
+			struct token *ct1, *ct2;
+			
+			for (ct1 = t -> next; ct1 && ct1 -> ttype == TOK_WSPACE; ct1 = ct1 -> next)
+			{
+				if (ct1 -> ttype == TOK_DBLHASH)
+				{
+					// possible concatenation here
+					for (ct2 = ct1 -> next; ct2 && ct2 -> ttype == TOK_WSPACE; ct2 = ct2 -> next)
+						/* do nothing */ ;
+					if (ct2)
+					{
+						// we have concatenation here so we paste str1 and str2 together and see what we get
+						// if we get NULL, the past didn't make a valid token
+						ct1 = paste_tokens(pp, s, arglist, t, ct2);
+						if (ct1)
+						{
+							if (t2)
+							{
+								t2 -> next = ct1;
+							}
+							else
+							{
+								t3 = ct1;
+							}
+							for (t2 = ct1; t2 -> next; t2 = t2 -> next)
+								/* do nothing */ ;
+
+							/* because of the level of control structures, move to next token and restart loop */
+							t = ct2 -> next;
+							goto again;
+						}
+						goto nopaste;
+					}
+				}
+			}
+		}
+	
+nopaste:
+		if (t -> ttype == TOK_HASH)
+		{
+			if (t -> next && t -> next -> ttype == TOK_IDENT)
+			{
+				if (strcmp(t -> next -> strval, "__VA_ARGS__") == 0)
+				{
+					i = nargs;
+				}
+				else
+				{
+					for (i = 0; i < nargs; i++)
+					{
+						if (strcmp(t -> next -> strval, s -> params[i]) == 0)
+							break;
+					}
+				}
+				if (!((i == s -> nargs) && !(s -> vargs)))
+				{
+					// we have a stringification here
+					t = t -> next;
+					tstr = stringify(arglist[i]);
+					if (t2)
+					{
+						t2 = token_create(TOK_STRING, tstr, t -> lineno, t -> column, t -> fn);
+						t2 = t2 -> next;
+					}
+					else
+					{
+						t3 = token_create(TOK_STRING, tstr, t -> lineno, t -> column, t -> fn);
+						t2 = t3;
+					}
+					lw_free(tstr);
+					continue;
+				}
+			}
+		}
 		if (t -> ttype == TOK_IDENT)
 		{
 			/* identifiers might need expansion to arguments */
@@ -931,7 +1242,6 @@ expandmacro:
 			{
 				struct token *te;
 				// expand argument
-				// FIXME: handle # and ##
 				for (te = exparglist[i]; te; te = te -> next)
 				{
 					if (t2)
