@@ -48,6 +48,7 @@ void lw_stringlist_destroy(lw_stringlist_t S)
 		{
 			lw_free(S -> strings[i]);
 		}
+		lw_free(S -> strings);
 		lw_free(S);
 	}
 }
