@@ -28,6 +28,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_string.h>
 
 #include "cpp.h"
+#include "strpool.h"
 
 struct token *preproc_lex_next_token(struct preproc_info *);
 
@@ -49,7 +50,8 @@ struct preproc_info *preproc_init(const char *fn)
 	
 	pp = lw_alloc(sizeof(struct preproc_info));
 	memset(pp, 0, sizeof(struct preproc_info));
-	pp -> fn = lw_strdup(fn);
+	pp -> strpool = strpool_create();
+	pp -> fn = strpool_strdup(pp -> strpool, fn);
 	pp -> fp = fp;
 	pp -> ra = CPP_NOUNG;
 	pp -> ppeolseen = 1;
@@ -112,7 +114,6 @@ void preproc_unget_token(struct preproc_info *pp, struct token *t)
 
 void preproc_finish(struct preproc_info *pp)
 {
-	lw_free((void *)(pp -> fn));
 	fclose(pp -> fp);
 	if (pp -> curtok)
 		token_free(pp -> curtok);
@@ -121,6 +122,7 @@ void preproc_finish(struct preproc_info *pp)
 		preproc_next_token(pp);
 		token_free(pp -> curtok);
 	}
+	strpool_free(pp -> strpool);
 	lw_free(pp);
 }
 

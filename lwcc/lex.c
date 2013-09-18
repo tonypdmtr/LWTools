@@ -350,7 +350,7 @@ struct token *preproc_lex_next_token(struct preproc_info *pp)
 	int c, c2;
 	int cl;
 	struct strbuf *strbuf;
-	struct token *t;
+	struct token *t = NULL;
 	struct preproc_info *fs;
 					
 fileagain:

@@ -35,7 +35,7 @@ struct token *token_create(int ttype, char *strval, int row, int col, const char
 	if (strval)
 		t -> strval = lw_strdup(strval);
 	else
-		strval = NULL;
+		t -> strval = NULL;
 	t -> lineno = row;
 	t -> column = col;
 	t -> fn = fn;

@@ -48,7 +48,7 @@ again:
 	if (ct -> ttype == TOK_EOL)
 		pp -> ppeolseen = 1;
 		
-	if (ct -> ttype == TOK_HASH && pp -> eolseen == 1)
+	if (ct -> ttype == TOK_HASH && pp -> ppeolseen == 1)
 	{
 		// preprocessor directive 
 		process_directive(pp);
@@ -1469,4 +1469,13 @@ expandmacro:
 	lw_free(exparglist);
 	
 	return 1;
+}
+
+struct token *preproc_next(struct preproc_info *pp)
+{
+	struct token *t;
+	
+	t = preproc_next_processed_token(pp);
+	pp -> curtok = NULL;
+	return t;
 }

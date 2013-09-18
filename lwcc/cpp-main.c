@@ -120,7 +120,6 @@ int main(int argc, char **argv)
 	{
 		/* if no input files, work on stdin */
 		retval = process_file("-");
-		retval = 1;
 	}
 	else
 	{
@@ -142,7 +141,7 @@ int main(int argc, char **argv)
 int process_file(const char *fn)
 {
 	struct preproc_info *pp;
-	struct token *tok;
+	struct token *tok = NULL;
 	
 	pp = preproc_init(fn);
 	if (!pp)
@@ -150,11 +149,13 @@ int process_file(const char *fn)
 	
 	for (;;)
 	{
-		tok = preproc_next_token(pp);
+		tok = preproc_next(pp);
 		if (tok -> ttype == TOK_EOF)
 			break;
 		token_print(tok, output_fp);
+		token_free(tok);
 	}
+	token_free(tok);
 	preproc_finish(pp);
 	return 0;
 }
