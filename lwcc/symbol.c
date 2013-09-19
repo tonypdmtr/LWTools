@@ -74,13 +74,58 @@ void symtab_undef(struct preproc_info *pp, char *name)
 void symtab_define(struct preproc_info *pp, char *name, struct token_list *def, int nargs, char **params, int vargs)
 {
 	struct symtab_e *s;
-	
+	int i;
+		
 	s = lw_alloc(sizeof(struct symtab_e));
 	s -> name = lw_strdup(name);
 	s -> tl = def;
 	s -> nargs = nargs;
-	s -> params = params;
+	s -> params = NULL;
+	if (params)
+	{
+		s -> params = lw_alloc(sizeof(char *) * nargs);
+		for (i = 0; i < nargs; i++)
+			s -> params[i] = lw_strdup(params[i]);
+	}
 	s -> vargs = vargs;
 	s -> next = pp -> sh;
 	pp -> sh = s;
+}
+
+void symtab_dump(struct preproc_info *pp)
+{
+	struct symtab_e *s;
+	struct token *t;
+	int i;
+		
+	for (s = pp -> sh; s; s = s -> next)
+	{
+		printf("%s", s -> name);
+		if (s -> nargs >= 0)
+		{
+			printf("(");
+			for (i = 0; i < s -> nargs; i++)
+			{
+				if (i)
+					printf(",");
+				printf("%s", s -> params[i]);
+			}
+			if (s -> vargs)
+			{
+				if (s -> nargs)
+					printf(",");
+				printf("...");
+			}
+			printf(")");
+		}
+		printf(" => ");
+		if (s -> tl)
+		{
+			for (t = s -> tl -> head; t; t = t -> next)
+			{
+				token_print(t, stdout);
+			}
+		}
+		printf("\n");
+	}
 }

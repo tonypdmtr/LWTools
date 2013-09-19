@@ -27,6 +27,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <lw_stringlist.h>
 #include <lw_cmdline.h>
+#include <lw_string.h>
 
 #include "cpp.h"
 
@@ -134,28 +135,73 @@ int main(int argc, char **argv)
 	}
 	lw_stringlist_destroy(input_files);
 	
-//	symbol_dump();
 	exit(retval);
+}
+
+static void print_line_marker(FILE *fp, int line, const char *fn, int flag)
+{
+	fprintf(fp, "\n# %d \"", line);
+	while (*fn)
+	{
+		if (*fn < 32 || *fn == 34 || *fn > 126)
+		{
+			fprintf(fp, "\\%03o", *fn);
+		}
+		else
+		{
+			fprintf(fp, "%c", *fn);
+		}
+		fn++;
+	}
+	fprintf(fp, "\" %d\n", flag);
 }
 
 int process_file(const char *fn)
 {
 	struct preproc_info *pp;
 	struct token *tok = NULL;
-	
+	int last_line = 0;
+	char *last_fn = NULL;
+		
 	pp = preproc_init(fn);
 	if (!pp)
 		return -1;
-	
+
+	print_line_marker(output_fp, 1, fn, 1);
+	last_fn = lw_strdup(fn);	
 	for (;;)
 	{
 		tok = preproc_next(pp);
 		if (tok -> ttype == TOK_EOF)
 			break;
+		if (strcmp(tok -> fn, last_fn) != 0)
+		{
+			int lt = 1;
+			if (tok -> lineno != 1)
+			{
+				lt = 2;
+			}
+			lw_free(last_fn);
+			last_fn = lw_strdup(tok -> fn);
+			last_line = tok -> lineno;
+			print_line_marker(output_fp, last_line, last_fn, lt);
+		}
+		else
+		{
+			while (tok -> lineno > last_line)
+			{
+				fprintf(output_fp, "\n");
+				last_line++;
+			}
+		}
 		token_print(tok, output_fp);
+		if (tok -> ttype == TOK_EOL)
+			last_line++;
 		token_free(tok);
 	}
 	token_free(tok);
+	lw_free(last_fn);
+//	symtab_dump(pp);
 	preproc_finish(pp);
 	return 0;
 }

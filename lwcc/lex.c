@@ -191,7 +191,7 @@ static int fetch_byte_tg(struct preproc_info *pp)
    by fetch_byte(). Theoretically, an unlimited number of characters can
    be unfetched. Line and column counting may be incorrect if unfetched
    characters cross a token boundary. */
-static void preproc_lex_unfetch_byte(struct preproc_info *pp, int c)
+void preproc_lex_unfetch_byte(struct preproc_info *pp, int c)
 {
 	if (pp -> ungetbufl >= pp -> ungetbufs)
 	{
@@ -275,7 +275,7 @@ Returned tokens are as follows:
 */
 
 
-static int preproc_lex_fetch_byte(struct preproc_info *pp)
+int preproc_lex_fetch_byte(struct preproc_info *pp)
 {
 	int c;
 	c = fetch_byte(pp);
@@ -318,7 +318,7 @@ static int preproc_lex_fetch_byte(struct preproc_info *pp)
 			for (;;)
 			{
 				c2 = fetch_byte(pp);
-				if (c2 == CPP_EOL || c2 == CPP_EOF)
+				if (c2 == CPP_EOF)
 				{
 					preproc_lex_unfetch_byte(pp, c);
 					break;
@@ -361,6 +361,12 @@ fileagain:
 		{
 			c = CPP_EOL;
 		}
+	}
+
+	if (pp -> lineno != sline)
+	{
+		sline = pp -> lineno;
+		scol = pp -> column;
 	}
 	
 	if (c == CPP_EOF)
@@ -639,6 +645,7 @@ chrlit:
 strlit:
 		/* string literal */
 		strbuf = strbuf_new();
+		strbuf_add(strbuf, '"');
 		for (;;)
 		{
 			c = preproc_lex_fetch_byte(pp);
@@ -670,6 +677,7 @@ strlit:
 			}
 			strbuf_add(strbuf, c);
 		}
+		strbuf_add(strbuf, '"');
 		strval = strbuf_end(strbuf);
 		ttype = TOK_STR_LIT;
 		goto out;

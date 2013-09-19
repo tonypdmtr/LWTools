@@ -41,6 +41,7 @@ struct token *token_create(int ttype, char *strval, int row, int col, const char
 	t -> fn = fn;
 	t -> next = NULL;
 	t -> prev = NULL;
+	t -> list = NULL;
 	return t;
 }
 
@@ -55,11 +56,16 @@ struct token *token_dup(struct token *t)
 	struct token *t2;
 	
 	t2 = lw_alloc(sizeof(struct token));
-	(*t2) = (*t);
+	t2 -> ttype = t -> ttype;
+	t2 -> lineno = t -> lineno;
+	t2 -> column = t -> column;
+	t2 -> list = NULL;
 	t2 -> next = NULL;
 	t2 -> prev = NULL;
 	if (t -> strval)
 		t2 -> strval = lw_strdup(t -> strval);
+	else
+		t2 -> strval = NULL;
 	return t2;
 }
 
@@ -152,7 +158,6 @@ void token_list_destroy(struct token_list *tl)
 		tl -> tail = tl -> head;
 		tl -> head = tl -> head -> next;
 		token_free(tl -> tail);
-		lw_free(tl -> tail);
 	}
 	lw_free(tl);
 }

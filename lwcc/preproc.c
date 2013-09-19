@@ -40,18 +40,22 @@ extern struct token *preproc_lex_next_token(struct preproc_info *);
 struct token *preproc_next_processed_token(struct preproc_info *pp)
 {
 	struct token *ct;
-	
+
 again:
 	ct = preproc_next_token(pp);
 	if (ct -> ttype == TOK_EOF)
 		return ct;
 	if (ct -> ttype == TOK_EOL)
+	{
 		pp -> ppeolseen = 1;
-		
+		return ct;
+	}
+
 	if (ct -> ttype == TOK_HASH && pp -> ppeolseen == 1)
 	{
 		// preprocessor directive 
 		process_directive(pp);
+		goto again;
 	}
 	// if we're in a false section, don't return the token; keep scanning
 	if (pp -> skip_level)
@@ -108,7 +112,7 @@ static void check_eol(struct preproc_info *pp)
 {
 	struct token *t;
 
-	t = preproc_next_token(pp);
+	t = preproc_next_token_nws(pp);
 	if (t -> ttype != TOK_EOL)
 		preproc_throw_warning(pp, "Extra text after preprocessor directive");
 	skip_eol(pp);
@@ -344,7 +348,8 @@ baddefine2:
 		lw_free(arglist);
 		return;
 	}
-	
+
+	tl = token_list_create();	
 	for (;;)
 	{
 		ct = preproc_next_token(pp);
@@ -459,13 +464,13 @@ static void dir_include(struct preproc_info *pp)
 	struct preproc_info *fs;
 	
 	ct = preproc_next_token_nws(pp);
-	if (ct -> ttype == TOK_STRING)
+	if (ct -> ttype == TOK_STR_LIT)
 	{
 usrinc:
 		sys = strlen(ct -> strval);
 		fn = lw_alloc(sys - 1);
 		memcpy(fn, ct -> strval + 1, sys - 2);
-		fn[sys - 1] = 0;
+		fn[sys - 2] = 0;
 		sys = 0;
 		goto doinc;
 	}
@@ -474,19 +479,18 @@ usrinc:
 		strbuf = strbuf_new();
 		for (;;)
 		{
-			ct = preproc_next_token(pp);
-			if (ct -> ttype == TOK_GT)
-				break;
-			if (ct -> ttype == TOK_EOL)
+			int c;
+			c = preproc_lex_fetch_byte(pp);
+			if (c == CPP_EOL)
 			{
+				preproc_lex_unfetch_byte(pp, c);
 				preproc_throw_error(pp, "Bad #include");
 				lw_free(strbuf_end(strbuf));
-				return;
+				break;
 			}
-			for (i = 0; ct -> strval[i]; ct++)
-			{
-				strbuf_add(strbuf, ct -> strval[i]);
-			}
+			if (c == '>')
+				break;
+			strbuf_add(strbuf, c);
 		}
 		ct = preproc_next_token_nws(pp);
 		if (ct -> ttype != TOK_EOL)
@@ -505,7 +509,7 @@ usrinc:
 		preproc_unget_token(pp, ct);
 		// computed include
 		ct = preproc_next_processed_token_nws(pp);
-		if (ct -> ttype == TOK_STRING)
+		if (ct -> ttype == TOK_STR_LIT)
 			goto usrinc;
 		else if (ct -> ttype == TOK_LT)
 		{
@@ -550,7 +554,7 @@ doinc:
 	fp = fopen(fn, "rb");
 	if (!fp)
 	{
-		preproc_throw_error(pp, "Cannot open #include file - this is fatal");
+		preproc_throw_error(pp, "Cannot open #include file %s - this is fatal", fn);
 		exit(1);
 	}
 	
@@ -558,13 +562,14 @@ doinc:
 	fs = lw_alloc(sizeof(struct preproc_info));
 	*fs = *pp;
 	fs -> n = pp -> filestack;
+	pp -> curtok = NULL;
 	pp -> filestack = fs;
 	pp -> fn = fn;
 	pp -> fp = fp;
 	pp -> ra = CPP_NOUNG;
 	pp -> ppeolseen = 1;
 	pp -> eolstate = 0;
-	pp -> lineno = 0;
+	pp -> lineno = 1;
 	pp -> column = 0;
 	pp -> qseen = 0;
 	pp -> ungetbufl = 0;
@@ -577,7 +582,7 @@ doinc:
 	pp -> found_level = 0;
 	pp -> else_level = 0;
 	pp -> else_skip_level = 0;
-	
+	pp -> tokqueue = NULL;	
 	// now get on with processing
 }
 
@@ -612,7 +617,7 @@ static void dir_line(struct preproc_info *pp)
 		pp -> lineno = lineno;
 		return;
 	}
-	if (ct -> ttype != TOK_STRING)
+	if (ct -> ttype != TOK_STR_LIT)
 	{
 		preproc_throw_error(pp, "Bad #line");
 		skip_eol(pp);
@@ -920,9 +925,11 @@ eval_next:
 static long eval_expr(struct preproc_info *pp)
 {
 	long rv;
+	struct token *t;
 	
 	rv = eval_expr_real(pp, 0);
-	if (pp -> curtok -> ttype != TOK_EOL)
+	t = preproc_next_token_nws(pp);
+	if (t -> ttype != TOK_EOL)
 	{
 		preproc_throw_error(pp, "Bad expression");
 		skip_eol(pp);
@@ -1091,7 +1098,7 @@ static char *stringify(struct token_list *tli)
 		}
 		for (ws = 0; tl -> strval[ws]; ws++)
 		{
-			if (tl -> ttype == TOK_STRING || tl -> ttype == TOK_CHR_LIT)
+			if (tl -> ttype == TOK_STR_LIT || tl -> ttype == TOK_CHR_LIT)
 			{
 				if (tl -> strval[ws] == '"' || tl -> strval[ws] == '\\')
 					strbuf_add(s, '\\');
@@ -1367,13 +1374,14 @@ expandmacro:
 					repl = 1;
 					tstr = stringify(arglist[i]);
 					token_list_remove(t -> next);
-					token_list_insert(expand_list, t, token_create(TOK_STRING, tstr, t -> lineno, t -> column, t -> fn));
+					token_list_insert(expand_list, t, token_create(TOK_STR_LIT, tstr, t -> lineno, t -> column, t -> fn));
 					token_list_remove(t);
 					lw_free(tstr);
 					break;
 				}
 			}
 		}
+		repl = 1;
 	}
 
 

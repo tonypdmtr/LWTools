@@ -54,7 +54,10 @@ struct preproc_info *preproc_init(const char *fn)
 	pp -> fn = strpool_strdup(pp -> strpool, fn);
 	pp -> fp = fp;
 	pp -> ra = CPP_NOUNG;
+	pp -> unget = CPP_NOUNG;
 	pp -> ppeolseen = 1;
+	pp -> lineno = 1;
+	pp -> n = NULL;
 	return pp;
 }
 
@@ -146,14 +149,16 @@ static void preproc_throw_warning_default(const char *m)
 	fprintf(stderr, "WARNING: %s\n", m);
 }
 
-static void preproc_throw_message(void (*cb)(const char *), const char *m, va_list args)
+static void preproc_throw_message(struct preproc_info *pp, void (*cb)(const char *), const char *m, va_list args)
 {
-	int s;
+	int s, s2;
 	char *b;
 	
+	s2 = snprintf(NULL, 0, "(%s:%d:%d) ", pp -> fn, pp -> lineno, pp -> column);
 	s = vsnprintf(NULL, 0, m, args);
-	b = lw_alloc(s + 1);
-	vsnprintf(b, s + 1, m, args);
+	b = lw_alloc(s + s2 + 1);
+	snprintf(b, s2 + 1, "(%s:%d:%d) ", pp -> fn, pp -> lineno, pp -> column);
+	vsnprintf(b + s2, s + 1, m, args);
 	(*cb)(b);
 	lw_free(b);
 }
@@ -162,7 +167,7 @@ void preproc_throw_error(struct preproc_info *pp, const char *m, ...)
 {
 	va_list args;
 	va_start(args, m);
-	preproc_throw_message(pp -> errorcb ? pp -> errorcb : preproc_throw_error_default, m, args);
+	preproc_throw_message(pp, pp -> errorcb ? pp -> errorcb : preproc_throw_error_default, m, args);
 	va_end(args);
 	exit(1);
 }
@@ -171,6 +176,6 @@ void preproc_throw_warning(struct preproc_info *pp, const char *m, ...)
 {
 	va_list args;
 	va_start(args, m);
-	preproc_throw_message(pp -> warningcb ? pp -> warningcb : preproc_throw_warning_default, m, args);
+	preproc_throw_message(pp, pp -> warningcb ? pp -> warningcb : preproc_throw_warning_default, m, args);
 	va_end(args);
 }
