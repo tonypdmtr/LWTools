@@ -40,6 +40,9 @@ char *program_name;
 
 /* input files */
 lw_stringlist_t input_files;
+lw_stringlist_t includedirs;
+lw_stringlist_t sysincludedirs;
+lw_stringlist_t macrolist;
 
 /* various flags */
 int trigraphs = 0;
@@ -70,6 +73,18 @@ static int parse_opts(int key, char *arg, void *state)
 	case 0x100:
 		trigraphs = 1;
 		break;
+
+	case 'I':
+		lw_stringlist_addstring(includedirs, arg);
+		break;
+	
+	case 'S':
+		lw_stringlist_addstring(sysincludedirs, arg);
+		break;
+
+	case 'D':
+		lw_stringlist_addstring(macrolist, arg);
+		break;
 		
 	case lw_cmdline_key_end:
 		break;
@@ -99,7 +114,10 @@ int main(int argc, char **argv)
 	int retval = 0;
 	
 	input_files = lw_stringlist_create();
-
+	includedirs = lw_stringlist_create();
+	sysincludedirs = lw_stringlist_create();
+	macrolist = lw_stringlist_create();
+	
 	/* parse command line arguments */	
 	lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, NULL);
 
@@ -134,7 +152,9 @@ int main(int argc, char **argv)
 		}
 	}
 	lw_stringlist_destroy(input_files);
-	
+	lw_stringlist_destroy(includedirs);
+	lw_stringlist_destroy(sysincludedirs);
+	lw_stringlist_destroy(macrolist);
 	exit(retval);
 }
 
@@ -162,10 +182,31 @@ int process_file(const char *fn)
 	struct token *tok = NULL;
 	int last_line = 0;
 	char *last_fn = NULL;
+	char *tstr;
 		
 	pp = preproc_init(fn);
 	if (!pp)
 		return -1;
+
+	/* set up the include paths */
+	lw_stringlist_reset(includedirs);
+	for (tstr = lw_stringlist_current(includedirs); tstr; tstr = lw_stringlist_next(includedirs))
+	{
+		preproc_add_include(pp, tstr, 0);
+	}
+
+	lw_stringlist_reset(sysincludedirs);
+	for (tstr = lw_stringlist_current(sysincludedirs); tstr; tstr = lw_stringlist_next(sysincludedirs))
+	{
+		preproc_add_include(pp, tstr, 1);
+	}
+
+	/* set up pre-defined macros */
+	lw_stringlist_reset(macrolist);
+	for (tstr = lw_stringlist_current(macrolist); tstr; tstr = lw_stringlist_next(macrolist))
+	{
+		preproc_add_macro(pp, tstr);
+	}
 
 	print_line_marker(output_fp, 1, fn, 1);
 	last_fn = lw_strdup(fn);	

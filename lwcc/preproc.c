@@ -22,12 +22,14 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <lw_alloc.h>
 #include <lw_string.h>
 
 #include "cpp.h"
 #include "strbuf.h"
+#include "strpool.h"
 #include "symbol.h"
 #include "token.h"
 
@@ -280,7 +282,6 @@ static void dir_define(struct preproc_info *pp)
 	
 	mname = lw_strdup(ct -> strval);
 	ct = preproc_next_token(pp);
-	
 	if (ct -> ttype == TOK_WSPACE)
 	{
 		/* object like macro */
@@ -338,7 +339,7 @@ static void dir_define(struct preproc_info *pp)
 	else
 	{
 baddefine:
-		preproc_throw_error(pp, "bad #define");
+		preproc_throw_error(pp, "bad #define", ct -> ttype);
 baddefine2:
 		token_list_destroy(tl);
 		skip_eol(pp);
@@ -353,6 +354,7 @@ baddefine2:
 	for (;;)
 	{
 		ct = preproc_next_token(pp);
+	
 		if (ct -> ttype == TOK_EOL)
 			break;
 		token_list_append(tl, token_dup(ct));
@@ -376,6 +378,23 @@ out:
 		lw_free(arglist[--nargs]);
 	lw_free(arglist);
 	/* no need to check for EOL here */
+}
+
+void preproc_add_macro(struct preproc_info *pp, char *str)
+{
+	char *s;
+	
+	pp -> lexstr = lw_strdup(str);
+	pp -> lexstrloc = 0;
+	s = strchr(pp -> lexstr, '=');
+	if (s)
+		*s = ' ';
+		
+	dir_define(pp);
+	
+	lw_free(pp -> lexstr);
+	pp -> lexstr = NULL;
+	pp -> lexstrloc = 0;
 }
 
 static void dir_undef(struct preproc_info *pp)
@@ -451,6 +470,71 @@ static void dir_warning(struct preproc_info *pp)
 	s = streol(pp);
 	preproc_throw_warning(pp, "%s", s);
 	lw_free(s);
+}
+
+static char *preproc_file_exists_in_dir(char *dir, char *fn)
+{
+	int l;
+	char *f;
+	
+	l = snprintf(NULL, 0, "%s/%s", dir, fn);
+	f = lw_alloc(l + 1);
+	snprintf(f, l + 1, "%s/%s", dir, fn);
+	
+	if (access(f, R_OK) == 0)
+		return f;
+	lw_free(f);
+	return NULL;
+}
+
+static char *preproc_find_file(struct preproc_info *pp, char *fn, int sys)
+{
+	char *tstr;
+	char *pref;
+	char *rfn;
+
+	/* pass through absolute paths, dumb as they are */	
+	if (fn[0] == '/')
+		return lw_strdup(fn);
+
+	if (!sys)
+	{
+		/* look in the directory with the current file */
+		tstr = strchr(pp -> fn, '/');
+		if (!tstr)
+			pref = lw_strdup(".");
+		else
+		{
+			pref = lw_alloc(tstr - pp -> fn + 1);
+			memcpy(pref, pp -> fn, tstr - pp -> fn);
+			pref[tstr - pp -> fn] = 0;
+		}
+		rfn = preproc_file_exists_in_dir(pref, fn);
+		lw_free(pref);
+		if (rfn)
+			return rfn;
+		
+		/* look in the "quote" dir list */
+		lw_stringlist_reset(pp -> quotelist);
+		for (pref = lw_stringlist_current(pp -> quotelist); pref; pref = lw_stringlist_next(pp -> quotelist))
+		{
+			rfn = preproc_file_exists_in_dir(pref, fn);
+			if (rfn)
+				return rfn;
+		}
+	}
+	
+	/* look in the "include" dir list */
+	lw_stringlist_reset(pp -> inclist);
+	for (pref = lw_stringlist_current(pp -> inclist); pref; pref = lw_stringlist_next(pp -> inclist))
+	{
+		rfn = preproc_file_exists_in_dir(pref, fn);
+		if (rfn)
+			return rfn;
+	}
+
+	/* the default search list is provided by the driver program */	
+	return NULL;
 }
 
 static void dir_include(struct preproc_info *pp)
@@ -550,10 +634,14 @@ usrinc:
 		}
 	}
 doinc:
-//	fn = preproc_find_file(pp, fn, sys);
+	fn = preproc_find_file(pp, fn, sys);
+	if (!fn)
+		goto badfile;
 	fp = fopen(fn, "rb");
 	if (!fp)
 	{
+		lw_free(fn);
+badfile:
 		preproc_throw_error(pp, "Cannot open #include file %s - this is fatal", fn);
 		exit(1);
 	}
@@ -564,7 +652,8 @@ doinc:
 	fs -> n = pp -> filestack;
 	pp -> curtok = NULL;
 	pp -> filestack = fs;
-	pp -> fn = fn;
+	pp -> fn = strpool_strdup(pp -> strpool, fn);
+	lw_free(fn);
 	pp -> fp = fp;
 	pp -> ra = CPP_NOUNG;
 	pp -> ppeolseen = 1;

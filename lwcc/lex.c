@@ -193,6 +193,17 @@ static int fetch_byte_tg(struct preproc_info *pp)
    characters cross a token boundary. */
 void preproc_lex_unfetch_byte(struct preproc_info *pp, int c)
 {
+	if (pp -> lexstr)
+	{
+		if (c == CPP_EOL)
+			return;
+		if (pp -> lexstrloc > 0)
+		{
+			pp -> lexstrloc--;
+			return;
+		}
+	}
+
 	if (pp -> ungetbufl >= pp -> ungetbufs)
 	{
 		pp -> ungetbufs += 100;

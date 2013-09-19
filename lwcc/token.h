@@ -31,71 +31,66 @@ enum
 	CPP_EOF = -1,
 };
 
-enum
-{
-	TOK_NONE = 0,
-	TOK_EOF,
-	TOK_EOL,
-	TOK_WSPACE,
-	TOK_IDENT,
-	TOK_NUMBER,
-//	TOK_STRING,
-	TOK_CHAR,
-	TOK_DIV,
-	TOK_ADD,
-	TOK_SUB,
-	TOK_OPAREN,
-	TOK_CPAREN,
-	TOK_NE,
-	TOK_EQ,
-	TOK_LE,
-	TOK_LT,
-	TOK_GE,
-	TOK_GT,
-	TOK_BAND,
-	TOK_BOR,
-	TOK_BNOT,
-	TOK_MOD,
-	TOK_COMMA,
-	TOK_ELLIPSIS,
-	TOK_QMARK,
-	TOK_COLON,
-	TOK_OBRACE,
-	TOK_CBRACE,
-	TOK_OSQUARE,
-	TOK_CSQUARE,
-	TOK_COM,
-	TOK_EOS,
-	TOK_HASH,
-	TOK_DBLHASH,
-	TOK_XOR,
-	TOK_XORASS,
-	TOK_STAR,
-	TOK_MULASS,
-	TOK_DIVASS,
-	TOK_ASS,
-	TOK_MODASS,
-	TOK_SUBASS,
-	TOK_DBLSUB,
-	TOK_ADDASS,
-	TOK_DBLADD,
-	TOK_BWAND,
-	TOK_BWANDASS,
-	TOK_BWOR,
-	TOK_BWORASS,
-	TOK_LSH,
-	TOK_LSHASS,
-	TOK_RSH,
-	TOK_RSHASS,
-	TOK_DOT,
-	TOK_CHR_LIT,
-	TOK_STR_LIT,
-	TOK_ARROW,
-	TOK_ENDEXPAND,
-	TOK_STARTEXPAND,
-	TOK_ERROR,
-	TOK_MAX
-};
+#define TOK_NONE 0
+#define TOK_EOF 1
+#define TOK_EOL 2
+#define TOK_WSPACE 3
+#define TOK_IDENT 4
+#define TOK_NUMBER 5
+#define TOK_CHAR 6
+#define TOK_ADD 8
+#define TOK_SUB 9
+#define TOK_OPAREN 10
+#define TOK_CPAREN 11
+#define TOK_NE 12
+#define TOK_EQ 13
+#define TOK_LE 14
+#define TOK_LT 15
+#define TOK_GE 16
+#define TOK_GT 17
+#define TOK_BAND 18
+#define TOK_BOR 19
+#define TOK_BNOT 20
+#define TOK_MOD 21
+#define TOK_COMMA 22
+#define TOK_ELLIPSIS 23
+#define TOK_QMARK 24
+#define TOK_COLON 25
+#define TOK_OBRACE 26
+#define TOK_CBRACE 27
+#define TOK_OSQUARE 28
+#define TOK_CSQUARE 29
+#define TOK_COM 30
+#define TOK_EOS 31
+#define TOK_HASH 32
+#define TOK_DBLHASH 33
+#define TOK_XOR 34
+#define TOK_XORASS 35
+#define TOK_STAR 36
+#define TOK_MULASS 37
+#define TOK_DIV 38
+#define TOK_DIVASS 39
+#define TOK_ASS 40
+#define TOK_MODASS 41
+#define TOK_SUBASS 42
+#define TOK_DBLSUB 43
+#define TOK_ADDASS 44
+#define TOK_DBLADD 45
+#define TOK_BWAND 46
+#define TOK_BWANDASS 47
+#define TOK_BWOR 48
+#define TOK_BWORASS 49
+#define TOK_LSH 50
+#define TOK_LSHASS 51
+#define TOK_RSH 52
+#define TOK_RSHASS 53
+#define TOK_DOT 54
+#define TOK_CHR_LIT 55
+#define TOK_STR_LIT 56
+#define TOK_ARROW 57
+#define TOK_ENDEXPAND 58
+#define TOK_ERROR 59
+#define TOK_MAX 60
 
 struct token
 {

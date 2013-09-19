@@ -26,6 +26,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <lw_alloc.h>
 #include <lw_string.h>
+#include <lw_stringlist.h>
 
 #include "cpp.h"
 #include "strpool.h"
@@ -58,7 +59,17 @@ struct preproc_info *preproc_init(const char *fn)
 	pp -> ppeolseen = 1;
 	pp -> lineno = 1;
 	pp -> n = NULL;
+	pp -> quotelist = lw_stringlist_create();
+	pp -> inclist = lw_stringlist_create();
 	return pp;
+}
+
+void preproc_add_include(struct preproc_info *pp, char *dir, int sys)
+{
+	if (sys)
+		lw_stringlist_addstring(pp -> inclist, dir);
+	else
+		lw_stringlist_addstring(pp -> quotelist, dir);
 }
 
 struct token *preproc_next_token(struct preproc_info *pp)
@@ -118,6 +129,8 @@ void preproc_unget_token(struct preproc_info *pp, struct token *t)
 void preproc_finish(struct preproc_info *pp)
 {
 	fclose(pp -> fp);
+	lw_stringlist_destroy(pp -> inclist);
+	lw_stringlist_destroy(pp -> quotelist);
 	if (pp -> curtok)
 		token_free(pp -> curtok);
 	while (pp -> tokqueue)

@@ -24,6 +24,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 
+#include <lw_stringlist.h>
+
 //#include "symbol.h"
 #include "token.h"
 
@@ -68,6 +70,8 @@ struct preproc_info
 	struct preproc_info *n;	// next in file stack
 	struct preproc_info *filestack;	// stack of saved files during include
 	struct strpool *strpool;
+	lw_stringlist_t quotelist;
+	lw_stringlist_t inclist;
 };
 
 extern struct preproc_info *preproc_init(const char *);
@@ -79,6 +83,8 @@ extern void preproc_register_warning_callback(struct preproc_info *, void (*)(co
 extern void preproc_throw_error(struct preproc_info *, const char *, ...);
 extern void preproc_throw_warning(struct preproc_info *, const char *, ...);
 extern void preproc_unget_token(struct preproc_info *, struct token *);
+extern void preproc_add_include(struct preproc_info *, char *, int);
+extern void preproc_add_macro(struct preproc_info *, char *);
 extern struct token *preproc_next(struct preproc_info *);
 
 #endif // cpp_h_seen___
