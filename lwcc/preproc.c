@@ -22,6 +22,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <lw_alloc.h>
@@ -1334,7 +1335,67 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 	struct token_list *expand_list;
 	int repl;
 	struct token_list *rtl;
-			
+	
+	// check for built in macros
+	if (strcmp(mname, "__FILE__") == 0)
+	{
+		struct strbuf *sb;
+		
+		sb = strbuf_new();
+		strbuf_add(sb, '"');
+		for (tstr = (char *)(pp -> fn); *tstr; tstr++)
+		{
+			if (*tstr == 32 || (*tstr > 34 && *tstr < 127))
+			{
+				strbuf_add(sb, *tstr);
+			}
+			else
+			{
+				strbuf_add(sb, '\\');
+				strbuf_add(sb, (*tstr >> 6) + '0');
+				strbuf_add(sb, ((*tstr >> 3) & 7) + '0');
+				strbuf_add(sb, (*tstr & 7) + '0');
+			}
+		}
+		strbuf_add(sb, '"');
+		tstr = strbuf_end(sb);
+		preproc_unget_token(pp, token_create(TOK_STR_LIT, tstr, pp -> lineno, pp -> column, pp -> fn));
+		lw_free(tstr);
+		return 1;
+	}
+	else if (strcmp(mname, "__LINE__") == 0)
+	{
+		char nbuf[25];
+		snprintf(nbuf, 25, "%d", pp -> lineno);
+		preproc_unget_token(pp, token_create(TOK_NUMBER, nbuf, pp -> lineno, pp -> column, pp -> fn));
+		return 1;
+	}
+	else if (strcmp(mname, "__DATE__") == 0)
+	{
+		char dbuf[14];
+		struct tm *tv;
+		time_t tm;
+		static char *months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+		
+		tm = time(NULL);
+		tv = localtime(&tm);
+		snprintf(dbuf, 14, "\"%s %2d %04d\"", months[tv -> tm_mon], tv -> tm_mday, tv -> tm_year + 1900);
+		preproc_unget_token(pp, token_create(TOK_STR_LIT, dbuf, pp -> lineno, pp -> column, pp -> fn));
+		return 1;
+	}
+	else if (strcmp(mname, "__TIME__") == 0)
+	{
+		char tbuf[11];
+		struct tm *tv;
+		time_t tm;
+		
+		tm = time(NULL);
+		tv = localtime(&tm);
+		snprintf(tbuf, 11, "\"%02d:%02d:%02d\"", tv -> tm_hour, tv -> tm_min, tv -> tm_sec);
+		preproc_unget_token(pp, token_create(TOK_STR_LIT, tbuf, pp -> lineno, pp -> column, pp -> fn));
+		return 1;
+	}
+	
 	s = symtab_find(pp, mname);
 	if (!s)
 		return 0;

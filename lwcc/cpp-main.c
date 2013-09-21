@@ -173,7 +173,7 @@ static void print_line_marker(FILE *fp, int line, const char *fn, int flag)
 		}
 		fn++;
 	}
-	fprintf(fp, "\" %d\n", flag);
+	fprintf(fp, "\" %d", flag);
 }
 
 int process_file(const char *fn)

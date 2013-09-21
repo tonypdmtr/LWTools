@@ -3,32 +3,46 @@ C compilers as guides. Special thanks to the developers of the PCC compiler.
 While none of the actual code from PCC was actually used, much of compiler
 itself served as a template for creating lwcc.
 
-This directory is arranged as follows:
 
-driver/
+LIMITATIONS AND DESIGN CHOICES
+==============================
 
-This contains the source for the front end driver program which will be
-called "lwcc" and is the public face of the compiler. The lwcc program
-itself provides various options that are largely compatible with unix C
-compilers like gcc. It should be noted that the internal interface between
-the lwcc driver and its back end programs (the preprocessor and compiler
-proper) is unspecified and subject to change without notice. The assembler
-and linker (lwasm, lwlink) do have defined public interfaces are are not
-likely to change substantially.
+The direct interface to both the compiler proper and the preprocessor is
+specifically undefined. Indeed, the preprocessor may, in fact, not be a
+separate program at all. Relying on the specific format of the output of the
+preprocessor is specifically forbidden even though it is possible to obtain
+preprocessed output from the compiler driver. This is provided for debugging
+purposes only.
 
+The preprocessor supports variadic macros. It also supports stringification,
+and token concatenation but only within a macro expansion. There are
+examples online that use the construct "#__LINE__" to get a string version
+of the current line number.
 
-cpp/
+The preprocessor defaults to ignoring trigraphs because they are basically a
+stupid idea on any current system. They have their place for systems where
+creating the nine characters specified by the trigraphs is very difficult or
+impossible. It is possible, however, to instruct the preprocessor to decode
+trigraph sequences.
 
-This is the actual C preprocessor. Its specific interface is deliberately
-undocumented. Do not call it directly. Ever. Just don't. Bad Things(tm) will
-happen if you do.
+The nonstandard "#pragma once" feature is not supported at all. The effect
+is easily accomplished using standard macros and conditionals. It is,
+therefore, unneeded complexity.
 
+The nonstandard idea of preprocessor assertions is also completely
+unsupported. It is just as easy to test predefined macros and such tests are
+much more portable.
 
-liblwcc/
+The preprocessor supports __LINE__, __FILE__, __DATE__, and __TIME__. The
+compiler itself supports __func__ as a predefined string constant if
+encountered because there is no way for the preprocessor to determine what
+function it occurs within. The preprocessor does not define __STDC__,
+__STDC_VERSION__, or __STDC_HOSTED__. I have seen no truly useful purpose
+for these and since lwcc does not, at this time, conform to any known C
+standard, it would be incorrect to define the first two.
 
-This contains any runtime libraries the compiler needs to support its
-output. This is usually assembly routines to support complex operations not
-directly supported by the CPU instruction set.
+The compiler driver may define additional macros depending on its idea of
+the context.
 
 
 RUNTIME INFORMATION
