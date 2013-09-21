@@ -56,9 +56,10 @@ MAIN_TARGETS := lwasm/lwasm$(PROGSUFFIX) \
 	lwar/lwar$(PROGSUFFIX) \
 	lwlink/lwobjdump$(PROGSUFFIX) \
 	lwcc/lwcc$(PROGSUFFIX) \
-	lwcc/lwcc-cpp$(PROGSUFFIX)
+	lwcc/lwcc-cpp$(PROGSUFFIX) \
+	lwcc/lwcc-cc$(PROGSUFFIX)
 
-LWCC_LIBBIN_FILES = lwcc/lwcc-cpp$(PROGSUFFIX)
+LWCC_LIBBIN_FILES = lwcc/lwcc-cpp$(PROGSUFFIX) lwcc/lwcc-cc$(PROGSUFFIX)
 LWCC_LIBLIB_FILES =
 LWCC_LIBINC_FILES =
 
@@ -107,12 +108,17 @@ lwcc_cpp_srcs := $(addprefix lwcc/,$(lwcc_cpp_srcs))
 lwcc_cpp_objs := $(lwcc_cpp_srcs:.c=.o)
 lwcc_cpp_deps := $(lwcc_cpp_srcs:.c=.d)
 
+lwcc_cc_srcs := cc-main.c
+lwcc_cc_srcs := $(addprefix lwcc/,$(lwcc_cc_srcs))
+lwcc_cc_objs := $(lwcc_cc_srcs:.c=.o)
+lwcc_cc_deps := $(lwcc_cc_srcs:.c=.d)
+
 lwcc_cpplib_srcs := cpp.c lex.c token.c preproc.c symbol.c
 lwcc_cpplib_srcs := $(addprefix lwcc/,$(lwcc_cpplib_srcs))
 lwcc_cpplib_objs := $(lwcc_cpplib_srcs:.c=.o)
 lwcc_cpplib_deps := $(lwcc_cpplib_srcs:.c=.d)
 
-lwcc_deps := $(lwcc_cpp_deps) $(lwcc_driver_deps) $(lwcc_cpplib_deps)
+lwcc_deps := $(lwcc_cpp_deps) $(lwcc_driver_deps) $(lwcc_cpplib_deps) $(lwcc_cc_deps)
 
 .PHONY: lwlink lwasm lwar lwobjdump lwcc
 lwlink: lwlink/lwlink$(PROGSUFFIX)
@@ -146,6 +152,10 @@ lwcc/lwcc$(PROGSUFFIX): $(lwcc_driver_objs) lwlib
 lwcc/lwcc-cpp$(PROGSUFFIX): $(lwcc_cpp_objs) lwlib lwcc-cpplib
 	@echo Linking $@
 	@$(CC) -o $@ $(lwcc_cpp_objs) lwcc/libcpp.a $(LDFLAGS)
+
+lwcc/lwcc-cc$(PROGSUFFIX): $(lwcc_cc_objs) lwlib lwcc-cpplib
+	@echo Linking $@
+	@$(CC) -o $@ $(lwcc_cc_objs) lwcc/libcpp.a $(LDFLAGS)
 
 .INTERMEDIATE: lwcc-cpplib
 lwcc-cpplib: lwcc/libcpp.a
@@ -185,7 +195,7 @@ clean: $(cleantargs)
 	@echo "Cleaning up"
 	@rm -f lwlib/liblw.a lwasm/lwasm$(PROGSUFFIX) lwlink/lwlink$(PROGSUFFIX) lwlink/lwobjdump$(PROGSUFFIX) lwar/lwar$(PROGSUFFIX)
 	@rm -f lwcc/lwcc$(PROGSUFFIX) lwcc/lwcc-cpp$(PROGSUFFIX) lwcc/libcpp.a
-	@rm -f $(lwcc_driver_objs) $(lwcc_cpp_objs) $(lwcc_cpplib_objs)
+	@rm -f $(lwcc_driver_objs) $(lwcc_cpp_objs) $(lwcc_cpplib_objs) $(lwcc_cc_objs)
 	@rm -f $(lwasm_objs) $(lwlink_objs) $(lwar_objs) $(lwlib_objs) $(lwobjdump_objs)
 	@rm -f $(extra_clean)
 	@rm -f */*.exe
@@ -194,7 +204,7 @@ clean: $(cleantargs)
 realclean: clean $(realcleantargs)
 	@echo "Cleaning up even more"
 	@rm -f $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) $(lwobjdump_deps)
-	@rm -f $(lwcc_driver_deps) $(lwcc_cpp_deps) $(lwcc_cpplib_deps)
+	@rm -f $(lwcc_driver_deps) $(lwcc_cpp_deps) $(lwcc_cpplib_deps) $(lwcc_cc_deps)
 
 print-%:
 	@echo $* = $($*)
