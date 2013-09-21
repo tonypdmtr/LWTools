@@ -69,7 +69,8 @@ lwar_srcs := add.c extract.c list.c lwar.c main.c remove.c replace.c
 lwar_srcs := $(addprefix lwar/,$(lwar_srcs))
 
 lwlib_srcs := lw_alloc.c lw_realloc.c lw_free.c lw_error.c lw_expr.c \
-	lw_stack.c lw_string.c lw_stringlist.c lw_cmdline.c
+	lw_stack.c lw_string.c lw_stringlist.c lw_cmdline.c lw_strbuf.c \
+	lw_strpool.c
 lwlib_srcs := $(addprefix lwlib/,$(lwlib_srcs))
 
 lwlink_srcs := main.c lwlink.c readfiles.c expr.c script.c link.c output.c map.c
@@ -101,12 +102,17 @@ lwcc_driver_srcs := $(addprefix lwcc/,$(lwcc_driver_srcs))
 lwcc_driver_objs := $(lwcc_driver_srcs:.c=.o)
 lwcc_driver_deps := $(lwcc_driver_srcs:.c=.d)
 
-lwcc_cpp_srcs := cpp-main.c cpp.c lex.c strbuf.c token.c preproc.c symbol.c strpool.c 
+lwcc_cpp_srcs := cpp-main.c
 lwcc_cpp_srcs := $(addprefix lwcc/,$(lwcc_cpp_srcs))
 lwcc_cpp_objs := $(lwcc_cpp_srcs:.c=.o)
 lwcc_cpp_deps := $(lwcc_cpp_srcs:.c=.d)
 
-lwcc_deps := $(lwcc_cpp_deps) $(lwcc_driver_deps)
+lwcc_cpplib_srcs := cpp.c lex.c token.c preproc.c symbol.c
+lwcc_cpplib_srcs := $(addprefix lwcc/,$(lwcc_cpplib_srcs))
+lwcc_cpplib_objs := $(lwcc_cpplib_srcs:.c=.o)
+lwcc_cpplib_deps := $(lwcc_cpplib_srcs:.c=.d)
+
+lwcc_deps := $(lwcc_cpp_deps) $(lwcc_driver_deps) $(lwcc_cpplib_deps)
 
 .PHONY: lwlink lwasm lwar lwobjdump lwcc
 lwlink: lwlink/lwlink$(PROGSUFFIX)
@@ -115,6 +121,7 @@ lwar: lwar/lwar$(PROGSUFFIX)
 lwobjdump: lwlink/lwobjdump$(PROGSUFFIX)
 lwcc: lwcc/lwcc$(PROGSUFFIX)
 lwcc-cpp: lwcc/lwcc-cpp$(PROGSUFFIX)
+lwcc-cpplib: lwcc/libcpp.a
 
 lwasm/lwasm$(PROGSUFFIX): $(lwasm_objs) lwlib
 	@echo Linking $@
@@ -136,9 +143,16 @@ lwcc/lwcc$(PROGSUFFIX): $(lwcc_driver_objs) lwlib
 	@echo Linking $@
 	@$(CC) -o $@ $(lwcc_driver_objs) $(LDFLAGS)
 
-lwcc/lwcc-cpp$(PROGSUFFIX): $(lwcc_cpp_objs) lwlib
+lwcc/lwcc-cpp$(PROGSUFFIX): $(lwcc_cpp_objs) lwlib lwcc-cpplib
 	@echo Linking $@
-	@$(CC) -o $@ $(lwcc_cpp_objs) $(LDFLAGS)
+	@$(CC) -o $@ $(lwcc_cpp_objs) lwcc/libcpp.a $(LDFLAGS)
+
+.INTERMEDIATE: lwcc-cpplib
+lwcc-cpplib: lwcc/libcpp.a
+lwcc/libcpp.a: $(lwcc_cpplib_objs)
+	@echo Linking $@
+	@$(AR) rc $@ $(lwcc_cpplib_objs)
+	@$(RANLIB) $@
 
 #.PHONY: lwlib
 .INTERMEDIATE: lwlib
@@ -170,8 +184,8 @@ extra_clean := $(extra_clean) *~ */*~
 clean: $(cleantargs)
 	@echo "Cleaning up"
 	@rm -f lwlib/liblw.a lwasm/lwasm$(PROGSUFFIX) lwlink/lwlink$(PROGSUFFIX) lwlink/lwobjdump$(PROGSUFFIX) lwar/lwar$(PROGSUFFIX)
-	@rm -f lwcc/lwcc$(PROGSUFFIX) lwcc/lwcc-cpp$(PROGSUFFIX)
-	@rm -f $(lwcc_driver_ojbs) $(lwcc_cpp_objs)
+	@rm -f lwcc/lwcc$(PROGSUFFIX) lwcc/lwcc-cpp$(PROGSUFFIX) lwcc/libcpp.a
+	@rm -f $(lwcc_driver_objs) $(lwcc_cpp_objs) $(lwcc_cpplib_objs)
 	@rm -f $(lwasm_objs) $(lwlink_objs) $(lwar_objs) $(lwlib_objs) $(lwobjdump_objs)
 	@rm -f $(extra_clean)
 	@rm -f */*.exe
@@ -180,7 +194,7 @@ clean: $(cleantargs)
 realclean: clean $(realcleantargs)
 	@echo "Cleaning up even more"
 	@rm -f $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) $(lwobjdump_deps)
-	@rm -f $(lwcc_driver_deps) $(lwcc_cpp_deps)
+	@rm -f $(lwcc_driver_deps) $(lwcc_cpp_deps) $(lwcc_cpplib_deps)
 	@rm -f docs/manual/*.html docs/manual/*.pdf
 
 print-%:

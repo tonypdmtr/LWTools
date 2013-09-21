@@ -1,5 +1,5 @@
 /*
-lwcc/strbuf.h
+lwlib/lw_strpool.h
 
 Copyright © 2013 William Astle
 
@@ -19,18 +19,17 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef strbuf_h_seen___
-#define strbuf_h_seen___
+#ifndef ___lw_strpool_h_seen___
+#define ___lw_strpool_h_seen___
 
-struct strbuf
+struct lw_strpool
 {
-	char *str;
-	int bl;
-	int bo;
+	int nstrs;
+	char **strs;
 };
 
-extern struct strbuf *strbuf_new(void);
-extern void strbuf_add(struct strbuf *, int);
-extern char *strbuf_end(struct strbuf  *);
+extern struct lw_strpool *lw_strpool_create(void);
+extern void lw_strpool_free(struct lw_strpool *);
+extern char *lw_strpool_strdup(struct lw_strpool *, const char *);
 
-#endif // strbufh_seen___
+#endif // ___lw_strpool_h_seen____

@@ -27,10 +27,10 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <lw_alloc.h>
 #include <lw_string.h>
+#include <lw_strbuf.h>
+#include <lw_strpool.h>
 
 #include "cpp.h"
-#include "strbuf.h"
-#include "strpool.h"
 #include "symbol.h"
 #include "token.h"
 
@@ -38,6 +38,8 @@ static int expand_macro(struct preproc_info *, char *);
 static void process_directive(struct preproc_info *);
 static long eval_expr(struct preproc_info *);
 extern struct token *preproc_lex_next_token(struct preproc_info *);
+static long preproc_numval(struct preproc_info *, struct token *);
+static int eval_escape(char **);
 
 
 struct token *preproc_next_processed_token(struct preproc_info *pp)
@@ -424,11 +426,11 @@ static void dir_undef(struct preproc_info *pp)
 
 char *streol(struct preproc_info *pp)
 {
-	struct strbuf *s;
+	struct lw_strbuf *s;
 	struct token *ct;
 	int i;
 		
-	s = strbuf_new();
+	s = lw_strbuf_new();
 	do
 	{
 		ct = preproc_next_token(pp);
@@ -437,10 +439,10 @@ char *streol(struct preproc_info *pp)
 	while (ct -> ttype != TOK_EOL)
 	{
 		for (i = 0; ct -> strval[i]; i++)
-			strbuf_add(s, ct -> strval[i]);
+			lw_strbuf_add(s, ct -> strval[i]);
 		ct = preproc_next_token(pp);
 	}
-	return strbuf_end(s);
+	return lw_strbuf_end(s);
 }
 
 static void dir_error(struct preproc_info *pp)
@@ -544,7 +546,7 @@ static void dir_include(struct preproc_info *pp)
 	struct token *ct;
 	int sys = 0;
 	char *fn;
-	struct strbuf *strbuf;
+	struct lw_strbuf *strbuf;
 	int i;
 	struct preproc_info *fs;
 	
@@ -561,7 +563,7 @@ usrinc:
 	}
 	else if (ct -> ttype == TOK_LT)
 	{
-		strbuf = strbuf_new();
+		strbuf = lw_strbuf_new();
 		for (;;)
 		{
 			int c;
@@ -570,23 +572,23 @@ usrinc:
 			{
 				preproc_lex_unfetch_byte(pp, c);
 				preproc_throw_error(pp, "Bad #include");
-				lw_free(strbuf_end(strbuf));
+				lw_free(lw_strbuf_end(strbuf));
 				break;
 			}
 			if (c == '>')
 				break;
-			strbuf_add(strbuf, c);
+			lw_strbuf_add(strbuf, c);
 		}
 		ct = preproc_next_token_nws(pp);
 		if (ct -> ttype != TOK_EOL)
 		{
 			preproc_throw_error(pp, "Bad #include");
 			skip_eol(pp);
-			lw_free(strbuf_end(strbuf));
+			lw_free(lw_strbuf_end(strbuf));
 			return;
 		}
 		sys = 1;
-		fn = strbuf_end(strbuf);
+		fn = lw_strbuf_end(strbuf);
 		goto doinc;
 	}
 	else
@@ -598,7 +600,7 @@ usrinc:
 			goto usrinc;
 		else if (ct -> ttype == TOK_LT)
 		{
-			strbuf = strbuf_new();
+			strbuf = lw_strbuf_new();
 			for (;;)
 			{
 				ct = preproc_next_processed_token(pp);
@@ -607,12 +609,12 @@ usrinc:
 				if (ct -> ttype == TOK_EOL)
 				{
 					preproc_throw_error(pp, "Bad #include");
-					lw_free(strbuf_end(strbuf));
+					lw_free(lw_strbuf_end(strbuf));
 					return;
 				}
 				for (i = 0; ct -> strval[i]; ct++)
 				{
-					strbuf_add(strbuf, ct -> strval[i]);
+					lw_strbuf_add(strbuf, ct -> strval[i]);
 				}
 			}
 			ct = preproc_next_processed_token_nws(pp);
@@ -620,11 +622,11 @@ usrinc:
 			{
 				preproc_throw_error(pp, "Bad #include");
 				skip_eol(pp);
-				lw_free(strbuf_end(strbuf));
+				lw_free(lw_strbuf_end(strbuf));
 				return;
 			}
 			sys = 1;
-			fn = strbuf_end(strbuf);
+			fn = lw_strbuf_end(strbuf);
 			goto doinc;
 		}
 		else
@@ -653,7 +655,7 @@ badfile:
 	fs -> n = pp -> filestack;
 	pp -> curtok = NULL;
 	pp -> filestack = fs;
-	pp -> fn = strpool_strdup(pp -> strpool, fn);
+	pp -> fn = lw_strpool_strdup(pp -> strpool, fn);
 	lw_free(fn);
 	pp -> fp = fp;
 	pp -> ra = CPP_NOUNG;
@@ -770,6 +772,36 @@ static void process_directive(struct preproc_info *pp)
 	if (ct -> ttype == TOK_EOL)
 		return;
 	
+	if (ct -> ttype == TOK_NUMBER)
+	{
+		// this is probably a file marker from a previous run of the preprocessor
+		char *fn;
+		struct lw_strbuf *sb;
+		
+		i = preproc_numval(pp, ct);
+		ct  = preproc_next_token_nws(pp);
+		if (ct -> ttype != TOK_STR_LIT)
+			goto baddir;
+		pp -> lineno = i;
+		sb = lw_strbuf_new();
+		for (fn = ct -> strval; *fn && *fn != '"'; )
+		{
+			if (*fn == '\\')
+			{
+				lw_strbuf_add(sb, eval_escape(&fn));
+			}
+			else
+			{
+				lw_strbuf_add(sb, *fn++);
+			}
+		}
+		fn = lw_strbuf_end(sb);
+		pp -> fn = lw_strpool_strdup(pp -> strpool, fn);
+		lw_free(fn);
+		skip_eol(pp);
+		return;
+	}
+	
 	if (ct -> ttype != TOK_IDENT)
 		goto baddir;
 	
@@ -800,7 +832,6 @@ static void skip_eoe(struct preproc_info *pp)
 }
 
 static long eval_expr_real(struct preproc_info *, int);
-static long preproc_numval(struct preproc_info *, struct token *);
 
 static long eval_term_real(struct preproc_info *pp)
 {
@@ -1165,12 +1196,12 @@ Below here is the logic for expanding a macro
 */
 static char *stringify(struct token_list *tli)
 {
-	struct strbuf *s;
+	struct lw_strbuf *s;
 	int ws = 0;
 	struct token *tl = tli -> head;
 	
-	s = strbuf_new();
-	strbuf_add(s, '"');
+	s = lw_strbuf_new();
+	lw_strbuf_add(s, '"');
 
 	while (tl && tl -> ttype == TOK_WSPACE)
 		tl = tl -> next;
@@ -1184,21 +1215,21 @@ static char *stringify(struct token_list *tli)
 		}
 		if (ws)
 		{
-			strbuf_add(s, ' ');
+			lw_strbuf_add(s, ' ');
 		}
 		for (ws = 0; tl -> strval[ws]; ws++)
 		{
 			if (tl -> ttype == TOK_STR_LIT || tl -> ttype == TOK_CHR_LIT)
 			{
 				if (tl -> strval[ws] == '"' || tl -> strval[ws] == '\\')
-					strbuf_add(s, '\\');
+					lw_strbuf_add(s, '\\');
 			}
 		}
 		ws = 0;
 	}
 	
-	strbuf_add(s, '"');
-	return strbuf_end(s);
+	lw_strbuf_add(s, '"');
+	return lw_strbuf_end(s);
 }
 
 static int macro_arg(struct symtab_e *s, char *str)
@@ -1339,26 +1370,26 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 	// check for built in macros
 	if (strcmp(mname, "__FILE__") == 0)
 	{
-		struct strbuf *sb;
+		struct lw_strbuf *sb;
 		
-		sb = strbuf_new();
-		strbuf_add(sb, '"');
+		sb = lw_strbuf_new();
+		lw_strbuf_add(sb, '"');
 		for (tstr = (char *)(pp -> fn); *tstr; tstr++)
 		{
 			if (*tstr == 32 || (*tstr > 34 && *tstr < 127))
 			{
-				strbuf_add(sb, *tstr);
+				lw_strbuf_add(sb, *tstr);
 			}
 			else
 			{
-				strbuf_add(sb, '\\');
-				strbuf_add(sb, (*tstr >> 6) + '0');
-				strbuf_add(sb, ((*tstr >> 3) & 7) + '0');
-				strbuf_add(sb, (*tstr & 7) + '0');
+				lw_strbuf_add(sb, '\\');
+				lw_strbuf_add(sb, (*tstr >> 6) + '0');
+				lw_strbuf_add(sb, ((*tstr >> 3) & 7) + '0');
+				lw_strbuf_add(sb, (*tstr & 7) + '0');
 			}
 		}
-		strbuf_add(sb, '"');
-		tstr = strbuf_end(sb);
+		lw_strbuf_add(sb, '"');
+		tstr = lw_strbuf_end(sb);
 		preproc_unget_token(pp, token_create(TOK_STR_LIT, tstr, pp -> lineno, pp -> column, pp -> fn));
 		lw_free(tstr);
 		return 1;

@@ -23,9 +23,9 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 
 #include <lw_alloc.h>
+#include <lw_strbuf.h>
 
 #include "cpp.h"
-#include "strbuf.h"
 #include "token.h"
 
 /* fetch a raw input byte from the current file. Will return CPP_EOF if
@@ -360,7 +360,7 @@ struct token *preproc_lex_next_token(struct preproc_info *pp)
 	int ttype = TOK_NONE;
 	int c, c2;
 	int cl;
-	struct strbuf *strbuf;
+	struct lw_strbuf *strbuf;
 	struct token *t = NULL;
 	struct preproc_info *fs;
 					
@@ -616,7 +616,7 @@ fileagain:
 		/* character constant - turns into a  uint */
 chrlit:
 		cl = 0;
-		strbuf = strbuf_new();
+		strbuf = lw_strbuf_new();
 		for (;;)
 		{
 			c = preproc_lex_fetch_byte(pp);
@@ -625,23 +625,23 @@ chrlit:
 			cl++;
 			if (c == '\\')
 			{
-				strbuf_add(strbuf, '\\');
+				lw_strbuf_add(strbuf, '\\');
 				c = preproc_lex_fetch_byte(pp);
 				if (c == CPP_EOF || c == CPP_EOL)
 				{
 					if (!pp -> lexstr)
 						preproc_throw_error(pp, "Invalid character constant");
 					ttype = TOK_ERROR;
-					strval = strbuf_end(strbuf);
+					strval = lw_strbuf_end(strbuf);
 					goto out;
 				}
 				cl++;
-				strbuf_add(strbuf, c);
+				lw_strbuf_add(strbuf, c);
 				continue;
 			}
-			strbuf_add(strbuf, c);
+			lw_strbuf_add(strbuf, c);
 		}
-		strval = strbuf_end(strbuf);
+		strval = lw_strbuf_end(strbuf);
 		if (cl == 0)
 		{
 			ttype = TOK_ERROR;
@@ -655,15 +655,15 @@ chrlit:
 	case '"':
 strlit:
 		/* string literal */
-		strbuf = strbuf_new();
-		strbuf_add(strbuf, '"');
+		strbuf = lw_strbuf_new();
+		lw_strbuf_add(strbuf, '"');
 		for (;;)
 		{
 			c = preproc_lex_fetch_byte(pp);
 			if (c == CPP_EOF || c == CPP_EOL)
 			{
 				ttype = TOK_ERROR;
-				strval = strbuf_end(strbuf);
+				strval = lw_strbuf_end(strbuf);
 				if (!pp -> lexstr)
 					preproc_throw_error(pp, "Invalid string constant");
 				goto out;
@@ -672,24 +672,24 @@ strlit:
 				break;
 			if (c == '\\')
 			{
-				strbuf_add(strbuf, '\\');
+				lw_strbuf_add(strbuf, '\\');
 				c = preproc_lex_fetch_byte(pp);
 				if (c == CPP_EOF || c == CPP_EOL)
 				{
 					ttype = TOK_ERROR;
 					if (!pp -> lexstr)
 						preproc_throw_error(pp, "Invalid string constant");
-					strval = strbuf_end(strbuf);
+					strval = lw_strbuf_end(strbuf);
 					goto out;
 				}
 				cl++;
-				strbuf_add(strbuf, c);
+				lw_strbuf_add(strbuf, c);
 				continue;
 			}
-			strbuf_add(strbuf, c);
+			lw_strbuf_add(strbuf, c);
 		}
-		strbuf_add(strbuf, '"');
-		strval = strbuf_end(strbuf);
+		lw_strbuf_add(strbuf, '"');
+		strval = lw_strbuf_end(strbuf);
 		ttype = TOK_STR_LIT;
 		goto out;
 
@@ -718,20 +718,20 @@ strlit:
 	case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
 	case 'Y': case 'Z':
 		/* we have an identifier here */
-		strbuf = strbuf_new();
-		strbuf_add(strbuf, c);
+		strbuf = lw_strbuf_new();
+		lw_strbuf_add(strbuf, c);
 		for (;;)
 		{
 			c = preproc_lex_fetch_byte(pp);
 			if ((c == '_') || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
 			{
-				strbuf_add(strbuf, c);
+				lw_strbuf_add(strbuf, c);
 				continue;
 			}
 			else
 			{
-				strbuf_add(strbuf, 0);
-				strval = strbuf_end(strbuf);
+				lw_strbuf_add(strbuf, 0);
+				strval = lw_strbuf_end(strbuf);
 				break;
 			}
 		}
@@ -743,8 +743,8 @@ strlit:
 		c = preproc_lex_fetch_byte(pp);
 		if (c >= '0' && c <= '9')
 		{
-			strbuf = strbuf_new();
-			strbuf_add(strbuf, '.');
+			strbuf = lw_strbuf_new();
+			lw_strbuf_add(strbuf, '.');
 			goto numlit;
 		}
 		else if (c == '.')
@@ -763,28 +763,28 @@ strlit:
 
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9':
-		strbuf = strbuf_new();
+		strbuf = lw_strbuf_new();
 numlit:
 		ttype = TOK_NUMBER;
-		strbuf_add(strbuf, c);
+		lw_strbuf_add(strbuf, c);
 		for (;;)
 		{
 			c = preproc_lex_fetch_byte(pp);
 			if (!((c == '_') || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')))
 				break;
-			strbuf_add(strbuf, c);
+			lw_strbuf_add(strbuf, c);
 			if (c == 'e' || c == 'E' || c == 'p' || c == 'P')
 			{
 				c = preproc_lex_fetch_byte(pp);
 				if (c == '+' || c == '-')
 				{
-					strbuf_add(strbuf, c);
+					lw_strbuf_add(strbuf, c);
 					continue;
 				}
 				preproc_lex_unfetch_byte(pp, c);
 			}
 		}
-		strval = strbuf_end(strbuf);
+		strval = lw_strbuf_end(strbuf);
 		preproc_lex_unfetch_byte(pp, c);
 		goto out;
 		

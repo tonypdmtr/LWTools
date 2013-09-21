@@ -69,7 +69,7 @@ struct preproc_info
 	int lexstrloc;			// ditto
 	struct preproc_info *n;	// next in file stack
 	struct preproc_info *filestack;	// stack of saved files during include
-	struct strpool *strpool;
+	struct lw_strpool *strpool;
 	lw_stringlist_t quotelist;
 	lw_stringlist_t inclist;
 };

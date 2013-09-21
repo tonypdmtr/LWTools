@@ -1,5 +1,5 @@
 /*
-lwcc/strbuf.c
+lwlib/lw_strbuf.c
 
 Copyright © 2013 William Astle
 
@@ -21,37 +21,36 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
 
-#include <lw_alloc.h>
+#include "lw_alloc.h"
+#include "lw_strbuf.h"
 
-#include "strbuf.h"
-
-struct strbuf *strbuf_new(void)
+struct lw_strbuf *lw_strbuf_new(void)
 {
-	struct strbuf *strbuf;
+	struct lw_strbuf *lw_strbuf;
 	
-	strbuf = lw_alloc(sizeof(struct strbuf));
-	strbuf -> str = NULL;
-	strbuf -> bo = 0;
-	strbuf -> bl = 0;
-	return strbuf;
+	lw_strbuf = lw_alloc(sizeof(struct lw_strbuf));
+	lw_strbuf -> str = NULL;
+	lw_strbuf -> bo = 0;
+	lw_strbuf -> bl = 0;
+	return lw_strbuf;
 }
 
-void strbuf_add(struct strbuf *strbuf, int c)
+void lw_strbuf_add(struct lw_strbuf *lw_strbuf, int c)
 {
-	if (strbuf -> bo >= strbuf -> bl)
+	if (lw_strbuf -> bo >= lw_strbuf -> bl)
 	{
-		strbuf -> bl += 100;
-		strbuf -> str = lw_realloc(strbuf -> str, strbuf -> bl);
+		lw_strbuf -> bl += 100;
+		lw_strbuf -> str = lw_realloc(lw_strbuf -> str, lw_strbuf -> bl);
 	}
-	strbuf -> str[strbuf -> bo++] = c;
+	lw_strbuf -> str[lw_strbuf -> bo++] = c;
 }
 
-char *strbuf_end(struct strbuf *strbuf)
+char *lw_strbuf_end(struct lw_strbuf *lw_strbuf)
 {
 	char *rv;
 
-	strbuf_add(strbuf, 0);
-	rv = strbuf -> str;
-	lw_free(strbuf);
+	lw_strbuf_add(lw_strbuf, 0);
+	rv = lw_strbuf -> str;
+	lw_free(lw_strbuf);
 	return rv;
 }

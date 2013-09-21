@@ -1,5 +1,5 @@
 /*
-lwcc/strpool.c
+lwlib/lw_strpool.c
 
 Copyright © 2013 William Astle
 
@@ -22,22 +22,21 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 
-#include <lw_alloc.h>
-#include <lw_string.h>
+#include "lw_alloc.h"
+#include "lw_string.h"
+#include "lw_strpool.h"
 
-#include "strpool.h"
-
-struct strpool *strpool_create(void)
+struct lw_strpool *lw_strpool_create(void)
 {
-	struct strpool *sp;
+	struct lw_strpool *sp;
 	
-	sp = lw_alloc(sizeof(struct strpool));
+	sp = lw_alloc(sizeof(struct lw_strpool));
 	sp -> nstrs = 0;
 	sp -> strs = NULL;
 	return sp;
 }
 
-extern void strpool_free(struct strpool *sp)
+extern void lw_strpool_free(struct lw_strpool *sp)
 {
 	int i;
 	
@@ -47,7 +46,7 @@ extern void strpool_free(struct strpool *sp)
 	lw_free(sp);
 }
 
-char *strpool_strdup(struct strpool *sp, const char *s)
+char *lw_strpool_strdup(struct lw_strpool *sp, const char *s)
 {
 	int i;
 	
