@@ -195,7 +195,6 @@ realclean: clean $(realcleantargs)
 	@echo "Cleaning up even more"
 	@rm -f $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) $(lwobjdump_deps)
 	@rm -f $(lwcc_driver_deps) $(lwcc_cpp_deps) $(lwcc_cpplib_deps)
-	@rm -f docs/manual/*.html docs/manual/*.pdf
 
 print-%:
 	@echo $* = $($*)
