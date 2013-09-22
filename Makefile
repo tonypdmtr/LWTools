@@ -108,7 +108,7 @@ lwcc_cpp_srcs := $(addprefix lwcc/,$(lwcc_cpp_srcs))
 lwcc_cpp_objs := $(lwcc_cpp_srcs:.c=.o)
 lwcc_cpp_deps := $(lwcc_cpp_srcs:.c=.d)
 
-lwcc_cc_srcs := cc-main.c
+lwcc_cc_srcs := cc-main.c tree.c parse.c
 lwcc_cc_srcs := $(addprefix lwcc/,$(lwcc_cc_srcs))
 lwcc_cc_objs := $(lwcc_cc_srcs:.c=.o)
 lwcc_cc_deps := $(lwcc_cc_srcs:.c=.d)

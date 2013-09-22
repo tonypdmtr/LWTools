@@ -30,9 +30,13 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_string.h>
 
 #include "cpp.h"
+#include "tree.h"
 
-int process_file(const char *);
+node_t *process_file(const char *);
 static void do_error(const char *f, ...);
+extern node_t *parse_program(struct preproc_info *pp);
+
+node_t *program_tree = NULL;
 
 /* command line option handling */
 #define PROGVER "lwcc-cc from " PACKAGE_STRING
@@ -112,6 +116,7 @@ int main(int argc, char **argv)
 {
 	program_name = argv[0];
 	int retval = 0;
+	node_t *n;
 	
 	input_files = lw_stringlist_create();
 	includedirs = lw_stringlist_create();
@@ -135,10 +140,16 @@ int main(int argc, char **argv)
 		}
 	}
 	
+	program_tree = node_create(NODE_PROGRAM);	
+	
 	if (lw_stringlist_nstrings(input_files) == 0)
 	{
 		/* if no input files, work on stdin */
-		retval = process_file("-");
+		n = process_file("-");
+		if (!n)
+			retval = 1;
+		else
+			node_addchild(program_tree, n);
 	}
 	else
 	{
@@ -146,47 +157,33 @@ int main(int argc, char **argv)
 		lw_stringlist_reset(input_files);
 		for (s = lw_stringlist_current(input_files); s; s = lw_stringlist_next(input_files))
 		{
-			retval = process_file(s);
+			n = process_file(s);
+			if (!n)
+				retval = 1;
 			if (retval != 0)
 				break;
+			node_addchild(program_tree, n);
 		}
 	}
 	lw_stringlist_destroy(input_files);
 	lw_stringlist_destroy(includedirs);
 	lw_stringlist_destroy(sysincludedirs);
 	lw_stringlist_destroy(macrolist);
+	
+	node_display(program_tree, stdout);
+	node_destroy(program_tree);
 	exit(retval);
 }
 
-static void print_line_marker(FILE *fp, int line, const char *fn, int flag)
-{
-	fprintf(fp, "\n# %d \"", line);
-	while (*fn)
-	{
-		if (*fn < 32 || *fn == 34 || *fn > 126)
-		{
-			fprintf(fp, "\\%03o", *fn);
-		}
-		else
-		{
-			fprintf(fp, "%c", *fn);
-		}
-		fn++;
-	}
-	fprintf(fp, "\" %d", flag);
-}
-
-int process_file(const char *fn)
+node_t *process_file(const char *fn)
 {
 	struct preproc_info *pp;
-	struct token *tok = NULL;
-	int last_line = 0;
-	char *last_fn = NULL;
 	char *tstr;
-		
+	node_t *n;
+			
 	pp = preproc_init(fn);
 	if (!pp)
-		return -1;
+		return NULL;
 
 	/* set up the include paths */
 	lw_stringlist_reset(includedirs);
@@ -208,43 +205,9 @@ int process_file(const char *fn)
 		preproc_add_macro(pp, tstr);
 	}
 
-	print_line_marker(output_fp, 1, fn, 1);
-	last_fn = lw_strdup(fn);	
-	for (;;)
-	{
-		tok = preproc_next(pp);
-		if (tok -> ttype == TOK_EOF)
-			break;
-		if (strcmp(tok -> fn, last_fn) != 0)
-		{
-			int lt = 1;
-			if (tok -> lineno != 1)
-			{
-				lt = 2;
-			}
-			lw_free(last_fn);
-			last_fn = lw_strdup(tok -> fn);
-			last_line = tok -> lineno;
-			print_line_marker(output_fp, last_line, last_fn, lt);
-		}
-		else
-		{
-			while (tok -> lineno > last_line)
-			{
-				fprintf(output_fp, "\n");
-				last_line++;
-			}
-		}
-		token_print(tok, output_fp);
-		if (tok -> ttype == TOK_EOL)
-			last_line++;
-		token_free(tok);
-	}
-	token_free(tok);
-	lw_free(last_fn);
-//	symtab_dump(pp);
+	n = parse_program(pp);
 	preproc_finish(pp);
-	return 0;
+	return n;
 }
 
 static void do_error(const char *f, ...)
