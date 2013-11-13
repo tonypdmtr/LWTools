@@ -24,7 +24,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <lw_alloc.h>
 #include <lw_stringlist.h>
 #include <lw_cmdline.h>
 #include <lw_string.h>

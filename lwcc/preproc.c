@@ -40,6 +40,8 @@ static long eval_expr(struct preproc_info *);
 extern struct token *preproc_lex_next_token(struct preproc_info *);
 static long preproc_numval(struct preproc_info *, struct token *);
 static int eval_escape(char **);
+extern int preproc_lex_fetch_byte(struct preproc_info *);
+extern void preproc_lex_unfetch_byte(struct preproc_info *, int);
 
 
 struct token *preproc_next_processed_token(struct preproc_info *pp)
