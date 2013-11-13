@@ -214,8 +214,8 @@ void setup_script()
 		for (ptr = line; *ptr && isspace(*ptr); ptr++)
 			/* do nothing */ ;
 		
-		// ignore blank lines
-		if (!*ptr)
+		// ignore blank lines and comments
+		if (!*ptr || *ptr == '#' || *ptr == ';')
 			continue;
 		
 		for (ptr = line; *ptr && !isspace(*ptr); ptr++)
