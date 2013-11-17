@@ -22,12 +22,35 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdarg.h>
 #include <string.h>
 #include <lw_alloc.h>
+#include <lw_string.h>
 
 #include "tree.h"
 
 static char *node_names[] = {
 	"NONE",
 	"PROGRAM",
+	"DECL",
+	"TYPE_CHAR",
+	"TYPE_SHORT",
+	"TYPE_INT",
+	"TYPE_LONG",
+	"TYPE_LONGLONG",
+	"IDENT",
+	"TYPE_PTR",
+	"TYPE_SCHAR",
+	"TYPE_UCHAR",
+	"TYPE_USHORT",
+	"TYPE_UINT",
+	"TYPE_ULONG",
+	"TYPE_ULONGLONG",
+	"TYPE_VOID",
+	"TYPE_FLOAT",
+	"TYPE_DOUBLE",
+	"TYPE_LDOUBLE",
+	"FUNDEF",
+	"FUNDECL",
+	"FUNARGS",
+	"BLOCK",
 };
 
 
@@ -40,11 +63,30 @@ node_t *node_create(int type, ...)
 	
 	va_start(args, type);
 	r = lw_alloc(sizeof(node_t));
-	memset(r, sizeof(node_t), 0);
+	memset(r, 0, sizeof(node_t));
 	r -> type = type;
 	
 	switch (type)
 	{
+	case NODE_DECL:
+		nargs = 2;
+		break;
+	
+	case NODE_TYPE_PTR:
+		nargs = 1;
+		break;
+		
+	case NODE_IDENT:
+		r -> strval = lw_strdup(va_arg(args, char *));
+		break;
+	
+	case NODE_FUNDEF:
+		nargs = 4;
+		break;
+	
+	case NODE_FUNDECL:
+		nargs = 3;
+		break;
 	}
 	
 	while (nargs--)
@@ -72,6 +114,9 @@ void node_destroy(node_t *node)
 void node_addchild(node_t *node, node_t *nn)
 {
 	node_t *tmp;
+	
+	if (!nn)
+		return;
 	
 	nn -> parent = node;
 	nn -> next_child = NULL;
@@ -124,6 +169,8 @@ static void node_display_aux(node_t *node, FILE *f, int level)
 	for (i = 0; i < level * 4; i++)
 		fputc(' ', f);
 	fprintf(f, "(%s ", node_names[node -> type]);
+	if (node -> strval)
+		fprintf(f, "\"%s\" ", node -> strval);
 	fputc('\n', f);
 	for (nn = node -> children; nn; nn = nn -> next_child)
 		node_display_aux(nn, f, level + 1);

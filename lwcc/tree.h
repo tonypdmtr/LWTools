@@ -25,9 +25,31 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 
 /* the various node types */
-#define NODE_NONE		0	// a node with no type
-#define NODE_PROGRAM	1	// the whole program
-#define NODE_NUMTYPES	2	// the number of node types
+#define NODE_NONE			0	// a node with no type
+#define NODE_PROGRAM		1	// the whole program
+#define NODE_DECL			2	// a declaration
+#define NODE_TYPE_CHAR		3	// a character type
+#define NODE_TYPE_SHORT		4	// short int
+#define NODE_TYPE_INT		5	// integer
+#define NODE_TYPE_LONG		6	// long int
+#define NODE_TYPE_LONGLONG	7	// long long
+#define NODE_IDENT			8	// an identifier of some kind
+#define NODE_TYPE_PTR		9	// a pointer
+#define NODE_TYPE_SCHAR		10	// signed char
+#define NODE_TYPE_UCHAR		11	// unsigned char
+#define NODE_TYPE_USHORT	12	// unsigned short
+#define NODE_TYPE_UINT		13	// unsigned int
+#define NODE_TYPE_ULONG		14	// unsigned long
+#define NODE_TYPE_ULONGLONG	15	// unsigned long long
+#define NODE_TYPE_VOID		16	// void
+#define NODE_TYPE_FLOAT		17	// float
+#define NODE_TYPE_DOUBLE	18	// double
+#define NODE_TYPE_LDOUBLE	19	// long double
+#define NODE_FUNDEF			20	// function definition
+#define NODE_FUNDECL		21	// function declaration
+#define NODE_FUNARGS		22	// list of function args
+#define NODE_BLOCK			23	// statement block
+#define NODE_NUMTYPES		24	// the number of node types
 
 typedef struct node_s node_t;
 
