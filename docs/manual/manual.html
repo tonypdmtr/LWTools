@@ -198,14 +198,14 @@ HREF="#AEN807"
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN864"
+HREF="#AEN873"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN867"
+HREF="#AEN876"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -214,14 +214,14 @@ HREF="#AEN867"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN879"
+HREF="#AEN888"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN883"
+HREF="#AEN892"
 >Command Line Options</A
 ></DT
 ></DL
@@ -243,12 +243,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN966"
+HREF="#AEN975"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN996"
+HREF="#AEN1005"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -2650,6 +2650,32 @@ everything out.</P
 >section <CODE
 CLASS="PARAMETER"
 >name</CODE
+> high <CODE
+CLASS="PARAMETER"
+>addr</CODE
+></DT
+><DD
+><P
+>&#13;This causes the section <CODE
+CLASS="PARAMETER"
+>name</CODE
+> to load with its end
+address just below <CODE
+CLASS="PARAMETER"
+>addr</CODE
+>.  Subsequent sections are
+loaded at progressively lower addresses.  This may lead to inefficient file
+encoding for some targets.  As of this writing, it will also almost
+certainly do the wrong thing for a raw target.&#13;</P
+><P
+>&#13;This is useful for aligning a block of code with high memory.  As an
+example, if the total size of a section is $100 bytes and a high address of
+$FE00 is specified, the section will actually load at $FD00.&#13;</P
+></DD
+><DT
+>section <CODE
+CLASS="PARAMETER"
+>name</CODE
 ></DT
 ><DD
 ><P
@@ -2696,7 +2722,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN864"
+NAME="AEN873"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2709,7 +2735,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN867"
+NAME="AEN876"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2785,7 +2811,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN879"
+NAME="AEN888"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2804,7 +2830,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN883"
+NAME="AEN892"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -3005,7 +3031,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN966"
+NAME="AEN975"
 ></A
 ><P
 ><B
@@ -3077,7 +3103,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN996"
+NAME="AEN1005"
 ></A
 ><P
 ><B

@@ -17,7 +17,7 @@ TITLE="Linker Operation"
 HREF="x793.html"><LINK
 REL="NEXT"
 TITLE="Format Specific Linking Notes"
-HREF="x864.html"></HEAD
+HREF="x873.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x864.html"
+HREF="x873.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -205,6 +205,32 @@ everything out.</P
 >section <CODE
 CLASS="PARAMETER"
 >name</CODE
+> high <CODE
+CLASS="PARAMETER"
+>addr</CODE
+></DT
+><DD
+><P
+>&#13;This causes the section <CODE
+CLASS="PARAMETER"
+>name</CODE
+> to load with its end
+address just below <CODE
+CLASS="PARAMETER"
+>addr</CODE
+>.  Subsequent sections are
+loaded at progressively lower addresses.  This may lead to inefficient file
+encoding for some targets.  As of this writing, it will also almost
+certainly do the wrong thing for a raw target.&#13;</P
+><P
+>&#13;This is useful for aligning a block of code with high memory.  As an
+example, if the total size of a section is $100 bytes and a high address of
+$FE00 is specified, the section will actually load at $FD00.&#13;</P
+></DD
+><DT
+>section <CODE
+CLASS="PARAMETER"
+>name</CODE
 ></DT
 ><DD
 ><P
@@ -280,7 +306,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x864.html"
+HREF="x873.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

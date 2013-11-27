@@ -2114,6 +2114,25 @@ everything out.
 </varlistentry>
 
 <varlistentry>
+<term>section <parameter>name</parameter> high <parameter>addr</parameter></term>
+<listitem><para>
+
+This causes the section <parameter>name</parameter> to load with its end
+address just below <parameter>addr</parameter>.  Subsequent sections are
+loaded at progressively lower addresses.  This may lead to inefficient file
+encoding for some targets.  As of this writing, it will also almost
+certainly do the wrong thing for a raw target.
+
+</para><para>
+
+This is useful for aligning a block of code with high memory.  As an
+example, if the total size of a section is $100 bytes and a high address of
+$FE00 is specified, the section will actually load at $FD00.
+
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
 <term>section <parameter>name</parameter></term>
 <listitem><para>
 
