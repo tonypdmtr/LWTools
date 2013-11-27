@@ -156,6 +156,7 @@ struct scriptline_s
 	int loadat;					// address to load at (or -1)
 	int noflags;				// flags to NOT have
 	int yesflags;				// flags to HAVE
+	int growsdown;				// sections are placed descending in memory
 };
 
 typedef struct

@@ -380,6 +380,7 @@ void setup_script()
 		}
 		else if (!strcmp(line, "section"))
 		{
+			int growsdown = 0;
 			// section
 			// parse out the section name and flags
 			for (ptr2 = ptr; *ptr2 && !isspace(*ptr2); ptr2++)
@@ -404,11 +405,23 @@ void setup_script()
 						ptr2++;
 					
 				}
+				else if (!strncmp(ptr2, "high", 4))
+				{
+					ptr2 += 4;
+					while (*ptr2 && isspace(*ptr2))
+						ptr2++;
+					growsdown = 1;
+				}
 				else
 				{
 					fprintf(stderr, "%s: bad script\n", scriptfile);
 					exit(1);
 				}
+			}
+			else
+			{
+				if (linkscript.nlines > 0)
+					growsdown = linkscript.lines[linkscript.nlines - 1].growsdown;
 			}
 			
 			// now ptr2 points to the load address if there is one
@@ -417,6 +430,7 @@ void setup_script()
 
 			linkscript.lines[linkscript.nlines].noflags = 0;
 			linkscript.lines[linkscript.nlines].yesflags = 0;
+			linkscript.lines[linkscript.nlines].growsdown = growsdown;
 			if (*ptr2)
 				linkscript.lines[linkscript.nlines].loadat = strtol(ptr2, NULL, 16);
 			else
