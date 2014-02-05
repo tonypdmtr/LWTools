@@ -65,6 +65,9 @@ void do_list(asmstate_t *as)
 	
 	for (cl = as -> line_head; cl; cl = nl)
 	{
+		char *linespec;
+		int linespec_len;
+
 		nl = cl -> next;
 		if (CURPRAGMA(cl, PRAGMA_NOLIST))
 		{
@@ -193,7 +196,13 @@ void do_list(asmstate_t *as)
 		}
 		/* the 32.32 below is deliberately chosen so that the start of the line text is at
 		   a multiple of 8 from the start of the list line */
-		fprintf(of, "(%32.32s):%05d ", cl -> linespec, cl -> lineno);
+		linespec = cl -> linespec;
+		linespec_len = strlen(linespec);
+		if (linespec_len > 32)
+		{
+			linespec += linespec_len - 32;
+		}
+		fprintf(of, "(%32.32s):%05d ", linespec, cl -> lineno);
 		i = 0;
 		for (tc = cl -> ltext; *tc; tc++)
 		{
