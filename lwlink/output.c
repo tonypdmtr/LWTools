@@ -338,7 +338,7 @@ void do_output_os9(FILE *of)
 	
 	if (linkscript.edition >= 0)
 	{
-		buf[0] = linkscript.edition & 0x80;
+		buf[0] = linkscript.edition & 0xff;
 		writebytes(buf, 1, 1, of);
 		os9crc(crc, buf[0]);
 	}
