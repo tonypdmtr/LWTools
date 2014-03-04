@@ -35,6 +35,9 @@ void write_code_decb(asmstate_t *as, FILE *of);
 void write_code_rawrel(asmstate_t *as, FILE *of);
 void write_code_obj(asmstate_t *as, FILE *of);
 void write_code_os9(asmstate_t *as, FILE *of);
+void write_code_hex(asmstate_t *as, FILE *of);
+void write_code_srec(asmstate_t *as, FILE *of);
+void write_code_ihex(asmstate_t *as, FILE *of);
 
 // this prevents warnings about not using the return value of fwrite()
 // r++ prevents the "set but not used" warnings; should be optimized out
@@ -78,6 +81,18 @@ void do_output(asmstate_t *as)
 
 	case OUTPUT_OS9:
 		write_code_os9(as, of);
+		break;
+
+	case OUTPUT_HEX:
+		write_code_hex(as, of);
+		break;
+		
+	case OUTPUT_SREC:
+		write_code_srec(as, of);
+		break;
+
+	case OUTPUT_IHEX:
+		write_code_ihex(as, of);
 		break;
 
 	default:
@@ -219,6 +234,260 @@ void write_code_decb(asmstate_t *as, FILE *of)
 	writebytes(outbuf, 5, 1, of);
 }
 
+int fetch_output_byte(line_t *cl, char *value, int *addr)
+{
+	static int outidx = 0;
+	static int lastaddr = -2;
+	
+	// try to read next byte in current line's output field
+	if ((cl -> outputl > 0) && (outidx < cl -> outputl))
+	{
+		*addr = lw_expr_intval(cl -> addr) + outidx;
+		*value = *(cl -> output + outidx++);
+		
+		// this byte follows the previous byte (contiguous, rc = 1)
+		if (*addr == lastaddr + 1)
+		{
+			lastaddr = *addr;
+			return 1;
+		}
+		
+		// this byte does not follow prev byte (disjoint, rc = -1)
+		else 
+		{
+			lastaddr = *addr;
+			return -1;
+		}
+	}
+
+	// no (more) output from this line (rc = 0)
+	else
+	{
+		outidx = 0;
+		return 0;
+	}
+}
+
+
+/* a simple ASCII hex file format */
+
+void write_code_hex(asmstate_t *as, FILE *of)
+{
+	const int RECLEN = 16;
+	
+	line_t *cl;
+	char outbyte;
+	int outaddr;
+	int rc;
+	
+	for (cl = as -> line_head; cl; cl = cl -> next)
+		do
+		{
+			rc = fetch_output_byte(cl, &outbyte, &outaddr);
+			
+			// if address jump or xxx0 address, start new line
+			if ((rc == -1) || ((rc == 1) && (outaddr % RECLEN == 0)))
+			{
+				fprintf(of, "\r\n%04X:", (unsigned int)outaddr);
+				fprintf(of, "%02X", (unsigned char)outbyte);
+				rc = -1;
+			}
+			if (rc == 1)
+				fprintf(of, ",%02X", (unsigned char)outbyte);
+		}
+		while (rc);
+}
+
+
+/* Motorola S19 hex file format */
+
+void write_code_srec(asmstate_t *as, FILE *of)
+{
+	const int SRECLEN = 16;
+	const int HDRLEN = 51;
+	
+	line_t *cl;
+	char outbyte;
+	int outaddr;
+	int rc;
+	int i;
+	int recaddr = 0;
+	int recdlen = 0;
+	unsigned char recdata[SRECLEN];
+	int recsum;
+	int reccnt = -1;
+	char rechdr[HDRLEN];
+	
+	for (cl = as -> line_head; cl; cl = cl -> next)
+		do
+		{
+			rc = fetch_output_byte(cl, &outbyte, &outaddr);
+			
+			// if address jump or xxx0 address, start new S1 record
+			if ((rc == -1) || ((rc == 1) && (outaddr % SRECLEN == 0)))
+			{
+				// if not already done so, emit an S0 header record
+				if (reccnt < 0)
+				{
+					// build header from version and filespec
+					// e.g. "[lwtools X.Y] filename.asm"
+					strcpy(rechdr, "[");
+					strcat(rechdr, PACKAGE_STRING);
+					strcat(rechdr, "] ");
+					i = strlen(rechdr);
+					strncat(rechdr, cl -> linespec, HDRLEN - 1 - i);
+					recsum = strlen(rechdr) + 3;
+					fprintf(of, "S0%02X0000", recsum);
+					for (i = 0; i < strlen(rechdr); i++)
+					{
+						fprintf(of, "%02X", (unsigned char)rechdr[i]);
+						recsum += (unsigned char)rechdr[i];
+					}
+					fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+					reccnt = 0;
+				}
+
+				// flush any current S1 record before starting new one
+				if (recdlen > 0)
+				{
+					recsum = recdlen + 3;
+					fprintf(of, "S1%02X%04X", recdlen + 3, recaddr);
+					for (i = 0; i < recdlen; i++)
+					{
+						fprintf(of, "%02X", (unsigned char)recdata[i]);
+						recsum += (unsigned char)recdata[i];
+					}
+					recsum += (recaddr >> 8) & 0xFF;
+					recsum += recaddr & 0xFF;
+					fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+					reccnt += 1;
+				}
+				
+				// now start the new S1 record
+				recdlen = 0;
+				recaddr = outaddr;
+				rc = 1;
+			}
+
+			// for each new byte read, add to recdata[]
+			if (rc == 1)
+				recdata[recdlen++] = outbyte;
+		}
+		while (rc);
+		
+	// done with all output lines, flush the final S1 record (if any)
+	if (recdlen > 0)
+	{
+		recsum = recdlen + 3;
+		fprintf(of, "S1%02X%04X", recdlen + 3, recaddr);
+		for (i = 0; i < recdlen; i++)
+		{
+			fprintf(of, "%02X", (unsigned char)recdata[i]);
+			recsum += (unsigned char)recdata[i];
+		}
+		recsum += (recaddr >> 8) & 0xFF;
+		recsum += recaddr & 0xFF;
+		fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+		reccnt += 1;
+	}
+
+	// if any S1 records were output, close with S5 and S9 records
+	if (reccnt > 0)
+	{
+		// emit S5 count record
+		recsum = 3;
+		recsum += (reccnt >> 8) & 0xFF;
+		recsum += reccnt & 0xFF;
+		fprintf(of, "S503%04X", (unsigned int)reccnt);
+		fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+		
+		// emit S9 end-of-file record
+		recsum = 3;
+		recsum += (as -> execaddr >> 8) & 0xFF;
+		recsum += (as -> execaddr) & 0xFF;
+		fprintf(of, "S903%04X", as -> execaddr);
+		fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+	}
+}
+
+
+/* Intel hex file format */
+
+void write_code_ihex(asmstate_t *as, FILE *of)
+{
+	const int IRECLEN = 16;
+	
+	line_t *cl;
+	char outbyte;
+	int outaddr;
+	int rc;
+	int i;
+	int recaddr = 0;
+	int recdlen = 0;
+	unsigned char recdata[IRECLEN];
+	int recsum;
+	int reccnt = 0;
+	
+	for (cl = as -> line_head; cl; cl = cl -> next)
+		do
+		{
+			rc = fetch_output_byte(cl, &outbyte, &outaddr);
+			
+			// if address jump or xxx0 address, start new ihx record
+			if ((rc == -1) || ((rc == 1) && (outaddr % IRECLEN == 0)))
+			{
+				// flush any current ihex record before starting new one
+				if (recdlen > 0)
+				{
+					recsum = recdlen;
+					fprintf(of, ":%02X%04X00", recdlen, recaddr);
+					for (i = 0; i < recdlen; i++)
+					{
+						fprintf(of, "%02X", (unsigned char)recdata[i]);
+						recsum += (unsigned char)recdata[i];
+					}
+					recsum += (recaddr >> 8) & 0xFF;
+					recsum += recaddr & 0xFF;
+					fprintf(of, "%02X\r\n", (unsigned char)(256 - recsum));
+					reccnt += 1;
+				}
+				
+				// now start the new ihex record
+				recdlen = 0;
+				recaddr = outaddr;
+				rc = 1;
+			}
+
+			// for each new byte read, add to recdata[]
+			if (rc == 1)
+				recdata[recdlen++] = outbyte;
+		}
+		while (rc);
+		
+	// done with all output lines, flush the final ihex record (if any)
+	if (recdlen > 0)
+	{
+		recsum = recdlen;
+		fprintf(of, ":%02X%04X00", recdlen, recaddr);
+		for (i = 0; i < recdlen; i++)
+		{
+			fprintf(of, "%02X", (unsigned char)recdata[i]);
+			recsum += (unsigned char)recdata[i];
+		}
+		recsum += (recaddr >> 8) & 0xFF;
+		recsum += recaddr & 0xFF;
+		fprintf(of, "%02X\r\n", (unsigned char)(256 - recsum));
+		reccnt += 1;
+	}
+
+	// if any ihex records were output, close with a "01" record
+	if (reccnt > 0)
+	{
+		fprintf(of, ":00000001FF");		
+	}
+}
+	    
+	    
 void write_code_obj_sbadd(sectiontab_t *s, unsigned char b)
 {
 	if (s -> oblen >= s -> obsize)

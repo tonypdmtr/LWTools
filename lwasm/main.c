@@ -154,6 +154,12 @@ static int parse_opts(int key, char *arg, void *state)
 			as -> output_format = OUTPUT_RAWREL;
 		else if (!strcasecmp(arg, "obj"))
 			as -> output_format = OUTPUT_OBJ;
+		else if (!strcasecmp(arg, "srec"))
+			as -> output_format = OUTPUT_SREC;
+		else if (!strcasecmp(arg, "ihex"))
+			as -> output_format = OUTPUT_IHEX;
+		else if (!strcasecmp(arg, "hex"))
+			as -> output_format = OUTPUT_HEX;
 		else if (!strcasecmp(arg, "os9"))
 		{
 			as -> pragmas |= PRAGMA_DOLLARNOTLOCAL;
