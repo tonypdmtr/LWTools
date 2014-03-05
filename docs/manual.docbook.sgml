@@ -3,7 +3,8 @@
 <bookinfo>
 <title>LW Tool Chain</title>
 <author><firstname>William</firstname><surname>Astle</surname></author>
-<copyright><year>2009-2013</year><holder>William Astle</holder></copyright>
+<author><firstname>LWTools Contributors</firstname><surname></surname></author>
+<copyright><year>2009-2014</year><holder>William Astle and LWTools contributors</holder></copyright>
 </bookinfo>
 <chapter>
 
@@ -88,6 +89,82 @@ the execution address for the binary.
 
 <para>
 Both LWASM and LWLINK can output this format.
+</para>
+</section>
+
+<section>
+<title>ASCII Hexadecimal</title>
+
+<para>
+This human-readable ASCII hexadecimal format consists of CR+LF terminated 
+lines of ASCII text. Each line has the following structure: a zero-padded 
+four-digit ASCII hex address, a colon separator, and one or more zero-padded
+two-digit hex values separated by commas. ASCII Hexadecimal format favors 
+paragraph-aligned addresses (i.e. a least significant address nybble value
+of zero). During output, the number of hex values on each line are adjusted
+to align the address of the next line on a paragraph boundary. The sequence 
+of addresses in the ASCII Hexadecimal file directly follows that of the source
+file; multiple ORG directives in the source code may result in out-of-sequence
+addresses in the ASCII Hexadecimal output.
+</para>
+
+<para>
+LWASM can output this format since version 4.10.
+</para>
+</section>
+
+<section>
+<title>Motorola S-Record</title>
+
+<para>
+This ASCII format consists of a series of CR+LF terminated "records" of ASCII
+text. Each record has the following structure: a start-of-record character
+"S", an ASCII record type digit (0-9), a two-digit ASCII hex byte count, a 
+four-digit ASCII hex address, an optional sequence of two-digit ASCII hex data
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only S0, 
+S1, S5 and S9 record types. S1 records are limited to maximum of 16 data bytes
+in length, and  paragraph alignment of addresses is favored. The address
+sequence of the S-Records directly follows that of the source file; multiple
+ORG directives in the source code may result in out-of-sequence addresses in
+the S-Record output. 
+</para>
+
+<para>
+Motorola S-Record format is a standard ASCII format accepted by most memory
+device programming equipment. It is particularly useful when the assembled 
+code output is destined to reside within an EPROM or Flash memory device,
+for example.
+</para>
+
+<para>
+LWASM can output this format since version 4.10.
+</para>
+</section>
+
+<section>
+<title>Intel Hex</title>
+
+<para>
+This ASCII format consists of a series of CR+LF terminated "records" of ASCII
+text. Each record has the following structure: a start-of-record character
+":", a two-digit ASCII hex byte count, a four-digit ASCII hex address, a two-
+digit ASCII hex record type, an optional sequence of two-digit ASCII hex data 
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only 00, 
+and 01 Intel Hex record types. Data records are limited to maximum of 16 
+data bytes in length, and paragraph alignment of addresses is favored. The 
+address sequence of the Intel hex records directly follows that of the source 
+file; multiple ORG directives in the source code may result in out-of-sequence 
+addresses in the Intel Hex output. 
+</para>
+
+<para>
+Intel Hex format is the other standard ASCII format accepted by most memory 
+device programming equipment, it and the Motorola S-Record format are used for
+similar purposes.
+</para>
+
+<para>
+LWASM can output this format since version 4.10.
 </para>
 </section>
 
@@ -241,8 +318,10 @@ this option if you need DECB output.
 <para>
 Select the output format. Valid values are <option>obj</option> for the
 object file target, <option>decb</option> for the DECB LOADM format,
-<option>os9</option> for creating OS9 modules, and <option>raw</option> for
-a raw binary.
+<option>os9</option> for creating OS9 modules, <option>raw</option> for
+a raw binary, <option>hex</option> for ASCII hexadecminal format, 
+<option>srec</option> for Motorola S-Record format, and <option>ihex</option>
+ for Intel Hex format.
 </para>
 </listitem>
 </varlistentry>
@@ -739,10 +818,10 @@ or the assembly process itself.</para>
 <listitem>
 <para>Set the assembly address. The address must be fully resolvable on the
 first pass so no external or forward references are permitted. ORG is not
-permitted within sections when outputting to object files. For the DECB
-target, each ORG directive after which output is generated will cause
-a new preamble to be output. ORG is only used to determine the addresses
-of symbols when the raw target is used.
+permitted within sections when outputting to object files. For target formats
+that include address information (decb, hex, srec, and ihex), an ORG 
+directive will re-start the address sequence within the output. When using
+the raw target format, ORG is used only to determine the addresses of symbols.
 </para>
 </listitem>
 </varlistentry>

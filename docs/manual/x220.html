@@ -11,13 +11,13 @@ TITLE="LW Tool Chain"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="LWASM"
-HREF="c45.html"><LINK
+HREF="c62.html"><LINK
 REL="PREVIOUS"
 TITLE="Numbers and Expressions"
-HREF="x192.html"><LINK
+HREF="x212.html"><LINK
 REL="NEXT"
 TITLE="Macros"
-HREF="x491.html"></HEAD
+HREF="x511.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x192.html"
+HREF="x212.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x491.html"
+HREF="x511.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,7 +73,7 @@ CLASS="SECTION"
 ><H1
 CLASS="SECTION"
 ><A
-NAME="AEN200"
+NAME="AEN220"
 >3.6. Assembler Directives</A
 ></H1
 ><P
@@ -86,7 +86,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN203"
+NAME="AEN223"
 >3.6.1. Data Directives</A
 ></H2
 ><P
@@ -320,7 +320,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN314"
+NAME="AEN334"
 >3.6.2. Address Definition</A
 ></H2
 ><P
@@ -340,10 +340,10 @@ CLASS="PARAMETER"
 ><P
 >Set the assembly address. The address must be fully resolvable on the
 first pass so no external or forward references are permitted. ORG is not
-permitted within sections when outputting to object files. For the DECB
-target, each ORG directive after which output is generated will cause
-a new preamble to be output. ORG is only used to determine the addresses
-of symbols when the raw target is used.</P
+permitted within sections when outputting to object files. For target formats
+that include address information (decb, hex, srec, and ihex), an ORG 
+directive will re-start the address sequence within the output. When using
+the raw target format, ORG is used only to determine the addresses of symbols.</P
 ></DD
 ><DT
 ><CODE
@@ -456,7 +456,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN361"
+NAME="AEN381"
 >3.6.3. Conditional Assembly</A
 ></H2
 ><P
@@ -619,7 +619,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN426"
+NAME="AEN446"
 >3.6.4. OS9 Target Directives</A
 ></H2
 ><P
@@ -686,7 +686,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN451"
+NAME="AEN471"
 >3.6.5. Miscelaneous Directives</A
 ></H2
 ><P
@@ -811,7 +811,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x192.html"
+HREF="x212.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -829,7 +829,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x491.html"
+HREF="x511.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -845,7 +845,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c45.html"
+HREF="c62.html"
 ACCESSKEY="U"
 >Up</A
 ></TD

@@ -32,9 +32,15 @@ CLASS="AUTHOR"
 NAME="AEN4"
 ></A
 >William Astle</H3
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN7"
+></A
+>LWTools Contributors </H3
 ><P
 CLASS="COPYRIGHT"
->Copyright &copy; 2009-2013 William Astle</P
+>Copyright &copy; 2009-2014 William Astle and LWTools contributors</P
 ><HR></DIV
 ><DIV
 CLASS="TOC"
@@ -45,167 +51,182 @@ CLASS="TOC"
 ></DT
 ><DT
 >1. <A
-HREF="#AEN10"
+HREF="#AEN13"
 >Introduction</A
 ></DT
 ><DD
 ><DL
 ><DT
 >1.1. <A
-HREF="#AEN13"
+HREF="#AEN16"
 >History</A
 ></DT
 ></DL
 ></DD
 ><DT
 >2. <A
-HREF="#AEN18"
+HREF="#AEN21"
 >Output Formats</A
 ></DT
 ><DD
 ><DL
 ><DT
 >2.1. <A
-HREF="#AEN21"
+HREF="#AEN24"
 >Raw Binaries</A
 ></DT
 ><DT
 >2.2. <A
-HREF="#AEN24"
+HREF="#AEN27"
 >DECB Binaries</A
 ></DT
 ><DT
 >2.3. <A
-HREF="#AEN29"
->OS9 Modules</A
+HREF="#AEN32"
+>ASCII Hexadecimal</A
 ></DT
 ><DT
 >2.4. <A
-HREF="#AEN37"
+HREF="#AEN36"
+>Motorola S-Record</A
+></DT
+><DT
+>2.5. <A
+HREF="#AEN41"
+>Intel Hex</A
+></DT
+><DT
+>2.6. <A
+HREF="#AEN46"
+>OS9 Modules</A
+></DT
+><DT
+>2.7. <A
+HREF="#AEN54"
 >Object Files</A
 ></DT
 ></DL
 ></DD
 ><DT
 >3. <A
-HREF="#AEN45"
+HREF="#AEN62"
 >LWASM</A
 ></DT
 ><DD
 ><DL
 ><DT
 >3.1. <A
-HREF="#AEN48"
+HREF="#AEN65"
 >Command Line Options</A
 ></DT
 ><DT
 >3.2. <A
-HREF="#AEN170"
+HREF="#AEN190"
 >Dialects</A
 ></DT
 ><DT
 >3.3. <A
-HREF="#AEN177"
+HREF="#AEN197"
 >Source Format</A
 ></DT
 ><DT
 >3.4. <A
-HREF="#AEN187"
+HREF="#AEN207"
 >Symbols</A
 ></DT
 ><DT
 >3.5. <A
-HREF="#AEN192"
+HREF="#AEN212"
 >Numbers and Expressions</A
 ></DT
 ><DT
 >3.6. <A
-HREF="#AEN200"
+HREF="#AEN220"
 >Assembler Directives</A
 ></DT
 ><DD
 ><DL
 ><DT
 >3.6.1. <A
-HREF="#AEN203"
+HREF="#AEN223"
 >Data Directives</A
 ></DT
 ><DT
 >3.6.2. <A
-HREF="#AEN314"
+HREF="#AEN334"
 >Address Definition</A
 ></DT
 ><DT
 >3.6.3. <A
-HREF="#AEN361"
+HREF="#AEN381"
 >Conditional Assembly</A
 ></DT
 ><DT
 >3.6.4. <A
-HREF="#AEN426"
+HREF="#AEN446"
 >OS9 Target Directives</A
 ></DT
 ><DT
 >3.6.5. <A
-HREF="#AEN451"
+HREF="#AEN471"
 >Miscelaneous Directives</A
 ></DT
 ></DL
 ></DD
 ><DT
 >3.7. <A
-HREF="#AEN491"
+HREF="#AEN511"
 >Macros</A
 ></DT
 ><DT
 >3.8. <A
-HREF="#AEN514"
+HREF="#AEN534"
 >Structures</A
 ></DT
 ><DT
 >3.9. <A
-HREF="#AEN535"
+HREF="#AEN555"
 >Object Files and Sections</A
 ></DT
 ><DT
 >3.10. <A
-HREF="#AEN599"
+HREF="#AEN619"
 >Assembler Modes and Pragmas</A
 ></DT
 ></DL
 ></DD
 ><DT
 >4. <A
-HREF="#AEN693"
+HREF="#AEN713"
 >LWLINK</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.1. <A
-HREF="#AEN696"
+HREF="#AEN716"
 >Command Line Options</A
 ></DT
 ><DT
 >4.2. <A
-HREF="#AEN793"
+HREF="#AEN813"
 >Linker Operation</A
 ></DT
 ><DT
 >4.3. <A
-HREF="#AEN807"
+HREF="#AEN827"
 >Linking Scripts</A
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN873"
+HREF="#AEN893"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN876"
+HREF="#AEN896"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -214,14 +235,14 @@ HREF="#AEN876"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN888"
+HREF="#AEN908"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN892"
+HREF="#AEN912"
 >Command Line Options</A
 ></DT
 ></DL
@@ -243,12 +264,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN975"
+HREF="#AEN995"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN1005"
+HREF="#AEN1025"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -257,7 +278,7 @@ HREF="#AEN1005"
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN10"
+NAME="AEN13"
 ></A
 >Chapter 1. Introduction</H1
 ><P
@@ -269,7 +290,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN13"
+NAME="AEN16"
 >1.1. History</A
 ></H2
 ><P
@@ -300,7 +321,7 @@ project to provide a means to actually link the files.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN18"
+NAME="AEN21"
 ></A
 >Chapter 2. Output Formats</H1
 ><P
@@ -311,7 +332,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN21"
+NAME="AEN24"
 >2.1. Raw Binaries</A
 ></H2
 ><P
@@ -325,7 +346,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN24"
+NAME="AEN27"
 >2.2. DECB Binaries</A
 ></H2
 ><P
@@ -350,8 +371,83 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN29"
->2.3. OS9 Modules</A
+NAME="AEN32"
+>2.3. ASCII Hexadecimal</A
+></H2
+><P
+>This human-readable ASCII hexadecimal format consists of CR+LF terminated 
+lines of ASCII text. Each line has the following structure: a zero-padded 
+four-digit ASCII hex address, a colon separator, and one or more zero-padded
+two-digit hex values separated by commas. ASCII Hexadecimal format favors 
+paragraph-aligned addresses (i.e. a least significant address nybble value
+of zero). During output, the number of hex values on each line are adjusted
+to align the address of the next line on a paragraph boundary. The sequence 
+of addresses in the ASCII Hexadecimal file directly follows that of the source
+file; multiple ORG directives in the source code may result in out-of-sequence
+addresses in the ASCII Hexadecimal output.</P
+><P
+>LWASM can output this format since version 4.10.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H2
+CLASS="SECTION"
+><A
+NAME="AEN36"
+>2.4. Motorola S-Record</A
+></H2
+><P
+>This ASCII format consists of a series of CR+LF terminated "records" of ASCII
+text. Each record has the following structure: a start-of-record character
+"S", an ASCII record type digit (0-9), a two-digit ASCII hex byte count, a 
+four-digit ASCII hex address, an optional sequence of two-digit ASCII hex data
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only S0, 
+S1, S5 and S9 record types. S1 records are limited to maximum of 16 data bytes
+in length, and  paragraph alignment of addresses is favored. The address
+sequence of the S-Records directly follows that of the source file; multiple
+ORG directives in the source code may result in out-of-sequence addresses in
+the S-Record output. </P
+><P
+>Motorola S-Record format is a standard ASCII format accepted by most memory
+device programming equipment. It is particularly useful when the assembled 
+code output is destined to reside within an EPROM or Flash memory device,
+for example.</P
+><P
+>LWASM can output this format since version 4.10.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H2
+CLASS="SECTION"
+><A
+NAME="AEN41"
+>2.5. Intel Hex</A
+></H2
+><P
+>This ASCII format consists of a series of CR+LF terminated "records" of ASCII
+text. Each record has the following structure: a start-of-record character
+":", a two-digit ASCII hex byte count, a four-digit ASCII hex address, a two-
+digit ASCII hex record type, an optional sequence of two-digit ASCII hex data 
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only 00, 
+and 01 Intel Hex record types. Data records are limited to maximum of 16 
+data bytes in length, and paragraph alignment of addresses is favored. The 
+address sequence of the Intel hex records directly follows that of the source 
+file; multiple ORG directives in the source code may result in out-of-sequence 
+addresses in the Intel Hex output. </P
+><P
+>Intel Hex format is the other standard ASCII format accepted by most memory 
+device programming equipment, it and the Motorola S-Record format are used for
+similar purposes.</P
+><P
+>LWASM can output this format since version 4.10.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H2
+CLASS="SECTION"
+><A
+NAME="AEN46"
+>2.6. OS9 Modules</A
 ></H2
 ><P
 >&#13;Since version 2.5, LWASM is able to generate OS9 modules. The syntax is
@@ -386,8 +482,8 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN37"
->2.4. Object Files</A
+NAME="AEN54"
+>2.7. Object Files</A
 ></H2
 ><P
 >LWASM supports generating a proprietary object file format which is
@@ -423,7 +519,7 @@ Again, no byte overflows will be flagged.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN45"
+NAME="AEN62"
 ></A
 >Chapter 3. LWASM</H1
 ><P
@@ -435,7 +531,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN48"
+NAME="AEN65"
 >3.1. Command Line Options</A
 ></H2
 ><P
@@ -514,11 +610,22 @@ CLASS="OPTION"
 <CODE
 CLASS="OPTION"
 >os9</CODE
-> for creating OS9 modules, and <CODE
+> for creating OS9 modules, <CODE
 CLASS="OPTION"
 >raw</CODE
 > for
-a raw binary.</P
+a raw binary, <CODE
+CLASS="OPTION"
+>hex</CODE
+> for ASCII hexadecminal format, 
+<CODE
+CLASS="OPTION"
+>srec</CODE
+> for Motorola S-Record format, and <CODE
+CLASS="OPTION"
+>ihex</CODE
+>
+ for Intel Hex format.</P
 ></DD
 ><DT
 ><CODE
@@ -690,7 +797,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN170"
+NAME="AEN190"
 >3.2. Dialects</A
 ></H2
 ><P
@@ -724,7 +831,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN177"
+NAME="AEN197"
 >3.3. Source Format</A
 ></H2
 ><P
@@ -770,7 +877,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN187"
+NAME="AEN207"
 >3.4. Symbols</A
 ></H2
 ><P
@@ -798,7 +905,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN192"
+NAME="AEN212"
 >3.5. Numbers and Expressions</A
 ></H2
 ><P
@@ -843,7 +950,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN200"
+NAME="AEN220"
 >3.6. Assembler Directives</A
 ></H2
 ><P
@@ -856,7 +963,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN203"
+NAME="AEN223"
 >3.6.1. Data Directives</A
 ></H3
 ><P
@@ -1090,7 +1197,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN314"
+NAME="AEN334"
 >3.6.2. Address Definition</A
 ></H3
 ><P
@@ -1110,10 +1217,10 @@ CLASS="PARAMETER"
 ><P
 >Set the assembly address. The address must be fully resolvable on the
 first pass so no external or forward references are permitted. ORG is not
-permitted within sections when outputting to object files. For the DECB
-target, each ORG directive after which output is generated will cause
-a new preamble to be output. ORG is only used to determine the addresses
-of symbols when the raw target is used.</P
+permitted within sections when outputting to object files. For target formats
+that include address information (decb, hex, srec, and ihex), an ORG 
+directive will re-start the address sequence within the output. When using
+the raw target format, ORG is used only to determine the addresses of symbols.</P
 ></DD
 ><DT
 ><CODE
@@ -1226,7 +1333,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN361"
+NAME="AEN381"
 >3.6.3. Conditional Assembly</A
 ></H3
 ><P
@@ -1389,7 +1496,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN426"
+NAME="AEN446"
 >3.6.4. OS9 Target Directives</A
 ></H3
 ><P
@@ -1456,7 +1563,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN451"
+NAME="AEN471"
 >3.6.5. Miscelaneous Directives</A
 ></H3
 ><P
@@ -1570,7 +1677,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN491"
+NAME="AEN511"
 >3.7. Macros</A
 ></H2
 ><P
@@ -1669,7 +1776,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN514"
+NAME="AEN534"
 >3.8. Structures</A
 ></H2
 ><P
@@ -1762,7 +1869,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN535"
+NAME="AEN555"
 >3.9. Object Files and Sections</A
 ></H2
 ><P
@@ -1979,7 +2086,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN599"
+NAME="AEN619"
 >3.10. Assembler Modes and Pragmas</A
 ></H2
 ><P
@@ -2254,7 +2361,7 @@ while nolist is already engaged, it will not undo that state.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN693"
+NAME="AEN713"
 ></A
 >Chapter 4. LWLINK</H1
 ><P
@@ -2265,7 +2372,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN696"
+NAME="AEN716"
 >4.1. Command Line Options</A
 ></H2
 ><P
@@ -2462,7 +2569,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN793"
+NAME="AEN813"
 >4.2. Linker Operation</A
 ></H2
 ><P
@@ -2518,7 +2625,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN807"
+NAME="AEN827"
 >4.3. Linking Scripts</A
 ></H2
 ><P
@@ -2722,7 +2829,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN873"
+NAME="AEN893"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2735,7 +2842,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN876"
+NAME="AEN896"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2811,7 +2918,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN888"
+NAME="AEN908"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2830,7 +2937,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN892"
+NAME="AEN912"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -3031,7 +3138,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN975"
+NAME="AEN995"
 ></A
 ><P
 ><B
@@ -3103,7 +3210,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN1005"
+NAME="AEN1025"
 ></A
 ><P
 ><B
