@@ -47,9 +47,15 @@ sectopt_t *section_opts = NULL;
 void check_section_name(char *name, int *base, fileinfo_t *fn, int down)
 {
 	int sn;
+	sectopt_t *so;
+	
 //	fprintf(stderr, "Considering sections in %s (%d) for %s\n", fn -> filename, fn -> forced, name);
 	if (fn -> forced == 0)
 		return;
+
+	for (so = section_opts; so; so = so -> next)
+		if (!strcmp(so -> name, name))
+			break;
 
 	for (sn = 0; sn < fn -> nsections; sn++)
 	{
@@ -62,7 +68,8 @@ void check_section_name(char *name, int *base, fileinfo_t *fn, int down)
 //			fprintf(stderr, "    Found\n");
 			sectlist = lw_realloc(sectlist, sizeof(struct section_list) * (nsects + 1));
 			sectlist[nsects].ptr = &(fn -> sections[sn]);
-					
+			
+				
 			fn -> sections[sn].processed = 1;
 			if (down)
 			{
@@ -73,6 +80,14 @@ void check_section_name(char *name, int *base, fileinfo_t *fn, int down)
 			{
 				fn -> sections[sn].loadaddress = *base;
 				*base += fn -> sections[sn].codesize;
+			}
+			if (down && so && so -> aftersize)
+			{
+				sectlist[nsects].ptr -> afterbytes = so -> afterbytes;
+				sectlist[nsects].ptr -> aftersize = so -> aftersize;
+				sectlist[nsects].ptr -> loadaddress -= so -> aftersize;
+				*base -= so -> aftersize;
+				so -> aftersize = 0;
 			}
 			nsects++;
 //			fprintf(stderr, "Adding section %s (%s)\n",fn -> sections[sn].name, fn -> filename);
