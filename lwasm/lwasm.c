@@ -402,6 +402,10 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			return NULL;
 		v = (unsigned char)**p << 8 | (unsigned char)*((*p)+1);
 		(*p) += 2;
+		
+		if (**p == '"')
+			(*p)++;
+		
 		return lw_expr_build(lw_expr_type_int, v);
 	}
 	
@@ -415,6 +419,10 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		
 		v = (unsigned char)**p;
 		(*p)++;
+		
+		if (**p == '\'')
+			(*p)++;
+		
 		return lw_expr_build(lw_expr_type_int, v);
 	}
 	
