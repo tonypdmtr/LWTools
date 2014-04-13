@@ -274,8 +274,6 @@ void do_pass1(asmstate_t *as)
 				if (!strcasecmp(instab[opnum].opcode, sym))
 					break;
 			}
-			if ((as -> target != TARGET_6309) && (instab[opnum].flags & lwasm_insn_is6309))
-				lwasm_register_error(as, cl, "Illegal use of 6309 instruction in 6809 mode (%s)", sym);
 			
 			// have to go to linedone here in case there was a symbol
 			// to register on this line
@@ -298,7 +296,7 @@ void do_pass1(asmstate_t *as)
 			if (as -> skipcond && !(instab[opnum].flags & lwasm_insn_cond))
 				goto linedone;
         	
-        	if (!nomacro && (as -> pragmas & PRAGMA_SHADOW))
+        	if (!nomacro && ((as -> pragmas & PRAGMA_SHADOW) || ((as -> target != TARGET_6309) && (instab[opnum].flags & lwasm_insn_is6309))))
         	{
         		// check for macros even if they shadow real operations
         		// NOTE: "ENDM" cannot be shadowed
@@ -332,13 +330,16 @@ void do_pass1(asmstate_t *as)
 				// no parse func means operand doesn't matter
 				if (instab[opnum].parse)
 				{
+					if ((as -> target != TARGET_6309) && (instab[opnum].flags & lwasm_insn_is6309))
+						lwasm_register_error(as, cl, "Illegal use of 6309 instruction in 6809 mode (%s)", sym);
+			
 					if (as -> instruct == 0 || instab[opnum].flags & lwasm_insn_struct)
 					{
 						struct line_expr_s *le;
 
 						cl -> len = -1;
 						// call parse function
-					debug_message(as, 100, "len = %d, dlen = %d", cl -> len, cl -> dlen);
+						debug_message(as, 100, "len = %d, dlen = %d", cl -> len, cl -> dlen);
 						(instab[opnum].parse)(as, cl, &p1);
 						if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
 						{
