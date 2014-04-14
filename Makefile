@@ -161,8 +161,8 @@ docs/manual/manual.html: docs/manual.docbook.sgml
 	docbook2html -o docs -u docs/manual.docbook.sgml && mv docs/manual.docbook.html docs/manual/manual.html
 
 docs/manual/index.html: docs/manual.docbook.sgml
-	docbook2html -o docs/manual docsmanual.docbook.sgml
+	docbook2html -o docs/manual docs/manual.docbook.sgml
 
 docs/manual/manual.pdf: docs/manual.docbook.sgml
-	docbook2pdf -o docs -u docsmanual.docbook.sgml && mv docs/manual.docbook.pdf docs/manual/manual.pdf && rm -f docs/manual.docbook.html
+	docbook2pdf -o docs -u docs/manual.docbook.sgml && mv docs/manual.docbook.pdf docs/manual/manual.pdf && rm -f docs/manual.docbook.html
 
