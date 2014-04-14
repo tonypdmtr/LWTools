@@ -1226,7 +1226,7 @@ lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec)
 	int opern, i;
 	lw_expr_t term1, term2, term3;
 	
-	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']')
+	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']' || **p == ';')
 		return NULL;
 
 	term1 = lw_expr_parse_term(p, priv);
@@ -1234,7 +1234,7 @@ lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec)
 		return NULL;
 
 eval_next:
-	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']')
+	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']' || **p == ';')
 		return term1;
 	
 	// expecting an operator here
