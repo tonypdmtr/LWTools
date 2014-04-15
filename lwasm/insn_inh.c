@@ -32,3 +32,19 @@ EMITFUNC(insn_emit_inh)
 {
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 }
+
+PARSEFUNC(insn_parse_inh6800)
+{
+	// there may be two operations here so check for both
+	l -> len = OPLEN(instab[l -> insn].ops[0]);
+	if (instab[l -> insn].ops[1] >= 0)
+		l -> len += OPLEN(instab[l -> insn].ops[1]);
+}
+
+EMITFUNC(insn_emit_inh6800)
+{
+	// there may be two operations here so check for both
+	lwasm_emitop(l, instab[l -> insn].ops[0]);
+	if (instab[l -> insn].ops[1] >= 0)
+		lwasm_emitop(l, instab[l -> insn].ops[1]);
+}

@@ -89,7 +89,8 @@ enum lwasm_pragmas_e
 	PRAGMA_AUTOBRANCHLENGTH = 0x0100,	// automatically select proper length for relative branches
 	PRAGMA_EXPORT = 0x0200,				// export symbols by default, unless local
 	PRAGMA_SYMBOLNOCASE = 0x400,		// symbols defined under this pragma are matched case insensitively
-	PRAGMA_CONDUNDEFZERO = 0x800		// treat undefined symbols as zero in conditionals during pass 1
+	PRAGMA_CONDUNDEFZERO = 0x800,		// treat undefined symbols as zero in conditionals during pass 1
+	PRAGMA_6800COMPAT = 0x1000			// enable 6800 compatibility opcodes
 };
 
 

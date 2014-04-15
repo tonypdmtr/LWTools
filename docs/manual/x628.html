@@ -14,10 +14,10 @@ TITLE="LWASM"
 HREF="c62.html"><LINK
 REL="PREVIOUS"
 TITLE="Object Files and Sections"
-HREF="x555.html"><LINK
+HREF="x564.html"><LINK
 REL="NEXT"
 TITLE="LWLINK"
-HREF="c713.html"></HEAD
+HREF="c727.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x555.html"
+HREF="x564.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c713.html"
+HREF="c727.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,7 +73,7 @@ CLASS="SECTION"
 ><H1
 CLASS="SECTION"
 ><A
-NAME="AEN619"
+NAME="AEN628"
 >3.10. Assembler Modes and Pragmas</A
 ></H1
 ><P
@@ -159,6 +159,23 @@ present or removing "no" from the beginning if it is present.</P
 ><DIV
 CLASS="VARIABLELIST"
 ><DL
+><DT
+>6800compat</DT
+><DD
+><P
+>When in force, this pragma enables recognition of various
+compatibility instructions useful when assembling 6800 code.  These
+compatibility instructions are assembled into equivalent 6809 instructions. 
+This mode also includes several analogous instructions which are not
+strictly 6800 instructions but allow the similar style to be applied to 6809
+specific features.</P
+><P
+>Technically, a compliant 6809 assembler must recognize these
+instructions by default since Motorola advertised the 6809 as being source
+compatible with the 6800.  However, most source code does not require this
+compatibility and LWASM itself did not support these instructions prior to
+version 4.11 so this mode is disabled by default.</P
+></DD
 ><DT
 >index0tonone</DT
 ><DD
@@ -359,7 +376,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x555.html"
+HREF="x564.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -377,7 +394,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c713.html"
+HREF="c727.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

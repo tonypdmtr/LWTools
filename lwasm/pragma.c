@@ -60,6 +60,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "symbolnocase", "nosymbolnocase", PRAGMA_SYMBOLNOCASE },
 	{ "nosymbolcase", "symbolcase", PRAGMA_SYMBOLNOCASE },
 	{ "condundefzero", "nocondundefzero", PRAGMA_CONDUNDEFZERO },
+	{ "6800compat", "no6800compat", PRAGMA_6800COMPAT },
 	{ 0, 0, 0}
 };
 

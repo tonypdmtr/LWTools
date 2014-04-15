@@ -59,6 +59,7 @@ static struct lw_cmdline_options options[] =
 	{ "define", 'D', "SYM[=VAL]", 0, "Automatically define SYM to be VAL (or 1)"},
 	{ "preprocess",	'P',	0,			0,							"Preprocess macros and conditionals and output revised source to stdout" },
 	{ "unicorns",	0x142,	0,			0,							"Add sooper sekrit sauce"},
+	{ "6800compat",	0x200,	0,			0,							"Enable 6800 compatibility instructions, equivalent to --pragma=6800compat" },
 	{ 0 }
 };
 
@@ -190,6 +191,10 @@ static int parse_opts(int key, char *arg, void *state)
 
 	case 'P':
 		as -> preprocess = 1;
+		break;
+	
+	case 0x200:
+		as -> pragmas |= PRAGMA_6800COMPAT;
 		break;
 		
 	case lw_cmdline_key_end:

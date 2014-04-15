@@ -287,6 +287,15 @@ completeness and to override preset command arguments.
 </varlistentry>
 
 <varlistentry>
+<term><option>--6800compat</option></term>
+<listitem>
+<para>
+This is equivalent to <option>--pragma=6800compat</option>.</para>
+<para>This will enable recognition of 6800 compatibility instructions.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
 <term><option>--6809</option></term>
 <term><option>-9</option></term>
 <listitem>
@@ -463,16 +472,19 @@ LWASM source code itself.
 
 <section>
 <title>Dialects</title>
-<para>
-LWASM supports all documented MC6809 instructions as defined by Motorola. 
-It also supports all known HD6309 instructions.  While there is general
-agreement on the pneumonics for most of the 6309 instructions, there is some
-variance with the block transfer instructions. TFM for all four variations
-seems to have gained the most traction and, thus, this is the form that is
-recommended for LWASM. However, it also supports COPY, COPY-, IMP, EXP,
-TFRP, TFRM, TFRS, and TFRR. It further adds COPY+ as a synomym for COPY,
-IMPLODE for IMP, and EXPAND for EXP.
-</para>
+
+<para> LWASM supports all documented MC6809 instructions as defined by
+Motorola.  By default, this does not include any MC6800 compatibility
+instructions.  As of LWASM 4.11, those compatibility instructions can be
+enabled using the <parameter>--6800compat</parameter> option or the
+<parameter>6800compat</parameter> pragma.  It also supports all known HD6309
+instructions.  While there is general agreement on the pneumonics for most
+of the 6309 instructions, there is some variance with the block transfer
+instructions.  TFM for all four variations seems to have gained the most
+traction and, thus, this is the form that is recommended for LWASM. 
+However, it also supports COPY, COPY-, IMP, EXP, TFRP, TFRM, TFRS, and TFRR. 
+It further adds COPY+ as a synomym for COPY, IMPLODE for IMP, and EXPAND for
+EXP.  </para>
 
 <para>By default, LWASM accepts 6309 instructions. However, using the
 <parameter>--6809</parameter> parameter, you can cause it to throw errors on
@@ -1611,6 +1623,26 @@ present or removing "no" from the beginning if it is present.</para>
 <para>Pragmas are not case sensitive.</para>
 
 <variablelist>
+
+<varlistentry>
+<term>6800compat</term>
+<listitem>
+
+<para>When in force, this pragma enables recognition of various
+compatibility instructions useful when assembling 6800 code.  These
+compatibility instructions are assembled into equivalent 6809 instructions. 
+This mode also includes several analogous instructions which are not
+strictly 6800 instructions but allow the similar style to be applied to 6809
+specific features.</para>
+
+<para>Technically, a compliant 6809 assembler must recognize these
+instructions by default since Motorola advertised the 6809 as being source
+compatible with the 6800.  However, most source code does not require this
+compatibility and LWASM itself did not support these instructions prior to
+version 4.11 so this mode is disabled by default.</para>
+
+</listitem>
+
 <varlistentry>
 <term>index0tonone</term>
 <listitem>

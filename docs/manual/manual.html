@@ -121,112 +121,112 @@ HREF="#AEN65"
 ></DT
 ><DT
 >3.2. <A
-HREF="#AEN190"
+HREF="#AEN197"
 >Dialects</A
 ></DT
 ><DT
 >3.3. <A
-HREF="#AEN197"
+HREF="#AEN206"
 >Source Format</A
 ></DT
 ><DT
 >3.4. <A
-HREF="#AEN207"
+HREF="#AEN216"
 >Symbols</A
 ></DT
 ><DT
 >3.5. <A
-HREF="#AEN212"
+HREF="#AEN221"
 >Numbers and Expressions</A
 ></DT
 ><DT
 >3.6. <A
-HREF="#AEN220"
+HREF="#AEN229"
 >Assembler Directives</A
 ></DT
 ><DD
 ><DL
 ><DT
 >3.6.1. <A
-HREF="#AEN223"
+HREF="#AEN232"
 >Data Directives</A
 ></DT
 ><DT
 >3.6.2. <A
-HREF="#AEN334"
+HREF="#AEN343"
 >Address Definition</A
 ></DT
 ><DT
 >3.6.3. <A
-HREF="#AEN381"
+HREF="#AEN390"
 >Conditional Assembly</A
 ></DT
 ><DT
 >3.6.4. <A
-HREF="#AEN446"
+HREF="#AEN455"
 >OS9 Target Directives</A
 ></DT
 ><DT
 >3.6.5. <A
-HREF="#AEN471"
+HREF="#AEN480"
 >Miscelaneous Directives</A
 ></DT
 ></DL
 ></DD
 ><DT
 >3.7. <A
-HREF="#AEN511"
+HREF="#AEN520"
 >Macros</A
 ></DT
 ><DT
 >3.8. <A
-HREF="#AEN534"
+HREF="#AEN543"
 >Structures</A
 ></DT
 ><DT
 >3.9. <A
-HREF="#AEN555"
+HREF="#AEN564"
 >Object Files and Sections</A
 ></DT
 ><DT
 >3.10. <A
-HREF="#AEN619"
+HREF="#AEN628"
 >Assembler Modes and Pragmas</A
 ></DT
 ></DL
 ></DD
 ><DT
 >4. <A
-HREF="#AEN713"
+HREF="#AEN727"
 >LWLINK</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.1. <A
-HREF="#AEN716"
+HREF="#AEN730"
 >Command Line Options</A
 ></DT
 ><DT
 >4.2. <A
-HREF="#AEN813"
+HREF="#AEN827"
 >Linker Operation</A
 ></DT
 ><DT
 >4.3. <A
-HREF="#AEN827"
+HREF="#AEN841"
 >Linking Scripts</A
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN893"
+HREF="#AEN907"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN896"
+HREF="#AEN910"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -235,14 +235,14 @@ HREF="#AEN896"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN908"
+HREF="#AEN922"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN912"
+HREF="#AEN926"
 >Command Line Options</A
 ></DT
 ></DL
@@ -264,12 +264,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN995"
+HREF="#AEN1009"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN1025"
+HREF="#AEN1039"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -559,6 +559,20 @@ completeness and to override preset command arguments.</P
 ><DT
 ><CODE
 CLASS="OPTION"
+>--6800compat</CODE
+></DT
+><DD
+><P
+>This is equivalent to <CODE
+CLASS="OPTION"
+>--pragma=6800compat</CODE
+>.</P
+><P
+>This will enable recognition of 6800 compatibility instructions.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
 >--6809</CODE
 >, <CODE
 CLASS="OPTION"
@@ -797,18 +811,28 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN190"
+NAME="AEN197"
 >3.2. Dialects</A
 ></H2
 ><P
->LWASM supports all documented MC6809 instructions as defined by Motorola. 
-It also supports all known HD6309 instructions.  While there is general
-agreement on the pneumonics for most of the 6309 instructions, there is some
-variance with the block transfer instructions. TFM for all four variations
-seems to have gained the most traction and, thus, this is the form that is
-recommended for LWASM. However, it also supports COPY, COPY-, IMP, EXP,
-TFRP, TFRM, TFRS, and TFRR. It further adds COPY+ as a synomym for COPY,
-IMPLODE for IMP, and EXPAND for EXP.</P
+> LWASM supports all documented MC6809 instructions as defined by
+Motorola.  By default, this does not include any MC6800 compatibility
+instructions.  As of LWASM 4.11, those compatibility instructions can be
+enabled using the <CODE
+CLASS="PARAMETER"
+>--6800compat</CODE
+> option or the
+<CODE
+CLASS="PARAMETER"
+>6800compat</CODE
+> pragma.  It also supports all known HD6309
+instructions.  While there is general agreement on the pneumonics for most
+of the 6309 instructions, there is some variance with the block transfer
+instructions.  TFM for all four variations seems to have gained the most
+traction and, thus, this is the form that is recommended for LWASM. 
+However, it also supports COPY, COPY-, IMP, EXP, TFRP, TFRM, TFRS, and TFRR. 
+It further adds COPY+ as a synomym for COPY, IMPLODE for IMP, and EXPAND for
+EXP.  </P
 ><P
 >By default, LWASM accepts 6309 instructions. However, using the
 <CODE
@@ -831,7 +855,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN197"
+NAME="AEN206"
 >3.3. Source Format</A
 ></H2
 ><P
@@ -877,7 +901,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN207"
+NAME="AEN216"
 >3.4. Symbols</A
 ></H2
 ><P
@@ -905,7 +929,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN212"
+NAME="AEN221"
 >3.5. Numbers and Expressions</A
 ></H2
 ><P
@@ -950,7 +974,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN220"
+NAME="AEN229"
 >3.6. Assembler Directives</A
 ></H2
 ><P
@@ -963,7 +987,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN223"
+NAME="AEN232"
 >3.6.1. Data Directives</A
 ></H3
 ><P
@@ -1197,7 +1221,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN334"
+NAME="AEN343"
 >3.6.2. Address Definition</A
 ></H3
 ><P
@@ -1333,7 +1357,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN381"
+NAME="AEN390"
 >3.6.3. Conditional Assembly</A
 ></H3
 ><P
@@ -1496,7 +1520,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN446"
+NAME="AEN455"
 >3.6.4. OS9 Target Directives</A
 ></H3
 ><P
@@ -1563,7 +1587,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN471"
+NAME="AEN480"
 >3.6.5. Miscelaneous Directives</A
 ></H3
 ><P
@@ -1677,7 +1701,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN511"
+NAME="AEN520"
 >3.7. Macros</A
 ></H2
 ><P
@@ -1776,7 +1800,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN534"
+NAME="AEN543"
 >3.8. Structures</A
 ></H2
 ><P
@@ -1869,7 +1893,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN555"
+NAME="AEN564"
 >3.9. Object Files and Sections</A
 ></H2
 ><P
@@ -2086,7 +2110,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN619"
+NAME="AEN628"
 >3.10. Assembler Modes and Pragmas</A
 ></H2
 ><P
@@ -2172,6 +2196,23 @@ present or removing "no" from the beginning if it is present.</P
 ><DIV
 CLASS="VARIABLELIST"
 ><DL
+><DT
+>6800compat</DT
+><DD
+><P
+>When in force, this pragma enables recognition of various
+compatibility instructions useful when assembling 6800 code.  These
+compatibility instructions are assembled into equivalent 6809 instructions. 
+This mode also includes several analogous instructions which are not
+strictly 6800 instructions but allow the similar style to be applied to 6809
+specific features.</P
+><P
+>Technically, a compliant 6809 assembler must recognize these
+instructions by default since Motorola advertised the 6809 as being source
+compatible with the 6800.  However, most source code does not require this
+compatibility and LWASM itself did not support these instructions prior to
+version 4.11 so this mode is disabled by default.</P
+></DD
 ><DT
 >index0tonone</DT
 ><DD
@@ -2361,7 +2402,7 @@ while nolist is already engaged, it will not undo that state.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN713"
+NAME="AEN727"
 ></A
 >Chapter 4. LWLINK</H1
 ><P
@@ -2372,7 +2413,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN716"
+NAME="AEN730"
 >4.1. Command Line Options</A
 ></H2
 ><P
@@ -2569,7 +2610,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN813"
+NAME="AEN827"
 >4.2. Linker Operation</A
 ></H2
 ><P
@@ -2625,7 +2666,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN827"
+NAME="AEN841"
 >4.3. Linking Scripts</A
 ></H2
 ><P
@@ -2829,7 +2870,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN893"
+NAME="AEN907"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2842,7 +2883,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN896"
+NAME="AEN910"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2918,7 +2959,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN908"
+NAME="AEN922"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2937,7 +2978,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN912"
+NAME="AEN926"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -3138,7 +3179,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN995"
+NAME="AEN1009"
 ></A
 ><P
 ><B
@@ -3210,7 +3251,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN1025"
+NAME="AEN1039"
 ></A
 ><P
 ><B

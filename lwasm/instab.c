@@ -29,6 +29,11 @@ extern PARSEFUNC(insn_parse_inh);
 #define insn_resolve_inh NULL
 extern EMITFUNC(insn_emit_inh);
 
+// inherent 6800 mode
+extern PARSEFUNC(insn_parse_inh6800);
+#define insn_resolve_inh6800 NULL
+extern EMITFUNC(insn_emit_inh6800);
+
 // register to register
 extern PARSEFUNC(insn_parse_rtor);
 #define insn_resolve_rtor NULL
@@ -721,6 +726,34 @@ instab_t instab[] =
 	{ "spc",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ "ttl",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ ".bank",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
+
+	// for 6800 compatibility
+	{ "aba",		{	0x3404,	0xabe0,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "cba",		{	0x3404,	0xa1e0,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "clc",		{	0x1cfe,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "clf",		{	0x1cbf,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "cli",		{	0x1cef,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "clif",		{	0x1caf,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "clv",		{	0x1cfd,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "des",		{	0x327f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "dex",		{	0x301f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "dey",		{	0x313f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "ins",		{	0x3261,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "inx",		{	0x3001,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "iny",		{	0x3121,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sba",		{	0x3404,	0xa0e0,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sec",		{	0x1a01,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sef",		{	0x1a40,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sei",		{	0x1a10,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "seif",		{	0x1a50,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sev",		{	0x1a02,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tab",		{	0x1f89,	0x4d,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tap",		{	0x1f8a,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tba",		{	0x1f98,	0x4d,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tpa",		{	0x1fa8,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tsx",		{	0x1f41,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "txs",		{	0x1f14,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "wai",		{	0x3cff,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
 
 	// flag end of table
 	{ NULL,			{	-1, 	-1, 	-1, 	-1 },	NULL,					NULL,							lwasm_insn_normal}

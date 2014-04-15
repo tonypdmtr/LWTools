@@ -271,6 +271,9 @@ void do_pass1(asmstate_t *as)
 
 			for (opnum = 0; instab[opnum].opcode; opnum++)
 			{
+				// ignore 6800 compatibility entries unless asked for
+				if ((instab[opnum].flags & lwasm_insn_is6800) && !CURPRAGMA(cl, PRAGMA_6800COMPAT))
+					continue;
 				if (!strcasecmp(instab[opnum].opcode, sym))
 					break;
 			}
