@@ -52,7 +52,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		{"b,x", 0x85},		{"b,y", 0xa5},		{"b,u", 0xc5},		{"b,s", 0xe5},
 		{"e,x", 0x87},		{"e,y", 0xa7},		{"e,u", 0xc7},		{"e,s", 0xe7},
 		{"f,x",	0x8a},		{"f,y",	0xaa},		{"f,u", 0xca},		{"f,s", 0xea},
-		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xed},
+		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xeb},
 		{"w,x", 0x8e},		{"w,y", 0xae},		{"w,u", 0xce},		{"w,s", 0xee},
 		{",w", 0x8f},							{",w++", 0xcf},		{",--w", 0xef},
 		
@@ -63,7 +63,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		{"[b,x]", 0x95},	{"[b,y]", 0xb5},	{"[b,u]", 0xd5},	{"[b,s]", 0xf5},
 		{"[e,x]", 0x97},	{"[e,y]", 0xb7},	{"[e,u]", 0xd7},	{"[e,s]", 0xf7},
 		{"[f,x]", 0x9a},	{"[f,y]", 0xba},	{"[f,u]", 0xda},	{"[f,s]", 0xfa},
-		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfd},
+		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfb},
 		{"[w,x]", 0x9e},	{"[w,y]", 0xbe},	{"[w,u]", 0xde},	{"[w,s]", 0xfe},
 		{"[,w]", 0x90},							{"[,w++]", 0xd0},	{"[,--w]", 0xf0},
 		
@@ -80,14 +80,14 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		{",--x", 0x83},		{",--y", 0xa3},		{",--u", 0xc3},		{",--s", 0xe3},
 		{"a,x", 0x86},		{"a,y", 0xa6},		{"a,u", 0xc6},		{"a,s", 0xe6},
 		{"b,x", 0x85},		{"b,y", 0xa5},		{"b,u", 0xc5},		{"b,s", 0xe5},
-		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xed},
+		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xeb},
 		
 		{"[,x]", 0x94},		{"[,y]", 0xb4},		{"[,u]", 0xd4},		{"[,s]", 0xf4},
 		{"[,x++]", 0x91},	{"[,y++]", 0xb1},	{"[,u++]", 0xd1},	{"[,s++]", 0xf1},
 		{"[,--x]", 0x93},	{"[,--y]", 0xb3},	{"[,--u]", 0xd3},	{"[,--s]", 0xf3},
 		{"[a,x]", 0x96},	{"[a,y]", 0xb6},	{"[a,u]", 0xd6},	{"[a,s]", 0xf6},
 		{"[b,x]", 0x95},	{"[b,y]", 0xb5},	{"[b,u]", 0xd5},	{"[b,s]", 0xf5},
-		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfd},
+		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfb},
 		
 		{ "", -1 }
 	};
