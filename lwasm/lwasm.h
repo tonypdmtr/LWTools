@@ -354,6 +354,8 @@ extern lw_expr_t lwasm_parse_cond(asmstate_t *as, char **p);
 
 extern int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max);
 
+extern void lwasm_reduce_line_exprs(line_t *cl);
+
 #endif
 
 extern void debug_message(asmstate_t *as, int level, const char *fmt, ...);

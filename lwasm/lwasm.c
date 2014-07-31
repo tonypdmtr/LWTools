@@ -31,6 +31,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_string.h>
 
 #include "lwasm.h"
+#include "instab.h"
 
 void lwasm_register_error(asmstate_t *as, line_t *l, const char *msg, ...);
 
@@ -1094,4 +1095,48 @@ int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max)
 	if (rd.min == -1)
 		return -1;
 	return 0;
+}
+
+void lwasm_reduce_line_exprs(line_t *cl)
+{
+	asmstate_t *as;
+	struct line_expr_s *le;
+	int i;
+			
+	as = cl -> as;
+	as -> cl = cl;
+			
+	// simplify address
+	lwasm_reduce_expr(as, cl -> addr);
+		
+	// simplify data address
+	lwasm_reduce_expr(as, cl -> daddr);
+
+	// simplify each expression
+	for (i = 0, le = cl -> exprs; le; le = le -> next, i++)
+	{
+		lwasm_reduce_expr(as, le -> expr);
+		debug_message(as, 100, "Reduce expressions: exp[%d] = %s", i, lw_expr_print(le -> expr));
+	}
+			
+	if (cl -> len == -1 || cl -> dlen == -1)
+	{
+		// try resolving the instruction length
+		// but don't force resolution
+		if (cl -> insn >= 0 && instab[cl -> insn].resolve)
+		{
+			(instab[cl -> insn].resolve)(as, cl, 0);
+			if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
+			{
+				if (cl -> len == 0)
+					cl -> len = cl -> dlen;
+				else
+					cl -> dlen = cl -> len;
+			}
+		}
+	}
+	debug_message(as, 100, "Reduce expressions: len = %d", cl -> len);
+	debug_message(as, 100, "Reduce expressions: dlen = %d", cl -> dlen);
+	debug_message(as, 100, "Reduce expressions: addr = %s", lw_expr_print(cl -> addr));
+	debug_message(as, 100, "Reduce expressions: daddr = %s", lw_expr_print(cl -> daddr));
 }

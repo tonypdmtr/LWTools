@@ -338,8 +338,6 @@ void do_pass1(asmstate_t *as)
 			
 					if (as -> instruct == 0 || instab[opnum].flags & lwasm_insn_struct)
 					{
-						struct line_expr_s *le;
-
 						cl -> len = -1;
 						// call parse function
 						debug_message(as, 100, "len = %d, dlen = %d", cl -> len, cl -> dlen);
@@ -359,28 +357,7 @@ void do_pass1(asmstate_t *as)
 						}
 						
 						/* do a reduction on the line expressions to avoid carrying excessive expression baggage if not needed */
-						as -> cl = cl;
-		
-						// simplify address
-						lwasm_reduce_expr(as, cl -> addr);
-		
-						// simplify each expression
-						for (le = cl -> exprs; le; le = le -> next)
-							lwasm_reduce_expr(as, le -> expr);
-						
-						/* try resolving the instruction as well */
-						if (cl -> insn >= 0 && instab[cl -> insn].resolve)
-						{
-							(instab[cl -> insn].resolve)(as, cl, 0);
-							if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
-							{
-								if (cl -> len == 0)
-									cl -> len = cl -> dlen;
-								else
-									cl -> dlen = cl -> len;
-							}
-						}
-
+						lwasm_reduce_line_exprs(cl);
 					}
 					else if (as -> instruct == 1)
 					{
