@@ -358,9 +358,15 @@ extern void lwasm_reduce_line_exprs(line_t *cl);
 
 #endif
 
-extern void debug_message(asmstate_t *as, int level, const char *fmt, ...);
+#ifdef LWASM_NODEBUG
+#define debug_message(...)
+#define dump_state(...)
+#else
+extern void real_debug_message(asmstate_t *as, int level, const char *fmt, ...);
 extern void dump_state(asmstate_t *as);
 
+#define debug_message(as,level,...) do { asmstate_t *ras = (as); int rlevel = (level); if (ras->debug_level >= rlevel) { real_debug_message(ras, rlevel, __VA_ARGS__); } } while (0)
+#endif
 
 #define OPLEN(op) (((op)>0xFF)?2:1)
 #define CURPRAGMA(l,p)	(((l) && ((l)->pragmas & (p))) ? 1 : 0)

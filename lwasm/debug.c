@@ -19,6 +19,8 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef LWASM_NODEBUG
+
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -72,7 +74,7 @@ void dump_state(asmstate_t *as)
 	}
 }
 
-void debug_message(asmstate_t *as, int level, const char *fmt, ...)
+void real_debug_message(asmstate_t *as, int level, const char *fmt, ...)
 {
 	va_list args;
 
@@ -90,3 +92,5 @@ void debug_message(asmstate_t *as, int level, const char *fmt, ...)
 
 	va_end(args);
 }
+
+#endif

@@ -102,10 +102,14 @@ static int parse_opts(int key, char *arg, void *state)
 		break;
 
 	case 'd':
+#ifdef LWASM_NODEBUG
+		fprintf(stderr, "This binary has been built without debugging message support\n");
+#else
 		if (!arg)
 			as -> debug_level = 50;
 		else
 			as -> debug_level = atoi(arg);
+#endif
 		break;
 
 	case 'l':
