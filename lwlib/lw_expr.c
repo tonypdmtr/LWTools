@@ -105,43 +105,24 @@ lw_expr_t lw_expr_create(void)
 	
 	r = lw_alloc(sizeof(struct lw_expr_priv));
 	r -> operands = NULL;
-	r -> operand_tail = NULL;
 	r -> value2 = NULL;
 	r -> type = lw_expr_type_int;
 	r -> value = 0;
 	return r;
 }
 
-static lw_expr_t lw_expr_remove_operand(lw_expr_t E, struct lw_expr_opers *o)
-{
-	lw_expr_t r;
-	if (E -> operands == o)
-		E -> operands = o -> next;
-	else
-		o -> prev -> next = o -> next;
-	
-	if (E -> operand_tail == o)
-		E -> operand_tail = o -> prev;
-	else
-		o -> next -> prev = o -> prev;
-	
-	r = o -> p;
-	lw_free(o);
-	return r;
-}
-
-void lw_expr_destroy(lw_expr_t E);
-static void lw_expr_remove_operands(lw_expr_t E)
-{
-	while (E -> operands)
-		lw_expr_destroy(lw_expr_remove_operand(E, E -> operands));
-}
-
 void lw_expr_destroy(lw_expr_t E)
 {
+	struct lw_expr_opers *o;
 	if (!E)
 		return;
-	lw_expr_remove_operands(E);
+	while (E -> operands)
+	{
+		o = E -> operands;
+		E -> operands = o -> next;
+		lw_expr_destroy(o -> p);
+		lw_free(o);
+	}
 	if (E -> type == lw_expr_type_var)
 		lw_free(E -> value2);
 	lw_free(E);
@@ -172,18 +153,18 @@ lw_expr_t lw_expr_copy(lw_expr_t E)
 
 void lw_expr_add_operand(lw_expr_t E, lw_expr_t O)
 {
-	struct lw_expr_opers *o;
+	struct lw_expr_opers *o, *t;
 	
 	o = lw_alloc(sizeof(struct lw_expr_opers));
 	o -> p = lw_expr_copy(O);
 	o -> next = NULL;
-	o -> prev = E -> operand_tail;
+	for (t = E -> operands; t && t -> next; t = t -> next)
+		/* do nothing */ ;
 	
-	if (E -> operands)
-		E -> operand_tail -> next = o;
+	if (t)
+		t -> next = o;
 	else
 		E -> operands = o;
-	E -> operand_tail = o;
 }
 
 lw_expr_t lw_expr_build_aux(int exprtype, va_list args)
@@ -441,27 +422,18 @@ void lw_expr_simplify_sortconstfirst(lw_expr_t E)
 			lw_expr_simplify_sortconstfirst(o -> p);
 	}
 	
-	for (o = E -> operands; o; )
+	for (o = E -> operands; o; o = o -> next)
 	{
-		struct lw_expr_opers *o2;
-		o2 = o -> next;
 		if (o -> p -> type == lw_expr_type_int && o != E -> operands)
 		{
-			// because o cannot be the first operand, we don't have to
-			// handle the single element list here
-			o2 = o -> next;
-			if (E -> operand_tail == o)
-				E -> operand_tail = o -> prev;
-			o -> prev -> next = o -> next;
-			if (o -> next)
-				o -> next -> prev = o -> prev;
-			E -> operands -> prev = o;
+			struct lw_expr_opers *o2;
+			for (o2 = E -> operands; o2 -> next != o; o2 = o2 -> next)
+				/* do nothing */ ;
+			o2 -> next = o -> next;
 			o -> next = E -> operands;
-			o -> prev = NULL;
 			E -> operands = o;
-			E -> operands = o;
+			o = o2;
 		}
-		o = o2;
 	}
 }
 
@@ -613,8 +585,7 @@ again:
 				lw_free(E -> value2);
 			*E = *te;
 			E -> operands = NULL;
-			E -> operand_tail = NULL;
-			
+	
 			if (te -> type == lw_expr_type_var)
 				E -> value2 = lw_strdup(te -> value2);
 			for (o = te -> operands; o; o = o -> next)
@@ -645,7 +616,6 @@ again:
 				lw_free(E -> value2);
 			*E = *te;
 			E -> operands = NULL;
-			E -> operand_tail = NULL;
 	
 			if (te -> type == lw_expr_type_var)
 				E -> value2 = lw_strdup(te -> value2);
@@ -671,32 +641,20 @@ again:
 		{
 			if (o -> p -> type == lw_expr_type_oper && o -> p -> value == lw_expr_oper_plus)
 			{
-				if (o -> p -> operands)
-				{
-					if (E -> operands == NULL)
-					{
-						E -> operands = o -> p -> operands;
-						E -> operand_tail = o -> p -> operand_tail;
-					}
-					else
-					{
-						E -> operand_tail -> next = o -> p -> operands;
-						o -> p -> operands -> prev = E -> operand_tail;
-						E -> operand_tail = o -> p -> operand_tail;
-					}
-					o -> p -> operands = NULL;
-					o -> p -> operand_tail = NULL;
-				}
+				struct lw_expr_opers *o2;
+				// we have a + operation - bring operands up
+				
+				for (o2 = E -> operands; o2 && o2 -> next != o; o2 = o2 -> next)
+					/* do nothing */ ;
+				if (o2)
+					o2 -> next = o -> p -> operands;
+				else
+					E -> operands = o -> p -> operands;
+				for (o2 = o -> p -> operands; o2 -> next; o2 = o2 -> next)
+					/* do nothing */ ;
+				o2 -> next = o -> next;
 				o -> p -> operands = NULL;
 				lw_expr_destroy(o -> p);
-				if (o -> prev)
-					o -> prev -> next = o -> next;
-				else
-					E -> operands = o -> next;
-				if (o -> next)
-					o -> next -> prev = o -> prev;
-				else
-					E -> operand_tail = o -> prev;
 				lw_free(o);
 				goto tryagainplus;
 			}
@@ -711,32 +669,20 @@ again:
 		{
 			if (o -> p -> type == lw_expr_type_oper && o -> p -> value == lw_expr_oper_times)
 			{
-				if (o -> p -> operands)
-				{
-					if (E -> operands == NULL)
-					{
-						E -> operands = o -> p -> operands;
-						E -> operand_tail = o -> p -> operand_tail;
-					}
-					else
-					{
-						E -> operand_tail -> next = o -> p -> operands;
-						o -> p -> operands -> prev = E -> operand_tail;
-						E -> operand_tail = o -> p -> operand_tail;
-					}
-					o -> p -> operands = NULL;
-					o -> p -> operand_tail = NULL;
-				}
+				struct lw_expr_opers *o2;
+				// we have a + operation - bring operands up
+				
+				for (o2 = E -> operands; o2 && o2 -> next != o; o2 = o2 -> next)
+					/* do nothing */ ;
+				if (o2)
+					o2 -> next = o -> p -> operands;
+				else
+					E -> operands = o -> p -> operands;
+				for (o2 = o -> p -> operands; o2 -> next; o2 = o2 -> next)
+					/* do nothing */ ;
+				o2 -> next = o -> next;
 				o -> p -> operands = NULL;
 				lw_expr_destroy(o -> p);
-				if (o -> prev)
-					o -> prev -> next = o -> next;
-				else
-					E -> operands = o -> next;
-				if (o -> next)
-					o -> next -> prev = o -> prev;
-				else
-					E -> operand_tail = o -> prev;
 				lw_free(o);
 				goto tryagaintimes;
 			}
@@ -839,7 +785,13 @@ again:
 		
 		}
 		
-		lw_expr_remove_operands(E);
+		while (E -> operands)
+		{
+			o = E -> operands;
+			E -> operands = o -> next;
+			lw_expr_destroy(o -> p);
+			lw_free(o);
+		}
 		E -> type = lw_expr_type_int;
 		E -> value = tr;
 		return;
@@ -852,9 +804,7 @@ again:
 		
 		e1 = lw_expr_create();
 		e1 -> operands = E -> operands;
-		e1 -> operand_tail = E -> operand_tail;
 		E -> operands = 0;
-		E -> operand_tail = NULL;
 		
 		for (o = e1 -> operands; o; o = o -> next)
 		{
@@ -879,9 +829,7 @@ again:
 		
 		e1 = lw_expr_create();
 		e1 -> operands = E -> operands;
-		e1 -> operand_tail = E -> operand_tail;
 		E -> operands = 0;
-		E -> operand_tail = NULL;
 		
 		for (o = e1 -> operands; o; o = o -> next)
 		{
@@ -906,7 +854,13 @@ again:
 			if (o -> p -> type == lw_expr_type_int && o -> p -> value == 0)
 			{
 				// one operand of times is 0, replace operation with 0
-				lw_expr_remove_operands(E);
+				while (E -> operands)
+				{
+					o = E -> operands;
+					E -> operands = o -> next;
+					lw_expr_destroy(o -> p);
+					lw_free(o);
+				}
 				E -> type = lw_expr_type_int;
 				E -> value = 0;
 				return;
@@ -1010,7 +964,9 @@ again:
 				{
 					r = lw_expr_copy(o -> p);
 				}
-				lw_expr_destroy(lw_expr_remove_operand(E, E -> operands));
+				E -> operands = o -> next;
+				lw_expr_destroy(o -> p);
+				lw_free(o);
 			}
 			*E = *r;
 			lw_free(r);
@@ -1019,7 +975,13 @@ again:
 		else if (c == 0)
 		{
 			// replace with 0
-			lw_expr_remove_operands(E);
+			while (E -> operands)
+			{
+				o = E -> operands;
+				E -> operands = o -> next;
+				lw_expr_destroy(o -> p);
+				lw_free(o);
+			}
 			E -> type = lw_expr_type_int;
 			E -> value = 0;
 			return;
@@ -1029,12 +991,26 @@ again:
 			// collapse out zero terms
 			struct lw_expr_opers *o2;
 			
-			for (o = E -> operands; o; o = o2)
+			for (o = E -> operands; o; o = o -> next)
 			{
-				o2 = o -> next;
 				if (o -> p -> type == lw_expr_type_int && o -> p -> value == 0)
 				{
-					lw_expr_destroy(lw_expr_remove_operand(E, o));
+					if (o == E -> operands)
+					{
+						E -> operands = o -> next;
+						lw_expr_destroy(o -> p);
+						lw_free(o);
+						o = E -> operands;
+					}
+					else
+					{
+						for (o2 = E -> operands; o2 -> next == o; o2 = o2 -> next)
+							/* do nothing */ ;
+						o2 -> next = o -> next;
+						lw_expr_destroy(o -> p);
+						lw_free(o);
+						o = o2;
+					}
 				}
 			}
 		}
@@ -1059,7 +1035,6 @@ again:
 					lw_free(E -> operands -> next);
 					lw_free(E -> operands);
 					E -> operands = NULL;
-					E -> operand_tail = NULL;
 					E -> value = lw_expr_oper_plus;
 					
 					for (o = E2 -> operands; o; o = o -> next)
@@ -1068,6 +1043,9 @@ again:
 						lw_expr_add_operand(E, t1);
 						lw_expr_destroy(t1);
 					}
+					
+					lw_expr_destroy(E2);
+					lw_expr_destroy(E3);
 				}
 			}
 			else if (E -> operands -> next -> p -> type == lw_expr_type_int)
@@ -1080,7 +1058,6 @@ again:
 					lw_free(E -> operands -> next);
 					lw_free(E -> operands);
 					E -> operands = NULL;
-					E -> operand_tail = NULL;
 					E -> value = lw_expr_oper_plus;
 					
 					for (o = E2 -> operands; o; o = o -> next)

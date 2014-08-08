@@ -58,7 +58,6 @@ struct lw_expr_opers
 {
 	lw_expr_t p;
 	struct lw_expr_opers *next;
-	struct lw_expr_opers *prev;
 };
 
 struct lw_expr_priv
@@ -67,7 +66,6 @@ struct lw_expr_priv
 	int value;							// integer value
 	void *value2;						// misc pointer value
 	struct lw_expr_opers *operands;		// ptr to list of operands (for operators)
-	struct lw_expr_opers *operand_tail;	// ptr to last operand
 };
 
 typedef lw_expr_t lw_expr_fn_t(int t, void *ptr, void *priv);
