@@ -17,13 +17,17 @@ ar
 Similar to the "as" script above except for lwar.
 
 gcc6809lw-4.6.1-1.patch
+gcc6809lw-4.6.4-1.patch
 
 These are patches to the main gcc source distribution for specific releases. 
-The last number after the dash is a patch level for the specific patch. 
-These are different to the official gcc6809 releases in the following ways. 
-First, all the source for as-6809 is removed.  Also, the special "helper"
-makefile and directory is removed. Also, as of this writing, the latest
-"official" release was for gcc 4.3.4 which does not build on 64 bit linux.
+The last number after the dash is a patch level for the specific patch. It
+is worth noting that a patch for a particular minor version of GCC may work
+with later minor versions in the same release sequence. That is, a patch
+for 4.6.1 might work with 4.6.4. These are different to the official
+gcc6809 releases in the following ways. First, all the source for as-6809
+is removed. Also, the special "helper" makefile and directory is removed. 
+Also, as of this writing, the latest "official" release was for gcc 4.3.4
+which does not build on 64 bit linux.
 
 In the event you have used the "official" gcc6809 with the default as6809
 assembler that comes with it, you should be aware that while lwasm is mostly
