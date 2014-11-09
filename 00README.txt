@@ -1,3 +1,8 @@
+The official distribution point for lwtools is
+http://lwtools.projects.l-w.ca/. If you obtained this distribution from any
+other place, please visit the official site. You may have a modified or out
+of date version.
+
 This is LWTOOLS, a cross development system targetting the 6809 CPU.
 
 It consists of an assembler, lwasm, a linker, lwlink, and an archiver,
