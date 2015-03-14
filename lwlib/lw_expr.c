@@ -577,7 +577,7 @@ again:
 		te = evaluate_special(E -> value, E -> value2, priv);
 		if (lw_expr_contains(te, E))
 			lw_expr_destroy(te);
-		if (te)
+		else if (te)
 		{
 			for (o = E -> operands; o; o = o -> next)
 				lw_expr_destroy(o -> p);
