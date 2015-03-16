@@ -342,6 +342,11 @@ void do_pass1(asmstate_t *as)
 						// call parse function
 						debug_message(as, 100, "len = %d, dlen = %d", cl -> len, cl -> dlen);
 						(instab[opnum].parse)(as, cl, &p1);
+						// if we're forcing address modes on pass 1, force a resolution
+						if (CURPRAGMA(cl, PRAGMA_FORWARDREFMAX) && instab[opnum].resolve)
+						{
+							(instab[opnum].resolve)(as, cl, 1);
+						}
 						if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
 						{
 							if (cl -> len == 0)
