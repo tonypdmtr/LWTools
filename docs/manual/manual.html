@@ -197,36 +197,36 @@ HREF="#AEN628"
 ></DD
 ><DT
 >4. <A
-HREF="#AEN727"
+HREF="#AEN734"
 >LWLINK</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.1. <A
-HREF="#AEN730"
+HREF="#AEN737"
 >Command Line Options</A
 ></DT
 ><DT
 >4.2. <A
-HREF="#AEN827"
+HREF="#AEN834"
 >Linker Operation</A
 ></DT
 ><DT
 >4.3. <A
-HREF="#AEN841"
+HREF="#AEN848"
 >Linking Scripts</A
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN907"
+HREF="#AEN914"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN910"
+HREF="#AEN917"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -235,14 +235,14 @@ HREF="#AEN910"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN922"
+HREF="#AEN929"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN926"
+HREF="#AEN933"
 >Command Line Options</A
 ></DT
 ></DL
@@ -264,12 +264,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN1009"
+HREF="#AEN1016"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN1039"
+HREF="#AEN1046"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -2379,6 +2379,37 @@ a symbol.</P
 yet evaluate to a constant value at the point where the conditional appears,
 the assembler will still complain about a non constant condition.</P
 ></DD
+><DT
+>forwardrefmax</DT
+><DD
+><P
+>This pragma will disable forward reference optimization completely.
+Ordinarily, LWASM will attempt to select the shortest possible addressing
+mode for forward references.  However, in many source files, especially
+those not using the PCR relative addressing modes, this optimization is
+pointless since the assembler will almost certainly settle on a 16 bit
+offset or address.  If all variables in the direct page are defined before
+the main body of the code, the benefit of forward reference optimization
+almost certainly vanishes completely.  However, the cost of doing that
+optimization remains and can result in a very long assembly time.</P
+><P
+>Enabling this pragma will cause all forward references to use the
+maximum offset or address size, much the same has EDTASM and other pure
+two pass assemblers do. The side effect is that all line lengths and
+symbol values are fully resolved after the initial parsing pass and the
+amount of work to resolve everything becomes almost nil.</P
+><P
+>While this pragma can be applied selectively to sections of source
+code (use *PRAGMA if doing so and compatibility with other assemblers
+is desired), it is likely more useful when provided as a command line
+pragma.</P
+><P
+>It should be noted that the presence or absence of this pragma
+will not change the correctness of the generated code unless cycle counts
+or byte counts are critical (which they usually are not). It also will
+not override the operand size override prefixes (&lt; and &gt;). It only
+applies when the assembler is left to guess what the operand size is.</P
+></DD
 ></DL
 ></DIV
 ><P
@@ -2403,7 +2434,7 @@ while nolist is already engaged, it will not undo that state.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN727"
+NAME="AEN734"
 ></A
 >Chapter 4. LWLINK</H1
 ><P
@@ -2414,7 +2445,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN730"
+NAME="AEN737"
 >4.1. Command Line Options</A
 ></H2
 ><P
@@ -2611,7 +2642,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN827"
+NAME="AEN834"
 >4.2. Linker Operation</A
 ></H2
 ><P
@@ -2667,7 +2698,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN841"
+NAME="AEN848"
 >4.3. Linking Scripts</A
 ></H2
 ><P
@@ -2871,7 +2902,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN907"
+NAME="AEN914"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2884,7 +2915,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN910"
+NAME="AEN917"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -2960,7 +2991,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN922"
+NAME="AEN929"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -2979,7 +3010,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN926"
+NAME="AEN933"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -3180,7 +3211,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN1009"
+NAME="AEN1016"
 ></A
 ><P
 ><B
@@ -3252,7 +3283,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN1039"
+NAME="AEN1046"
 ></A
 ><P
 ><B

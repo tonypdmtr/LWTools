@@ -1847,6 +1847,41 @@ the assembler will still complain about a non constant condition.</para>
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term>forwardrefmax</term>
+<listitem>
+
+<para>This pragma will disable forward reference optimization completely.
+Ordinarily, LWASM will attempt to select the shortest possible addressing
+mode for forward references.  However, in many source files, especially
+those not using the PCR relative addressing modes, this optimization is
+pointless since the assembler will almost certainly settle on a 16 bit
+offset or address.  If all variables in the direct page are defined before
+the main body of the code, the benefit of forward reference optimization
+almost certainly vanishes completely.  However, the cost of doing that
+optimization remains and can result in a very long assembly time.</para>
+
+<para>Enabling this pragma will cause all forward references to use the
+maximum offset or address size, much the same has EDTASM and other pure
+two pass assemblers do. The side effect is that all line lengths and
+symbol values are fully resolved after the initial parsing pass and the
+amount of work to resolve everything becomes almost nil.</para>
+
+<para>While this pragma can be applied selectively to sections of source
+code (use *PRAGMA if doing so and compatibility with other assemblers
+is desired), it is likely more useful when provided as a command line
+pragma.</para>
+
+<para>It should be noted that the presence or absence of this pragma
+will not change the correctness of the generated code unless cycle counts
+or byte counts are critical (which they usually are not). It also will
+not override the operand size override prefixes (&lt; and &gt;). It only
+applies when the assembler is left to guess what the operand size is.</para>
+
+</listitem>
+</varlistentry>
+
+
 </variablelist>
 
 <para>As a convenience, each input file has a pragma state stack. This
