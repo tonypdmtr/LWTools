@@ -137,7 +137,8 @@ for example.
 </para>
 
 <para>
-LWASM can output this format since version 4.10.
+LWASM can output this format since version 4.10. LWLINK can output this format
+since version 4.11.
 </para>
 </section>
 
