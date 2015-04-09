@@ -58,6 +58,17 @@ static char *decb_script =
 	"entry 2000\n"
 	;
 
+// the built-in SREC target linker script
+static char *srec_script =
+	"define basesympat s_%s\n"
+	"define lensympat l_%s\n"
+	"section init load 0400\n"
+	"section code\n"
+	"section *,!bss\n"
+	"section *,bss\n"
+	"entry __start\n"
+	;
+
 // the built-in RAW target linker script
 static char *raw_script = 
 	"define basesympat s_%s\n"
@@ -145,6 +156,10 @@ void setup_script()
 		
 		case OUTPUT_DECB:
 			script = decb_script;
+			break;
+		
+		case OUTPUT_SREC:
+			script = srec_script;
 			break;
 		
 		case OUTPUT_LWEX0:

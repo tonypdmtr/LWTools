@@ -30,6 +30,7 @@ Contains the main defs used by the linker
 #define OUTPUT_RAW		1	// raw sequence of bytes
 #define OUTPUT_LWEX0	2	// LWOS LWEX binary version 0
 #define OUTPUT_OS9		3	// OS9 object code module
+#define OUTPUT_SREC		4	// motorola SREC format
 
 typedef struct symtab_s symtab_t;
 struct symtab_s
