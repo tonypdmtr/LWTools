@@ -1372,7 +1372,7 @@ EMITFUNC(pseudo_emit_includebin)
 	FILE *fp;
 	int c;
 	
-	fp = fopen(l -> lstr, "r");
+	fp = fopen(l -> lstr, "rb");
 	if (!fp)
 	{
 		lwasm_register_error(as, l, "Cannot open file (emit)!");
