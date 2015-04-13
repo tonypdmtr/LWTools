@@ -131,7 +131,6 @@ clean: $(cleantargs)
 realclean: clean $(realcleantargs)
 	@echo "Cleaning up even more"
 	@rm -f $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) $(lwobjdump_deps)
-	@rm -f docs/manual/*.html docs/manual/*.pdf
 
 print-%:
 	@echo $* = $($*)
@@ -144,25 +143,4 @@ install:
 .PHONY: test
 test: all test/runtests
 	@test/runtests
-
-.PHONY: manual
-manual: manual-html manual-htmlm manual-pdf
-
-.PHONY: manual-html
-manual-html: docs/manual/manual.html
-
-.PHONY: manual-htmlm
-manual-htmlm: docs/manual/index.html
-
-.PHONY: manual-pdf
-manual-pdf: docs/manual/manual.pdf
-
-docs/manual/manual.html: docs/manual.docbook.sgml
-	docbook2html -o docs -u docs/manual.docbook.sgml && mv docs/manual.docbook.html docs/manual/manual.html
-
-docs/manual/index.html: docs/manual.docbook.sgml
-	docbook2html -o docs/manual docs/manual.docbook.sgml
-
-docs/manual/manual.pdf: docs/manual.docbook.sgml
-	docbook2pdf -o docs -u docs/manual.docbook.sgml && mv docs/manual.docbook.pdf docs/manual/manual.pdf && rm -f docs/manual.docbook.html
 
