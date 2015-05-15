@@ -439,8 +439,13 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			neg = -1;
 		}
 
-		if (!strchr("0123456789", **p))
+		if (!**p || !strchr("0123456789", **p))
+		{
+			(*p)--;
+			if (neg < 0)
+				(*p)--;
 			return NULL;
+		}
 
 		while (**p && strchr("0123456789", **p))
 		{
@@ -463,7 +468,12 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		}
 
 		if (**p != '0' && **p != '1')
+		{
+			(*p)--;
+			if (neg < 0)
+				(*p)--;
 			return NULL;
+		}
 
 		while (**p && (**p == '0' || **p == '1'))
 		{
@@ -484,9 +494,13 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			neg = -1;
 		}
 
-		if (!strchr("0123456789abcdefABCDEF", **p))
+		if (!**p || !strchr("0123456789abcdefABCDEF", **p))
+		{
+			(*p)--;
+			if (neg < 0)
+				(*p)--;
 			return NULL;
-
+		}
 		while (**p && strchr("0123456789abcdefABCDEF", **p))
 		{
 			v2 = toupper(**p) - '0';
@@ -504,9 +518,11 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		int v = 0, v2;
 		(*p)+=2;
 
-		if (!strchr("0123456789abcdefABCDEF", **p))
+		if (!**p || !strchr("0123456789abcdefABCDEF", **p))
+		{
+			(*p) -= 2;
 			return NULL;
-
+		}
 		while (**p && strchr("0123456789abcdefABCDEF", **p))
 		{
 			v2 = toupper(**p) - '0';
@@ -530,9 +546,14 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		}
 
 
-		if (!strchr("01234567", **p))
+		if (!**p || !strchr("01234567", **p))
+		{
+			(*p)--;
+			if (neg < 0)
+				(*p)--;
 			return NULL;
-
+		}
+		
 		while (**p && strchr("01234567", **p))
 		{
 			v = v * 8 + (**p - '0');
