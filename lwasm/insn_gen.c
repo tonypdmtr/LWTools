@@ -369,6 +369,16 @@ EMITFUNC(insn_emit_gen8)
 	{
 		lw_expr_t e;
 		e = lwasm_fetch_expr(l, 0);
+		if (lw_expr_istype(e, lw_expr_type_int))
+		{
+			int i;
+			i = lw_expr_intval(e);
+			if (i < -128 || i > 255)
+			{
+				lwasm_register_error(as, l, "Byte overflow");
+			}
+		}
+
 		lwasm_emitop(l, instab[l -> insn].ops[3]);
 		lwasm_emitexpr(l, e, 1);
 		return;
@@ -528,5 +538,14 @@ EMITFUNC(insn_emit_imm8)
 	
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	e = lwasm_fetch_expr(l, 0);
+	if (lw_expr_istype(e, lw_expr_type_int))
+	{
+		int i;
+		i = lw_expr_intval(e);
+		if (i < -128 || i > 255)
+		{
+			lwasm_register_error(as, l, "Byte overflow");
+		}
+	}
 	lwasm_emitexpr(l, e, 1);
 }
