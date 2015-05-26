@@ -10,6 +10,10 @@ lwar which should compile on any reasonably modern POSIX environment. If you
 have problems building, make sure you are using GNU make. Other make
 programs may work but GNU make is known to work.
 
+There is some source code support for building with Microsoft's compiler on
+Windows. However, this has been contributed by interested users and is not
+well tested. Indeed, the primary maintainer has no access to such a system.
+
 To see if a quick build will work, just type "make". If it works, you're
 ready to go ahead with "make install". This will install in /usr/local/bin.
 

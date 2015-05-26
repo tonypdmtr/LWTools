@@ -27,10 +27,10 @@ AR := $(BUILDTPREFIX)$(AR)
 RANLIB := $(BUILDTPREFIX)$(RANLIB)
 endif
 
-CPPFLAGS += -I lwlib -DPACKAGE_STRING='"lwtools 4.11+"'
+CPPFLAGS += -I lwlib
 LDFLAGS += -Llwlib -llw
 
-CFLAGS ?= -O3 -Wall
+CFLAGS ?= -O3 -Wall -Wno-char-subscripts
 
 MAIN_TARGETS := lwasm/lwasm$(PROGSUFFIX) \
 	lwlink/lwlink$(PROGSUFFIX) \

@@ -29,6 +29,7 @@ Implements the program startup code
 #include <string.h>
 
 #include <lw_cmdline.h>
+#include <lw_version.h>
 
 #include "lwlink.h"
 

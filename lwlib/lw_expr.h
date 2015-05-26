@@ -24,6 +24,10 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 
+#ifdef _MSC_VER
+#include "lw_win.h"	// windows build
+#endif
+
 enum
 {
 	lw_expr_type_oper,			// operator term

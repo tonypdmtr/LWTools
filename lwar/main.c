@@ -30,6 +30,7 @@ Implements the program startup code
 #include <unistd.h>
 
 #include <lw_cmdline.h>
+#include <lw_version.h>
 
 #include "lwar.h"
 
