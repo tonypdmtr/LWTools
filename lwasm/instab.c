@@ -756,5 +756,5 @@ instab_t instab[] =
 	{ "wai",		{	0x3cff,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
 
 	// flag end of table
-	{ NULL,			{	-1, 	-1, 	-1, 	-1 },	NULL,					NULL,							lwasm_insn_normal}
+	{ NULL,			{	-1, 	-1, 	-1, 	-1 },	NULL,					NULL,							NULL,						lwasm_insn_normal}
 };
