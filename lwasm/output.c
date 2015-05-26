@@ -23,7 +23,10 @@ Contains the code for actually outputting the assembled code
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
+
+#ifndef _MSC_VER
+#include <unistd.h>  // for unlink
+#endif
 
 #include <lw_alloc.h>
 #include <lw_expr.h>
@@ -303,16 +306,16 @@ void write_code_hex(asmstate_t *as, FILE *of)
 
 void write_code_srec(asmstate_t *as, FILE *of)
 {
-	const int SRECLEN = 16;
-	const int HDRLEN = 51;
+	#define SRECLEN 16
+	#define HDRLEN 51
 	
 	line_t *cl;
 	char outbyte;
 	int outaddr;
 	int rc;
-	int i;
+	unsigned int i;
 	int recaddr = 0;
-	int recdlen = 0;
+	unsigned int recdlen = 0;
 	unsigned char recdata[SRECLEN];
 	int recsum;
 	int reccnt = -1;
@@ -415,7 +418,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 
 void write_code_ihex(asmstate_t *as, FILE *of)
 {
-	const int IRECLEN = 16;
+	#define IRECLEN 16
 	
 	line_t *cl;
 	char outbyte;
