@@ -19,6 +19,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "lwasm.h"
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -27,7 +29,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <lw_alloc.h>
 
-#include "lwasm.h"
 #include "instab.h"
 #include "input.h"
 
@@ -1770,7 +1771,7 @@ int strcond_peq(char **p)
 	char *arg0;
 	char *arg1;
 	char *arg2;
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1796,7 +1797,7 @@ int strcond_ipeq(char **p)
 	char *arg0;
 	char *arg1;
 	char *arg2;
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1822,7 +1823,7 @@ int strcond_pne(char **p)
 	char *arg0;
 	char *arg1;
 	char *arg2;
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1848,7 +1849,7 @@ int strcond_ipne(char **p)
 	char *arg0;
 	char *arg1;
 	char *arg2;
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1877,7 +1878,7 @@ int strcond_seq(char **p)
 	char *rarg1;
 	char *rarg2;
 	
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1912,7 +1913,7 @@ int strcond_iseq(char **p)
 	char *rarg1;
 	char *rarg2;
 	
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1949,7 +1950,7 @@ int strcond_sne(char **p)
 	char *rarg1;
 	char *rarg2;
 	
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1985,7 +1986,7 @@ int strcond_isne(char **p)
 	char *rarg1;
 	char *rarg2;
 	
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
