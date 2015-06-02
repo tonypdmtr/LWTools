@@ -11,3 +11,10 @@
 /lwasm$
 /lwcc/lwcc$
 /lwcc/lwcpp$
+
+# for windows
+\.suo$
+\.sdf$
+\.opensdf$
+\Debug$
+\Release$
