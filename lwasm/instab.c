@@ -521,6 +521,7 @@ instab_t instab[] =
 	{ "pulu",		{	0x37,	-1,		-1,		-1	},	insn_parse_rlist,		insn_resolve_rlist,				insn_emit_rlist,				lwasm_insn_normal},
 	{ "puluw",		{	0x103b,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	
+	{ "reset",		{	0x3e,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "rol",		{	0x09,	0x69,	0x79,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
 	{ "rola",		{	0x49,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "rolb",		{	0x59,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
@@ -609,6 +610,7 @@ instab_t instab[] =
 	{ "rmq", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_rmq,		pseudo_resolve_rmq,				pseudo_emit_rmq,			lwasm_insn_struct | lwasm_insn_setdata},
 
 	{ "zmb", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmb,		pseudo_resolve_zmb,				pseudo_emit_zmb,			lwasm_insn_normal},
+	{ "bsz", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmb,		pseudo_resolve_zmb,				pseudo_emit_zmb,			lwasm_insn_normal},
 	{ "fzb", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmb,		pseudo_resolve_zmb,				pseudo_emit_zmb,			lwasm_insn_normal},
 	{ "zmd", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmd,		pseudo_resolve_zmd,				pseudo_emit_zmd,			lwasm_insn_normal},
 	{ "zmq", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_zmq,		pseudo_resolve_zmq,				pseudo_emit_zmq,			lwasm_insn_normal},
@@ -625,6 +627,7 @@ instab_t instab[] =
 
 	{ "includebin", {	-1, 	-1, 	-1, 	-1},	pseudo_parse_includebin,pseudo_resolve_includebin,		pseudo_emit_includebin,		lwasm_insn_normal},
 	{ "include",	{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_include,	pseudo_resolve_include,			pseudo_emit_include,		lwasm_insn_normal},
+	{ "incl",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_include,	pseudo_resolve_include,			pseudo_emit_include,		lwasm_insn_normal},
 	{ "use",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_include,	pseudo_resolve_include,			pseudo_emit_include,		lwasm_insn_normal},
 	
 	{ "align", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_align,		pseudo_resolve_align,			pseudo_emit_align,			lwasm_insn_normal},
@@ -632,6 +635,7 @@ instab_t instab[] =
 
 	{ "error",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_error,		pseudo_resolve_error,			pseudo_emit_error,			lwasm_insn_normal},
 	{ "warning",	{	-1, 	-1, 	-1, 	-1},	pseudo_parse_warning,	pseudo_resolve_warning,			pseudo_emit_warning,		lwasm_insn_normal},
+	{ "msg",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_warning,	pseudo_resolve_warning,			pseudo_emit_warning,		lwasm_insn_normal},
 
 	// these are *dangerous*
 	{ "ifp1",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_ifp1,		pseudo_resolve_ifp1,			pseudo_emit_ifp1,			lwasm_insn_cond},
@@ -654,6 +658,7 @@ instab_t instab[] =
 	{ "ifstr",		{	-1,		-1,		-1,		-1},	pseudo_parse_ifstr,		pseudo_resolve_ifstr,			pseudo_emit_ifstr,			lwasm_insn_cond},
 
 	{ "macro",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_macro,		pseudo_resolve_macro,			pseudo_emit_macro,			lwasm_insn_cond | lwasm_insn_setsym},
+	{ "macr",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_macro,		pseudo_resolve_macro,			pseudo_emit_macro,			lwasm_insn_cond | lwasm_insn_setsym},
 	{ "endm",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_endm,		pseudo_resolve_endm,			pseudo_emit_endm,			lwasm_insn_cond | lwasm_insn_setsym | lwasm_insn_endm},
 
 	{ "setdp", 		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_setdp,		pseudo_resolve_setdp,			pseudo_emit_setdp,			lwasm_insn_normal},
@@ -735,6 +740,7 @@ instab_t instab[] =
 	{ "cli",		{	0x1cef,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
 	{ "clif",		{	0x1caf,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
 	{ "clv",		{	0x1cfd,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "cpx",		{	0x9c,	0xac,	0xbc,	0x8c },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
 	{ "des",		{	0x327f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
 	{ "dex",		{	0x301f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
 	{ "dey",		{	0x313f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
