@@ -293,6 +293,7 @@ int main(int argc, char **argv)
 	asmstate.input_files = lw_stringlist_create();
 	asmstate.nextcontext = 1;
 	asmstate.target = TARGET_6309;
+	asmstate.exprwidth = 16;
 	
 	/* parse command line arguments */	
 	lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, &asmstate);

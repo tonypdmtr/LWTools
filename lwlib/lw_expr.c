@@ -40,6 +40,13 @@ static int bailing = 0;
 
 static void (*divzero)(void *priv) = NULL;
 
+static int expr_width = 0;
+
+void lw_expr_setwidth(int w)
+{
+	expr_width = w;
+}
+
 void lw_expr_setdivzero(void (*fn)(void *priv))
 {
 	divzero = fn;
@@ -73,7 +80,11 @@ int lw_expr_intval(lw_expr_t e)
 int lw_expr_whichop(lw_expr_t e)
 {
 	if (e -> type == lw_expr_type_oper)
+	{
+		if (e -> value == lw_expr_oper_com8)
+			return lw_expr_oper_com;
 		return e -> value;
+	}
 	return -1;
 }
 
@@ -202,7 +213,7 @@ lw_expr_t lw_expr_build_aux(int exprtype, va_list args)
 	case lw_expr_type_oper:
 		t = va_arg(args, int);
 		te1 = va_arg(args, lw_expr_t);
-		if (t != lw_expr_oper_com && t != lw_expr_oper_neg)
+		if (t != lw_expr_oper_com && t != lw_expr_oper_neg && t != lw_expr_oper_com8)
 			te2 = va_arg(args, lw_expr_t);
 		else
 			te2 = NULL;
@@ -320,6 +331,10 @@ void lw_expr_print_aux(lw_expr_t E, char **obuf, int *buflen, int *bufloc)
 			
 		case lw_expr_oper_com:
 			strcat(buf, "COM ");
+			break;
+		
+		case lw_expr_oper_com8:
+			strcat(buf, "COM8 ");
 			break;
 			
 		default:
@@ -713,6 +728,10 @@ again:
 
 		case lw_expr_oper_com:
 			tr = ~(E -> operands -> p -> value);
+			break;
+		
+		case lw_expr_oper_com8:
+			tr = ~(E -> operands -> p -> value) & 0xff;
 			break;
 		
 		case lw_expr_oper_plus:
@@ -1187,7 +1206,10 @@ eval_next:
 		if (!term)
 			return NULL;
 		
-		term2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_com, term);
+		if (expr_width == 8)
+			term2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_com8, term);
+		else
+			term2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_com, term);
 		lw_expr_destroy(term);
 		return term2;
 	}

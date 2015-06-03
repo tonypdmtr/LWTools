@@ -323,7 +323,9 @@ PARSEFUNC(insn_parse_gen8)
 		lw_expr_t e;
 		
 		(*p)++;
+		as -> exprwidth = 8;
 		e = lwasm_parse_expr(as, p);
+		as -> exprwidth = 16;
 		if (!e)
 		{
 			lwasm_register_error(as, l, "Bad operand");
@@ -517,7 +519,9 @@ PARSEFUNC(insn_parse_imm8)
 	{
 		(*p)++;
 
+		as -> exprwidth = 8;
 		e = lwasm_parse_expr(as, p);
+		as -> exprwidth = 16;
 		if (!e)
 		{
 			lwasm_register_error(as, l, "Bad operand");

@@ -732,9 +732,17 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 lw_expr_t lwasm_parse_expr(asmstate_t *as, char **p)
 {
 	lw_expr_t e;
-	
-	e = lw_expr_parse(p, as);
-	
+
+	if (as->exprwidth != 16)	
+	{
+		lw_expr_setwidth(as->exprwidth);
+		e = lw_expr_parse(p, as);
+		lw_expr_setwidth(0);
+	}
+	else
+	{
+		e = lw_expr_parse(p, as);
+	}
 	return e;
 }
 

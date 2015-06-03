@@ -51,6 +51,7 @@ enum
 	lw_expr_oper_or,			// boolean or
 	lw_expr_oper_neg,			// unary negation, 2's complement
 	lw_expr_oper_com,			// unary 1's complement
+	lw_expr_oper_com8,			// 8 bit complement
 	lw_expr_oper_none = 0
 };
 
@@ -110,6 +111,8 @@ extern int lw_expr_type(lw_expr_t e);
 typedef int lw_expr_testfn_t(lw_expr_t e, void *priv);
 
 extern int lw_expr_operandcount(lw_expr_t e);
+
+extern void lw_expr_setwidth(int w);
 
 // run a function on all terms in an expression; if the function
 // returns non-zero for any term, return non-zero, else return

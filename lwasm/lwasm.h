@@ -323,6 +323,7 @@ struct asmstate_s
 	int passno;							// set to the current pass number
 	int preprocess;						// set if we are prepocessing
 	int fileerr;						// flags error opening file
+	int exprwidth;						// the bit width of the expression being evaluated
 };
 
 #ifndef ___symbol_c_seen___
