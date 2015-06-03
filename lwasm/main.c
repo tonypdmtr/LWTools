@@ -47,6 +47,8 @@ static struct lw_cmdline_options options[] =
 	{ "format",		'f',	"TYPE",		0,							"Select output format: decb, raw, obj, os9"},
 	{ "list",		'l',	"FILE",		lw_cmdline_opt_optional,	"Generate list [to FILE]"},
 	{ "symbols",	's',	0,			lw_cmdline_opt_optional,	"Generate symbol list in listing, no effect without --list"},
+	{ "symbols-nolocals", 0x103,	0,	lw_cmdline_opt_optional,	"Same as --symbols but with local labels ignored"},
+	{ "map",		'm',	"FILE",		lw_cmdline_opt_optional,	"Generate map [to FILE]"},
 	{ "decb",		'b',	0,			0,							"Generate DECB .bin format output, equivalent of --format=decb"},
 	{ "raw",		'r',	0,			0,							"Generate raw binary format output, equivalent of --format=raw"},
 	{ "obj",		0x100,	0,			0,							"Generate proprietary object file format for later linking, equivalent of --format=obj" },
@@ -122,10 +124,24 @@ static int parse_opts(int key, char *arg, void *state)
 		as -> flags |= FLAG_LIST;
 		break;
 
+	case 'm':
+		if (as -> map_file)
+			lw_free(as -> map_file);
+		if (!arg)
+			as -> map_file = lw_strdup("-");
+		else
+			as -> map_file = lw_strdup(arg);
+		as -> flags |= FLAG_MAP;
+		break;
+
 	case 's':
 		as -> flags |= FLAG_SYMBOLS;
 		break;
-		
+
+	case 0x103:
+		as -> flags |= FLAG_SYMBOLS | FLAG_SYMBOLS_NOLOCALS;
+		break;
+
 	case 'b':
 		as -> output_format = OUTPUT_DECB;
 		break;
@@ -236,6 +252,7 @@ extern void do_pass6(asmstate_t *as);
 extern void do_pass7(asmstate_t *as);
 extern void do_output(asmstate_t *as);
 extern void do_list(asmstate_t *as);
+extern void do_map(asmstate_t *as);
 extern lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv);
 extern lw_expr_t lwasm_evaluate_var(char *var, void *priv);
 extern lw_expr_t lwasm_parse_term(char **p, void *priv);
@@ -343,5 +360,6 @@ int main(int argc, char **argv)
 		lwasm_do_unicorns(&asmstate);
 	}
 	do_list(&asmstate);
+	do_map(&asmstate);
 	exit(0);
 }

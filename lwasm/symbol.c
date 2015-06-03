@@ -341,6 +341,10 @@ void list_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 	{	
 		if (s -> flags & symbol_flag_nolist)
 			continue;
+
+		if ((as -> flags & FLAG_SYMBOLS_NOLOCALS) && (s -> context >= 0))
+			continue;
+
 		lwasm_reduce_expr(as, s -> value);
 		fputc('[', of);
 		if (s -> flags & symbol_flag_set)
@@ -399,4 +403,78 @@ void list_symbols(asmstate_t *as, FILE *of)
 {
 	fprintf(of, "\nSymbol Table:\n");
 	list_symbols_aux(as, of, as -> symtab.head);
+}
+
+void map_symbols(asmstate_t *as, FILE *of, struct symtabe *se)
+{
+	struct symtabe *s;
+	lw_expr_t te;
+	struct listinfo li;
+
+	li.as = as;
+
+	if (!se)
+		return;
+
+	map_symbols(as, of, se -> left);
+
+	for (s = se; s; s = s -> nextver)
+	{
+		if (s -> flags & symbol_flag_nolist)
+			continue;
+		lwasm_reduce_expr(as, s -> value);
+
+		te = lw_expr_copy(s -> value);
+		li.complex = 0;
+		li.sect = NULL;
+		lw_expr_testterms(te, list_symbols_test, &li);
+		if (li.sect)
+		{
+			as -> exportcheck = 1;
+			as -> csect = li.sect;
+			lwasm_reduce_expr(as, te);
+			as -> exportcheck = 0;
+		}
+
+		if (lw_expr_istype(te, lw_expr_type_int))
+		{
+			fprintf(of, "Symbol: %s", s -> symbol);
+			if (s -> context != -1)
+				fprintf(of, "_%04X", lw_expr_intval(te));
+			fprintf(of, " (%s) = %04X\n", as -> output_file, lw_expr_intval(te));
+
+		}
+		lw_expr_destroy(te);
+	}
+
+	map_symbols(as, of, se -> right);
+}
+
+void do_map(asmstate_t *as)
+{
+	FILE *of = NULL;
+
+	if (!(as -> flags & FLAG_MAP))
+		return;
+
+	if (as -> map_file)
+	{
+		if (strcmp(as -> map_file, "-") == 0)
+		{
+			of = stdout;
+		}
+		else
+			of = fopen(as -> map_file, "w");
+	}
+	else
+		of = stdout;
+	if (!of)
+	{
+		fprintf(stderr, "Cannot open map file '%s' for output\n", as -> map_file);
+		return;
+	}
+
+	map_symbols(as, of, as -> symtab.head);
+
+	fclose(of);
 }

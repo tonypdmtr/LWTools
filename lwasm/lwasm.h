@@ -76,6 +76,8 @@ enum lwasm_flags_e
 	FLAG_SYMBOLS = 0x004,
 	FLAG_DEPENDNOERR = 0x0008,
 	FLAG_UNICORNS = 0x0010,
+	FLAG_MAP = 0x0020,
+	FLAG_SYMBOLS_NOLOCALS = 0x0040,
 	FLAG_NONE = 0
 };
 
@@ -306,6 +308,7 @@ struct asmstate_s
 	exportlist_t *exportlist;			// list of exported symbols
 	importlist_t *importlist;			// list of imported symbols
 	char *list_file;					// name of file to list to
+	char *map_file;						// name of map file
 	char *output_file;					// output file name	
 	lw_stringlist_t input_files;		// files to assemble
 	void *input_data;					// opaque data used by the input system
