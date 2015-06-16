@@ -63,12 +63,6 @@ enum lwasm_output_e
 	OUTPUT_HEX			// generic hexadecimal format
 };
 
-enum lwasm_target_e
-{
-	TARGET_6309 = 0,	// target 6309 CPU
-	TARGET_6809			// target 6809 CPU (no 6309 ops)
-};
-
 enum lwasm_flags_e
 {
 	FLAG_LIST = 0x0001,
@@ -97,7 +91,8 @@ enum lwasm_pragmas_e
 	PRAGMA_SYMBOLNOCASE = 0x400,		// symbols defined under this pragma are matched case insensitively
 	PRAGMA_CONDUNDEFZERO = 0x800,		// treat undefined symbols as zero in conditionals during pass 1
 	PRAGMA_6800COMPAT = 0x1000,			// enable 6800 compatibility opcodes
-	PRAGMA_FORWARDREFMAX = 0x2000		// force incomplete references on pass 1 to maximum mode
+	PRAGMA_FORWARDREFMAX = 0x2000,		// force incomplete references on pass 1 to maximum mode
+	PRAGMA_6809 = 0x4000				// 6809/6309 assembly mode
 };
 
 
@@ -272,7 +267,6 @@ struct structtab_s
 struct asmstate_s
 {
 	int output_format;					// output format
-	int target;							// assembly target
 	int debug_level;					// level of debugging requested
 	FILE *debug_file;					// FILE * to output debug messages to
 	int flags;							// assembly flags

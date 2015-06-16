@@ -99,7 +99,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	const char *reglist;
 	lw_expr_t e;
 		
-	if (as -> target == TARGET_6809)
+	if (CURPRAGMA(l, PRAGMA_6809))
 	{
 		simples = simpleindex9;
 		reglist = regs9;

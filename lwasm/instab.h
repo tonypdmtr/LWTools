@@ -45,6 +45,7 @@ enum
 	lwasm_insn_struct = 16,		/* insn allowed in a struct */
 	lwasm_insn_setdata = 32,	/* insn uses the data address for symbols */
 	lwasm_insn_is6800 = 64,		/* insn is a 6800 compatibility operation */
+	lwasm_insn_is6809 = 128,	/* insn is 6809 only */
 	lwasm_insn_normal = 0
 };
 

@@ -299,7 +299,7 @@ void do_pass1(asmstate_t *as)
 			if (as -> skipcond && !(instab[opnum].flags & lwasm_insn_cond))
 				goto linedone;
         	
-        	if (!nomacro && ((as -> pragmas & PRAGMA_SHADOW) || ((as -> target != TARGET_6309) && (instab[opnum].flags & lwasm_insn_is6309))))
+			if (!nomacro && ((as->pragmas & PRAGMA_SHADOW) || (!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309))))
         	{
         		// check for macros even if they shadow real operations
         		// NOTE: "ENDM" cannot be shadowed
@@ -333,9 +333,11 @@ void do_pass1(asmstate_t *as)
 				// no parse func means operand doesn't matter
 				if (instab[opnum].parse)
 				{
-					if ((as -> target != TARGET_6309) && (instab[opnum].flags & lwasm_insn_is6309))
+					if (CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309))
 						lwasm_register_error(as, cl, "Illegal use of 6309 instruction in 6809 mode (%s)", sym);
-			
+					if (!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
+						lwasm_register_error(as, cl, "Illegal use of 6809 instruction in 6309 mode (%s)", sym);
+
 					if (as -> instruct == 0 || instab[opnum].flags & lwasm_insn_struct)
 					{
 						cl -> len = -1;

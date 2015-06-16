@@ -202,11 +202,11 @@ static int parse_opts(int key, char *arg, void *state)
 		break;
 
 	case '9':
-		as -> target = TARGET_6809;
+		as -> pragmas |= PRAGMA_6809;
 		break;
 
 	case '3':
-		as -> target = TARGET_6309;
+		as -> pragmas &= ~PRAGMA_6809;
 		break;
 
 	case 'P':
@@ -292,7 +292,6 @@ int main(int argc, char **argv)
 	asmstate.include_list = lw_stringlist_create();
 	asmstate.input_files = lw_stringlist_create();
 	asmstate.nextcontext = 1;
-	asmstate.target = TARGET_6309;
 	asmstate.exprwidth = 16;
 	
 	/* parse command line arguments */	

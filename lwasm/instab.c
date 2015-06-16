@@ -521,7 +521,7 @@ instab_t instab[] =
 	{ "pulu",		{	0x37,	-1,		-1,		-1	},	insn_parse_rlist,		insn_resolve_rlist,				insn_emit_rlist,				lwasm_insn_normal},
 	{ "puluw",		{	0x103b,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	
-	{ "reset",		{	0x3e,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
+	{ "reset",		{	0x3e,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6809},
 	{ "rol",		{	0x09,	0x69,	0x79,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
 	{ "rola",		{	0x49,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "rolb",		{	0x59,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
