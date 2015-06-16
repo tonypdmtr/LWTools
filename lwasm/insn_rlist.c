@@ -55,6 +55,8 @@ PARSEFUNC(insn_parse_rlist)
 			rn = 1 << rn;
 		rb |= rn;
 	}
+	if (rb == 0)
+		lwasm_register_error(as, l, "Bad operand");
 	l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
 	l -> pb = rb;
 }
