@@ -299,7 +299,7 @@ void do_pass1(asmstate_t *as)
 			if (as -> skipcond && !(instab[opnum].flags & lwasm_insn_cond))
 				goto linedone;
         	
-			if (!nomacro && ((as->pragmas & PRAGMA_SHADOW) || (!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309))))
+			if (!nomacro && (as->pragmas & PRAGMA_SHADOW))
         	{
         		// check for macros even if they shadow real operations
         		// NOTE: "ENDM" cannot be shadowed
