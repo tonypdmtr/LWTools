@@ -48,13 +48,13 @@ PARSEFUNC(pseudo_parse_macro)
 	
 	if (as -> inmacro)
 	{
-		lwasm_register_error(as, l, "Attempt to define a macro inside a macro");
+		lwasm_register_error(as, l, E_MACRO_RECURSE);
 		return;
 	}
 	
 	if (!(l -> sym))
 	{
-		lwasm_register_error(as, l, "Missing macro name");
+		lwasm_register_error(as, l, E_MACRO_NONAME);
 		return;
 	}
 
@@ -65,7 +65,7 @@ PARSEFUNC(pseudo_parse_macro)
 	}
 	if (m)
 	{
-		lwasm_register_error(as, l, "Duplicate macro definition");
+		lwasm_register_error(as, l, E_MACRO_DUPE);
 		return;
 	}
 	
@@ -102,7 +102,7 @@ PARSEFUNC(pseudo_parse_endm)
 	
 	if (!as -> inmacro)
 	{
-		lwasm_register_error(as, l, "ENDM without MACRO");
+		lwasm_register_error(as, l, E_MACRO_ENDM);
 		return;
 	}
 	

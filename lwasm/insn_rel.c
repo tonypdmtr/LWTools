@@ -80,7 +80,7 @@ PARSEFUNC(insn_parse_relgen)
 
 	if (!t)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 
@@ -222,14 +222,14 @@ EMITFUNC(insn_emit_relgen)
 	{
 		if (!lw_expr_istype(e, lw_expr_type_int))
 		{
-			lwasm_register_error(as, l, "Illegal non-constant expression");
+			lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 			return;
 		}
 	
 		offs = lw_expr_intval(e);
 		if (l -> lint == 8 && (offs < -128 || offs > 127))
 		{
-			lwasm_register_error(as, l, "Byte overflow");
+			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 			return;
 		}
 	

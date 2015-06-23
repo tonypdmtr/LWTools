@@ -125,9 +125,77 @@ struct sectiontab_s
 	sectiontab_t *next;
 };
 
+typedef enum 
+{
+	E_6309_INVALID,
+	E_6809_INVALID,
+	E_ALIGNMENT_INVALID,
+	E_BITNUMBER_UNRESOLVED,
+	E_BITNUMBER_INVALID,
+	E_BYTE_OVERFLOW,
+	E_CONDITION_P1,
+	E_DIRECTIVE_OS9_ONLY,
+	E_DIV0,
+	E_EXEC_ADDRESS,
+	E_FILL_INVALID,
+	E_IMMEDIATE_INVALID,
+	E_IMMEDIATE_UNRESOLVED,
+	E_EXPRESSION_BAD,
+	E_EXPRESSION_NOT_CONST,
+	E_EXPRESSION_NOT_RESOLVED,
+	E_FILE_OPEN,
+	E_FILENAME_MISSING,
+	E_INSTRUCTION_FAILED,
+	E_INSTRUCTION_SECTION,
+	E_LINE_ADDRESS,
+	E_LINED_ADDRESS,
+	E_MACRO_DUPE,
+	E_MACRO_ENDM,
+	E_MACRO_NONAME,
+	E_MACRO_RECURSE,
+	E_MODULE_IN,
+	E_MODULE_NOTIN,
+	E_NEGATIVE_BLOCKSIZE,
+	E_NEGATIVE_RESERVATION,
+	E_NW_8,
+	E_OPCODE_BAD,
+	E_OPERAND_BAD,
+	E_OBJTARGET_ONLY, 
+	E_PADDING_BAD,
+	E_PRAGMA_UNRECOGNIZED,
+	E_REGISTER_BAD,
+	E_SECTION_END,
+	E_SECTION_EXTDEP,
+	E_SECTION_FLAG,
+	E_SECTION_NAME,
+	E_SECTION_TARGET,
+	E_SETDP_INVALID,
+	E_SETDP_NOT_CONST,			
+	E_STRING_BAD,
+	E_STRUCT_DUPE,
+	E_STRUCT_NONAME,
+	E_STRUCT_NOSYMBOL,
+	E_STRUCT_RECURSE,
+	E_SYMBOL_BAD,
+	E_SYMBOL_DUPE,
+	E_SYMBOL_MISSING,
+	E_SYMBOL_UNDEFINED,
+	E_SYMBOL_UNDEFINED_EXPORT,
+	E_UNKNOWN_OPERATION,
+	E_USER_SPECIFIED,
+
+	/* warnings must be 1000 or greater */
+
+	W_DUPLICATE_SECTION		= 1000,
+	W_ENDSTRUCT_WITHOUT		= 1001,
+	W_NOT_SUPPORTED			= 1002,
+	W_USER_SPECIFIED		= 1003
+} lwasm_errorcode_t;
+
 typedef struct lwasm_error_s lwasm_error_t;
 struct lwasm_error_s
 {
+	lwasm_errorcode_t code;				// error code
 	char *mess;							// actual error message
 	int charpos;						// character position on line where parsing stopped
 	lwasm_error_t *next;				// ptr to next error
@@ -327,13 +395,10 @@ extern struct symtabe *lookup_symbol(asmstate_t *as, line_t *cl, char *sym);
 
 #endif
 
+void lwasm_register_error(asmstate_t *as, line_t *cl, lwasm_errorcode_t err);
+void lwasm_register_error2(asmstate_t *as, line_t *cl, lwasm_errorcode_t err, const char* fmt, ...);
+
 #ifndef ___lwasm_c_seen___
-
-extern void lwasm_register_error(asmstate_t *as, line_t *cl, const char *msg, ...);
-extern void lwasm_register_warning(asmstate_t *as, line_t *cl, const char *msg, ...);
-
-extern void lwasm_register_error_n(asmstate_t *as, line_t *cl, char *iptr, const char *msg, ...);
-extern void lwasm_register_warning_n(asmstate_t *as, line_t *cl, char *iptr, const char *msg, ...);
 
 extern int lwasm_next_context(asmstate_t *as);
 extern void lwasm_emit(line_t *cl, int byte);

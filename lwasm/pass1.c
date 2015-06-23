@@ -322,7 +322,7 @@ void do_pass1(asmstate_t *as)
 						if (expand_struct(as, cl, &p1, sym) != 0)
 						{
 							// structure expansion failed
-							lwasm_register_error(as, cl, "Bad opcode");
+							lwasm_register_error(as, cl, E_OPCODE_BAD);
 						}
 					}
 				}
@@ -334,9 +334,9 @@ void do_pass1(asmstate_t *as)
 				if (instab[opnum].parse)
 				{
 					if (CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309))
-						lwasm_register_error(as, cl, "Illegal use of 6309 instruction in 6809 mode (%s)", sym);
+						lwasm_register_error2(as, cl, E_6309_INVALID, "(%s)", sym);
 					if (!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
-						lwasm_register_error(as, cl, "Illegal use of 6809 instruction in 6309 mode (%s)", sym);
+						lwasm_register_error2(as, cl, E_6809_INVALID, "(%s)", sym);
 
 					if (as -> instruct == 0 || instab[opnum].flags & lwasm_insn_struct)
 					{
@@ -360,7 +360,7 @@ void do_pass1(asmstate_t *as)
 						if (*p1 && !isspace(*p1) && !(cl -> err))
 						{
 							// flag bad operand error
-							lwasm_register_error(as, cl, "Bad operand (%s)", p1);
+							lwasm_register_error2(as, cl, E_OPERAND_BAD, "(%s)", p1);
 						}
 						
 						/* do a reduction on the line expressions to avoid carrying excessive expression baggage if not needed */
@@ -368,7 +368,7 @@ void do_pass1(asmstate_t *as)
 					}
 					else if (as -> instruct == 1)
 					{
-						lwasm_register_error(as, cl, "Bad operand (%s)", p1);
+						lwasm_register_error2(as, cl, E_OPERAND_BAD, "(%s)", p1);
 					}
 				}
 			}
@@ -387,7 +387,7 @@ void do_pass1(asmstate_t *as)
 					if (!register_symbol(as, cl, cl -> sym, cl -> daddr, symbol_flag_none))
 					{
 						// symbol error
-						// lwasm_register_error(as, cl, "Bad symbol '%s'", cl -> sym);
+						// lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", cl -> sym);
 					}
 				}
 				else
@@ -395,7 +395,7 @@ void do_pass1(asmstate_t *as)
 					if (!register_symbol(as, cl, cl -> sym, cl -> addr, symbol_flag_none))
 					{
 						// symbol error
-						// lwasm_register_error(as, cl, "Bad symbol '%s'", cl -> sym);
+						// lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", cl -> sym);
 					}
 				}
 			}

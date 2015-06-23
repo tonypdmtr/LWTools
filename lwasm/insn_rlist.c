@@ -38,12 +38,12 @@ PARSEFUNC(insn_parse_rlist)
 		rn = lwasm_lookupreg2(regs, p);
 		if (rn < 0)
 		{
-			lwasm_register_error(as, l, "Bad register '%s'", *p);
+			lwasm_register_error2(as, l, E_REGISTER_BAD, "'%s'", *p);
 			return;
 		}
 		if (**p && **p != ',' && !isspace(**p))
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 		}
 		if (**p == ',')
 			(*p)++;
@@ -56,7 +56,7 @@ PARSEFUNC(insn_parse_rlist)
 		rb |= rn;
 	}
 	if (rb == 0)
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 	l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
 	l -> pb = rb;
 }

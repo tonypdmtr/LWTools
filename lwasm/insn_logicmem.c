@@ -45,14 +45,14 @@ PARSEFUNC(insn_parse_logicmem)
 	s = lwasm_parse_expr(as, p);
 	if (!s)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
 	lwasm_save_expr(l, 100, s);
 	if (**p != ',' && **p != ';')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -78,7 +78,7 @@ EMITFUNC(insn_emit_logicmem)
 	e = lwasm_fetch_expr(l, 100);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
-		lwasm_register_error(as, l, "Immediate byte must be fully resolved");
+		lwasm_register_error(as, l, E_IMMEDIATE_UNRESOLVED);
 		return;
 	}
 	
@@ -86,7 +86,7 @@ EMITFUNC(insn_emit_logicmem)
 /*	if (v < -128 || v > 255)
 	{
 		fprintf(stderr, "BYTE: %d\n", v);
-		lwasm_register_error(as, l, "Byte overflow");
+		lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 		return;
 	}
 */	

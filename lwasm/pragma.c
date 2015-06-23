@@ -117,7 +117,7 @@ PARSEFUNC(pseudo_parse_pragma)
 
 	if (parse_pragma_string(as, ps, 0) == 0)
 	{
-		lwasm_register_error(as, l, "Unrecognized pragma string");
+		lwasm_register_error(as, l, E_PRAGMA_UNRECOGNIZED);
 	}
 	if (as -> pragmas & PRAGMA_NOLIST)
 		l -> pragmas |= PRAGMA_NOLIST;

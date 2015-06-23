@@ -169,7 +169,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		e = lwasm_parse_expr(as, p);
 		if (!e || **p != ']')
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		lwasm_save_expr(l, 0, e);
@@ -199,7 +199,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	lwasm_save_expr(l, 0, e);
@@ -207,7 +207,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	// now look for a comma; if not present, explode
 	if (*(*p)++ != ',')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -215,7 +215,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	rn = lwasm_lookupreg3(reglist, p);
 	if (rn < 0)
 	{
-		lwasm_register_error(as, l, "Bad register");
+		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
 	
@@ -223,7 +223,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	{
 		if (**p != ']')
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		else
@@ -250,7 +250,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	{
 		if (l -> lint == 1)
 		{
-			lwasm_register_error(as, l, "n,W cannot be 8 bit");
+			lwasm_register_error(as, l, E_NW_8);
 			return;
 		}
 
@@ -588,7 +588,7 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 		i = lw_expr_intval(e);
 		if (i < -128 || i > 127)
 		{
-			lwasm_register_error(as, l, "Byte overflow");
+			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 		}
 	}
 	

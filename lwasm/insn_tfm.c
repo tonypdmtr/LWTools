@@ -34,7 +34,7 @@ PARSEFUNC(insn_parse_tfm)
 	c = strchr(reglist, toupper(*(*p)++));
 	if (!c)
 	{
-		lwasm_register_error(as, l, "Unknown operation");
+		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
 		return;
 	}
 	r0 = c - reglist;
@@ -50,13 +50,13 @@ PARSEFUNC(insn_parse_tfm)
 	}
 	if (*(*p)++ != ',')
 	{
-		lwasm_register_error(as, l, "Unknown operation");
+		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
 		return;
 	}
 	c = strchr(reglist, toupper(*(*p)++));
 	if (!c)
 	{
-		lwasm_register_error(as, l, "Unknown operation");
+		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
 		return;
 	}
 	r1 = c - reglist;
@@ -74,7 +74,7 @@ PARSEFUNC(insn_parse_tfm)
 	
 	if (**p && !isspace(**p))
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 			
@@ -102,7 +102,7 @@ PARSEFUNC(insn_parse_tfm)
 		break;
 
 	default:
-		lwasm_register_error(as, l, "Unknown operation");
+		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
 		return;
 	}
 	l -> pb = (r0 << 4) | r1;
@@ -127,7 +127,7 @@ PARSEFUNC(insn_parse_tfmrtor)
 	r0 = lwasm_lookupreg2(regs, p);
 	if (r0 < 0 || *(*p)++ != ',')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		r0 = r1 = 0;
 	}
 	else
@@ -135,7 +135,7 @@ PARSEFUNC(insn_parse_tfmrtor)
 		r1 = lwasm_lookupreg2(regs, p);
 		if (r1 < 0)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			r0 = r1 = 0;
 		}
 	}

@@ -43,7 +43,7 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 
@@ -93,7 +93,7 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 	s = lwasm_parse_expr(as, p);
 	if (!s)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -276,7 +276,7 @@ void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 			if (l -> lint == 1)
 			{
 				if (i < -128 || i > 127)
-					lwasm_register_error(as, l, "Byte overflow");
+					lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 			}
 			lwasm_emitexpr(l, e, l -> lint);
 		}
@@ -294,7 +294,7 @@ PARSEFUNC(insn_parse_gen0)
 {
 	if (**p == '#')
 	{
-		lwasm_register_error(as, l, "Immediate mode not allowed");
+		lwasm_register_error(as, l, E_IMMEDIATE_INVALID);
 		return;
 	}
 	
@@ -328,7 +328,7 @@ PARSEFUNC(insn_parse_gen8)
 		as -> exprwidth = 16;
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		l -> len = OPLEN(instab[l -> insn].ops[3]) + 1;
@@ -377,7 +377,7 @@ EMITFUNC(insn_emit_gen8)
 			i = lw_expr_intval(e);
 			if (i < -128 || i > 255)
 			{
-				lwasm_register_error(as, l, "Byte overflow");
+				lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 			}
 		}
 
@@ -399,7 +399,7 @@ PARSEFUNC(insn_parse_gen16)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
@@ -460,7 +460,7 @@ PARSEFUNC(insn_parse_gen32)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		l -> len = OPLEN(instab[l -> insn].ops[3]) + 4;
@@ -524,7 +524,7 @@ PARSEFUNC(insn_parse_imm8)
 		as -> exprwidth = 16;
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
@@ -532,7 +532,7 @@ PARSEFUNC(insn_parse_imm8)
 	}
 	else
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 	}
 }
 
@@ -548,7 +548,7 @@ EMITFUNC(insn_emit_imm8)
 		i = lw_expr_intval(e);
 		if (i < -128 || i > 255)
 		{
-			lwasm_register_error(as, l, "Byte overflow");
+			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 		}
 	}
 	lwasm_emitexpr(l, e, 1);

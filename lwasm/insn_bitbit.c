@@ -46,39 +46,39 @@ PARSEFUNC(insn_parse_bitbit)
 	}
 	else
 	{
-		lwasm_register_error(as, l, "Bad register");
+		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
 	
 	if (*(*p)++ != ',')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	lwasm_save_expr(l, 0, e);
 	if (*(*p)++ != ',')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	lwasm_save_expr(l, 1, e);
 
 	if (*(*p)++ != ',')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 
@@ -89,7 +89,7 @@ PARSEFUNC(insn_parse_bitbit)
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	lwasm_save_expr(l, 2, e);
@@ -106,26 +106,26 @@ EMITFUNC(insn_emit_bitbit)
 	e = lwasm_fetch_expr(l, 0);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
-		lwasm_register_error(as, l, "Bit number must be fully resolved");
+		lwasm_register_error(as, l, E_BITNUMBER_UNRESOLVED);
 		return;
 	}
 	v1 = lw_expr_intval(e);
 	if (v1 < 0 || v1 > 7)
 	{
-		lwasm_register_error(as, l, "Invalid bit number");
+		lwasm_register_error(as, l, E_BITNUMBER_INVALID);
 		v1 = 0;
 	}
 
 	e = lwasm_fetch_expr(l, 1);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
-		lwasm_register_error(as, l, "Bit number must be fully resolved");
+		lwasm_register_error(as, l, E_BITNUMBER_UNRESOLVED);
 		return;
 	}
 	v2 = lw_expr_intval(e);
 	if (v2 < 0 || v2 > 7)
 	{
-		lwasm_register_error(as, l, "Invalid bit number");
+		lwasm_register_error(as, l, E_BITNUMBER_INVALID);
 		v2 = 0;
 	}
 	l -> pb = (l -> lint << 6) | (v1 << 3) | v2;
@@ -137,7 +137,7 @@ EMITFUNC(insn_emit_bitbit)
 		v2 = v1 - ((l -> dpval) << 8);
 		if (v2 > 0xFF || v2 < 0)
 		{
-			lwasm_register_error(as, l, "Byte overflow");
+			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 			return;
 		}
 	}

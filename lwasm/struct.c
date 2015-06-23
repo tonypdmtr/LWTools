@@ -34,13 +34,13 @@ PARSEFUNC(pseudo_parse_struct)
 	
 	if (as -> instruct)
 	{
-		lwasm_register_error(as, l, "Attempt to define a structure inside a structure");
+		lwasm_register_error(as, l, E_STRUCT_RECURSE);
 		return;
 	}
 	
 	if (l -> sym == NULL)
 	{
-		lwasm_register_error(as, l, "Structure definition with no effect - no symbol");
+		lwasm_register_error(as, l, E_STRUCT_NOSYMBOL);
 		return;
 	}
 	
@@ -52,7 +52,7 @@ PARSEFUNC(pseudo_parse_struct)
 	
 	if (s)
 	{
-		lwasm_register_error(as, l, "Duplicate structure definition");
+		lwasm_register_error(as, l, E_STRUCT_DUPE);
 		return;
 	}
 	
@@ -138,7 +138,7 @@ PARSEFUNC(pseudo_parse_endstruct)
 		
 	if (as -> instruct == 0)
 	{
-		lwasm_register_warning(as, l, "endstruct without struct");
+		lwasm_register_error(as, l, W_ENDSTRUCT_WITHOUT);
 		skip_operand(p);
 		return;
 	}
@@ -206,7 +206,7 @@ int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc)
 	
 	if (!(l -> sym))
 	{
-		lwasm_register_error(as, l, "Cannot declare a structure without a symbol name.");
+		lwasm_register_error(as, l, E_STRUCT_NONAME);
 		return -1;
 	}
 

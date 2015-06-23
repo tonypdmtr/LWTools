@@ -90,18 +90,18 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	{
 		if (!sym || !*sym)
 		{
-			lwasm_register_error(as, cl, "Bad symbol (%s)", sym);
+			lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", sym);
 			return NULL;
 		}
 		if (*(unsigned char *)sym < 0x80 && (!strchr(SSYMCHARS, *sym) && !strchr(sym + 1, '$') && !strchr(sym + 1, '@') && !strchr(sym + 1, '?')))
 		{
-			lwasm_register_error(as, cl, "Bad symbol (%s)", sym);
+			lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", sym);
 			return NULL;
 		}
 
 		if ((*sym == '$' || *sym == '@') && (sym[1] >= '0' && sym[1] <= '9'))
 		{
-			lwasm_register_error(as, cl, "Bad symbol (%s)", sym);
+			lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", sym);
 			return NULL;
 		}
 	}
@@ -116,7 +116,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 		// bad symbol
 		if (!(flags & symbol_flag_nocheck) && *(unsigned char *)cp < 0x80 && !strchr(SYMCHARS, *cp))
 		{
-			lwasm_register_error(as, cl, "Bad symbol (%s)", sym);
+			lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", sym);
 			return NULL;
 		}
 	}
@@ -163,7 +163,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	if (se && version == -1)
 	{
 		// multiply defined symbol
-		lwasm_register_error(as, cl, "Multiply defined symbol (%s)", sym);
+		lwasm_register_error2(as, cl, E_SYMBOL_DUPE, "(%s)", sym);
 		return NULL;
 	}
 

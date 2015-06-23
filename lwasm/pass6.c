@@ -83,7 +83,7 @@ void do_pass6(asmstate_t *as)
 			lwasm_reduce_expr(as, le -> expr);
 			if (!exprok(as, le -> expr))
 			{
-				lwasm_register_error(as, cl, "Invalid expression: %s", lw_expr_print(le -> expr));
+				lwasm_register_error2(as, cl, E_EXPRESSION_BAD, "%s", lw_expr_print(le -> expr));
 			}
 		}
 	}

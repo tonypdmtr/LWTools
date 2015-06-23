@@ -121,11 +121,11 @@ void do_pass5(asmstate_t *as)
 		{
 			if (!exprok(as, cl -> addr))
 			{
-				lwasm_register_error(as, cl, "Cannot resolve line address");
+				lwasm_register_error(as, cl, E_LINE_ADDRESS);
 			}
 			if (!exprok(as, cl -> daddr))
 			{
-				lwasm_register_error(as, cl, "Cannot resolve line data address");
+				lwasm_register_error(as, cl, E_LINED_ADDRESS);
 			}
 		}
 	}
