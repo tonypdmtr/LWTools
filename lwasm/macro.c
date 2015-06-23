@@ -60,7 +60,7 @@ PARSEFUNC(pseudo_parse_macro)
 
 	for (m = as -> macros; m; m = m -> next)
 	{
-		if (!strcmp(m -> name, l -> sym))
+		if (!strcasecmp(m -> name, l -> sym))
 			break;
 	}
 	if (m)
@@ -159,7 +159,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 
 	for (m = as -> macros; m; m = m -> next)
 	{
-		if (!strcmp(opc, m -> name))
+		if (!strcasecmp(opc, m -> name))
 			break;
 	}
 	// signal no macro expansion
