@@ -361,6 +361,26 @@ It has no effect unless a listing is being generated.
 </varlistentry>
 
 <varlistentry>
+<term><option>--symbols-nolocals</option></term>
+<listitem>
+<para>
+Behaves just like <option>--symbols</option> but with local labels omitted.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--map=FILE</option></term>
+<listitem>
+<para>
+
+This option generates a map file which can be used by debuggers and monitors to provide symbol information. A map file may be created independent of a listing file. (Patches are pending for MAME and exec09.)
+
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
 <term><option>--obj</option></term>
 <listitem>
 <para>
