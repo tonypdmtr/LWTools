@@ -47,6 +47,23 @@ PARSEFUNC(insn_parse_rlist)
 		}
 		if (**p == ',')
 			(*p)++;
+		if ((instab[l -> insn].ops[0]) & 2)
+		{
+			// pshu/pulu
+			if (rn == 6)
+			{
+				lwasm_register_error2(as, l, E_REGISTER_BAD, "'%s'", "u");
+				return;
+			}
+		}
+		else
+		{
+			if (rn == 9)
+			{
+				lwasm_register_error2(as, l, E_REGISTER_BAD, "'%s'", "s");
+				return;
+			}
+		}
 		if (rn == 8)
 			rn = 6;
 		else if (rn == 9)
