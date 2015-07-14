@@ -1092,13 +1092,19 @@ void lwasm_show_errors(asmstate_t *as)
 	{
 		if (!(cl -> err) && !(cl -> warn))
 			continue;
+
+		// trim "include:" if it appears
+		char* s = cl->linespec;
+		if ((strlen(s) > 8) && (s[7] == ':')) s += 8;
+		while (*s == ' ') s++;
+
 		for (e = cl -> err; e; e = e -> next)
 		{
-			fprintf(stderr, "ERROR: %s (%d)\n", e -> mess, e -> code);
+			fprintf(stderr, "%s(%d) : ERROR : %s\n", s, cl->lineno, e->mess);
 		}
 		for (e = cl -> warn; e; e = e -> next)
 		{
-			fprintf(stderr, "WARNING: %s (%d)\n", e -> mess, e -> code);
+			fprintf(stderr, "%s(%d) : WARNING : %s\n", s, cl->lineno, e->mess);
 		}
 		fprintf(stderr, "%s:%05d %s\n\n", cl -> linespec, cl -> lineno, cl -> ltext);
 	}
