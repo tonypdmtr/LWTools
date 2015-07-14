@@ -436,7 +436,6 @@ PARSEFUNC(pseudo_parse_fcc)
 	delim = **p;
 	(*p)++;
 	
-	
 	i = cstringlen(as, l, p, delim);
 	
 	if (**p != delim)
@@ -446,14 +445,34 @@ PARSEFUNC(pseudo_parse_fcc)
 	}
 	(*p)++;	
 	l -> len = i;
+
+	/* handle additional expressions, like FCC "Hello",13,0 */
+	if (CURPRAGMA(l, PRAGMA_M80EXT))
+	{
+		if (**p == ',')
+		{
+			(*p)++;
+			pseudo_parse_fcb(as, l, p);
+			l -> fcc_extras = l -> len;
+			l -> len = i + l -> fcc_extras;
+		}
+	}
 }
 
 EMITFUNC(pseudo_emit_fcc)
 {
 	int i;
-	
-	for (i = 0; i < l -> len; i++)
+	lw_expr_t e;
+
+	for (i = 0; i < l -> len - l -> fcc_extras; i++)
 		lwasm_emit(l, l -> lstr[i]);
+
+	/* PRAGMA_M80EXT */
+	for (i = 0; i < l -> fcc_extras; i++)
+	{
+		e = lwasm_fetch_expr(l, i);
+		lwasm_emitexpr(l, e, 1);
+	}
 }
 
 PARSEFUNC(pseudo_parse_fcs)

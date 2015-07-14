@@ -263,6 +263,7 @@ struct line_s
 	int cycle_adj;						// cycle adjustment
 	int	cycle_flags;					// cycle flags
 	int genmode;						// generation mode (insn_parse_gen0/8/16)
+	int fcc_extras;						// fcc extra bytes
 	lwasm_error_t *err;					// list of errors
 	lwasm_error_t *warn;				// list of errors
 	lwasm_errorcode_t err_testmode;		// error code in testmode
