@@ -38,6 +38,7 @@ void input_open(asmstate_t *as, char *s);
 char *input_readline(asmstate_t *as);
 char *input_curspec(asmstate_t *as);
 FILE *input_open_standalone(asmstate_t *as, char *s, char **rfn);
+int input_isinclude(asmstate_t *as);
 
 struct ifl
 {

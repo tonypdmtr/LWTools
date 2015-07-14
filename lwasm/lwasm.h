@@ -98,7 +98,8 @@ enum lwasm_pragmas_e
 	PRAGMA_CD					= 1 << 17,	// enable detailed cycle count
 	PRAGMA_CT					= 1 << 18,	// enable cycle count running total
 	PRAGMA_CC					= 1 << 19,	// clear cycle count running total
-	PRAGMA_QRTS					= 1 << 20	// enable BRA ?RTS support
+	PRAGMA_QRTS					= 1 << 20,	// enable BRA ?RTS support
+	PRAGMA_M80EXT				= 1 << 21	// enable Macro-80C assembler extensions
 };
 
 enum

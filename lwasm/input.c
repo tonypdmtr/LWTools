@@ -82,6 +82,11 @@ static char *make_filename(char *p, char *f)
 
 struct ifl *ifl_head = NULL;
 
+int input_isinclude(asmstate_t *as)
+{
+	return IS->type == input_type_include;
+}
+
 static int input_isabsolute(const char *s)
 {
 #if defined(WIN32) || defined(WIN64)

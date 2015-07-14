@@ -95,9 +95,13 @@ PARSEFUNC(pseudo_parse_end)
 {
 	lw_expr_t addr;
 	
-	as -> endseen = 1;
 	l -> len = 0;
-	
+
+	if (CURPRAGMA(l, PRAGMA_M80EXT) && input_isinclude(as))
+		return;	/* ignore END inside includes */
+
+	as->endseen = 1;
+
 	if (as -> output_format != OUTPUT_DECB)
 	{
 		skip_operand(p);
@@ -123,7 +127,10 @@ PARSEFUNC(pseudo_parse_end)
 EMITFUNC(pseudo_emit_end)
 {
 	lw_expr_t addr;
-	
+
+	if (CURPRAGMA(l, PRAGMA_M80EXT) && input_isinclude(as))
+		return;	/* ignore END inside includes */
+
 	addr = lwasm_fetch_expr(l, 0);
 	
 	if (addr)
