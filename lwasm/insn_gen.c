@@ -111,6 +111,8 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 	// if we have a constant now, figure out dp vs nondp
 	if (lw_expr_istype(s, lw_expr_type_int))
 	{
+		if (s -> value > 0xffff) lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+
 		v1 = lw_expr_intval(s);
 		if (((v1 >> 8) & 0xff) == (l -> dpval & 0xff))
 		{
