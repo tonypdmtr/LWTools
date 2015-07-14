@@ -401,6 +401,7 @@ struct asmstate_s
 	exportlist_t *exportlist;			// list of exported symbols
 	importlist_t *importlist;			// list of imported symbols
 	char *list_file;					// name of file to list to
+	int tabwidth;						// tab width in list file
 	char *map_file;						// name of map file
 	char *output_file;					// output file name	
 	lw_stringlist_t input_files;		// files to assemble

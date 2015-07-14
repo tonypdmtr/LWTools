@@ -254,32 +254,37 @@ void do_list(asmstate_t *as)
 			}
 		}
 
-		i = 0;
-		for (tc = cl -> ltext; *tc; tc++)
+		if (as -> tabwidth == 0)
 		{
-			if ((*tc) == '\t')
+			fputs(cl -> ltext, of);
+		}
+		else 
+		{
+			i = 0;
+			for (tc = cl -> ltext; *tc; tc++)
 			{
-				if (i % 8 == 0)
+				if ((*tc) == '\t')
 				{
-					i += 8;
-					fprintf(of, "        ");
-				}
-				else
-				{
-					while (i % 8)
+					if (i % as -> tabwidth == 0)
+					{
+						fputc(' ', of);
+						i++;
+					}
+					while (i % as -> tabwidth)
 					{
 						fputc(' ', of);
 						i++;
 					}
 				}
-			}
-			else
-			{
-				fputc(*tc, of);
-				i++;
+				else
+				{
+					fputc(*tc, of);
+					i++;
+				}
 			}
 		}
 		fputc('\n', of);
+
 		if (obytelen > 8)
 		{
 			for (i = 8; i < obytelen; i++)

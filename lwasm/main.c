@@ -48,6 +48,7 @@ static struct lw_cmdline_options options[] =
 	{ "list",		'l',	"FILE",		lw_cmdline_opt_optional,	"Generate list [to FILE]"},
 	{ "symbols",	's',	0,			lw_cmdline_opt_optional,	"Generate symbol list in listing, no effect without --list"},
 	{ "symbols-nolocals", 0x103,	0,	lw_cmdline_opt_optional,	"Same as --symbols but with local labels ignored"},
+	{ "tabs",		't',	"WIDTH",	0,							"Set tab spacing in listing (0=don't expand tabs)" },
 	{ "map",		'm',	"FILE",		lw_cmdline_opt_optional,	"Generate map [to FILE]"},
 	{ "decb",		'b',	0,			0,							"Generate DECB .bin format output, equivalent of --format=decb"},
 	{ "raw",		'r',	0,			0,							"Generate raw binary format output, equivalent of --format=raw"},
@@ -58,7 +59,7 @@ static struct lw_cmdline_options options[] =
 	{ "6809",		'9',	0,			0,							"Set assembler to 6809 only mode" },
 	{ "6309",		'3',	0,			0,							"Set assembler to 6309 mode (default)" },
 	{ "includedir",	'I',	"PATH",		0,							"Add entry to include path" },
-	{ "define", 'D', "SYM[=VAL]", 0, "Automatically define SYM to be VAL (or 1)"},
+	{ "define",		'D',	"SYM[=VAL]",0,							"Automatically define SYM to be VAL (or 1)"},
 	{ "preprocess",	'P',	0,			0,							"Preprocess macros and conditionals and output revised source to stdout" },
 	{ "unicorns",	0x142,	0,			0,							"Add sooper sekrit sauce"},
 	{ "6800compat",	0x200,	0,			0,							"Enable 6800 compatibility instructions, equivalent to --pragma=6800compat" },
@@ -112,6 +113,11 @@ static int parse_opts(int key, char *arg, void *state)
 		else
 			as -> debug_level = atoi(arg);
 #endif
+		break;
+
+	case 't':
+		if (arg)
+			as -> tabwidth = atoi(arg);
 		break;
 
 	case 'l':
@@ -293,6 +299,7 @@ int main(int argc, char **argv)
 	asmstate.input_files = lw_stringlist_create();
 	asmstate.nextcontext = 1;
 	asmstate.exprwidth = 16;
+	asmstate.tabwidth = 8;
 	
 	/* parse command line arguments */	
 	lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, &asmstate);
