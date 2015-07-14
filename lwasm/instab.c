@@ -681,6 +681,7 @@ instab_t instab[] =
 
 	{ "pragma",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_pragma,	pseudo_resolve_pragma,			pseudo_emit_pragma,			lwasm_insn_normal},
 	{ "*pragma",	{	-1, 	-1, 	-1, 	-1},	pseudo_parse_starpragma,pseudo_resolve_starpragma,		pseudo_emit_starpragma,		lwasm_insn_normal},
+	{ "opt",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_starpragma,pseudo_resolve_starpragma,		pseudo_emit_starpragma,		lwasm_insn_normal},
 	{ "*pragmapush",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapush, pseudo_resolve_starpragmapush, pseudo_emit_starpragmapush,	lwasm_insn_normal},
 	{ "*pragmapop",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapop, pseudo_resolve_starpragmapop, pseudo_emit_starpragmapop,	lwasm_insn_normal},
 	
@@ -731,7 +732,6 @@ instab_t instab[] =
 	{ "nam",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ "pag",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ "page",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
-	{ "opt",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ "spc",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ "ttl",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 	{ ".bank",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
