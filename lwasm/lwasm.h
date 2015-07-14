@@ -195,6 +195,7 @@ typedef enum
 	E_SYMBOL_UNDEFINED_EXPORT	= 54,
 	E_UNKNOWN_OPERATION			= 55,
 	E_USER_SPECIFIED			= 56,
+	E_ORG_NOT_FOUND				= 57,
 
 	/* warnings must be 1000 or greater */
 

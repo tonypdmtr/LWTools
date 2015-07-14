@@ -965,6 +965,44 @@ PARSEFUNC(pseudo_parse_org)
 	l -> len = 0;
 }
 
+PARSEFUNC(pseudo_parse_reorg)
+{
+	lw_expr_t e = NULL;
+
+	l -> len = 0;
+
+	line_t *cl = l;
+	for (cl = cl -> prev; cl; cl = cl -> prev)
+	{
+		if (cl -> insn == -1) continue;
+
+		if (!strcmp("org", instab[cl -> insn].opcode))
+		{
+			if (cl -> prev)
+			{
+				e = lw_expr_copy(cl -> prev -> daddr);
+				break;
+			}
+		}
+	}
+
+	if (!e)
+	{
+		lwasm_register_error(as, l, E_ORG_NOT_FOUND);
+		return;
+	}
+
+	lw_expr_destroy(l -> daddr);
+	l -> daddr = e;
+
+	if (l -> inmod == 0)
+	{
+		lw_expr_destroy(l -> addr);
+		l -> addr = e;
+	}
+	l -> len = 0;
+}
+
 PARSEFUNC(pseudo_parse_equ)
 {
 	lw_expr_t e;

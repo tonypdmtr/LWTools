@@ -261,6 +261,7 @@ const char* lwasm_lookup_error(lwasm_errorcode_t error_code)
 		case E_STRUCT_RECURSE:			return "Attempt to define a structure inside a structure";
 		case E_SYMBOL_DUPE:				return "Multiply defined symbol";
 		case E_UNKNOWN_OPERATION:		return "Unknown operation";
+		case E_ORG_NOT_FOUND:			return "Previous ORG not found";
 
 		case W_ENDSTRUCT_WITHOUT:		return "ENDSTRUCT without STRUCT";
 		case W_DUPLICATE_SECTION:		return "Section flags can only be specified the first time; ignoring duplicate definition";

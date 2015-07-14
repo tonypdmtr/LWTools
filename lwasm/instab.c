@@ -188,6 +188,10 @@ PARSEFUNC(pseudo_parse_org);
 #define pseudo_resolve_org NULL
 #define pseudo_emit_org NULL
 
+PARSEFUNC(pseudo_parse_reorg);
+#define pseudo_resolve_reorg NULL
+#define pseudo_emit_reorg NULL
+
 PARSEFUNC(pseudo_parse_equ);
 #define pseudo_resolve_equ NULL
 #define pseudo_emit_equ NULL
@@ -594,6 +598,7 @@ instab_t instab[] =
 	{ "tstw",		{	0x105d,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 
 	{ "org",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_org,		pseudo_resolve_org,				pseudo_emit_org,			lwasm_insn_normal},
+	{ "reorg",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_reorg,		pseudo_resolve_reorg,			pseudo_emit_reorg,			lwasm_insn_normal},
 	{ "equ",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_equ,		pseudo_resolve_equ,				pseudo_emit_equ,			lwasm_insn_setsym},
 	{ "=",			{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_equ,		pseudo_resolve_equ,				pseudo_emit_equ,			lwasm_insn_setsym},
 
