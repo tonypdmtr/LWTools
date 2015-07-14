@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\lwasm\cycle.c" />
     <ClCompile Include="..\lwasm\debug.c" />
     <ClCompile Include="..\lwasm\input.c" />
     <ClCompile Include="..\lwasm\insn_bitbit.c" />

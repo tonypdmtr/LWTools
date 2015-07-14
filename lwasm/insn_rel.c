@@ -232,14 +232,17 @@ EMITFUNC(insn_emit_relgen)
 			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 			return;
 		}
-	
 
 		lwasm_emitop(l, instab[l -> insn].ops[2]);
 		lwasm_emit(l, offs);
+
+		l -> cycle_adj = 2;
 	}
 	else
 	{
 		lwasm_emitop(l, instab[l -> insn].ops[3]);
 		lwasm_emitexpr(l, e, 2);
+
+		l->cycle_adj = 4;
 	}
 }

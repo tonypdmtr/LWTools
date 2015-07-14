@@ -47,4 +47,6 @@ EMITFUNC(insn_emit_inh6800)
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	if (instab[l -> insn].ops[1] >= 0)
 		lwasm_emitop(l, instab[l -> insn].ops[1]);
+
+	l -> cycle_adj = instab[l -> insn].ops[3];
 }

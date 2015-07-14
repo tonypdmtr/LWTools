@@ -82,4 +82,6 @@ EMITFUNC(insn_emit_rlist)
 {
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	lwasm_emit(l, l -> pb);
+
+	l -> cycle_adj = lwasm_cycle_calc_rlist(l);
 }

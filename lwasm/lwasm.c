@@ -456,6 +456,9 @@ void lwasm_emit(line_t *cl, int byte)
 
 void lwasm_emitop(line_t *cl, int opc)
 {
+	if (cl->cycle_base == 0)
+		lwasm_cycle_update_count(cl, opc);	/* only call first time, never on postbyte */
+
 	if (opc > 0x100)
 		lwasm_emit(cl, opc >> 8);
 	lwasm_emit(cl, opc);

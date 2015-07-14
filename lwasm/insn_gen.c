@@ -280,6 +280,8 @@ void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 			}
 			lwasm_emitexpr(l, e, l -> lint);
 		}
+
+		l -> cycle_adj = lwasm_cycle_calc_ind(l);
 		return;
 	}
 	

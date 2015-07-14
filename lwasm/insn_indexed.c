@@ -594,6 +594,9 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 	
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	lwasm_emitop(l, l -> pb);
+
+	l -> cycle_adj = lwasm_cycle_calc_ind(l);
+
 	if (l -> lint > 0)
 	{
 		e = lwasm_fetch_expr(l, 0);

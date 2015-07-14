@@ -66,7 +66,6 @@ void do_list(asmstate_t *as)
 	for (cl = as -> line_head; cl; cl = nl)
 	{
 		char *linespec;
-		int linespec_len;
 
 		nl = cl -> next;
 		if (CURPRAGMA(cl, PRAGMA_NOLIST))
@@ -194,15 +193,67 @@ void do_list(asmstate_t *as)
 			}
 			fprintf(of, " ");
 		}
-		/* the 32.32 below is deliberately chosen so that the start of the line text is at
-		   a multiple of 8 from the start of the list line */
+
+		/* the format specifier below is deliberately chosen so that the start of the line text is at
+		a multiple of 8 from the start of the list line */
+
+		#define max_linespec_len 17
+
+		// trim "include:" if it appears
 		linespec = cl -> linespec;
-		linespec_len = strlen(linespec);
-		if (linespec_len > 32)
+		if ((strlen(linespec) > 8) && (linespec[7] == ':')) linespec += 8;
+		while (*linespec == ' ') linespec++;
+
+		fprintf(of, "(%*.*s):%05d ", max_linespec_len, max_linespec_len, linespec, cl->lineno);
+
+		if (CURPRAGMA(cl, PRAGMA_CC))
 		{
-			linespec += linespec_len - 32;
+			as->cycle_total = 0;
 		}
-		fprintf(of, "(%32.32s):%05d ", linespec, cl -> lineno);
+
+		/* display cycle counts */
+		char s[64] = "";
+		if (CURPRAGMA(cl, PRAGMA_C) || CURPRAGMA(cl, PRAGMA_CD))
+		{
+			if (cl->cycle_base != 0)
+			{
+				char ch = '(';
+				if (CURPRAGMA(cl, PRAGMA_6809)) ch = '[';
+
+				if (CURPRAGMA(cl, PRAGMA_CD) && cl->cycle_flags & CYCLE_ADJ)
+				{
+					sprintf(s, "%c%d+%d", ch, cl->cycle_base, cl->cycle_adj);	/* detailed cycle count */
+				}
+				else
+				{
+					sprintf(s, "%c%d", ch, cl->cycle_base + cl->cycle_adj);   /* normal cycle count*/
+				}
+
+				if (cl->cycle_flags & CYCLE_ESTIMATED)
+					strcat(s, "+?");
+
+				as->cycle_total += cl->cycle_base + cl->cycle_adj;
+
+				ch = ')';
+				if (CURPRAGMA(cl, PRAGMA_6809)) ch = ']';
+				sprintf(s, "%s%c", s, ch);
+			}
+		}
+
+		fprintf(of, "%-8s", s);
+
+		if (CURPRAGMA(cl, PRAGMA_CT)) 
+		{
+			if (cl->cycle_base != 0)
+			{
+				fprintf(of, "%-8d", as->cycle_total);
+			}
+			else
+			{
+				fprintf(of, "        ");
+			}
+		}
+
 		i = 0;
 		for (tc = cl -> ltext; *tc; tc++)
 		{

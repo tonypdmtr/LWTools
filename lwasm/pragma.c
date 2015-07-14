@@ -64,7 +64,11 @@ static const struct pragma_list set_pragmas[] =
 	{ "6800compat", "no6800compat", PRAGMA_6800COMPAT },
 	{ "forwardrefmax", "noforwardrefmax", PRAGMA_FORWARDREFMAX },
 	{ "testmode", "notestmode", PRAGMA_TESTMODE },
-	{ 0, 0, 0}
+	{ "c", "noc", PRAGMA_C },
+	{ "cc", "nocc", PRAGMA_CC },
+	{ "cd", "nocd", PRAGMA_CD },
+	{ "ct", "noct", PRAGMA_CT },
+	{ 0, 0, 0 }
 };
 
 int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
@@ -141,6 +145,11 @@ PARSEFUNC(pseudo_parse_starpragma)
 	parse_pragma_string(as, ps, 1);
 	if (as -> pragmas & PRAGMA_NOLIST)
 		l -> pragmas |= PRAGMA_NOLIST;
+	if (as->pragmas & PRAGMA_CC)
+	{
+		l->pragmas |= PRAGMA_CC;
+		as->pragmas &= ~PRAGMA_CC;
+	}
 	lw_free(ps);
 }
 

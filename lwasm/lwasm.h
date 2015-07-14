@@ -93,7 +93,11 @@ enum lwasm_pragmas_e
 	PRAGMA_6800COMPAT			= 1 << 12,	// enable 6800 compatibility opcodes
 	PRAGMA_FORWARDREFMAX		= 1 << 13,	// force incomplete references on pass 1 to maximum mode
 	PRAGMA_6809					= 1 << 14,	// 6809/6309 assembly mode
-	PRAGMA_TESTMODE				= 1 << 15	// enable test mode (for internal unit testing)
+	PRAGMA_TESTMODE				= 1 << 15,	// enable test mode (for internal unit testing)
+	PRAGMA_C					= 1 << 16,	// enable cycle counts
+	PRAGMA_CD					= 1 << 17,	// enable detailed cycle count
+	PRAGMA_CT					= 1 << 18,	// enable cycle count running total
+	PRAGMA_CC					= 1 << 19	// clear cycle count running total
 };
 
 enum
@@ -232,6 +236,12 @@ struct importlist_s
 	importlist_t *next;					// next in the import list
 };
 
+typedef enum
+{
+	CYCLE_ADJ = 1,
+	CYCLE_ESTIMATED = 2
+} cycle_flags;
+
 struct line_s
 {
 	lw_expr_t addr;						// assembly address of the line
@@ -247,6 +257,9 @@ struct line_s
 	int outputl;						// size of output
 	int outputbl;						// size of output buffer
 	int dpval;							// direct page value
+	int cycle_base;						// base instruction cycle count
+	int cycle_adj;						// cycle adjustment
+	int	cycle_flags;					// cycle flags
 	lwasm_error_t *err;					// list of errors
 	lwasm_error_t *warn;				// list of errors
 	lwasm_errorcode_t err_testmode;		// error code in testmode
@@ -360,6 +373,7 @@ struct asmstate_s
 	int undefzero;						// used for handling "condundefzero"
 	int pretendmax;						// set if we need to pretend the instruction is max length
 	unsigned char crc[3];				// crc accumulator
+	int cycle_total;					// cycle count accumulator
 	int badsymerr;						// throw error on undef sym if set
 
 	line_t *line_head;					// start of lines list
@@ -398,6 +412,10 @@ struct asmstate_s
 
 struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t value, int flags);
 struct symtabe *lookup_symbol(asmstate_t *as, line_t *cl, char *sym);
+
+int lwasm_cycle_calc_ind(line_t *cl);
+int lwasm_cycle_calc_rlist(line_t *cl);
+void lwasm_cycle_update_count(line_t *cl, int opc);
 
 void lwasm_parse_testmode_comment(line_t *cl, lwasm_testflags_t *flags, lwasm_errorcode_t *err, int *len, char **buf);
 void lwasm_error_testmode(line_t *cl, const char* msg, int fatal);
