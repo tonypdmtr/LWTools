@@ -26,7 +26,6 @@ Implements the program startup code
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #include <lw_alloc.h>
 

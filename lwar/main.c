@@ -27,12 +27,17 @@ Implements the program startup code
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #include <lw_cmdline.h>
 #include <lw_version.h>
 
 #include "lwar.h"
+
+#ifdef _MSC_VER
+#include <lw_win.h>	// windows build
+#else
+#include <unistd.h>
+#endif
 
 // command line option handling
 #define PROGVER "lwar from " PACKAGE_STRING

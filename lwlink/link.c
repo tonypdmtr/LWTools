@@ -31,6 +31,10 @@ Resolve section and symbol addresses; handle incomplete references
 #include "expr.h"
 #include "lwlink.h"
 
+#ifdef _MSC_VER
+#include <lw_win.h>	// windows build
+#endif
+
 void check_os9(void);
 
 struct section_list *sectlist = NULL;

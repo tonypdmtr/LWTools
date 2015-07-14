@@ -388,8 +388,8 @@ An empty file name indicates the end of the file.
 */
 void read_lwar1v(fileinfo_t *fn)
 {
-	unsigned long cc = 6;
-	unsigned long flen;
+	int cc = 6;
+	int flen;
 	unsigned long l;
 	for (;;)
 	{

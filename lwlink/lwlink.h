@@ -80,7 +80,7 @@ struct fileinfo_s
 {
 	char *filename;
 	unsigned char *filedata;
-	long filesize;
+	int filesize;
 	section_t *sections;
 	int nsections;
 	int islib;				// set to true if the file is a "-l" option

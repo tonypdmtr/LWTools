@@ -25,13 +25,18 @@ Implements the program startup code
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 
 #include <lw_cmdline.h>
 #include <lw_version.h>
 
 #include "lwlink.h"
+
+#ifdef _MSC_VER
+#include <lw_win.h>	// windows build
+#else
+#include <unistd.h>
+#endif
 
 char *program_name;
 

@@ -23,7 +23,12 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#include <lw_win.h>	// windows build
+#else
 #include <unistd.h>
+#endif
 
 #include "lwar.h"
 

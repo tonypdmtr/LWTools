@@ -23,7 +23,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #define ___lwasm_h_seen___
 
 #ifdef _MSC_VER
-#include "lw_win.h"	// windows build
+#include <lw_win.h>	// windows build
 #endif
 
 #include <lw_expr.h>
