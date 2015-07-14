@@ -55,8 +55,6 @@ enum
 	lw_expr_oper_none = 0
 };
 
-#ifdef ___lw_expr_c_seen___
-
 typedef struct lw_expr_priv * lw_expr_t;
 
 struct lw_expr_opers
@@ -78,10 +76,6 @@ typedef lw_expr_t lw_expr_fn2_t(char *var, void *priv);
 typedef lw_expr_t lw_expr_fn3_t(char **p, void *priv);
 typedef int lw_expr_testfn_t(lw_expr_t e, void *priv);
 
-#else /* def ___lw_expr_c_seen___ */
-
-typedef void * lw_expr_t;
-
 lw_expr_t lwexpr_create(void);
 void lw_expr_destroy(lw_expr_t E);
 lw_expr_t lw_expr_copy(lw_expr_t E);
@@ -90,10 +84,6 @@ lw_expr_t lw_expr_build(int exprtype, ...);
 char *lw_expr_print(lw_expr_t E);
 int lw_expr_compare(lw_expr_t E1, lw_expr_t E2);
 void lw_expr_simplify(lw_expr_t E, void *priv);
-
-typedef lw_expr_t lw_expr_fn_t(int t, void *ptr, void *priv);
-typedef lw_expr_t lw_expr_fn2_t(char *var, void *priv);
-typedef lw_expr_t lw_expr_fn3_t(char **p, void *priv);
 
 void lw_expr_set_special_handler(lw_expr_fn_t *fn);
 void lw_expr_set_var_handler(lw_expr_fn2_t *fn);
@@ -120,7 +110,5 @@ void lw_expr_setwidth(int w);
 int lw_expr_testterms(lw_expr_t e, lw_expr_testfn_t *fn, void *priv);
 
 void lw_expr_setdivzero(void (*fn)(void *priv));
-
-#endif /* def ___lw_expr_c_seen___ */
 
 #endif /* ___lw_expr_h_seen___ */

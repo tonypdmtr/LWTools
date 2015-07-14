@@ -24,7 +24,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <ctype.h>
 
-#define ___lw_expr_c_seen___
 #include "lw_alloc.h"
 #include "lw_expr.h"
 #include "lw_error.h"

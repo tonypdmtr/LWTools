@@ -68,6 +68,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "cc", "nocc", PRAGMA_CC },
 	{ "cd", "nocd", PRAGMA_CD },
 	{ "ct", "noct", PRAGMA_CT },
+	{ "qrts", "noqrts", PRAGMA_QRTS },
 	{ 0, 0, 0 }
 };
 

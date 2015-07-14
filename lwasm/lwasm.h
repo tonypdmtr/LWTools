@@ -97,7 +97,8 @@ enum lwasm_pragmas_e
 	PRAGMA_C					= 1 << 16,	// enable cycle counts
 	PRAGMA_CD					= 1 << 17,	// enable detailed cycle count
 	PRAGMA_CT					= 1 << 18,	// enable cycle count running total
-	PRAGMA_CC					= 1 << 19	// clear cycle count running total
+	PRAGMA_CC					= 1 << 19,	// clear cycle count running total
+	PRAGMA_QRTS					= 1 << 20	// enable BRA ?RTS support
 };
 
 enum
@@ -272,6 +273,7 @@ struct line_s
 	int pb;								// pass forward post byte
 	int lint;							// pass forward integer
 	int lint2;							// another pass forward integer
+	int conditional_return;				// for ?RTS handling (1 if RTS follows)
 	asmstate_t *as;						// assembler state data ptr
 	int pragmas;						// pragmas in effect for the line
 	int context;						// the symbol context number
