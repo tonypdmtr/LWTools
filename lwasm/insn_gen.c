@@ -320,6 +320,7 @@ EMITFUNC(insn_emit_gen0)
 
 PARSEFUNC(insn_parse_gen8)
 {
+	l -> genmode = 8;
 	if (**p == '#')
 	{
 		lw_expr_t e;
@@ -393,6 +394,7 @@ EMITFUNC(insn_emit_gen8)
 
 PARSEFUNC(insn_parse_gen16)
 {
+	l -> genmode = 16;
 	if (**p == '#')
 	{
 		lw_expr_t e;
@@ -454,6 +456,7 @@ EMITFUNC(insn_emit_gen16)
 
 PARSEFUNC(insn_parse_gen32)
 {
+	l -> genmode = 32;
 	if (**p == '#')
 	{
 		lw_expr_t e;

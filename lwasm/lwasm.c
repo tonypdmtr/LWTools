@@ -520,6 +520,28 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		return lw_expr_build(lw_expr_type_int, v);
 	}
 	
+	/* double ASCII constant, like LDD #'MG */
+	if (CURPRAGMA(as->cl, PRAGMA_M80EXT))
+	{
+		if (((**p == '"') || (**p == '\'')) && (as->cl->genmode == 16))
+		{
+			int v;
+			(*p)++;
+			if (!**p)
+				return NULL;
+			if (!*((*p) + 1))
+				return NULL;
+			v = (unsigned char) **p << 8 | (unsigned char) *((*p) + 1);
+			(*p) += 2;
+
+			if ((**p == '"') || (**p == '\''))
+				(*p)++;
+
+			return lw_expr_build(lw_expr_type_int, v);
+		}
+	}
+
+	/* single ASCII constant, like LDA #'E */
 	if (**p == '\'')
 	{
 		int v;
