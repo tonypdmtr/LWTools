@@ -34,7 +34,7 @@ PARSEFUNC(insn_parse_tfm)
 	c = strchr(reglist, toupper(*(*p)++));
 	if (!c)
 	{
-		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
+		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
 	r0 = c - reglist;
@@ -56,7 +56,7 @@ PARSEFUNC(insn_parse_tfm)
 	c = strchr(reglist, toupper(*(*p)++));
 	if (!c)
 	{
-		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
+		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
 	r1 = c - reglist;
@@ -77,7 +77,13 @@ PARSEFUNC(insn_parse_tfm)
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-			
+	/* only D, X, Y, U, S are valid tfm registers */
+	if (r0 > 4 || r1 > 4)
+	{
+		if (r0 < r1) r0 = r1;
+		lwasm_register_error2(as, l, E_REGISTER_BAD, "'%c'", reglist[r0]);
+	}
+
 	// valid values of tfm here are:
 	// 1: r0+,r1 (2)
 	// 4: r0,r1+ (3)
