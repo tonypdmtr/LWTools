@@ -27,6 +27,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_expr.h>
 #include <lw_alloc.h>
 #include <lw_string.h>
+#include <lw_error.h>
 
 #include "lwasm.h"
 #include "instab.h"
@@ -269,16 +270,98 @@ const char* lwasm_lookup_error(lwasm_errorcode_t error_code)
 	}
 }
 
-void lwasm_register_error_real(asmstate_t *as, line_t *l, lwasm_errorcode_t err, const char *msg)
+/* keeping this as a separate error output for stability in unit test scripts */
+void lwasm_error_testmode(line_t *cl, const char* msg, int fatal)
+{
+	cl -> as -> testmode_errorcount++;
+	fprintf(stderr, "line %d: %s : %s\n", cl->lineno, msg, cl->ltext);
+	if (fatal == 1) lw_error("aborting\n");
+}
+
+/* parse unit test input data from comment field */
+void lwasm_parse_testmode_comment(line_t *l, lwasm_testflags_t *flags, lwasm_errorcode_t *err, int *len, char **buf)
+{
+	*flags = 0;
+
+	if (!l)
+		return;
+
+	char* s = strstr(l -> ltext, ";.");
+	if (s == NULL) return;
+
+	char* t = strstr(s, ":");
+	if (t == NULL)
+	{
+		/* parse: ;.8E0FCE (emitted code) */
+
+		if (buf == NULL) return;
+
+		int i;
+		*flags = TF_EMIT;
+
+		s = s + 2;	/* skip ;. prefix */
+		t = s;
+		while (*t > 32) t++;
+
+		if ((t - s) & 1)
+		{
+			lwasm_error_testmode(l, "bad test data (wrong length of hex chars)", 1);
+			return;
+		}
+
+		*len = (t - s) / 2;
+
+		t = lw_alloc(*len);
+		*buf = t;
+
+		for (i = 0; i < *len; i++)
+		{
+			int val;
+			sscanf(s, "%2x", &val);
+			*t++ = (char) val;
+			s += 2;
+		}
+	}
+	else
+	{
+		/* parse: ;.E:1000 or ;.E:7 (warnings or errors) */
+		*flags = TF_ERROR;
+
+		char ch = toupper(*(t - 1));
+		if (ch != 'E') lwasm_error_testmode(l, "bad test data (expected E: flag)", 1);
+		sscanf(t + 1, "%d", (int*) err);
+	}
+}
+
+void lwasm_register_error_real(asmstate_t *as, line_t *l, lwasm_errorcode_t error_code, const char *msg)
 {
 	lwasm_error_t *e;
 
 	if (!l)
 		return;
 
+	if (CURPRAGMA(l, PRAGMA_TESTMODE))
+	{
+		lwasm_testflags_t flags;
+		lwasm_errorcode_t testmode_error_code;
+		lwasm_parse_testmode_comment(l, &flags, &testmode_error_code, NULL, NULL);
+		if (flags == TF_ERROR)
+		{
+			l -> len = 0;	/* null out bogus line */
+			l -> insn = -1;
+			l -> err_testmode = error_code;
+			if (testmode_error_code == error_code) return;		/* expected error: ignore and keep assembling */
+
+			char buf[128];
+			sprintf(buf, "wrong error code (%d)", error_code);
+			lwasm_error_testmode(l, buf, 0);
+			return;
+		}
+	}
+
 	e = lw_alloc(sizeof(lwasm_error_t));
 
-	if (err >= 1000)
+	if (error_code >= 1000)
 	{
 		e->next = l->warn;
 		l->warn = e;
@@ -291,6 +374,7 @@ void lwasm_register_error_real(asmstate_t *as, line_t *l, lwasm_errorcode_t err,
 		as->errorcount++;
 	}
 	
+	e -> code = error_code;
 	e -> charpos = -1;
 
 	e -> mess = lw_strdup(msg);
@@ -984,11 +1068,11 @@ void lwasm_show_errors(asmstate_t *as)
 			continue;
 		for (e = cl -> err; e; e = e -> next)
 		{
-			fprintf(stderr, "ERROR: %s\n", e -> mess);
+			fprintf(stderr, "ERROR: %s (%d)\n", e -> mess, e -> code);
 		}
 		for (e = cl -> warn; e; e = e -> next)
 		{
-			fprintf(stderr, "WARNING: %s\n", e -> mess);
+			fprintf(stderr, "WARNING: %s (%d)\n", e -> mess, e -> code);
 		}
 		fprintf(stderr, "%s:%05d %s\n\n", cl -> linespec, cl -> lineno, cl -> ltext);
 	}

@@ -263,6 +263,14 @@ void do_pass1(asmstate_t *as)
 		}
 		if (*tok)
 		{
+			if (CURPRAGMA(cl, PRAGMA_TESTMODE))
+			{
+				/* in test mode, terminate the line here so we don't affect the parsers */
+				/* (cl -> ltext retains the full, unmodified string) */
+				char *t = strstr(p1, ";.");
+				if (t) *t = 0;
+			}
+
 			// look up operation code
 			lw_free(sym);
 			sym = lw_strndup(tok, p1 - tok);

@@ -46,6 +46,30 @@ void do_pass7(asmstate_t *as)
 			{
 				(instab[cl -> insn].emit)(as, cl);
 			}
+
+			if (CURPRAGMA(cl, PRAGMA_TESTMODE))
+			{
+				char* buf;
+				int len;
+				lwasm_testflags_t flags;
+				lwasm_errorcode_t err;
+
+				lwasm_parse_testmode_comment(cl, &flags, &err, &len, &buf);
+
+				if (flags == TF_ERROR && cl -> err_testmode == 0)
+				{
+					char s[128];
+					sprintf(s, "expected %d but assembled OK", err);
+					lwasm_error_testmode(cl, s, 0);
+				}
+
+				if (flags == TF_EMIT)
+				{
+					if (cl -> len != len) lwasm_error_testmode(cl, "incorrect assembly (wrong length)", 0);
+					if (memcmp(buf, cl -> output, len) != 0) lwasm_error_testmode(cl, "incorrect assembly", 0);
+					lw_free(buf);
+				}
+			}
 		}
 	}
 }

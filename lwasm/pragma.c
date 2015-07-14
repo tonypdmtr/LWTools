@@ -63,6 +63,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "6809", "6309", PRAGMA_6809 },
 	{ "6800compat", "no6800compat", PRAGMA_6800COMPAT },
 	{ "forwardrefmax", "noforwardrefmax", PRAGMA_FORWARDREFMAX },
+	{ "testmode", "notestmode", PRAGMA_TESTMODE },
 	{ 0, 0, 0}
 };
 

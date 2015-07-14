@@ -361,5 +361,8 @@ int main(int argc, char **argv)
 	}
 	do_list(&asmstate);
 	do_map(&asmstate);
+
+	if (asmstate.testmode_errorcount > 0) exit(1);
+
 	exit(0);
 }

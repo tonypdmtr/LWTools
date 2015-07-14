@@ -77,22 +77,23 @@ enum lwasm_flags_e
 
 enum lwasm_pragmas_e
 {
-	PRAGMA_NONE = 0,					// no pragmas in effect
-	PRAGMA_DOLLARNOTLOCAL = 0x0001,		// dollar sign does not make a symbol local
-	PRAGMA_NOINDEX0TONONE = 0x0002,		// do not change implicit 0,R to ,R
-	PRAGMA_UNDEFEXTERN = 0x0004,		// undefined symbols are considered to be external
-	PRAGMA_CESCAPES = 0x0008,			// allow C style escapes in fcc, fcs, fcn, etc.
-	PRAGMA_IMPORTUNDEFEXPORT = 0x0010,	// imports symbol if undefined upon export
-	PRAGMA_PCASPCR = 0x0020,			// treats ,PC as ,PCR instead of constant offset
-	PRAGMA_SHADOW = 0x0040,				// allow macros to shadow builtin operations
-	PRAGMA_NOLIST = 0x0080,				// don't show line in listing
-	PRAGMA_AUTOBRANCHLENGTH = 0x0100,	// automatically select proper length for relative branches
-	PRAGMA_EXPORT = 0x0200,				// export symbols by default, unless local
-	PRAGMA_SYMBOLNOCASE = 0x400,		// symbols defined under this pragma are matched case insensitively
-	PRAGMA_CONDUNDEFZERO = 0x800,		// treat undefined symbols as zero in conditionals during pass 1
-	PRAGMA_6800COMPAT = 0x1000,			// enable 6800 compatibility opcodes
-	PRAGMA_FORWARDREFMAX = 0x2000,		// force incomplete references on pass 1 to maximum mode
-	PRAGMA_6809 = 0x4000				// 6809/6309 assembly mode
+	PRAGMA_NONE = 0,						// no pragmas in effect
+	PRAGMA_DOLLARNOTLOCAL 		= 1 << 0,	// dollar sign does not make a symbol local
+	PRAGMA_NOINDEX0TONONE 		= 1 << 1,	// do not change implicit 0,R to ,R
+	PRAGMA_UNDEFEXTERN			= 1 << 2,	// undefined symbols are considered to be external
+	PRAGMA_CESCAPES 			= 1 << 3,	// allow C style escapes in fcc, fcs, fcn, etc.
+	PRAGMA_IMPORTUNDEFEXPORT	= 1 << 4,	// imports symbol if undefined upon export
+	PRAGMA_PCASPCR				= 1 << 5,	// treats ,PC as ,PCR instead of constant offset
+	PRAGMA_SHADOW				= 1 << 6,	// allow macros to shadow builtin operations
+	PRAGMA_NOLIST				= 1 << 7,	// don't show line in listing
+	PRAGMA_AUTOBRANCHLENGTH		= 1 << 8,	// automatically select proper length for relative branches
+	PRAGMA_EXPORT				= 1 << 9,	// export symbols by default, unless local
+	PRAGMA_SYMBOLNOCASE			= 1 << 10,	// symbols defined under this pragma are matched case insensitively
+	PRAGMA_CONDUNDEFZERO		= 1 << 11,	// treat undefined symbols as zero in conditionals during pass 1
+	PRAGMA_6800COMPAT			= 1 << 12,	// enable 6800 compatibility opcodes
+	PRAGMA_FORWARDREFMAX		= 1 << 13,	// force incomplete references on pass 1 to maximum mode
+	PRAGMA_6809					= 1 << 14,	// 6809/6309 assembly mode
+	PRAGMA_TESTMODE				= 1 << 15	// enable test mode (for internal unit testing)
 };
 
 enum
@@ -124,71 +125,77 @@ struct sectiontab_s
 	sectiontab_t *next;
 };
 
+typedef enum
+{
+	TF_EMIT = 1,
+	TF_ERROR = 2
+} lwasm_testflags_t;
+
 typedef enum 
 {
-	E_6309_INVALID,
-	E_6809_INVALID,
-	E_ALIGNMENT_INVALID,
-	E_BITNUMBER_UNRESOLVED,
-	E_BITNUMBER_INVALID,
-	E_BYTE_OVERFLOW,
-	E_CONDITION_P1,
-	E_DIRECTIVE_OS9_ONLY,
-	E_DIV0,
-	E_EXEC_ADDRESS,
-	E_FILL_INVALID,
-	E_IMMEDIATE_INVALID,
-	E_IMMEDIATE_UNRESOLVED,
-	E_EXPRESSION_BAD,
-	E_EXPRESSION_NOT_CONST,
-	E_EXPRESSION_NOT_RESOLVED,
-	E_FILE_OPEN,
-	E_FILENAME_MISSING,
-	E_INSTRUCTION_FAILED,
-	E_INSTRUCTION_SECTION,
-	E_LINE_ADDRESS,
-	E_LINED_ADDRESS,
-	E_MACRO_DUPE,
-	E_MACRO_ENDM,
-	E_MACRO_NONAME,
-	E_MACRO_RECURSE,
-	E_MODULE_IN,
-	E_MODULE_NOTIN,
-	E_NEGATIVE_BLOCKSIZE,
-	E_NEGATIVE_RESERVATION,
-	E_NW_8,
-	E_OPCODE_BAD,
-	E_OPERAND_BAD,
-	E_OBJTARGET_ONLY, 
-	E_PADDING_BAD,
-	E_PRAGMA_UNRECOGNIZED,
-	E_REGISTER_BAD,
-	E_SECTION_END,
-	E_SECTION_EXTDEP,
-	E_SECTION_FLAG,
-	E_SECTION_NAME,
-	E_SECTION_TARGET,
-	E_SETDP_INVALID,
-	E_SETDP_NOT_CONST,			
-	E_STRING_BAD,
-	E_STRUCT_DUPE,
-	E_STRUCT_NONAME,
-	E_STRUCT_NOSYMBOL,
-	E_STRUCT_RECURSE,
-	E_SYMBOL_BAD,
-	E_SYMBOL_DUPE,
-	E_SYMBOL_MISSING,
-	E_SYMBOL_UNDEFINED,
-	E_SYMBOL_UNDEFINED_EXPORT,
-	E_UNKNOWN_OPERATION,
-	E_USER_SPECIFIED,
+	E_6309_INVALID				= 1,
+	E_6809_INVALID				= 2,
+	E_ALIGNMENT_INVALID			= 3,
+	E_BITNUMBER_UNRESOLVED		= 4,
+	E_BITNUMBER_INVALID			= 5,
+	E_BYTE_OVERFLOW				= 6,
+	E_CONDITION_P1				= 7,
+	E_DIRECTIVE_OS9_ONLY		= 8,
+	E_DIV0						= 9,
+	E_EXEC_ADDRESS				= 10,
+	E_FILL_INVALID				= 11,
+	E_IMMEDIATE_INVALID			= 12,
+	E_IMMEDIATE_UNRESOLVED		= 13,
+	E_EXPRESSION_BAD			= 14,
+	E_EXPRESSION_NOT_CONST		= 15,
+	E_EXPRESSION_NOT_RESOLVED	= 16,
+	E_FILE_OPEN					= 17,
+	E_FILENAME_MISSING			= 18,
+	E_INSTRUCTION_FAILED		= 19,
+	E_INSTRUCTION_SECTION		= 20,
+	E_LINE_ADDRESS				= 21,
+	E_LINED_ADDRESS				= 22,
+	E_MACRO_DUPE				= 23,
+	E_MACRO_ENDM				= 24,
+	E_MACRO_NONAME				= 25,
+	E_MACRO_RECURSE				= 26,
+	E_MODULE_IN					= 27,
+	E_MODULE_NOTIN				= 28,
+	E_NEGATIVE_BLOCKSIZE		= 29,
+	E_NEGATIVE_RESERVATION		= 30,
+	E_NW_8						= 31,
+	E_OPCODE_BAD				= 32,
+	E_OPERAND_BAD				= 33,
+	E_OBJTARGET_ONLY			= 34,
+	E_PADDING_BAD				= 35,
+	E_PRAGMA_UNRECOGNIZED		= 36,
+	E_REGISTER_BAD				= 37,
+	E_SECTION_END				= 38,
+	E_SECTION_EXTDEP			= 39,
+	E_SECTION_FLAG				= 40,
+	E_SECTION_NAME				= 41,
+	E_SECTION_TARGET			= 42,
+	E_SETDP_INVALID				= 43,
+	E_SETDP_NOT_CONST			= 44,
+	E_STRING_BAD				= 45,
+	E_STRUCT_DUPE				= 46,
+	E_STRUCT_NONAME				= 47,
+	E_STRUCT_NOSYMBOL			= 48,
+	E_STRUCT_RECURSE			= 49,
+	E_SYMBOL_BAD				= 50,
+	E_SYMBOL_DUPE				= 51,
+	E_SYMBOL_MISSING			= 52,
+	E_SYMBOL_UNDEFINED			= 53,
+	E_SYMBOL_UNDEFINED_EXPORT	= 54,
+	E_UNKNOWN_OPERATION			= 55,
+	E_USER_SPECIFIED			= 56,
 
 	/* warnings must be 1000 or greater */
 
-	W_DUPLICATE_SECTION		= 1000,
-	W_ENDSTRUCT_WITHOUT		= 1001,
-	W_NOT_SUPPORTED			= 1002,
-	W_USER_SPECIFIED		= 1003
+	W_DUPLICATE_SECTION			= 1000,
+	W_ENDSTRUCT_WITHOUT			= 1001,
+	W_NOT_SUPPORTED				= 1002,
+	W_USER_SPECIFIED			= 1003
 } lwasm_errorcode_t;
 
 typedef struct lwasm_error_s lwasm_error_t;
@@ -242,6 +249,7 @@ struct line_s
 	int dpval;							// direct page value
 	lwasm_error_t *err;					// list of errors
 	lwasm_error_t *warn;				// list of errors
+	lwasm_errorcode_t err_testmode;		// error code in testmode
 	line_t *prev;						// previous line
 	line_t *next;						// next line
 	int inmod;							// inside a module?
@@ -340,6 +348,7 @@ struct asmstate_s
 	int pragmas;						// pragmas currently in effect
 	int errorcount;						// number of errors encountered
 	int warningcount;					// number of warnings issued
+	int testmode_errorcount;			// number of errors in testmode
 	int inmacro;						// are we in a macro?
 	int instruct;						// are w in a structure?
 	int skipcond;						// skipping a condition?
@@ -389,6 +398,9 @@ struct asmstate_s
 
 struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t value, int flags);
 struct symtabe *lookup_symbol(asmstate_t *as, line_t *cl, char *sym);
+
+void lwasm_parse_testmode_comment(line_t *cl, lwasm_testflags_t *flags, lwasm_errorcode_t *err, int *len, char **buf);
+void lwasm_error_testmode(line_t *cl, const char* msg, int fatal);
 
 void lwasm_register_error(asmstate_t *as, line_t *cl, lwasm_errorcode_t err);
 void lwasm_register_error2(asmstate_t *as, line_t *cl, lwasm_errorcode_t err, const char* fmt, ...);
