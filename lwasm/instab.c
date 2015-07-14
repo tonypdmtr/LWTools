@@ -21,99 +21,98 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 Contains the instruction table for assembling code
 */
 #include <stdlib.h>
-#define __instab_c_seen__
 #include "instab.h"
 
 // inherent
-extern PARSEFUNC(insn_parse_inh);
+PARSEFUNC(insn_parse_inh);
 #define insn_resolve_inh NULL
-extern EMITFUNC(insn_emit_inh);
+EMITFUNC(insn_emit_inh);
 
 // inherent 6800 mode
-extern PARSEFUNC(insn_parse_inh6800);
+PARSEFUNC(insn_parse_inh6800);
 #define insn_resolve_inh6800 NULL
-extern EMITFUNC(insn_emit_inh6800);
+EMITFUNC(insn_emit_inh6800);
 
 // register to register
-extern PARSEFUNC(insn_parse_rtor);
+PARSEFUNC(insn_parse_rtor);
 #define insn_resolve_rtor NULL
-extern EMITFUNC(insn_emit_rtor);
+EMITFUNC(insn_emit_rtor);
 
 // TFM and variants
-extern PARSEFUNC(insn_parse_tfmrtor);
+PARSEFUNC(insn_parse_tfmrtor);
 #define insn_resolve_tfmrtor NULL
-extern EMITFUNC(insn_emit_tfmrtor);
-extern PARSEFUNC(insn_parse_tfm);
+EMITFUNC(insn_emit_tfmrtor);
+PARSEFUNC(insn_parse_tfm);
 #define insn_resolve_tfm NULL
-extern EMITFUNC(insn_emit_tfm);
+EMITFUNC(insn_emit_tfm);
 
 // register list
-extern PARSEFUNC(insn_parse_rlist);
+PARSEFUNC(insn_parse_rlist);
 #define insn_resolve_rlist NULL
-extern EMITFUNC(insn_emit_rlist);
+EMITFUNC(insn_emit_rlist);
 
 // indexed
-extern PARSEFUNC(insn_parse_indexed);
-extern RESOLVEFUNC(insn_resolve_indexed);
-extern EMITFUNC(insn_emit_indexed);
+PARSEFUNC(insn_parse_indexed);
+RESOLVEFUNC(insn_resolve_indexed);
+EMITFUNC(insn_emit_indexed);
 
 // generic 32 bit immediate
-extern PARSEFUNC(insn_parse_gen32);
-extern RESOLVEFUNC(insn_resolve_gen32);
-extern EMITFUNC(insn_emit_gen32);
+PARSEFUNC(insn_parse_gen32);
+RESOLVEFUNC(insn_resolve_gen32);
+EMITFUNC(insn_emit_gen32);
 
 // generic 16 bit immediate
-extern PARSEFUNC(insn_parse_gen16);
-extern RESOLVEFUNC(insn_resolve_gen16);
-extern EMITFUNC(insn_emit_gen16);
+PARSEFUNC(insn_parse_gen16);
+RESOLVEFUNC(insn_resolve_gen16);
+EMITFUNC(insn_emit_gen16);
 
 // generic 8 bit immediate
-extern PARSEFUNC(insn_parse_gen8);
-extern RESOLVEFUNC(insn_resolve_gen8);
-extern EMITFUNC(insn_emit_gen8);
+PARSEFUNC(insn_parse_gen8);
+RESOLVEFUNC(insn_resolve_gen8);
+EMITFUNC(insn_emit_gen8);
 
 // generic no immediate
-extern PARSEFUNC(insn_parse_gen0);
-extern RESOLVEFUNC(insn_resolve_gen0);
-extern EMITFUNC(insn_emit_gen0);
+PARSEFUNC(insn_parse_gen0);
+RESOLVEFUNC(insn_resolve_gen0);
+EMITFUNC(insn_emit_gen0);
 
 // logic memory
-extern PARSEFUNC(insn_parse_logicmem);
-extern RESOLVEFUNC(insn_resolve_logicmem);
-extern EMITFUNC(insn_emit_logicmem);
+PARSEFUNC(insn_parse_logicmem);
+RESOLVEFUNC(insn_resolve_logicmem);
+EMITFUNC(insn_emit_logicmem);
 
 // 8 bit immediate only
-extern PARSEFUNC(insn_parse_imm8);
+PARSEFUNC(insn_parse_imm8);
 #define insn_resolve_imm8 NULL
-extern EMITFUNC(insn_emit_imm8);
+EMITFUNC(insn_emit_imm8);
 
 // bit to bit ops
-extern PARSEFUNC(insn_parse_bitbit);
+PARSEFUNC(insn_parse_bitbit);
 #define insn_resolve_bitbit NULL
-extern EMITFUNC(insn_emit_bitbit);
+EMITFUNC(insn_emit_bitbit);
 
 // 8 bit relative
-extern PARSEFUNC(insn_parse_rel8);
+PARSEFUNC(insn_parse_rel8);
 #define insn_resolve_rel8 NULL
-extern EMITFUNC(insn_emit_rel8);
+EMITFUNC(insn_emit_rel8);
 
 // 16 bit relative
-extern PARSEFUNC(insn_parse_rel16);
+PARSEFUNC(insn_parse_rel16);
 #define insn_resolve_rel16 NULL
-extern EMITFUNC(insn_emit_rel16);
+EMITFUNC(insn_emit_rel16);
 
 // generic 8/16 bit relative
-extern PARSEFUNC(insn_parse_relgen);
-extern RESOLVEFUNC(insn_resolve_relgen);
-extern EMITFUNC(insn_emit_relgen);
+PARSEFUNC(insn_parse_relgen);
+RESOLVEFUNC(insn_resolve_relgen);
+EMITFUNC(insn_emit_relgen);
 
 // MACRO pseudo op
-extern PARSEFUNC(pseudo_parse_macro);
+PARSEFUNC(pseudo_parse_macro);
 #define pseudo_resolve_macro	NULL
 #define pseudo_emit_macro NULL
 
 // ENDM pseudo op
-extern PARSEFUNC(pseudo_parse_endm);
+PARSEFUNC(pseudo_parse_endm);
 #define pseudo_resolve_endm NULL
 #define pseudo_emit_endm NULL
 
@@ -121,215 +120,215 @@ extern PARSEFUNC(pseudo_parse_endm);
 #define pseudo_resolve_noop NULL
 #define pseudo_emit_noop NULL
 
-extern PARSEFUNC(pseudo_parse_dts);
+PARSEFUNC(pseudo_parse_dts);
 #define pseudo_resolve_dts NULL
-extern EMITFUNC(pseudo_emit_dts);
+EMITFUNC(pseudo_emit_dts);
 
-extern PARSEFUNC(pseudo_parse_dtb);
+PARSEFUNC(pseudo_parse_dtb);
 #define pseudo_resolve_dtb NULL
-extern EMITFUNC(pseudo_emit_dtb);
+EMITFUNC(pseudo_emit_dtb);
 
-extern PARSEFUNC(pseudo_parse_end);
+PARSEFUNC(pseudo_parse_end);
 #define pseudo_resolve_end NULL
-extern EMITFUNC(pseudo_emit_end);
+EMITFUNC(pseudo_emit_end);
 
-extern PARSEFUNC(pseudo_parse_fcb);
+PARSEFUNC(pseudo_parse_fcb);
 #define pseudo_resolve_fcb NULL
-extern EMITFUNC(pseudo_emit_fcb);
+EMITFUNC(pseudo_emit_fcb);
 
-extern PARSEFUNC(pseudo_parse_fdb);
+PARSEFUNC(pseudo_parse_fdb);
 #define pseudo_resolve_fdb NULL
-extern EMITFUNC(pseudo_emit_fdb);
+EMITFUNC(pseudo_emit_fdb);
 
-extern PARSEFUNC(pseudo_parse_fdbs);
+PARSEFUNC(pseudo_parse_fdbs);
 #define pseudo_resolve_fdbs NULL
-extern EMITFUNC(pseudo_emit_fdbs);
+EMITFUNC(pseudo_emit_fdbs);
 
-extern PARSEFUNC(pseudo_parse_fqb);
+PARSEFUNC(pseudo_parse_fqb);
 #define pseudo_resolve_fqb NULL
-extern EMITFUNC(pseudo_emit_fqb);
+EMITFUNC(pseudo_emit_fqb);
 
-extern PARSEFUNC(pseudo_parse_fcc);
+PARSEFUNC(pseudo_parse_fcc);
 #define pseudo_resolve_fcc NULL
-extern EMITFUNC(pseudo_emit_fcc);
+EMITFUNC(pseudo_emit_fcc);
 
-extern PARSEFUNC(pseudo_parse_fcs);
+PARSEFUNC(pseudo_parse_fcs);
 #define pseudo_resolve_fcs NULL
-extern EMITFUNC(pseudo_emit_fcs);
+EMITFUNC(pseudo_emit_fcs);
 
-extern PARSEFUNC(pseudo_parse_fcn);
+PARSEFUNC(pseudo_parse_fcn);
 #define pseudo_resolve_fcn NULL
-extern EMITFUNC(pseudo_emit_fcn);
+EMITFUNC(pseudo_emit_fcn);
 
-extern PARSEFUNC(pseudo_parse_rmb);
-extern RESOLVEFUNC(pseudo_resolve_rmb);
-extern EMITFUNC(pseudo_emit_rmb);
+PARSEFUNC(pseudo_parse_rmb);
+RESOLVEFUNC(pseudo_resolve_rmb);
+EMITFUNC(pseudo_emit_rmb);
 
-extern PARSEFUNC(pseudo_parse_rmd);
-extern RESOLVEFUNC(pseudo_resolve_rmd);
-extern EMITFUNC(pseudo_emit_rmd);
+PARSEFUNC(pseudo_parse_rmd);
+RESOLVEFUNC(pseudo_resolve_rmd);
+EMITFUNC(pseudo_emit_rmd);
 
-extern PARSEFUNC(pseudo_parse_rmq);
-extern RESOLVEFUNC(pseudo_resolve_rmq);
-extern EMITFUNC(pseudo_emit_rmq);
+PARSEFUNC(pseudo_parse_rmq);
+RESOLVEFUNC(pseudo_resolve_rmq);
+EMITFUNC(pseudo_emit_rmq);
 
-extern PARSEFUNC(pseudo_parse_zmb);
-extern RESOLVEFUNC(pseudo_resolve_zmb);
-extern EMITFUNC(pseudo_emit_zmb);
+PARSEFUNC(pseudo_parse_zmb);
+RESOLVEFUNC(pseudo_resolve_zmb);
+EMITFUNC(pseudo_emit_zmb);
 
-extern PARSEFUNC(pseudo_parse_zmd);
-extern RESOLVEFUNC(pseudo_resolve_zmd);
-extern EMITFUNC(pseudo_emit_zmd);
+PARSEFUNC(pseudo_parse_zmd);
+RESOLVEFUNC(pseudo_resolve_zmd);
+EMITFUNC(pseudo_emit_zmd);
 
-extern PARSEFUNC(pseudo_parse_zmq);
-extern RESOLVEFUNC(pseudo_resolve_zmq);
-extern EMITFUNC(pseudo_emit_zmq);
+PARSEFUNC(pseudo_parse_zmq);
+RESOLVEFUNC(pseudo_resolve_zmq);
+EMITFUNC(pseudo_emit_zmq);
 
-extern PARSEFUNC(pseudo_parse_org);
+PARSEFUNC(pseudo_parse_org);
 #define pseudo_resolve_org NULL
 #define pseudo_emit_org NULL
 
-extern PARSEFUNC(pseudo_parse_equ);
+PARSEFUNC(pseudo_parse_equ);
 #define pseudo_resolve_equ NULL
 #define pseudo_emit_equ NULL
 
-extern PARSEFUNC(pseudo_parse_set);
+PARSEFUNC(pseudo_parse_set);
 #define pseudo_resolve_set NULL
 #define pseudo_emit_set NULL
 
-extern PARSEFUNC(pseudo_parse_setdp);
+PARSEFUNC(pseudo_parse_setdp);
 #define pseudo_resolve_setdp NULL
 #define pseudo_emit_setdp NULL
 
-extern PARSEFUNC(pseudo_parse_ifp1);
+PARSEFUNC(pseudo_parse_ifp1);
 #define pseudo_resolve_ifp1 NULL
 #define pseudo_emit_ifp1 NULL
 
-extern PARSEFUNC(pseudo_parse_ifp2);
+PARSEFUNC(pseudo_parse_ifp2);
 #define pseudo_resolve_ifp2 NULL
 #define pseudo_emit_ifp2 NULL
 
-extern PARSEFUNC(pseudo_parse_ifne);
+PARSEFUNC(pseudo_parse_ifne);
 #define pseudo_resolve_ifne NULL
 #define pseudo_emit_ifne NULL
 
-extern PARSEFUNC(pseudo_parse_ifeq);
+PARSEFUNC(pseudo_parse_ifeq);
 #define pseudo_resolve_ifeq NULL
 #define pseudo_emit_ifeq NULL
 
-extern PARSEFUNC(pseudo_parse_iflt);
+PARSEFUNC(pseudo_parse_iflt);
 #define pseudo_resolve_iflt NULL
 #define pseudo_emit_iflt NULL
 
-extern PARSEFUNC(pseudo_parse_ifle);
+PARSEFUNC(pseudo_parse_ifle);
 #define pseudo_resolve_ifle NULL
 #define pseudo_emit_ifle NULL
 
-extern PARSEFUNC(pseudo_parse_ifgt);
+PARSEFUNC(pseudo_parse_ifgt);
 #define pseudo_resolve_ifgt NULL
 #define pseudo_emit_ifgt NULL
 
-extern PARSEFUNC(pseudo_parse_ifge);
+PARSEFUNC(pseudo_parse_ifge);
 #define pseudo_resolve_ifge NULL
 #define pseudo_emit_ifge NULL
 
-extern PARSEFUNC(pseudo_parse_ifdef);
+PARSEFUNC(pseudo_parse_ifdef);
 #define pseudo_resolve_ifdef NULL
 #define pseudo_emit_ifdef NULL
 
-extern PARSEFUNC(pseudo_parse_ifndef);
+PARSEFUNC(pseudo_parse_ifndef);
 #define pseudo_resolve_ifndef NULL
 #define pseudo_emit_ifndef NULL
 
-extern PARSEFUNC(pseudo_parse_ifstr);
+PARSEFUNC(pseudo_parse_ifstr);
 #define pseudo_resolve_ifstr NULL
 #define pseudo_emit_ifstr NULL
 
-extern PARSEFUNC(pseudo_parse_endc);
+PARSEFUNC(pseudo_parse_endc);
 #define pseudo_resolve_endc NULL
 #define pseudo_emit_endc NULL
 
-extern PARSEFUNC(pseudo_parse_else);
+PARSEFUNC(pseudo_parse_else);
 #define pseudo_resolve_else NULL
 #define pseudo_emit_else NULL
 
-extern PARSEFUNC(pseudo_parse_pragma);
+PARSEFUNC(pseudo_parse_pragma);
 #define pseudo_resolve_pragma NULL
 #define pseudo_emit_pragma NULL
 
-extern PARSEFUNC(pseudo_parse_starpragma);
+PARSEFUNC(pseudo_parse_starpragma);
 #define pseudo_resolve_starpragma NULL
 #define pseudo_emit_starpragma NULL
 
-extern PARSEFUNC(pseudo_parse_starpragmapush);
+PARSEFUNC(pseudo_parse_starpragmapush);
 #define pseudo_resolve_starpragmapush NULL
 #define pseudo_emit_starpragmapush NULL
 
-extern PARSEFUNC(pseudo_parse_starpragmapop);
+PARSEFUNC(pseudo_parse_starpragmapop);
 #define pseudo_resolve_starpragmapop NULL
 #define pseudo_emit_starpragmapop NULL
 
-extern PARSEFUNC(pseudo_parse_section);
+PARSEFUNC(pseudo_parse_section);
 #define pseudo_resolve_section NULL
 #define pseudo_emit_section NULL
 
-extern PARSEFUNC(pseudo_parse_endsection);
+PARSEFUNC(pseudo_parse_endsection);
 #define pseudo_resolve_endsection NULL
 #define pseudo_emit_endsection NULL
 
-extern PARSEFUNC(pseudo_parse_error);
+PARSEFUNC(pseudo_parse_error);
 #define pseudo_resolve_error NULL
 #define pseudo_emit_error NULL
 
-extern PARSEFUNC(pseudo_parse_warning);
+PARSEFUNC(pseudo_parse_warning);
 #define pseudo_resolve_warning NULL
 #define pseudo_emit_warning NULL
 
-extern PARSEFUNC(pseudo_parse_os9);
+PARSEFUNC(pseudo_parse_os9);
 #define pseudo_resolve_os9 NULL
-extern EMITFUNC(pseudo_emit_os9);
+EMITFUNC(pseudo_emit_os9);
 
-extern PARSEFUNC(pseudo_parse_mod);
+PARSEFUNC(pseudo_parse_mod);
 #define pseudo_resolve_mod NULL
-extern EMITFUNC(pseudo_emit_mod);
+EMITFUNC(pseudo_emit_mod);
 
-extern PARSEFUNC(pseudo_parse_emod);
+PARSEFUNC(pseudo_parse_emod);
 #define pseudo_resolve_emod NULL
-extern EMITFUNC(pseudo_emit_emod);
+EMITFUNC(pseudo_emit_emod);
 
-extern PARSEFUNC(pseudo_parse_extdep);
+PARSEFUNC(pseudo_parse_extdep);
 #define pseudo_resolve_extdep NULL
 #define pseudo_emit_extdep NULL
 
-extern PARSEFUNC(pseudo_parse_extern);
+PARSEFUNC(pseudo_parse_extern);
 #define pseudo_resolve_extern NULL
 #define pseudo_emit_extern NULL
 
-extern PARSEFUNC(pseudo_parse_export);
+PARSEFUNC(pseudo_parse_export);
 #define pseudo_resolve_export NULL
 #define pseudo_emit_export NULL
 
-extern PARSEFUNC(pseudo_parse_includebin);
+PARSEFUNC(pseudo_parse_includebin);
 #define pseudo_resolve_includebin NULL
-extern EMITFUNC(pseudo_emit_includebin);
+EMITFUNC(pseudo_emit_includebin);
 
-extern PARSEFUNC(pseudo_parse_include);
+PARSEFUNC(pseudo_parse_include);
 #define pseudo_resolve_include NULL
 #define pseudo_emit_include NULL
 
-extern PARSEFUNC(pseudo_parse_align);
-extern RESOLVEFUNC(pseudo_resolve_align);
-extern EMITFUNC(pseudo_emit_align);
+PARSEFUNC(pseudo_parse_align);
+RESOLVEFUNC(pseudo_resolve_align);
+EMITFUNC(pseudo_emit_align);
 
-extern PARSEFUNC(pseudo_parse_fill);
-extern RESOLVEFUNC(pseudo_resolve_fill);
-extern EMITFUNC(pseudo_emit_fill);
+PARSEFUNC(pseudo_parse_fill);
+RESOLVEFUNC(pseudo_resolve_fill);
+EMITFUNC(pseudo_emit_fill);
 
-extern PARSEFUNC(pseudo_parse_struct);
+PARSEFUNC(pseudo_parse_struct);
 #define pseudo_resolve_struct NULL
 #define pseudo_emit_struct NULL
 
-extern PARSEFUNC(pseudo_parse_endstruct);
+PARSEFUNC(pseudo_parse_endstruct);
 #define pseudo_resolve_endstruct NULL
 #define pseudo_emit_endstruct NULL
 

@@ -95,7 +95,6 @@ enum lwasm_pragmas_e
 	PRAGMA_6809 = 0x4000				// 6809/6309 assembly mode
 };
 
-
 enum
 {
 	section_flag_bss = 1,				// BSS section
@@ -388,50 +387,42 @@ struct asmstate_s
 	int exprwidth;						// the bit width of the expression being evaluated
 };
 
-#ifndef ___symbol_c_seen___
-
-extern struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t value, int flags);
-extern struct symtabe *lookup_symbol(asmstate_t *as, line_t *cl, char *sym);
-
-#endif
+struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t value, int flags);
+struct symtabe *lookup_symbol(asmstate_t *as, line_t *cl, char *sym);
 
 void lwasm_register_error(asmstate_t *as, line_t *cl, lwasm_errorcode_t err);
 void lwasm_register_error2(asmstate_t *as, line_t *cl, lwasm_errorcode_t err, const char* fmt, ...);
 
-#ifndef ___lwasm_c_seen___
+int lwasm_next_context(asmstate_t *as);
+void lwasm_emit(line_t *cl, int byte);
+void lwasm_emitop(line_t *cl, int opc);
 
-extern int lwasm_next_context(asmstate_t *as);
-extern void lwasm_emit(line_t *cl, int byte);
-extern void lwasm_emitop(line_t *cl, int opc);
+void lwasm_save_expr(line_t *cl, int id, lw_expr_t expr);
+lw_expr_t lwasm_fetch_expr(line_t *cl, int id);
+lw_expr_t lwasm_parse_expr(asmstate_t *as, char **p);
+int lwasm_emitexpr(line_t *cl, lw_expr_t expr, int s);
 
-extern void lwasm_save_expr(line_t *cl, int id, lw_expr_t expr);
-extern lw_expr_t lwasm_fetch_expr(line_t *cl, int id);
-extern lw_expr_t lwasm_parse_expr(asmstate_t *as, char **p);
-extern int lwasm_emitexpr(line_t *cl, lw_expr_t expr, int s);
+void skip_operand(char **p);
 
-extern void skip_operand(char **p);
+int lwasm_lookupreg2(const char *rlist, char **p);
+int lwasm_lookupreg3(const char *rlist, char **p);
 
-extern int lwasm_lookupreg2(const char *rlist, char **p);
-extern int lwasm_lookupreg3(const char *rlist, char **p);
+void lwasm_show_errors(asmstate_t *as);
 
-extern void lwasm_show_errors(asmstate_t *as);
+int lwasm_reduce_expr(asmstate_t *as, lw_expr_t expr);
 
-extern int lwasm_reduce_expr(asmstate_t *as, lw_expr_t expr);
+lw_expr_t lwasm_parse_cond(asmstate_t *as, char **p);
 
-extern lw_expr_t lwasm_parse_cond(asmstate_t *as, char **p);
+int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max);
 
-extern int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max);
-
-extern void lwasm_reduce_line_exprs(line_t *cl);
-
-#endif
+void lwasm_reduce_line_exprs(line_t *cl);
 
 #ifdef LWASM_NODEBUG
 #define debug_message(...)
 #define dump_state(...)
 #else
-extern void real_debug_message(asmstate_t *as, int level, const char *fmt, ...);
-extern void dump_state(asmstate_t *as);
+void real_debug_message(asmstate_t *as, int level, const char *fmt, ...);
+void dump_state(asmstate_t *as);
 
 #define debug_message(as,level,...) do { asmstate_t *ras = (as); int rlevel = (level); if (ras->debug_level >= rlevel) { real_debug_message(ras, rlevel, __VA_ARGS__); } } while (0)
 #endif

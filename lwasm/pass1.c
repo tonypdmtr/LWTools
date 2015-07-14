@@ -31,9 +31,9 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include "instab.h"
 #include "input.h"
 
-extern int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc);
-extern int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc);
-extern int add_macro_line(asmstate_t *as, char *optr);
+int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc);
+int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc);
+int add_macro_line(asmstate_t *as, char *optr);
 
 /*
 pass 1: parse the lines

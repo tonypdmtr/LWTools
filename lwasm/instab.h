@@ -54,8 +54,6 @@ enum
 #define RESOLVEFUNC(fn)	void (fn)(asmstate_t *as, line_t *l, int force)
 #define EMITFUNC(fn)	void (fn)(asmstate_t *as, line_t *l)
 
-#ifndef __instab_c_seen__
 extern instab_t instab[];
-#endif //__instab_c_seen__
 
 #endif //__instab_h_seen__

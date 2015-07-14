@@ -82,44 +82,44 @@ typedef int lw_expr_testfn_t(lw_expr_t e, void *priv);
 
 typedef void * lw_expr_t;
 
-extern lw_expr_t lwexpr_create(void);
-extern void lw_expr_destroy(lw_expr_t E);
-extern lw_expr_t lw_expr_copy(lw_expr_t E);
-extern void lw_expr_add_operand(lw_expr_t E, lw_expr_t O);
-extern lw_expr_t lw_expr_build(int exprtype, ...);
-extern char *lw_expr_print(lw_expr_t E);
-extern int lw_expr_compare(lw_expr_t E1, lw_expr_t E2);
-extern void lw_expr_simplify(lw_expr_t E, void *priv);
+lw_expr_t lwexpr_create(void);
+void lw_expr_destroy(lw_expr_t E);
+lw_expr_t lw_expr_copy(lw_expr_t E);
+void lw_expr_add_operand(lw_expr_t E, lw_expr_t O);
+lw_expr_t lw_expr_build(int exprtype, ...);
+char *lw_expr_print(lw_expr_t E);
+int lw_expr_compare(lw_expr_t E1, lw_expr_t E2);
+void lw_expr_simplify(lw_expr_t E, void *priv);
 
 typedef lw_expr_t lw_expr_fn_t(int t, void *ptr, void *priv);
 typedef lw_expr_t lw_expr_fn2_t(char *var, void *priv);
 typedef lw_expr_t lw_expr_fn3_t(char **p, void *priv);
 
-extern void lw_expr_set_special_handler(lw_expr_fn_t *fn);
-extern void lw_expr_set_var_handler(lw_expr_fn2_t *fn);
-extern void lw_expr_set_term_parser(lw_expr_fn3_t *fn);
+void lw_expr_set_special_handler(lw_expr_fn_t *fn);
+void lw_expr_set_var_handler(lw_expr_fn2_t *fn);
+void lw_expr_set_term_parser(lw_expr_fn3_t *fn);
 
-extern lw_expr_t lw_expr_parse(char **p, void *priv);
-extern int lw_expr_istype(lw_expr_t e, int t);
-extern int lw_expr_intval(lw_expr_t e);
-extern int lw_expr_specint(lw_expr_t e);
-extern void *lw_expr_specptr(lw_expr_t e);
-extern int lw_expr_whichop(lw_expr_t e);
+lw_expr_t lw_expr_parse(char **p, void *priv);
+int lw_expr_istype(lw_expr_t e, int t);
+int lw_expr_intval(lw_expr_t e);
+int lw_expr_specint(lw_expr_t e);
+void *lw_expr_specptr(lw_expr_t e);
+int lw_expr_whichop(lw_expr_t e);
 
-extern int lw_expr_type(lw_expr_t e);
+int lw_expr_type(lw_expr_t e);
 
 typedef int lw_expr_testfn_t(lw_expr_t e, void *priv);
 
-extern int lw_expr_operandcount(lw_expr_t e);
+int lw_expr_operandcount(lw_expr_t e);
 
-extern void lw_expr_setwidth(int w);
+void lw_expr_setwidth(int w);
 
 // run a function on all terms in an expression; if the function
 // returns non-zero for any term, return non-zero, else return
 // zero
-extern int lw_expr_testterms(lw_expr_t e, lw_expr_testfn_t *fn, void *priv);
+int lw_expr_testterms(lw_expr_t e, lw_expr_testfn_t *fn, void *priv);
 
-extern void lw_expr_setdivzero(void (*fn)(void *priv));
+void lw_expr_setdivzero(void (*fn)(void *priv));
 
 #endif /* def ___lw_expr_c_seen___ */
 

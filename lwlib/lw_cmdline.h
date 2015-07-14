@@ -70,13 +70,6 @@ struct lw_cmdline_parser
 	char *program_version;
 };
 
-#ifdef ___lw_cmdline_c_seen___
-
-#else /* def ___lw_cmdline_c_seen___ */
-
-extern int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, unsigned flags, int *arg_index, void *input);
-
-
-#endif /* def ___lw_cmdline_c_seen___ */
+int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, unsigned flags, int *arg_index, void *input);
 
 #endif /* ___lw_cmdline_h_seen___ */

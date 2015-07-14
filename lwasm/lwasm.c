@@ -19,8 +19,6 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define ___lwasm_c_seen___
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -1000,8 +998,8 @@ void lwasm_show_errors(asmstate_t *as)
 this does any passes and other gymnastics that might be useful
 to see if an expression reduces early
 */
-extern void do_pass3(asmstate_t *as);
-extern void do_pass4_aux(asmstate_t *as, int force);
+void do_pass3(asmstate_t *as);
+void do_pass4_aux(asmstate_t *as, int force);
 
 void lwasm_interim_reduce(asmstate_t *as)
 {

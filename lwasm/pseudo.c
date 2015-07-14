@@ -34,7 +34,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "lw_string.h"
 
-extern void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab_t *ss);
+void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab_t *ss);
 
 // for "dts"
 PARSEFUNC(pseudo_parse_dts)

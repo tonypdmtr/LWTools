@@ -25,8 +25,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <ctype.h>
 
 #include "lw_alloc.h"
-
-#define ___lw_cmdline_c_seen___
 #include "lw_cmdline.h"
 
 #define DOCCOL 30

@@ -29,9 +29,9 @@ Contains code for handling logic/mem instructions
 #include "lwasm.h"
 #include "instab.h"
 
-extern void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **optr, int elen);
-extern void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen);
-extern void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra);
+void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **optr, int elen);
+void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen);
+void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra);
 
 // for aim, oim, eim, tim
 PARSEFUNC(insn_parse_logicmem)

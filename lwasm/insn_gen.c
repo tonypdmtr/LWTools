@@ -27,12 +27,12 @@ Contains code for parsing general addressing modes (IMM+DIR+EXT+IND)
 #include "lwasm.h"
 #include "instab.h"
 
-extern void insn_indexed_parse_aux(asmstate_t *as, line_t *l, char **p);
-extern void insn_indexed_resolve_aux(asmstate_t *as, line_t *l, int force, int elen);
-extern void insn_indexed_emit_aux(asmstate_t *as, line_t *l);
+void insn_indexed_parse_aux(asmstate_t *as, line_t *l, char **p);
+void insn_indexed_resolve_aux(asmstate_t *as, line_t *l, int force, int elen);
+void insn_indexed_emit_aux(asmstate_t *as, line_t *l);
 
-extern void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p);
-extern void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen);
+void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p);
+void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen);
 
 // "extra" is required due to the way OIM, EIM, TIM, and AIM work
 void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)

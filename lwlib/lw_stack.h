@@ -42,11 +42,11 @@ typedef struct lw_stack_priv * lw_stack_t;
 #else /* def ___lw_stack_c_seen___ */
 
 typedef void * lw_stack_t;
-extern lw_stack_t lw_stack_create(void (*freefn)(void *d));
-extern void lw_stack_destroy(lw_stack_t S);
-extern void *lw_stack_top(lw_stack_t S);
-extern void *lw_stack_pop(lw_stack_t S);
-extern void lw_stack_push(lw_stack_t S, void *item);
+lw_stack_t lw_stack_create(void (*freefn)(void *d));
+void lw_stack_destroy(lw_stack_t S);
+void *lw_stack_top(lw_stack_t S);
+void *lw_stack_pop(lw_stack_t S);
+void lw_stack_push(lw_stack_t S, void *item);
 
 #endif /* def ___lw_stack_c_seen___ */
 

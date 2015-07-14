@@ -29,15 +29,15 @@ typedef struct
   int magic;
 } input_stack_entry;
 
-extern void input_stack_push(asmstate_t *as, input_stack_entry *se);
-extern input_stack_entry *input_stack_pop(asmstate_t *as, int magic, int (*fn)(input_stack_entry *e, void *data), void *data);
+void input_stack_push(asmstate_t *as, input_stack_entry *se);
+input_stack_entry *input_stack_pop(asmstate_t *as, int magic, int (*fn)(input_stack_entry *e, void *data), void *data);
 
-extern void input_init(asmstate_t *as);
-extern void input_openstring(asmstate_t *as, char *s, char *str);
-extern void input_open(asmstate_t *as, char *s);
-extern char *input_readline(asmstate_t *as);
-extern char *input_curspec(asmstate_t *as);
-extern FILE *input_open_standalone(asmstate_t *as, char *s, char **rfn);
+void input_init(asmstate_t *as);
+void input_openstring(asmstate_t *as, char *s, char *str);
+void input_open(asmstate_t *as, char *s);
+char *input_readline(asmstate_t *as);
+char *input_curspec(asmstate_t *as);
+FILE *input_open_standalone(asmstate_t *as, char *s, char **rfn);
 
 struct ifl
 {
@@ -45,6 +45,6 @@ struct ifl
 	struct ifl *next;
 };
 
-extern struct ifl *ifl_head;
+struct ifl *ifl_head;
 
 #endif

@@ -19,7 +19,6 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define ___lw_error_c_seen___
 #include "lw_error.h"
 
 #include <stdio.h>

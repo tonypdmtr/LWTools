@@ -32,9 +32,9 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include "lwasm.h"
 #include "input.h"
 
-extern void lwasm_do_unicorns(asmstate_t *as);
+void lwasm_do_unicorns(asmstate_t *as);
 
-extern int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr);
+int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr);
 
 /* command line option handling */
 #define PROGVER "lwasm from " PACKAGE_STRING
@@ -243,20 +243,20 @@ static struct lw_cmdline_parser cmdline_parser =
 main function; parse command line, set up assembler state, and run the 
 assembler on the first file
 */
-extern void do_pass1(asmstate_t *as);
-extern void do_pass2(asmstate_t *as);
-extern void do_pass3(asmstate_t *as);
-extern void do_pass4(asmstate_t *as);
-extern void do_pass5(asmstate_t *as);
-extern void do_pass6(asmstate_t *as);
-extern void do_pass7(asmstate_t *as);
-extern void do_output(asmstate_t *as);
-extern void do_list(asmstate_t *as);
-extern void do_map(asmstate_t *as);
-extern lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv);
-extern lw_expr_t lwasm_evaluate_var(char *var, void *priv);
-extern lw_expr_t lwasm_parse_term(char **p, void *priv);
-extern void lwasm_dividezero(void *priv);
+void do_pass1(asmstate_t *as);
+void do_pass2(asmstate_t *as);
+void do_pass3(asmstate_t *as);
+void do_pass4(asmstate_t *as);
+void do_pass5(asmstate_t *as);
+void do_pass6(asmstate_t *as);
+void do_pass7(asmstate_t *as);
+void do_output(asmstate_t *as);
+void do_list(asmstate_t *as);
+void do_map(asmstate_t *as);
+lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv);
+lw_expr_t lwasm_evaluate_var(char *var, void *priv);
+lw_expr_t lwasm_parse_term(char **p, void *priv);
+void lwasm_dividezero(void *priv);
 
 struct passlist_s
 {
