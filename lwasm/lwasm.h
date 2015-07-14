@@ -100,6 +100,8 @@ enum lwasm_pragmas_e
 	PRAGMA_CC					= 1 << 19,	// clear cycle count running total
 	PRAGMA_QRTS					= 1 << 20,	// enable BRA ?RTS support
 	PRAGMA_M80EXT				= 1 << 21,	// enable Macro-80C assembler extensions
+	PRAGMA_6809CONV				= 1 << 22,	// enable 6809 convenience ops
+	PRAGMA_6309CONV				= 1 << 23,	// enable 6309 convenience ops
 	PRAGMA_CLEARBIT				= 1 << 31	// reserved to indicate negated pragma flag status
 };
 

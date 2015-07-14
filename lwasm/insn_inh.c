@@ -39,6 +39,7 @@ PARSEFUNC(insn_parse_inh6800)
 	l -> len = OPLEN(instab[l -> insn].ops[0]);
 	if (instab[l -> insn].ops[1] >= 0)
 		l -> len += OPLEN(instab[l -> insn].ops[1]);
+	skip_operand(p);
 }
 
 EMITFUNC(insn_emit_inh6800)
@@ -47,6 +48,48 @@ EMITFUNC(insn_emit_inh6800)
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	if (instab[l -> insn].ops[1] >= 0)
 		lwasm_emitop(l, instab[l -> insn].ops[1]);
+	l -> cycle_base = instab[l -> insn].ops[3];
+}
 
-	l -> cycle_adj = instab[l -> insn].ops[3];
+int negq_ops[] = { 0x10, 0x43, 0x10, 0x53, 0x10, 0x31, 0xc6, 0x10, 0x31, 0xc0 };
+#define negq_size (sizeof(negq_ops)/sizeof(int))
+
+PARSEFUNC(insn_parse_conv)
+{
+	int i;
+	l -> len = 0;
+	for (i = 0; i <= 2; i++)
+	{
+		if (instab[l -> insn].ops[i] >= 0)
+			l -> len += OPLEN(instab[l -> insn].ops[i]);
+	}
+
+	/* negq */
+	if (instab[l -> insn].ops[0] == -1)
+		l -> len = negq_size;
+	skip_operand(p);
+}
+
+EMITFUNC(insn_emit_conv)
+{
+	int i;
+	for (i = 0; i <= 2; i++)
+	{
+		if (instab[l -> insn].ops[i] >= 0)
+			lwasm_emitop(l, instab[l -> insn].ops[i]);
+	}
+
+	/* special case for negq */
+	if (instab[l -> insn].ops[0] == -1)
+	{
+		// 1043   (2)  comd
+		// 1053   (2)  comw
+		// 1031C6 (4)  adcr 0,w
+		// 1031C0 (4)  adcr 0,d
+
+		for (i = 0; i < negq_size; i++)
+			lwasm_emitop(l, negq_ops[i]);
+	}
+
+	l->cycle_base = instab[l -> insn].ops[3];
 }

@@ -238,7 +238,7 @@ static cycletable_t cycletable[] =
 	{ 0x63, 6, 6, CYCLE_ADJ },
 	{ 0x73, 7, 6, 0 },
 
-	{ 0x3c, 22, 20, 0 },				// CWAI
+	{ 0x3c, 22, 20, CYCLE_ESTIMATED },	// CWAI
 
 	{ 0x19, 2, 1, 0 },					// DAA
 

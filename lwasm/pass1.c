@@ -279,9 +279,15 @@ void do_pass1(asmstate_t *as)
 
 			for (opnum = 0; instab[opnum].opcode; opnum++)
 			{
-				// ignore 6800 compatibility entries unless asked for
-				if ((instab[opnum].flags & lwasm_insn_is6800) && !CURPRAGMA(cl, PRAGMA_6800COMPAT))
-					continue;
+				// ignore 6800 compatibility opcodes unless asked for
+				if ((instab[opnum].flags & lwasm_insn_is6800) && !CURPRAGMA(cl, PRAGMA_6800COMPAT)) continue;
+				// ignore 6809 convenience opcodes unless asked for
+				if ((instab[opnum].flags & lwasm_insn_is6809conv) && !CURPRAGMA(cl, PRAGMA_6809CONV)) continue;
+				// ignore 6809 convenience opcodes in 6309 mode
+				if ((instab[opnum].flags & lwasm_insn_is6809conv) && !CURPRAGMA(cl, PRAGMA_6809)) continue;
+				// ignore 6309 convenience opcodes unless asked for
+				if ((instab[opnum].flags & lwasm_insn_is6309conv) && !CURPRAGMA(cl, PRAGMA_6309CONV)) continue;
+
 				if (!strcasecmp(instab[opnum].opcode, sym))
 					break;
 			}

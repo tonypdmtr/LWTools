@@ -340,8 +340,35 @@ PARSEFUNC(pseudo_parse_endstruct);
 #define pseudo_resolve_endstruct NULL
 #define pseudo_emit_endstruct NULL
 
+// convenience ops
+PARSEFUNC(insn_parse_conv);
+#define insn_resolve_conv NULL
+EMITFUNC(insn_emit_conv);
+
 instab_t instab[] =
 {
+	// 6809 convenience instructions
+	{ "asrd",		{	0x4756,	-1,		-1,		 4 },	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6809conv },
+	{ "clrd",		{	0x4f5f,	-1,		-1,		 4 },	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6809conv },
+	{ "comd",		{	0x4353,	-1,		-1,		 4 },	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6809conv },
+	{ "lsld",		{	0x5849,	-1,		-1,		 4 },	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6809conv },
+	{ "lsrd",		{	0x4456,	-1,		-1,		 4 },	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6809conv },
+	{ "negd",		{	0x4353,	0x83ff, 0xff,	 8 },	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6809conv },
+	{ "tstd",		{	0xed7e,	-1,		-1,		 6 },	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6809conv },
+
+	// 6309 convenience instructions
+	{ "asrq",		{	0x1047,	0x1056,	-1,		 4	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "clrq",		{	0x4f5f,	0x1F06,	-1,		 6	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "comq",		{	0x1043,	0x1053,	-1,		 4	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "lsle",		{	0x1030,	0xee,	-1,		 4	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "lslf",		{	0x1030,	0xff,	-1,		 4	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "lslq",		{	0x1030, 0x6610,	0x49,	 6	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "lsrq",		{	0x1044,	0x1056,	-1,		 4	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "nege",		{	0x1032,	0xce,	-1,		 4	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "negf",		{	0x1032,	0xcf,	-1,		 4	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "negw",		{	0x1032,	0xc6,	-1,		 4	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "negq",		{	-1,		-1,		-1,		12	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
+	{ "tstq",		{	0x10ed,	0x7c,	-1,		 9	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
 
 	{ "abx",		{	0x3a,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "adca",		{	0x99,	0xa9,	0xb9,	0x89},	insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_normal},
@@ -445,6 +472,8 @@ instab_t instab[] =
 	{ "eorr",		{	0x1036,	-1,		-1,		-1	},	insn_parse_rtor,		insn_resolve_rtor,				insn_emit_rtor,				lwasm_insn_is6309},
 	{ "exg",		{	0x1e,	-1,		-1,		-1	},	insn_parse_rtor,		insn_resolve_rtor,				insn_emit_rtor,				lwasm_insn_normal},
 
+	{ "hcf",		{	0x14,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6809},
+
 	{ "inc",		{	0x0c,	0x6c,	0x7c,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
 	{ "inca",		{	0x4c,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "incb",		{	0x5c,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
@@ -529,6 +558,7 @@ instab_t instab[] =
 	{ "puluw",		{	0x103b,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	
 	{ "reset",		{	0x3e,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6809},
+	{ "rhf",		{	0x14,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6809},
 	{ "rol",		{	0x09,	0x69,	0x79,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
 	{ "rola",		{	0x49,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "rolb",		{	0x59,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
@@ -743,33 +773,33 @@ instab_t instab[] =
 	{ ".bank",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
 
 	// for 6800 compatibility
-	{ "aba",		{	0x3404,	0xabe0,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "cba",		{	0x3404,	0xa1e0,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "clc",		{	0x1cfe,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "clf",		{	0x1cbf,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "cli",		{	0x1cef,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "clif",		{	0x1caf,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "clv",		{	0x1cfd,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "cpx",		{	0x9c,	0xac,	0xbc,	0x8c },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "des",		{	0x327f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "dex",		{	0x301f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "dey",		{	0x313f,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "ins",		{	0x3261,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "inx",		{	0x3001,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "iny",		{	0x3121,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "sba",		{	0x3404,	0xa0e0,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "sec",		{	0x1a01,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "sef",		{	0x1a40,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "sei",		{	0x1a10,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "seif",		{	0x1a50,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "sev",		{	0x1a02,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "tab",		{	0x1f89,	0x4d,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "tap",		{	0x1f8a,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "tba",		{	0x1f98,	0x4d,	-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "tpa",		{	0x1fa8,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "tsx",		{	0x1f41,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "txs",		{	0x1f14,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
-	{ "wai",		{	0x3cff,	-1,		-1,		-1 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "aba",		{	0x3404,	0xabe0,	-1,		12 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "cba",		{	0x3404,	0xa1e0,	-1,		12 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "clc",		{	0x1cfe,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "clf",		{	0x1cbf,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "cli",		{	0x1cef,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "clif",		{	0x1caf,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "clv",		{	0x1cfd,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "cpx",		{	0x9c,	0xac,	0xbc,	0x8c}, 	insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6800},
+	{ "des",		{	0x327f,	-1,		-1,		 5 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "dex",		{	0x301f,	-1,		-1,		 5 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "dey",		{	0x313f,	-1,		-1,		 5 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "ins",		{	0x3261,	-1,		-1,		 5 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "inx",		{	0x3001,	-1,		-1,		 5 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "iny",		{	0x3121,	-1,		-1,		 5 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sba",		{	0x3404,	0xa0e0,	-1,		12 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sec",		{	0x1a01,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sef",		{	0x1a40,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sei",		{	0x1a10,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "seif",		{	0x1a50,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "sev",		{	0x1a02,	-1,		-1,		 3 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tab",		{	0x1f89,	0x4d,	-1,		 8 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tap",		{	0x1f8a,	-1,		-1,		 6 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tba",		{	0x1f98,	0x4d,	-1,		 8 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tpa",		{	0x1fa8,	-1,		-1,		 6 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "tsx",		{	0x1f41,	-1,		-1,		 6 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "txs",		{	0x1f14,	-1,		-1,		 6 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
+	{ "wai",		{	0x3cff,	-1,		-1,		22 },	insn_parse_inh6800,		insn_resolve_inh6800,			insn_emit_inh6800,			lwasm_insn_is6800 },
 
 	// flag end of table
 	{ NULL,			{	-1, 	-1, 	-1, 	-1 },	NULL,					NULL,							NULL,						lwasm_insn_normal}

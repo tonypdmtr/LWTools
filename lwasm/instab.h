@@ -38,15 +38,17 @@ typedef struct
 
 enum
 {
-	lwasm_insn_cond = 1,		/* conditional instruction */
-	lwasm_insn_endm = 2,		/* end of macro */
-	lwasm_insn_setsym = 4,		/* insn sets symbol address */
-	lwasm_insn_is6309 = 8,		/* insn is 6309 only */
-	lwasm_insn_struct = 16,		/* insn allowed in a struct */
-	lwasm_insn_setdata = 32,	/* insn uses the data address for symbols */
-	lwasm_insn_is6800 = 64,		/* insn is a 6800 compatibility operation */
-	lwasm_insn_is6809 = 128,	/* insn is 6809 only */
-	lwasm_insn_normal = 0
+	lwasm_insn_cond			= 1,		/* conditional instruction */
+	lwasm_insn_endm			= 1 << 1,	/* end of macro */
+	lwasm_insn_setsym		= 1 << 2,	/* insn sets symbol address */
+	lwasm_insn_is6309		= 1 << 3,	/* insn is 6309 only */
+	lwasm_insn_struct		= 1 << 4,	/* insn allowed in a struct */
+	lwasm_insn_setdata		= 1 << 5,	/* insn uses the data address for symbols */
+	lwasm_insn_is6800		= 1 << 6,	/* insn is a 6800 compatibility operation */
+	lwasm_insn_is6809		= 1 << 7,	/* insn is 6809 only */
+	lwasm_insn_is6809conv	= 1 << 8,	/* insn is 6809 convenience only */
+	lwasm_insn_is6309conv	= 1 << 9,	/* insn is 6309 convenience only */
+	lwasm_insn_normal		= 0
 };
 
 
