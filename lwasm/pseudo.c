@@ -1369,6 +1369,58 @@ PARSEFUNC(pseudo_parse_ifndef)
 	}
 }
 
+PARSEFUNC(pseudo_parse_ifpragma)
+{
+	char *pstr;
+	int i;
+	int pragma;
+	int compare;
+
+	l -> len = 0;
+	l -> hideline = 1;
+
+	if (as -> skipcond && !(as -> skipmacro))
+	{
+		as -> skipcount++;
+		skip_operand(p);
+		return;
+	}
+
+again:
+	for (i = 0; (*p)[i] && !isspace((*p)[i]) && (*p)[i] != '|' && (*p)[i] != '&'; i++)
+		/* do nothing */;
+
+	pstr = lw_strndup(*p, i);
+	(*p) += i;
+
+	pragma = parse_pragma_helper(pstr);
+	if (!pragma) lwasm_register_error(as, l, E_PRAGMA_UNRECOGNIZED);
+
+	lw_free(pstr);
+
+	if (pragma & PRAGMA_CLEARBIT)
+	{
+		pragma &= ~PRAGMA_CLEARBIT;			/* strip off flag bit */
+		compare = l -> pragmas & pragma ? 0 : 1;
+	}
+	else
+	{
+		compare = l -> pragmas & pragma;
+	}
+
+	if (!compare)
+	{
+		if (**p == '|')
+		{
+			(*p)++;
+			goto again;
+		}
+		as -> skipcond = 1;
+		as -> skipcount = 1;
+	}
+	skip_operand(p);
+}
+
 PARSEFUNC(pseudo_parse_error)
 {
 	lwasm_register_error2(as, l, E_USER_SPECIFIED, "%s", *p);

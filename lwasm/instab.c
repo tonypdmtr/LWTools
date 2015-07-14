@@ -244,6 +244,10 @@ PARSEFUNC(pseudo_parse_ifndef);
 #define pseudo_resolve_ifndef NULL
 #define pseudo_emit_ifndef NULL
 
+PARSEFUNC(pseudo_parse_ifpragma);
+#define pseudo_resolve_ifpragma NULL
+#define pseudo_emit_ifpragma NULL
+
 PARSEFUNC(pseudo_parse_ifstr);
 #define pseudo_resolve_ifstr NULL
 #define pseudo_emit_ifstr NULL
@@ -657,6 +661,8 @@ instab_t instab[] =
 	{ "else",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_else,		pseudo_resolve_else,			pseudo_emit_else,			lwasm_insn_cond},
 	{ "ifdef",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_ifdef,		pseudo_resolve_ifdef,			pseudo_emit_ifdef,			lwasm_insn_cond},
 	{ "ifndef",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_ifndef,	pseudo_resolve_ifndef,			pseudo_emit_ifndef,			lwasm_insn_cond},
+	{ "ifpragma",	{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_ifpragma,	pseudo_resolve_ifpragma,		pseudo_emit_ifpragma,		lwasm_insn_cond},
+	{ "ifopt",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_ifpragma,	pseudo_resolve_ifpragma,		pseudo_emit_ifpragma,		lwasm_insn_cond},
 
 	// string operations, mostly useful in macros
 	{ "ifstr",		{	-1,		-1,		-1,		-1},	pseudo_parse_ifstr,		pseudo_resolve_ifstr,			pseudo_emit_ifstr,			lwasm_insn_cond},

@@ -99,7 +99,8 @@ enum lwasm_pragmas_e
 	PRAGMA_CT					= 1 << 18,	// enable cycle count running total
 	PRAGMA_CC					= 1 << 19,	// clear cycle count running total
 	PRAGMA_QRTS					= 1 << 20,	// enable BRA ?RTS support
-	PRAGMA_M80EXT				= 1 << 21	// enable Macro-80C assembler extensions
+	PRAGMA_M80EXT				= 1 << 21,	// enable Macro-80C assembler extensions
+	PRAGMA_CLEARBIT				= 1 << 31	// reserved to indicate negated pragma flag status
 };
 
 enum
@@ -418,6 +419,8 @@ struct asmstate_s
 
 struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t value, int flags);
 struct symtabe *lookup_symbol(asmstate_t *as, line_t *cl, char *sym);
+
+int parse_pragma_helper(char *p);
 
 int lwasm_cycle_calc_ind(line_t *cl);
 int lwasm_cycle_calc_rlist(line_t *cl);
