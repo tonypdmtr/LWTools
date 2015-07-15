@@ -98,8 +98,6 @@ int lw_expr_whichop(lw_expr_t e);
 
 int lw_expr_type(lw_expr_t e);
 
-typedef int lw_expr_testfn_t(lw_expr_t e, void *priv);
-
 int lw_expr_operandcount(lw_expr_t e);
 
 void lw_expr_setwidth(int w);
