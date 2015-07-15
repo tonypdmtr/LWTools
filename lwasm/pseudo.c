@@ -306,7 +306,7 @@ static int cstringlen(asmstate_t *as, line_t *ln, char **p, char delim)
 			if (blen >= bsize)
 			{
 				str = lw_realloc(str, bsize + 32);
-				bsize++;
+				bsize += 32;
 			}
 			str[blen++] = **p;
 		}
