@@ -121,112 +121,122 @@ HREF="#AEN65"
 ></DT
 ><DT
 >3.2. <A
-HREF="#AEN208"
+HREF="#AEN218"
 >Dialects</A
 ></DT
 ><DT
 >3.3. <A
-HREF="#AEN217"
+HREF="#AEN227"
 >Source Format</A
 ></DT
 ><DT
 >3.4. <A
-HREF="#AEN227"
+HREF="#AEN237"
 >Symbols</A
 ></DT
 ><DT
 >3.5. <A
-HREF="#AEN232"
+HREF="#AEN242"
 >Numbers and Expressions</A
 ></DT
 ><DT
 >3.6. <A
-HREF="#AEN240"
+HREF="#AEN250"
 >Assembler Directives</A
 ></DT
 ><DD
 ><DL
 ><DT
 >3.6.1. <A
-HREF="#AEN243"
+HREF="#AEN253"
 >Data Directives</A
 ></DT
 ><DT
 >3.6.2. <A
-HREF="#AEN354"
+HREF="#AEN364"
 >Address Definition</A
 ></DT
 ><DT
 >3.6.3. <A
-HREF="#AEN401"
+HREF="#AEN415"
 >Conditional Assembly</A
 ></DT
 ><DT
 >3.6.4. <A
-HREF="#AEN466"
+HREF="#AEN486"
 >OS9 Target Directives</A
 ></DT
 ><DT
 >3.6.5. <A
-HREF="#AEN491"
+HREF="#AEN511"
 >Miscelaneous Directives</A
 ></DT
 ></DL
 ></DD
 ><DT
 >3.7. <A
-HREF="#AEN531"
+HREF="#AEN551"
 >Macros</A
 ></DT
 ><DT
 >3.8. <A
-HREF="#AEN554"
+HREF="#AEN574"
 >Structures</A
 ></DT
 ><DT
 >3.9. <A
-HREF="#AEN575"
+HREF="#AEN595"
 >Object Files and Sections</A
 ></DT
 ><DT
 >3.10. <A
-HREF="#AEN639"
+HREF="#AEN659"
 >Assembler Modes and Pragmas</A
+></DT
+><DT
+>3.11. <A
+HREF="#CONVINST"
+>Convenience Instructions</A
+></DT
+><DT
+>3.12. <A
+HREF="#AEN800"
+>Cycle Counts</A
 ></DT
 ></DL
 ></DD
 ><DT
 >4. <A
-HREF="#AEN745"
+HREF="#AEN806"
 >LWLINK</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.1. <A
-HREF="#AEN748"
+HREF="#AEN809"
 >Command Line Options</A
 ></DT
 ><DT
 >4.2. <A
-HREF="#AEN845"
+HREF="#AEN906"
 >Linker Operation</A
 ></DT
 ><DT
 >4.3. <A
-HREF="#AEN859"
+HREF="#AEN920"
 >Linking Scripts</A
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN925"
+HREF="#AEN986"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN928"
+HREF="#AEN989"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -235,14 +245,14 @@ HREF="#AEN928"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN940"
+HREF="#AEN1001"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN944"
+HREF="#AEN1005"
 >Command Line Options</A
 ></DT
 ></DL
@@ -264,12 +274,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN1027"
+HREF="#AEN1088"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN1057"
+HREF="#AEN1118"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -556,6 +566,8 @@ CLASS="OPTION"
 >This will cause the assembler to accept the additional instructions available
 on the 6309 processor. This is the default mode; this option is provided for
 completeness and to override preset command arguments.</P
+><P
+>This option is the same as if the first line of the source code is "PRAGMA 6309".</P
 ></DD
 ><DT
 ><CODE
@@ -582,7 +594,8 @@ CLASS="OPTION"
 ><DD
 ><P
 >This will cause the assembler to reject instructions that are only available
-on the 6309 processor.</P
+on the 6309 processor. This actually has the effect of starting the assembler
+as though the first line of the source is "PRAGMA 6809".</P
 ></DD
 ><DT
 ><CODE
@@ -782,6 +795,25 @@ redefine SYM using EQU will result in a multiply defined symbol error.</P
 ><DT
 ><CODE
 CLASS="OPTION"
+>-t WIDTH</CODE
+>, <CODE
+CLASS="OPTION"
+>--tabs=WIDTH</CODE
+></DT
+><DD
+><P
+>Specifies the handling of tabs in listing files. <CODE
+CLASS="OPTION"
+>--tabs=0</CODE
+>
+disables tab expansion. <CODE
+CLASS="OPTION"
+>--tabs=8</CODE
+> is the default setting.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
 >--help</CODE
 >, <CODE
 CLASS="OPTION"
@@ -833,7 +865,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN208"
+NAME="AEN218"
 >3.2. Dialects</A
 ></H2
 ><P
@@ -877,7 +909,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN217"
+NAME="AEN227"
 >3.3. Source Format</A
 ></H2
 ><P
@@ -923,7 +955,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN227"
+NAME="AEN237"
 >3.4. Symbols</A
 ></H2
 ><P
@@ -951,7 +983,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN232"
+NAME="AEN242"
 >3.5. Numbers and Expressions</A
 ></H2
 ><P
@@ -996,7 +1028,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN240"
+NAME="AEN250"
 >3.6. Assembler Directives</A
 ></H2
 ><P
@@ -1009,7 +1041,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN243"
+NAME="AEN253"
 >3.6.1. Data Directives</A
 ></H3
 ><P
@@ -1243,7 +1275,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN354"
+NAME="AEN364"
 >3.6.2. Address Definition</A
 ></H3
 ><P
@@ -1267,6 +1299,16 @@ permitted within sections when outputting to object files. For target formats
 that include address information (decb, hex, srec, and ihex), an ORG 
 directive will re-start the address sequence within the output. When using
 the raw target format, ORG is used only to determine the addresses of symbols.</P
+></DD
+><DT
+>REORG</DT
+><DD
+><P
+>Sets the assembly address to the value it had immediately prior to the
+previous ORG statement. It is used to continue assembly after some
+specification that required an additional ORG. This directive is primarily
+intended for MACRO-80c compatibility. Consider using alternatives in
+modern code.</P
 ></DD
 ><DT
 ><CODE
@@ -1379,7 +1421,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN401"
+NAME="AEN415"
 >3.6.3. Conditional Assembly</A
 ></H3
 ><P
@@ -1503,6 +1545,18 @@ process, the conditional
 will be considered true.</P
 ></DD
 ><DT
+>IFPRAGMA <CODE
+CLASS="PARAMETER"
+>pragma</CODE
+></DT
+><DD
+><P
+>If <CODE
+CLASS="PARAMETER"
+>pragma</CODE
+> is in effect, the condition will be considered true.</P
+></DD
+><DT
 >IFNDEF <CODE
 CLASS="PARAMETER"
 >sym</CODE
@@ -1542,7 +1596,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN466"
+NAME="AEN486"
 >3.6.4. OS9 Target Directives</A
 ></H3
 ><P
@@ -1609,7 +1663,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN491"
+NAME="AEN511"
 >3.6.5. Miscelaneous Directives</A
 ></H3
 ><P
@@ -1723,7 +1777,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN531"
+NAME="AEN551"
 >3.7. Macros</A
 ></H2
 ><P
@@ -1822,7 +1876,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN554"
+NAME="AEN574"
 >3.8. Structures</A
 ></H2
 ><P
@@ -1915,7 +1969,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN575"
+NAME="AEN595"
 >3.9. Object Files and Sections</A
 ></H2
 ><P
@@ -2132,7 +2186,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN639"
+NAME="AEN659"
 >3.10. Assembler Modes and Pragmas</A
 ></H2
 ><P
@@ -2234,6 +2288,32 @@ instructions by default since Motorola advertised the 6809 as being source
 compatible with the 6800.  However, most source code does not require this
 compatibility and LWASM itself did not support these instructions prior to
 version 4.11 so this mode is disabled by default.</P
+></DD
+><DT
+>6809</DT
+><DD
+><P
+>This pragma allows you to mark a section of code as 6809-only. In ths mode,
+the assembler will throw an error if any 6309 instructions are used.</P
+></DD
+><DT
+>6309</DT
+><DD
+><P
+>This pragma enables the use of 6309 instructions and disables any 6809 specific
+instructions. It also changes the cycle count listing output (if selected)
+to display 6309 timings.</P
+></DD
+><DT
+>6809conv, 6309conv</DT
+><DD
+><P
+>These pragmas enable convenience instructions extending the 6809 and 6309
+instruction sets respectively. For more information, see 
+<A
+HREF="#CONVINST"
+>Section 3.11</A
+>.</P
 ></DD
 ><DT
 >index0tonone</DT
@@ -2431,6 +2511,62 @@ or byte counts are critical (which they usually are not). It also will
 not override the operand size override prefixes (&lt; and &gt;). It only
 applies when the assembler is left to guess what the operand size is.</P
 ></DD
+><DT
+>qrts</DT
+><DD
+><P
+>&#13;Enables the use of the ?RTS branch target. ?RTS is implemented to maintain
+compatibility with the MACRO-80c assembler.  It works by searching backward
+in the code for an RTS instruction.  If none is found, it inverts the branch
+logic and inserts an RTS following the branch instruction.  Below you can
+see how a BMI (2B xx) has been assembled as a BPL *+1 (2A 01) to skip over an
+inserted RTS (39).</P
+><PRE
+CLASS="PROGRAMLISTING"
+>1D1E 7D1D1D            TST   WHICH1
+1D21 2A0139            BMI   ?RTS
+1D24 BD1D65            JSR   INV</PRE
+></DD
+><DT
+>m80ext</DT
+><DD
+><P
+>&#13;This pragma (along with pragma qrts) enables some uncommon behaviors to
+accomodate The Micro Works MACRO-80c assembler from 1982.  This assembler
+was used by a number of notable TRS-80 Color Computer applications and the
+goal of this pragma is to allow them to build identical binaries from
+unmodified, vintage source code.</P
+><P
+>&#13;In m80ext mode, the handling of the "END" pseudo-op changes when used inside
+an include file.  Instead of terminating all assembly, it merely stops
+processing of the current include file (this behavior matches the original
+Motorola 6809 assembler).  In addition, loading an ASCII value with a single
+quote (e.g., LDA #'N) is extended to 16-bit registers (e.g., LDD #'NO). 
+LWASM normally supports this via double quote and that is the proper use in
+modern code.  Finally, the FCC pseudo-op is extended to handle FCB-like
+behavior after the closing delimiter:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>                       FCC "Greetings from 1982",13,0</PRE
+></DD
+><DT
+>testmode</DT
+><DD
+><P
+>&#13;This pragma is intended for internal testing purposes. In testmode, the
+assembler searches for a specially-formatted comment starting with a
+semicolon followed by a period.  Immediately afterward are a list of hex
+bytes that the assembler is expected to generate.  Likewise, if the
+assembler is expected to throw an error or warning on a given line, you can
+check by specifying "E:" followed by the error number.  In this case the
+error is ignored and the assembler continues ignoring the line in question.&#13;</P
+><PRE
+CLASS="PROGRAMLISTING"
+>1D1E 7D1D1D            TST   WHICH1    ;.7d1d1d
+1D21 2A0139            BMI   ?RTS      ;.2a0139
+1D24 1D24              FDB   *         ;.1d24
+1D26                   xyz   INV       ;.E:32    (Error 32 is "Bad opcode")</PRE
+></DD
 ></DL
 ></DIV
 ><P
@@ -2450,12 +2586,76 @@ pragma at the end of the include file.  This will cause the entire include
 file to operate under the nolist pragma.  However, if the file is included
 while nolist is already engaged, it will not undo that state.</P
 ></DIV
+><DIV
+CLASS="SECTION"
+><HR><H2
+CLASS="SECTION"
+><A
+NAME="CONVINST"
+>3.11. Convenience Instructions</A
+></H2
+><P
+>&#13;Similar to the 6800 compatibility instructions (pragma 6800compat) these
+pragma 6809conv and pragma 6309conv enable convenience extensions to the
+6809 and 6309 instruction set.  Originally intended for compatibility with
+the MACRO-80c assembler, these have proven useful in large codebases that
+target both the 6809 and the 6309.</P
+><P
+>&#13;The 6809 extensions are straightforward with the exception of "TSTD" which
+assembles as "STD -2,S".  A benefit of using these is they will "just work"
+and take on their 6309 equivalent when you enable 6309 assembly mode. 
+Supported instructions: ASRD, CLRD,   COMD,   LSLD,   LSRD,   NEGD,   TSTD.</P
+><P
+>&#13;6309 extensions are based on common patterns described by Chris Burke and
+Darren Atkinson in their 6309 documentation and include the following
+instructions: ASRQ,   CLRQ,   COMQ,   LSLE,   LSLF,   LSLQ,   LSRQ,   NEGE,
+   NEGF,   NEGW,   NEGQ,   TSTQ.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H2
+CLASS="SECTION"
+><A
+NAME="AEN800"
+>3.12. Cycle Counts</A
+></H2
+><P
+>&#13;The following options for displaying cycle counts in listings are provided.
+These options are enabled from pragmas on the command line or in the
+assembly files themselves.  For compatibility with other assemblers you can
+use the "OPT" keyword in addition to "PRAGMA."</P
+><PRE
+CLASS="PROGRAMLISTING"
+>opt c  - enable cycle counts: [8]
+opt cd - enable detailed cycle counts breaking down addressing modes: [5+3]
+opt ct - show a running subtotal of cycles
+opt cc - clear the running subtotal</PRE
+><P
+>&#13;The assembler supports both 6809 as well as native-mode 6309 cycle counts.
+In 6309 mode the counts are displayed in parenthesis instead of brackets. 
+In addition, some operations have a variable cycle count.  In this case a
+"+?" is displayed to alert the reader.  Sample output is shown below.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>266f 7d25e2     (window.asm):00313 [7]     7       move   tst   putflg
+2672 2602       (window.asm):00314 [5]     12             bne   a@
+2674 1e13       (window.asm):00315 [8]     20             exg   x,u
+2676 0dd6       (window.asm):00316 [6]     26      a@     tst   is6309
+2678 2618       (window.asm):00317 [5]     31             bne   exit@
+                (window.asm):00318                        opt   6309
+267a 10860085   (window.asm):00319 (4)     35      b@     ldw   #133
+267e 113813     (window.asm):00320 (6+?)   41             tfm   x+,u+
+2681 30881b     (window.asm):00321 (4+1)   46             leax  27,x
+2684 33c81b     (window.asm):00322 (4+1)   51             leau  27,u
+2687 4a         (window.asm):00323 (1)     52             deca
+2688 26f0       (window.asm):00324 (5)     57             bne   b@</PRE
+></DIV
 ></DIV
 ><DIV
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN745"
+NAME="AEN806"
 ></A
 >Chapter 4. LWLINK</H1
 ><P
@@ -2466,7 +2666,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN748"
+NAME="AEN809"
 >4.1. Command Line Options</A
 ></H2
 ><P
@@ -2663,7 +2863,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN845"
+NAME="AEN906"
 >4.2. Linker Operation</A
 ></H2
 ><P
@@ -2719,7 +2919,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN859"
+NAME="AEN920"
 >4.3. Linking Scripts</A
 ></H2
 ><P
@@ -2923,7 +3123,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN925"
+NAME="AEN986"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -2936,7 +3136,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN928"
+NAME="AEN989"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -3012,7 +3212,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN940"
+NAME="AEN1001"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -3031,7 +3231,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN944"
+NAME="AEN1005"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -3232,7 +3432,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN1027"
+NAME="AEN1088"
 ></A
 ><P
 ><B
@@ -3304,7 +3504,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN1057"
+NAME="AEN1118"
 ></A
 ><P
 ><B

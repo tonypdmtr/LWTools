@@ -14,7 +14,7 @@ TITLE="Object Files"
 HREF="x54.html"><LINK
 REL="NEXT"
 TITLE="Dialects"
-HREF="x208.html"></HEAD
+HREF="x218.html"></HEAD
 ><BODY
 CLASS="CHAPTER"
 BGCOLOR="#FFFFFF"
@@ -56,7 +56,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x208.html"
+HREF="x218.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -105,6 +105,8 @@ CLASS="OPTION"
 >This will cause the assembler to accept the additional instructions available
 on the 6309 processor. This is the default mode; this option is provided for
 completeness and to override preset command arguments.</P
+><P
+>This option is the same as if the first line of the source code is "PRAGMA 6309".</P
 ></DD
 ><DT
 ><CODE
@@ -131,7 +133,8 @@ CLASS="OPTION"
 ><DD
 ><P
 >This will cause the assembler to reject instructions that are only available
-on the 6309 processor.</P
+on the 6309 processor. This actually has the effect of starting the assembler
+as though the first line of the source is "PRAGMA 6809".</P
 ></DD
 ><DT
 ><CODE
@@ -331,6 +334,25 @@ redefine SYM using EQU will result in a multiply defined symbol error.</P
 ><DT
 ><CODE
 CLASS="OPTION"
+>-t WIDTH</CODE
+>, <CODE
+CLASS="OPTION"
+>--tabs=WIDTH</CODE
+></DT
+><DD
+><P
+>Specifies the handling of tabs in listing files. <CODE
+CLASS="OPTION"
+>--tabs=0</CODE
+>
+disables tab expansion. <CODE
+CLASS="OPTION"
+>--tabs=8</CODE
+> is the default setting.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
 >--help</CODE
 >, <CODE
 CLASS="OPTION"
@@ -412,7 +434,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x208.html"
+HREF="x218.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

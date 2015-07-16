@@ -14,10 +14,10 @@ TITLE="LWASM"
 HREF="c62.html"><LINK
 REL="PREVIOUS"
 TITLE="Numbers and Expressions"
-HREF="x232.html"><LINK
+HREF="x242.html"><LINK
 REL="NEXT"
 TITLE="Macros"
-HREF="x531.html"></HEAD
+HREF="x551.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x232.html"
+HREF="x242.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x531.html"
+HREF="x551.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,7 +73,7 @@ CLASS="SECTION"
 ><H1
 CLASS="SECTION"
 ><A
-NAME="AEN240"
+NAME="AEN250"
 >3.6. Assembler Directives</A
 ></H1
 ><P
@@ -86,7 +86,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN243"
+NAME="AEN253"
 >3.6.1. Data Directives</A
 ></H2
 ><P
@@ -320,7 +320,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN354"
+NAME="AEN364"
 >3.6.2. Address Definition</A
 ></H2
 ><P
@@ -344,6 +344,16 @@ permitted within sections when outputting to object files. For target formats
 that include address information (decb, hex, srec, and ihex), an ORG 
 directive will re-start the address sequence within the output. When using
 the raw target format, ORG is used only to determine the addresses of symbols.</P
+></DD
+><DT
+>REORG</DT
+><DD
+><P
+>Sets the assembly address to the value it had immediately prior to the
+previous ORG statement. It is used to continue assembly after some
+specification that required an additional ORG. This directive is primarily
+intended for MACRO-80c compatibility. Consider using alternatives in
+modern code.</P
 ></DD
 ><DT
 ><CODE
@@ -456,7 +466,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN401"
+NAME="AEN415"
 >3.6.3. Conditional Assembly</A
 ></H2
 ><P
@@ -580,6 +590,18 @@ process, the conditional
 will be considered true.</P
 ></DD
 ><DT
+>IFPRAGMA <CODE
+CLASS="PARAMETER"
+>pragma</CODE
+></DT
+><DD
+><P
+>If <CODE
+CLASS="PARAMETER"
+>pragma</CODE
+> is in effect, the condition will be considered true.</P
+></DD
+><DT
 >IFNDEF <CODE
 CLASS="PARAMETER"
 >sym</CODE
@@ -619,7 +641,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN466"
+NAME="AEN486"
 >3.6.4. OS9 Target Directives</A
 ></H2
 ><P
@@ -686,7 +708,7 @@ CLASS="SECTION"
 ><H2
 CLASS="SECTION"
 ><A
-NAME="AEN491"
+NAME="AEN511"
 >3.6.5. Miscelaneous Directives</A
 ></H2
 ><P
@@ -811,7 +833,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x232.html"
+HREF="x242.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -829,7 +851,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x531.html"
+HREF="x551.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

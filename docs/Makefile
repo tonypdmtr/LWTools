@@ -6,6 +6,6 @@ all:
 	rm -f manual.docbook.html
 
 maint:
-	hg rm manual/* || true
+	hg rm --force manual/* || true
 	$(MAKE) all
 	hg add manual/*

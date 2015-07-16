@@ -284,6 +284,9 @@ This will cause the assembler to accept the additional instructions available
 on the 6309 processor. This is the default mode; this option is provided for
 completeness and to override preset command arguments.
 </para>
+<para>
+This option is the same as if the first line of the source code is "PRAGMA 6309".
+</para>
 </listitem>
 </varlistentry>
 
@@ -302,7 +305,8 @@ This is equivalent to <option>--pragma=6800compat</option>.</para>
 <listitem>
 <para>
 This will cause the assembler to reject instructions that are only available
-on the 6309 processor.
+on the 6309 processor. This actually has the effect of starting the assembler
+as though the first line of the source is "PRAGMA 6809".
 </para>
 </listitem>
 </varlistentry>
@@ -446,6 +450,16 @@ redefine SYM using EQU will result in a multiply defined symbol error.
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term><option>-t WIDTH</option></term>
+<term><option>--tabs=WIDTH</option></term>
+<listitem>
+<para>
+Specifies the handling of tabs in listing files. <option>--tabs=0</option>
+disables tab expansion. <option>--tabs=8</option> is the default setting.
+</para>
+</listitem>
+</varlistentry>
 
 <varlistentry>
 <term><option>--help</option></term>
@@ -860,6 +874,19 @@ the raw target format, ORG is used only to determine the addresses of symbols.
 </varlistentry>
 
 <varlistentry>
+<term>REORG</term>
+<listitem>
+<para>
+Sets the assembly address to the value it had immediately prior to the
+previous ORG statement. It is used to continue assembly after some
+specification that required an additional ORG. This directive is primarily
+intended for MACRO-80c compatibility. Consider using alternatives in
+modern code.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
 <term><parameter>sym</parameter> EQU <parameter>expr</parameter></term>
 <term><parameter>sym</parameter> = <parameter>expr</parameter></term>
 <listitem>
@@ -1005,6 +1032,16 @@ will be considered true.
 </para>
 </listitem>
 </varlistentry>
+
+<varlistentry>
+<term>IFPRAGMA <parameter>pragma</parameter></term>
+<listitem>
+<para>
+If <parameter>pragma</parameter> is in effect, the condition will be considered true.
+</para>
+</listitem>
+</varlistentry>
+
 
 <varlistentry>
 <term>IFNDEF <parameter>sym</parameter></term>
@@ -1664,6 +1701,42 @@ version 4.11 so this mode is disabled by default.</para>
 
 </listitem>
 
+</varlistentry>
+
+<varlistentry>
+<term>6809</term>
+<listitem>
+<para>
+This pragma allows you to mark a section of code as 6809-only. In ths mode,
+the assembler will throw an error if any 6309 instructions are used.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>6309</term>
+<listitem>
+<para>
+This pragma enables the use of 6309 instructions and disables any 6809 specific
+instructions. It also changes the cycle count listing output (if selected)
+to display 6309 timings.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>6809conv</term>
+<term>6309conv</term>
+<listitem>
+<para>
+These pragmas enable convenience instructions extending the 6809 and 6309
+instruction sets respectively. For more information, see 
+<xref linkend="convinst">.
+</para>
+</listitem>
+</varlistentry>
+
+
 <varlistentry>
 <term>index0tonone</term>
 <listitem>
@@ -1901,6 +1974,78 @@ applies when the assembler is left to guess what the operand size is.</para>
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term>qrts</term>
+<listitem>
+<para>
+
+Enables the use of the ?RTS branch target. ?RTS is implemented to maintain
+compatibility with the MACRO-80c assembler.  It works by searching backward
+in the code for an RTS instruction.  If none is found, it inverts the branch
+logic and inserts an RTS following the branch instruction.  Below you can
+see how a BMI (2B xx) has been assembled as a BPL *+1 (2A 01) to skip over an
+inserted RTS (39).
+</para>
+<programlisting>
+1D1E 7D1D1D            TST   WHICH1
+1D21 2A0139            BMI   ?RTS
+1D24 BD1D65            JSR   INV
+</programlisting>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>m80ext</term>
+<listitem>
+<para>
+
+This pragma (along with pragma qrts) enables some uncommon behaviors to
+accomodate The Micro Works MACRO-80c assembler from 1982.  This assembler
+was used by a number of notable TRS-80 Color Computer applications and the
+goal of this pragma is to allow them to build identical binaries from
+unmodified, vintage source code.
+</para>
+<para>
+
+In m80ext mode, the handling of the "END" pseudo-op changes when used inside
+an include file.  Instead of terminating all assembly, it merely stops
+processing of the current include file (this behavior matches the original
+Motorola 6809 assembler).  In addition, loading an ASCII value with a single
+quote (e.g., LDA #'N) is extended to 16-bit registers (e.g., LDD #'NO). 
+LWASM normally supports this via double quote and that is the proper use in
+modern code.  Finally, the FCC pseudo-op is extended to handle FCB-like
+behavior after the closing delimiter:
+</para>
+<programlisting>
+                       FCC "Greetings from 1982",13,0
+</programlisting>
+</listitem>
+</varlistentry>
+
+
+
+<varlistentry>
+<term>testmode</term>
+<listitem>
+<para>
+
+This pragma is intended for internal testing purposes. In testmode, the
+assembler searches for a specially-formatted comment starting with a
+semicolon followed by a period.  Immediately afterward are a list of hex
+bytes that the assembler is expected to generate.  Likewise, if the
+assembler is expected to throw an error or warning on a given line, you can
+check by specifying "E:" followed by the error number.  In this case the
+error is ignored and the assembler continues ignoring the line in question.
+
+</para>
+<programlisting>
+1D1E 7D1D1D            TST   WHICH1    ;.7d1d1d
+1D21 2A0139            BMI   ?RTS      ;.2a0139
+1D24 1D24              FDB   *         ;.1d24
+1D26                   xyz   INV       ;.E:32    (Error 32 is "Bad opcode")
+</programlisting>
+</listitem>
+</varlistentry>
 
 </variablelist>
 
@@ -1922,6 +2067,74 @@ while nolist is already engaged, it will not undo that state.</para>
 
 
 
+</section>
+
+<section id="convinst">
+<title id="convinsttitle">Convenience Instructions</title>
+<para>
+
+Similar to the 6800 compatibility instructions (pragma 6800compat) these
+pragma 6809conv and pragma 6309conv enable convenience extensions to the
+6809 and 6309 instruction set.  Originally intended for compatibility with
+the MACRO-80c assembler, these have proven useful in large codebases that
+target both the 6809 and the 6309.
+</para>
+
+<para>
+
+The 6809 extensions are straightforward with the exception of "TSTD" which
+assembles as "STD -2,S".  A benefit of using these is they will "just work"
+and take on their 6309 equivalent when you enable 6309 assembly mode. 
+Supported instructions: ASRD, CLRD,   COMD,   LSLD,   LSRD,   NEGD,   TSTD.
+</para>
+<para>
+
+6309 extensions are based on common patterns described by Chris Burke and
+Darren Atkinson in their 6309 documentation and include the following
+instructions: ASRQ,   CLRQ,   COMQ,   LSLE,   LSLF,   LSLQ,   LSRQ,   NEGE,
+   NEGF,   NEGW,   NEGQ,   TSTQ.
+</para>
+</section>
+
+<section>
+<title>Cycle Counts</title>
+<para>
+
+The following options for displaying cycle counts in listings are provided.
+These options are enabled from pragmas on the command line or in the
+assembly files themselves.  For compatibility with other assemblers you can
+use the "OPT" keyword in addition to "PRAGMA."
+</para>
+
+<programlisting>
+opt c  - enable cycle counts: [8]
+opt cd - enable detailed cycle counts breaking down addressing modes: [5+3]
+opt ct - show a running subtotal of cycles
+opt cc - clear the running subtotal
+</programlisting>
+
+<para>
+
+The assembler supports both 6809 as well as native-mode 6309 cycle counts.
+In 6309 mode the counts are displayed in parenthesis instead of brackets. 
+In addition, some operations have a variable cycle count.  In this case a
+"+?" is displayed to alert the reader.  Sample output is shown below.
+</para>
+
+<programlisting>
+266f 7d25e2     (window.asm):00313 [7]     7       move   tst   putflg
+2672 2602       (window.asm):00314 [5]     12             bne   a@
+2674 1e13       (window.asm):00315 [8]     20             exg   x,u
+2676 0dd6       (window.asm):00316 [6]     26      a@     tst   is6309
+2678 2618       (window.asm):00317 [5]     31             bne   exit@
+                (window.asm):00318                        opt   6309
+267a 10860085   (window.asm):00319 (4)     35      b@     ldw   #133
+267e 113813     (window.asm):00320 (6+?)   41             tfm   x+,u+
+2681 30881b     (window.asm):00321 (4+1)   46             leax  27,x
+2684 33c81b     (window.asm):00322 (4+1)   51             leau  27,u
+2687 4a         (window.asm):00323 (1)     52             deca
+2688 26f0       (window.asm):00324 (5)     57             bne   b@
+</programlisting>
 </section>
 
 </chapter>

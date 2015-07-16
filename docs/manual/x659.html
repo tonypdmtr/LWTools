@@ -14,10 +14,10 @@ TITLE="LWASM"
 HREF="c62.html"><LINK
 REL="PREVIOUS"
 TITLE="Object Files and Sections"
-HREF="x575.html"><LINK
+HREF="x595.html"><LINK
 REL="NEXT"
-TITLE="LWLINK"
-HREF="c745.html"></HEAD
+TITLE="Convenience Instructions"
+HREF="x795.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x575.html"
+HREF="x595.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c745.html"
+HREF="x795.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,7 +73,7 @@ CLASS="SECTION"
 ><H1
 CLASS="SECTION"
 ><A
-NAME="AEN639"
+NAME="AEN659"
 >3.10. Assembler Modes and Pragmas</A
 ></H1
 ><P
@@ -175,6 +175,32 @@ instructions by default since Motorola advertised the 6809 as being source
 compatible with the 6800.  However, most source code does not require this
 compatibility and LWASM itself did not support these instructions prior to
 version 4.11 so this mode is disabled by default.</P
+></DD
+><DT
+>6809</DT
+><DD
+><P
+>This pragma allows you to mark a section of code as 6809-only. In ths mode,
+the assembler will throw an error if any 6309 instructions are used.</P
+></DD
+><DT
+>6309</DT
+><DD
+><P
+>This pragma enables the use of 6309 instructions and disables any 6809 specific
+instructions. It also changes the cycle count listing output (if selected)
+to display 6309 timings.</P
+></DD
+><DT
+>6809conv, 6309conv</DT
+><DD
+><P
+>These pragmas enable convenience instructions extending the 6809 and 6309
+instruction sets respectively. For more information, see 
+<A
+HREF="x795.html"
+>Section 3.11</A
+>.</P
 ></DD
 ><DT
 >index0tonone</DT
@@ -372,6 +398,62 @@ or byte counts are critical (which they usually are not). It also will
 not override the operand size override prefixes (&lt; and &gt;). It only
 applies when the assembler is left to guess what the operand size is.</P
 ></DD
+><DT
+>qrts</DT
+><DD
+><P
+>&#13;Enables the use of the ?RTS branch target. ?RTS is implemented to maintain
+compatibility with the MACRO-80c assembler.  It works by searching backward
+in the code for an RTS instruction.  If none is found, it inverts the branch
+logic and inserts an RTS following the branch instruction.  Below you can
+see how a BMI (2B xx) has been assembled as a BPL *+1 (2A 01) to skip over an
+inserted RTS (39).</P
+><PRE
+CLASS="PROGRAMLISTING"
+>1D1E 7D1D1D            TST   WHICH1
+1D21 2A0139            BMI   ?RTS
+1D24 BD1D65            JSR   INV</PRE
+></DD
+><DT
+>m80ext</DT
+><DD
+><P
+>&#13;This pragma (along with pragma qrts) enables some uncommon behaviors to
+accomodate The Micro Works MACRO-80c assembler from 1982.  This assembler
+was used by a number of notable TRS-80 Color Computer applications and the
+goal of this pragma is to allow them to build identical binaries from
+unmodified, vintage source code.</P
+><P
+>&#13;In m80ext mode, the handling of the "END" pseudo-op changes when used inside
+an include file.  Instead of terminating all assembly, it merely stops
+processing of the current include file (this behavior matches the original
+Motorola 6809 assembler).  In addition, loading an ASCII value with a single
+quote (e.g., LDA #'N) is extended to 16-bit registers (e.g., LDD #'NO). 
+LWASM normally supports this via double quote and that is the proper use in
+modern code.  Finally, the FCC pseudo-op is extended to handle FCB-like
+behavior after the closing delimiter:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>                       FCC "Greetings from 1982",13,0</PRE
+></DD
+><DT
+>testmode</DT
+><DD
+><P
+>&#13;This pragma is intended for internal testing purposes. In testmode, the
+assembler searches for a specially-formatted comment starting with a
+semicolon followed by a period.  Immediately afterward are a list of hex
+bytes that the assembler is expected to generate.  Likewise, if the
+assembler is expected to throw an error or warning on a given line, you can
+check by specifying "E:" followed by the error number.  In this case the
+error is ignored and the assembler continues ignoring the line in question.&#13;</P
+><PRE
+CLASS="PROGRAMLISTING"
+>1D1E 7D1D1D            TST   WHICH1    ;.7d1d1d
+1D21 2A0139            BMI   ?RTS      ;.2a0139
+1D24 1D24              FDB   *         ;.1d24
+1D26                   xyz   INV       ;.E:32    (Error 32 is "Bad opcode")</PRE
+></DD
 ></DL
 ></DIV
 ><P
@@ -407,7 +489,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x575.html"
+HREF="x595.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -425,7 +507,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c745.html"
+HREF="x795.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -449,7 +531,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->LWLINK</TD
+>Convenience Instructions</TD
 ></TR
 ></TABLE
 ></DIV
