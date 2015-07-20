@@ -43,7 +43,7 @@ case $0 in
 #		exe_suffix=.bin
 		;;
 	*)
-		options="--format=decb"
+		options="--format=raw"
 #		options="-b .text=0x8000 -b .data=0x1000 -b .bss=0x0100 -b .ctors=0xFD00 -b .dtors=0xFE00 -b vector=0xFFF0"
 #		aslink_options="-nwxso"
 #		exe_suffix=.s19
@@ -87,11 +87,17 @@ while [ "$*" != "" ]; do
 			options="$options --section-base=$section_value"
 			;;
 		
-		--map)
-			map_file=$1; shift
-			options="$options --map=$map_file"
+		-Map=*)
+			arg=${arg#-Map=}; shift
+			options="$options --map=$arg"
 			;;
 			
+		--script=*)
+			options="$options $arg"
+			;;
+		-T)
+			options="$options --script=$1"; shift
+			;;
 		-Tbss)
 			options="$options --section-base=.bss=$1"; shift
 			;;
@@ -109,15 +115,10 @@ while [ "$*" != "" ]; do
 			;;
 		-g)
 			# Ignored by GNU ld; we should do the same
-			true
 			;;
 		-h|--help)
 			echo "ld (m6809)"
 			exit 0
-			;;
-		-T)
-			echo "-T scripts not supported";
-			exit 1;
 			;;
 		--format-lwex)
 			options="$options --format=lwex"
@@ -140,6 +141,14 @@ while [ "$*" != "" ]; do
 			options="$options $arg"
 			;;
 
+		--relax)
+			;;
+		--start-group)
+			;;
+		--end-group)
+			;;
+		--gc-sections)
+			;;
 		-*)
 			echo "ld (m6809): unknown option $arg"
 			exit 1
