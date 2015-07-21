@@ -16,8 +16,7 @@ ar
 
 Similar to the "as" script above except for lwar.
 
-gcc6809lw-4.6.1-1.patch
-gcc6809lw-4.6.4-1.patch
+gcc6809lw-*.patch
 
 These are patches to the main gcc source distribution for specific releases. 
 The last number after the dash is a patch level for the specific patch. It
@@ -93,3 +92,19 @@ programs at runtime.
 for "root" set up correctly if your install prefix requires root privileges.
 
 The above is WOMM certified. YMMV.
+
+NOTES ABOUT SPECIFIC PATCHES
+============================
+
+gcc6809lw-4.6.4-2.patch
+
+This patch essentially disables the "soft registers". These were causing
+problems leading to compiler crashes. Removing the "t" constraint from
+the instruction patterns allowed various issues to go away. It is not clear
+if the original reasoning behind these soft registers is even valid any
+more.
+
+Also fixes a clearly incorrect comparision when determining if a constant
+fits in 16 bits. For clarity, both the 8 bit and 16 bit comparisons are
+replaced with straight forward range comparisons rather than the excessively
+clever scheme that was present before.
