@@ -102,6 +102,7 @@ enum lwasm_pragmas_e
 	PRAGMA_M80EXT				= 1 << 21,	// enable Macro-80C assembler extensions
 	PRAGMA_6809CONV				= 1 << 22,	// enable 6809 convenience ops
 	PRAGMA_6309CONV				= 1 << 23,	// enable 6309 convenience ops
+	PRAGMA_NEWSOURCE			= 1 << 24,	// don't use compatibility source format
 	PRAGMA_CLEARBIT				= 1 << 31	// reserved to indicate negated pragma flag status
 };
 
@@ -444,7 +445,9 @@ lw_expr_t lwasm_fetch_expr(line_t *cl, int id);
 lw_expr_t lwasm_parse_expr(asmstate_t *as, char **p);
 int lwasm_emitexpr(line_t *cl, lw_expr_t expr, int s);
 
-void skip_operand(char **p);
+void skip_operand_real(line_t *l, char **p);
+/* this macro can only be used where "l" is the current line pointer */
+#define skip_operand(p) skip_operand_real(l, p)
 
 int lwasm_lookupreg2(const char *rlist, char **p);
 int lwasm_lookupreg3(const char *rlist, char **p);
@@ -471,5 +474,9 @@ void dump_state(asmstate_t *as);
 
 #define OPLEN(op) (((op)>0xFF)?2:1)
 #define CURPRAGMA(l,p)	(((l) && ((l)->pragmas & (p))) ? 1 : 0)
+
+/* some functions for parsing */
+/* skip to the start of the next token if the current parsing mode allows it */
+void lwasm_skip_to_next_token(line_t *cl, char **p);
 
 #endif /* ___lwasm_h_seen___ */

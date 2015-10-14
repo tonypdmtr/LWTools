@@ -38,7 +38,7 @@ int add_macro_line(asmstate_t *as, char *optr);
 /*
 pass 1: parse the lines
 
-line format:
+line format if PRAGMA_NEWSOURCE is not in force:
 
 [<symbol>] <opcode> <operand>[ <comment>]
 
@@ -47,6 +47,14 @@ If <symbol> is followed by a :, whitespace may precede the symbol
 A line may optionally start with a number which must not be preceded by
 white space and must be followed by a single whitespace character. After
 that whitespace character, the line is parsed as if it had no line number.
+
+Also, no spaces are permitted within <operand>.
+
+With PRAGMA_NEWSOURCE in effect, line numbers are not allowed and there
+is no automatic comment at the end of each line. All comments must be
+introduced with the comment character. This allows the parser to handle
+spaces in operands unambiguously so in this mode, spaces are permitted
+within operands.
 
 */
 void do_pass1(asmstate_t *as)
@@ -174,12 +182,12 @@ void do_pass1(asmstate_t *as)
 		}
 	
 		// skip comments
-		// commends do not create a context break
+		// comments do not create a context break
 		if (*line == '*' || *line == ';' || *line == '#')
 			goto nextline;
 
 		p1 = line;
-		if (isdigit(*p1))
+		if (isdigit(*p1) && !CURPRAGMA(cl, PRAGMA_NEWSOURCE))
 		{
 			// skip line number
 			while (*p1 && isdigit(*p1))
@@ -212,8 +220,6 @@ void do_pass1(asmstate_t *as)
 		else
 			stspace = 0;
 
-//		if (*p1 == '*' || *p1 == ';' || *p1 == '#')
-//			goto nextline;
 		if (!*p1)
 		{
 			// nothing but whitespace - context break
@@ -235,7 +241,7 @@ void do_pass1(asmstate_t *as)
 				p1++;
 			for (; *p1 && isspace(*p1); p1++)
 				/* do nothing */ ;
-			
+		
 			if (*p1 == '=')
 			{
 				tok = p1++;
@@ -371,10 +377,23 @@ void do_pass1(asmstate_t *as)
 							else
 								cl -> dlen = cl -> len;
 						}
-						if (*p1 && !isspace(*p1) && !(cl -> err))
+						if (!CURPRAGMA(cl, PRAGMA_NEWSOURCE))
 						{
-							// flag bad operand error
-							lwasm_register_error2(as, cl, E_OPERAND_BAD, "(%s)", p1);
+							if (*p1 && !isspace(*p1) && !(cl -> err))
+							{
+								// flag bad operand error
+								lwasm_register_error2(as, cl, E_OPERAND_BAD, "(%s)", p1);
+							}
+						}
+						else
+						{
+							lwasm_skip_to_next_token(cl, &p1);
+							/* if we did not hit the end of the line and we aren't at a comment character, error out */
+							if (*p1 && *p1 != ';' && *p1 != '#' && *p1 != ';')
+							{
+								// flag bad operand error
+								lwasm_register_error2(as, cl, E_OPERAND_BAD, "%s", p1);
+							}
 						}
 						
 						/* do a reduction on the line expressions to avoid carrying excessive expression baggage if not needed */
