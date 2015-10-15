@@ -90,6 +90,7 @@ void lw_expr_set_var_handler(lw_expr_fn2_t *fn);
 void lw_expr_set_term_parser(lw_expr_fn3_t *fn);
 
 lw_expr_t lw_expr_parse(char **p, void *priv);
+lw_expr_t lw_expr_parse_compact(char **p, void *priv);
 int lw_expr_istype(lw_expr_t e, int t);
 int lw_expr_intval(lw_expr_t e);
 int lw_expr_specint(lw_expr_t e);

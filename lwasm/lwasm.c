@@ -32,6 +32,15 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include "lwasm.h"
 #include "instab.h"
 
+void lwasm_skip_to_next_token(line_t *cl, char **p)
+{
+	if (CURPRAGMA(cl, PRAGMA_NEWSOURCE))
+	{
+		for (; **p && isspace(**p); (*p)++)
+			/* do nothing */ ;
+	}
+}
+
 int lwasm_expr_exportable(asmstate_t *as, lw_expr_t expr)
 {
 	return 0;
@@ -869,13 +878,20 @@ lw_expr_t lwasm_parse_expr(asmstate_t *as, char **p)
 	if (as->exprwidth != 16)	
 	{
 		lw_expr_setwidth(as->exprwidth);
-		e = lw_expr_parse(p, as);
+		if (CURPRAGMA(as -> cl, PRAGMA_NEWSOURCE))
+			e = lw_expr_parse(p, as);
+		else
+			e = lw_expr_parse_compact(p, as);
 		lw_expr_setwidth(0);
 	}
 	else
 	{
-		e = lw_expr_parse(p, as);
+		if (CURPRAGMA(as -> cl, PRAGMA_NEWSOURCE))
+			e = lw_expr_parse(p, as);
+		else
+			e = lw_expr_parse_compact(p, as);
 	}
+	lwasm_skip_to_next_token(as -> cl, p);
 	return e;
 }
 
@@ -921,8 +937,10 @@ lw_expr_t lwasm_fetch_expr(line_t *cl, int id)
 	return NULL;
 }
 
-void skip_operand(char **p)
+void skip_operand_real(line_t *cl, char **p)
 {
+	if (CURPRAGMA(cl, PRAGMA_NEWSOURCE))
+		return;
 	for (; **p && !isspace(**p); (*p)++)
 		/* do nothing */ ;
 }

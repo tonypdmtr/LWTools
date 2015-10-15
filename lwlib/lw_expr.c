@@ -36,6 +36,7 @@ static lw_expr_fn3_t *parse_term = NULL;
 /* Q&D to break out of infinite recursion */
 static int level = 0;
 static int bailing = 0;
+static int parse_compact = 0;
 
 static void (*divzero)(void *priv) = NULL;
 
@@ -1141,7 +1142,7 @@ The end of an expression is determined by the presence of any of the
 following conditions:
 
 1. a NUL character
-2. a whitespace character
+2. a whitespace character (if parse mode is "COMPACT")
 3. a )
 4. a ,
 5. any character that is not recognized as a term
@@ -1155,19 +1156,29 @@ error.
 
 lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec);
 
+static void lw_expr_parse_next_tok(char **p)
+{
+	if (parse_compact)
+		return;
+	for (; **p && isspace(**p); (*p)++)
+		/* do nothing */ ;
+}
+
 lw_expr_t lw_expr_parse_term(char **p, void *priv)
 {
 	lw_expr_t term, term2;
 	
 eval_next:
+	lw_expr_parse_next_tok(p);
+
 	if (!**p || isspace(**p) || **p == ')' || **p == ']')
 		return NULL;
-
 	// parentheses
 	if (**p == '(')
 	{
 		(*p)++;
 		term = lw_expr_parse_expr(p, priv, 0);
+		lw_expr_parse_next_tok(p);
 		if (**p != ')')
 		{
 			lw_expr_destroy(term);
@@ -1247,6 +1258,7 @@ lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec)
 	int opern, i;
 	lw_expr_t term1, term2, term3;
 	
+	lw_expr_parse_next_tok(p);
 	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']' || **p == ';')
 		return NULL;
 
@@ -1255,6 +1267,7 @@ lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec)
 		return NULL;
 
 eval_next:
+	lw_expr_parse_next_tok(p);
 	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']' || **p == ';')
 		return term1;
 	
@@ -1312,8 +1325,16 @@ eval_next:
 
 lw_expr_t lw_expr_parse(char **p, void *priv)
 {
+	parse_compact = 0;
 	return lw_expr_parse_expr(p, priv, 0);
 }
+
+lw_expr_t lw_expr_parse_compact(char **p, void *priv)
+{
+	parse_compact = 1;
+	return lw_expr_parse_expr(p, priv, 0);
+}
+	
 
 int lw_expr_testterms(lw_expr_t e, lw_expr_testfn_t *fn, void *priv)
 {
