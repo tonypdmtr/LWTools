@@ -37,36 +37,35 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen);
 // "extra" is required due to the way OIM, EIM, TIM, and AIM work
 void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 {
-	const char *optr2;
+	char *optr2;
 	int v1, tv;
 	lw_expr_t s;
-
+	
 	if (!**p)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 
-	optr2 = *p;
-	while (*optr2 && !isspace(*optr2) && *optr2 != ',') optr2++
-		/* do nothing */ ;
-
-	if (*optr2 == ',' || **p == '[')
+	/* this is the easy case - start it [ or , means indexed */
+	if (**p == ',' || **p == '[')
 	{
+indexed:
 		l -> lint = -1;
-		l -> lint2 = 1;
+		l -> lint2  = 1;
 		insn_parse_indexed_aux(as, l, p);
 		l -> minlen = OPLEN(instab[l -> insn].ops[1]) + 1 + elen;
 		l -> maxlen = OPLEN(instab[l -> insn].ops[1]) + 3 + elen;
 		goto out;
 	}
 
+	/* we have to parse the first expression to find if we have a comma after it */
+	optr2 = *p;
 	if (**p == '<')
 	{
 		(*p)++;
 		l -> lint2 = 0;
 	}
-
 	// for compatibility with asxxxx
 	// * followed by a digit, alpha, or _, or ., or ?, or another * is "f8"
 	else if (**p == '*')
@@ -87,10 +86,17 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 	{
 		l -> lint2 = -1;
 	}
-
-	l -> minlen = OPLEN(instab[l -> insn].ops[0]) + 1 + elen;
-	l -> maxlen = OPLEN(instab[l -> insn].ops[2]) + 2 + elen;
+	lwasm_skip_to_next_token(l, p);
+	
 	s = lwasm_parse_expr(as, p);
+	
+	if (**p == ',')
+	{
+		/* we have an indexed mode here - reset and transfer control to indexing mode */
+		lw_expr_destroy(s);
+		*p = optr2;
+		goto indexed;
+	}
 	if (!s)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
@@ -99,6 +105,8 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 	
 	lwasm_save_expr(l, 0, s);
 
+	l -> minlen = OPLEN(instab[l -> insn].ops[0]) + 1 + elen;
+	l -> maxlen = OPLEN(instab[l -> insn].ops[2]) + 2 + elen;
 	if (as -> output_format == OUTPUT_OBJ && l -> lint2 == -1)
 	{
 		l -> lint2 = 2;

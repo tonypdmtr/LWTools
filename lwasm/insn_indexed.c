@@ -38,147 +38,250 @@ l -> pb: actual post byte (from "resolve" stage) or info passed
 */
 void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 {
-	struct opvals { char *opstr; int pb; };
-	
-	static const char *regs = "X  Y  U  S  W  PCRPC ";
-	static const struct opvals simpleindex[] =
-	{
-		{",x", 0x84},		{",y", 0xa4},		{",u", 0xc4},		{",s", 0xe4},
-		{",x+", 0x80},		{",y+", 0xa0},		{",u+", 0xc0},		{",s+", 0xe0},
-		{",x++", 0x81},		{",y++", 0xa1},		{",u++", 0xc1},		{",s++", 0xe1},
-		{",-x", 0x82},		{",-y", 0xa2},		{",-u", 0xc2},		{",-s", 0xe2},
-		{",--x", 0x83},		{",--y", 0xa3},		{",--u", 0xc3},		{",--s", 0xe3},
-		{"a,x", 0x86},		{"a,y", 0xa6},		{"a,u", 0xc6},		{"a,s", 0xe6},
-		{"b,x", 0x85},		{"b,y", 0xa5},		{"b,u", 0xc5},		{"b,s", 0xe5},
-		{"e,x", 0x87},		{"e,y", 0xa7},		{"e,u", 0xc7},		{"e,s", 0xe7},
-		{"f,x",	0x8a},		{"f,y",	0xaa},		{"f,u", 0xca},		{"f,s", 0xea},
-		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xeb},
-		{"w,x", 0x8e},		{"w,y", 0xae},		{"w,u", 0xce},		{"w,s", 0xee},
-		{",w", 0x8f},							{",w++", 0xcf},		{",--w", 0xef},
-		
-		{"[,x]", 0x94},		{"[,y]", 0xb4},		{"[,u]", 0xd4},		{"[,s]", 0xf4},
-		{"[,x++]", 0x91},	{"[,y++]", 0xb1},	{"[,u++]", 0xd1},	{"[,s++]", 0xf1},
-		{"[,--x]", 0x93},	{"[,--y]", 0xb3},	{"[,--u]", 0xd3},	{"[,--s]", 0xf3},
-		{"[a,x]", 0x96},	{"[a,y]", 0xb6},	{"[a,u]", 0xd6},	{"[a,s]", 0xf6},
-		{"[b,x]", 0x95},	{"[b,y]", 0xb5},	{"[b,u]", 0xd5},	{"[b,s]", 0xf5},
-		{"[e,x]", 0x97},	{"[e,y]", 0xb7},	{"[e,u]", 0xd7},	{"[e,s]", 0xf7},
-		{"[f,x]", 0x9a},	{"[f,y]", 0xba},	{"[f,u]", 0xda},	{"[f,s]", 0xfa},
-		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfb},
-		{"[w,x]", 0x9e},	{"[w,y]", 0xbe},	{"[w,u]", 0xde},	{"[w,s]", 0xfe},
-		{"[,w]", 0x90},							{"[,w++]", 0xd0},	{"[,--w]", 0xf0},
-		
-		{ "", -1 }
-	};
-
 	static const char *regs9 = "X  Y  U  S     PCRPC ";
-	static const struct opvals simpleindex9[] =
-	{
-		{",x", 0x84},		{",y", 0xa4},		{",u", 0xc4},		{",s", 0xe4},
-		{",x+", 0x80},		{",y+", 0xa0},		{",u+", 0xc0},		{",s+", 0xe0},
-		{",x++", 0x81},		{",y++", 0xa1},		{",u++", 0xc1},		{",s++", 0xe1},
-		{",-x", 0x82},		{",-y", 0xa2},		{",-u", 0xc2},		{",-s", 0xe2},
-		{",--x", 0x83},		{",--y", 0xa3},		{",--u", 0xc3},		{",--s", 0xe3},
-		{"a,x", 0x86},		{"a,y", 0xa6},		{"a,u", 0xc6},		{"a,s", 0xe6},
-		{"b,x", 0x85},		{"b,y", 0xa5},		{"b,u", 0xc5},		{"b,s", 0xe5},
-		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xeb},
-		
-		{"[,x]", 0x94},		{"[,y]", 0xb4},		{"[,u]", 0xd4},		{"[,s]", 0xf4},
-		{"[,x++]", 0x91},	{"[,y++]", 0xb1},	{"[,u++]", 0xd1},	{"[,s++]", 0xf1},
-		{"[,--x]", 0x93},	{"[,--y]", 0xb3},	{"[,--u]", 0xd3},	{"[,--s]", 0xf3},
-		{"[a,x]", 0x96},	{"[a,y]", 0xb6},	{"[a,u]", 0xd6},	{"[a,s]", 0xf6},
-		{"[b,x]", 0x95},	{"[b,y]", 0xb5},	{"[b,u]", 0xd5},	{"[b,s]", 0xf5},
-		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfb},
-		
-		{ "", -1 }
-	};
-	char stbuf[25];
-	int i, j, rn;
+	static const char *regs  = "X  Y  U  S  W  PCRPC ";
+	int i, rn;
 	int indir = 0;
-	int f0 = 1;
-	const struct opvals *simples;
+	int f0 = 0;
 	const char *reglist;
 	lw_expr_t e;
-		
+	char *tstr;
+	
+
 	if (CURPRAGMA(l, PRAGMA_6809))
 	{
-		simples = simpleindex9;
 		reglist = regs9;
 	}
 	else
 	{
-		simples = simpleindex;
 		reglist = regs;
 	}
-	
-	// fetch out operand for lookup
-	for (i = 0; i < 24; i++)
-	{
-		if (*((*p) + i) && !isspace(*((*p) + i)))
-			stbuf[i] = *((*p) + i);
-		else
-			break;
-	}
-	stbuf[i] = '\0';
-	
-	// now look up operand in "simple" table
-	if (!*((*p) + i) || isspace(*((*p) + i)))
-	{
-		// do simple lookup
-		for (j = 0; simples[j].opstr[0]; j++)
-		{
-			if (!strcasecmp(stbuf, simples[j].opstr))
-				break;
-		}
-		if (simples[j].opstr[0])
-		{
-			l -> pb = simples[j].pb;
-			l -> lint = 0;
-			(*p) += i;
-			return;
-		}
-	}
-
-	// now do the "hard" ones
-
 	// is it indirect?
 	if (**p == '[')
 	{
 		indir = 1;
 		(*p)++;
 	}
-	
-	// look for a "," - all indexed modes have a "," except extended indir
-	rn = 0;
-	for (i = 0; (*p)[i] && !isspace((*p)[i]); i++)
+	lwasm_skip_to_next_token(l, p);
+	if (**p == ',')
 	{
-		if ((*p)[i] == ',')
+		int incdec = 0;
+		/* we have a pre-dec, post-inc, or no offset mode here */
+		(*p)++;
+		lwasm_skip_to_next_token(l, p);
+		if (**p == '-')
 		{
+			incdec = -1;
+			(*p)++;
+			if (**p == '-')
+			{
+				incdec = -2;
+				(*p)++;
+			}
+			lwasm_skip_to_next_token(l, p);
+		}
+		/* allowed registers: X, Y, U, S, or W (6309) */
+		switch (**p)
+		{
+		case 'x':
+		case 'X':
+			rn = 0;
+			break;
+		
+		case 'y':
+		case 'Y':
 			rn = 1;
 			break;
-		}
-	}
-
-	// if no "," and indirect, do extended indir
-	if (!rn && indir)
-	{
-		// eat the extended addressing indicator if present
-		if (**p == '>')
-			(*p)++;
-		// extended indir
-		l -> pb = 0x9f;
-		e = lwasm_parse_expr(as, p);
-		if (!e || **p != ']')
-		{
+			
+		case 'u':
+		case 'U':
+			rn = 2;
+			break;
+			
+		case 's':
+		case 'S':
+			rn = 3;
+			break;
+			
+		case 'w':
+		case 'W':
+			if (CURPRAGMA(l, PRAGMA_6809))
+			{
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+			rn = 4;
+			break;
+			
+		default:
 			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
-		lwasm_save_expr(l, 0, e);
-		
 		(*p)++;
-		l -> lint = 2;
+		lwasm_skip_to_next_token(l, p);
+		if (**p == '+')
+		{
+			if (incdec != 0)
+			{
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+			incdec = 1;
+			(*p)++;
+			if (**p == '+')
+			{
+				incdec = 2;
+				(*p)++;
+			}
+			lwasm_skip_to_next_token(l, p);
+		}
+		if (indir)
+		{
+			if (**p != ']')
+			{
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+			(*p)++;
+		}
+		if (indir || rn == 4)
+		{
+			if (incdec == 1 || incdec == -1)
+			{
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+		}
+		if (rn == 4)
+		{
+			if (indir)
+			{
+				if (incdec == 0)
+					i = 0x90;
+				else if (incdec == -2)
+					i = 0xF0;
+				else
+					i = 0xD0;
+			}
+			else
+			{
+				if (incdec == 0)
+					i = 0x8F;
+				else if (incdec == -2)
+					i = 0xEF;
+				else
+					i = 0xCF;
+			}
+		}
+		else
+		{
+			switch (incdec)
+			{
+			case 0:
+				i = 0x84;
+				break;
+			case 1:
+				i = 0x80;
+				break;
+			case 2:
+				i = 0x81;
+				break;
+			case -1:
+				i = 0x82;
+				break;
+			case -2:
+				i = 0x83;
+				break;
+			}
+			i = (rn << 5) | i | (indir << 4);
+		}
+		l -> pb = i;
+		l -> lint = 0;
 		return;
 	}
-
+	i = toupper(**p);
+	if (
+			(i == 'A' || i == 'B' || i == 'D') ||
+			(!CURPRAGMA(l, PRAGMA_6809) && (i == 'E' || i == 'F' || i == 'W'))
+	   )
+	{
+		tstr = *p + 1;
+		lwasm_skip_to_next_token(l, &tstr);
+		if (*tstr == ',')
+		{
+			*p = tstr + 1;
+			lwasm_skip_to_next_token(l, p);
+			switch (**p)
+			{
+			case 'x':
+			case 'X':
+				rn = 0;
+				break;
+		
+			case 'y':
+			case 'Y':
+				rn = 1;
+				break;
+			
+			case 'u':
+			case 'U':
+				rn = 2;
+				break;
+			
+			case 's':
+			case 'S':
+				rn = 3;
+				break;
+			
+			default:
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+			(*p)++;
+			lwasm_skip_to_next_token(l, p);
+			if (indir)
+			{
+				if (**p != ']')
+				{
+					lwasm_register_error(as, l, E_OPERAND_BAD);
+					return;
+				}
+				(*p)++;
+			}
+			
+			switch (i)
+			{
+			case 'A':
+				i = 0x86;
+				break;
+			
+			case 'B':
+				i = 0x85;
+				break;
+			
+			case 'D':
+				i = 0x8B;
+				break;
+			
+			case 'E':
+				i = 0x87;
+				break;
+			
+			case 'F':
+				i = 0x8A;
+				break;
+			
+			case 'W':
+				i = 0x8E;
+				break;
+			}
+			l -> pb = i | (indir << 4) | (rn << 5);
+			l -> lint = 0;
+			return;
+		}
+	}
+	
+	/* we have the "expression" types now */
 	if (**p == '<')
 	{
 		l -> lint = 1;
@@ -189,12 +292,17 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		l -> lint = 2;
 		(*p)++;
 	}
-
-	if (**p == '0' && *((*p)+1) == ',')
+	lwasm_skip_to_next_token(l, p);
+	if (**p == '0')
 	{
-		f0 = 1;
+		tstr = *p + 1;
+		lwasm_skip_to_next_token(l, &tstr);
+		if (*tstr == ',')
+		{
+			f0 = 1;
+		}
 	}
-	
+
 	// now we have to evaluate the expression
 	e = lwasm_parse_expr(as, p);
 	if (!e)
@@ -203,14 +311,22 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		return;
 	}
 	lwasm_save_expr(l, 0, e);
-
-	// now look for a comma; if not present, explode
-	if (*(*p)++ != ',')
+	
+	if (**p != ',')
 	{
-		lwasm_register_error(as, l, E_OPERAND_BAD);
+		/* if no comma, we have extended indirect */
+		if (l -> lint == 1 || **p != ']')
+		{
+			lwasm_register_error(as, l, E_OPERAND_BAD);
+			return;
+		}
+		(*p)++;
+		l -> lint = 2;
+		l -> pb = 0x9F;
 		return;
 	}
-	
+	(*p)++;
+	lwasm_skip_to_next_token(l, p);
 	// now get the register
 	rn = lwasm_lookupreg3(reglist, p);
 	if (rn < 0)
@@ -462,7 +578,8 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 	{
 		// we know how big it is
 		v = lw_expr_intval(e);
-		if (v == 0 && !CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) && (l -> pb & 0x07) <= 4)
+			
+		if (v == 0 && !CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) && (l -> pb & 0x07) <= 4 && ((l -> pb & 0x40) == 0))
 		{
 			if ((l -> pb & 0x07) < 4)
 			{

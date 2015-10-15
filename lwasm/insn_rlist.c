@@ -41,12 +41,16 @@ PARSEFUNC(insn_parse_rlist)
 			lwasm_register_error2(as, l, E_REGISTER_BAD, "'%s'", *p);
 			return;
 		}
+		lwasm_skip_to_next_token(l, p);
 		if (**p && **p != ',' && !isspace(**p))
 		{
 			lwasm_register_error(as, l, E_OPERAND_BAD);
 		}
 		if (**p == ',')
+		{
 			(*p)++;
+			lwasm_skip_to_next_token(l, p);
+		}
 		if ((instab[l -> insn].ops[0]) & 2)
 		{
 			// pshu/pulu

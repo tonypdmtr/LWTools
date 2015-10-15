@@ -49,7 +49,7 @@ PARSEFUNC(insn_parse_bitbit)
 		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
-	
+	lwasm_skip_to_next_token(l, p);
 	if (*(*p)++ != ',')
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
@@ -81,7 +81,7 @@ PARSEFUNC(insn_parse_bitbit)
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-
+	lwasm_skip_to_next_token(l, p);
 	// ignore base page address modifier
 	if (**p == '<')
 		(*p)++;

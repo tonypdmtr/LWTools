@@ -48,11 +48,13 @@ PARSEFUNC(insn_parse_tfm)
 		(*p)++;
 		tfm = 2;
 	}
+	lwasm_skip_to_next_token(l, p);
 	if (*(*p)++ != ',')
 	{
 		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
 		return;
 	}
+	lwasm_skip_to_next_token(l, p);
 	c = strchr(reglist, toupper(*(*p)++));
 	if (!c)
 	{
@@ -131,6 +133,7 @@ PARSEFUNC(insn_parse_tfmrtor)
 	// D,X,Y,U,S,PC,W,V
 	// A,B,CC,DP,0,0,E,F
 	r0 = lwasm_lookupreg2(regs, p);
+	lwasm_skip_to_next_token(l, p);
 	if (r0 < 0 || *(*p)++ != ',')
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
@@ -138,6 +141,7 @@ PARSEFUNC(insn_parse_tfmrtor)
 	}
 	else
 	{
+		lwasm_skip_to_next_token(l, p);
 		r1 = lwasm_lookupreg2(regs, p);
 		if (r1 < 0)
 		{
