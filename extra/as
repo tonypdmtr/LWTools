@@ -126,7 +126,9 @@ fi
 # --pragma=undefextern causes undefined symbols to be assumed external
 # --pragma=cescapes allows C escape syntax in strings
 #echo lwasm -o "$output_file" $options --obj --pragma=undefextern --pragma=cescapes $input_file
-lwasm -o "$output_file" $options --obj --pragma=undefextern --pragma=cescapes --pragma=importundefexport $input_file
+# pragma=newsource allows preprocessed asm files with macro expansion to assemble properly even
+# when the preprocessor interproses extra spaces
+lwasm -o "$output_file" $options --obj --pragma=undefextern --pragma=cescapes --pragma=importundefexport --pragma=newsource $input_file
 rc=$?
 
 # OK, see if the assembler succeeded or not.
