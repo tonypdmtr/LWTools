@@ -33,7 +33,7 @@ PARSEFUNC(insn_parse_rlist)
 	int rn;
 	static const char *regs = "CCA B DPX Y U PCD S ";
 
-	while (**p && !isspace(**p))
+	while (**p && !isspace(**p) && **p != ';' && **p != '*')
 	{
 		rn = lwasm_lookupreg2(regs, p);
 		if (rn < 0)
@@ -42,7 +42,7 @@ PARSEFUNC(insn_parse_rlist)
 			return;
 		}
 		lwasm_skip_to_next_token(l, p);
-		if (**p && **p != ',' && !isspace(**p))
+		if (**p && **p != ',' && !isspace(**p) && **p != ';' && **p != '*')
 		{
 			lwasm_register_error(as, l, E_OPERAND_BAD);
 		}
