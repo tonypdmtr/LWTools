@@ -305,20 +305,21 @@ static cycletable_t cycletable[] =
 
 	{ 0x16, 5, 4, 0 },					// LBRA
 	{ 0x17, 9, 7, 0 },					// LBSR
-	{ 0x1022, 5, 5, 0 },				// LBRN
-	{ 0x1023, 5, 6, 0 },				// remaining long branches are estimated on 6809 only:
-	{ 0x1024, 5, 6, 0 },				// 6809: 5 cycles, +1 cycle if the branch is taken
-	{ 0x1025, 5, 6, 0 },				// 6309 native: always 5 cycles
-	{ 0x1026, 5, 6, 0 },		
-	{ 0x1027, 5, 6, 0 },
-	{ 0x1028, 5, 6, 0 },		
-	{ 0x1029, 5, 6, 0 },		
-	{ 0x102a, 5, 6, 0 },
-	{ 0x102b, 5, 6, 0 },
-	{ 0x102c, 5, 6, 0 },
-	{ 0x102d, 5, 6, 0 },
-	{ 0x102e, 5, 6, 0 },
-	{ 0x102f, 5, 6, 0 },
+	{ 0x1021, 5, 5, 0 },				// LBRN
+	{ 0x1022, 5, 5, 0 },				// remaining long branches are estimated on 6809 only:
+	{ 0x1023, 5, 5, 0 },				//
+	{ 0x1024, 5, 5, 0 },				// 6809: 5 cycles, +1 cycle if the branch is taken
+	{ 0x1025, 5, 5, 0 },				// 6309 native: always 5 cycles
+	{ 0x1026, 5, 5, 0 },				//
+	{ 0x1027, 5, 5, 0 },				// this is handled as a special case elsewhere
+	{ 0x1028, 5, 5, 0 },		
+	{ 0x1029, 5, 5, 0 },		
+	{ 0x102a, 5, 5, 0 },
+	{ 0x102b, 5, 5, 0 },
+	{ 0x102c, 5, 5, 0 },
+	{ 0x102d, 5, 5, 0 },
+	{ 0x102e, 5, 5, 0 },
+	{ 0x102f, 5, 5, 0 },
 
 	{ 0x86, 2, 2, 0 },					// LDA
 	{ 0x96, 4, 3, 0 },
