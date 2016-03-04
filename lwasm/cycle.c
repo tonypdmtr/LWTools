@@ -659,7 +659,7 @@ void lwasm_cycle_update_count(line_t *cl, int opc)
 			cl->cycle_adj = 0;
 
 			// long branches are estimated on 6809
-			if (CURPRAGMA(cl, PRAGMA_6809) && (opc >= 0x1023 && opc <= 0x102f))
+			if (CURPRAGMA(cl, PRAGMA_6809) && (opc >= 0x1022 && opc <= 0x102f))
 				cl->cycle_flags |= CYCLE_ESTIMATED;
 
 			return;
