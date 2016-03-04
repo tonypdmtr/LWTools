@@ -186,17 +186,20 @@ void write_code_BASIC(asmstate_t *as, FILE *of)
 			}
 		}
 	
-		linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, startaddress);
-		linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, lastaddress);
-	
-		for (cl = startblock; cl != endblock; cl = cl -> next)
+		if (startaddress != -1)
 		{
-			if (cl -> outputl < 0)
-				continue;
-		
-			for (outidx=0; outidx<cl -> outputl; outidx++)
+			linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, startaddress);
+			linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, lastaddress);
+	
+			for (cl = startblock; cl != endblock; cl = cl -> next)
 			{
-				linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, cl -> output[outidx]);
+				if (cl -> outputl < 0)
+					continue;
+		
+				for (outidx=0; outidx<cl -> outputl; outidx++)
+				{
+					linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, cl -> output[outidx]);
+				}
 			}
 		}
 	
