@@ -35,6 +35,7 @@ Contains the code for actually outputting the assembled code
 
 void write_code_raw(asmstate_t *as, FILE *of);
 void write_code_decb(asmstate_t *as, FILE *of);
+void write_code_BASIC(asmstate_t *as, FILE *of);
 void write_code_rawrel(asmstate_t *as, FILE *of);
 void write_code_obj(asmstate_t *as, FILE *of);
 void write_code_os9(asmstate_t *as, FILE *of);
@@ -73,6 +74,10 @@ void do_output(asmstate_t *as)
 	case OUTPUT_DECB:
 		write_code_decb(as, of);
 		break;
+	
+	case OUTPUT_BASIC:
+		write_code_BASIC(as, of);
+		break;
 		
 	case OUTPUT_RAWREL:
 		write_code_rawrel(as, of);
@@ -107,6 +112,103 @@ void do_output(asmstate_t *as)
 
 	fclose(of);
 }
+
+int write_code_BASIC_fprintf(FILE *of, int linelength, int *linenumber, int value)
+{
+	if (linelength > 247)
+	{
+		fprintf(of, "\n");
+		linelength = fprintf(of, "%d DATA ", *linenumber);
+		*linenumber += 10;
+	}
+	else
+	{
+		linelength += fprintf(of, ",");
+	}
+	linelength += fprintf(of, "%d", value);
+
+	return linelength;
+}
+
+void write_code_BASIC(asmstate_t *as, FILE *of)
+{
+	line_t *cl;
+	line_t *startblock = as -> line_head;
+	line_t *endblock;
+	int linenumber, linelength, startaddress, lastaddress, address;
+	int outidx;
+	
+	fprintf(of, "10 READ A,B\n");
+	fprintf(of, "20 IF A=-1 THEN 70\n");
+	fprintf(of, "30 FOR C = A TO B\n");
+	fprintf(of, "40 READ D:POKE C,D\n");
+	fprintf(of, "50 NEXT C\n");
+	fprintf(of, "60 GOTO 10\n");
+	
+	if (as -> execaddr == 0)
+	{
+		fprintf(of, "70 END");
+	}
+	else
+	{
+		fprintf(of, "70 EXEC %d", as -> execaddr);
+	}
+	
+	linenumber = 80;
+	linelength = 255;
+	
+	while(startblock)
+	{
+		startaddress = -1;
+		endblock = NULL;
+		
+		for (cl = startblock; cl; cl = cl -> next)
+		{
+			if (cl -> outputl < 0)
+				continue;
+		
+			address = lw_expr_intval(cl -> addr);
+		
+			if (startaddress == -1)
+			{
+				startaddress = address;
+				lastaddress = address + cl -> outputl - 1;
+			}
+			else
+			{
+				if (lastaddress != address - 1)
+				{
+					endblock = cl;
+					break;
+				}
+				
+				lastaddress += cl -> outputl;
+			}
+		}
+	
+		linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, startaddress);
+		linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, lastaddress);
+	
+		for (cl = startblock; cl != endblock; cl = cl -> next)
+		{
+			if (cl -> outputl < 0)
+				continue;
+		
+			for (outidx=0; outidx<cl -> outputl; outidx++)
+			{
+				linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, cl -> output[outidx]);
+			}
+		}
+	
+		startblock = cl;
+	}
+	
+	linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, -1);
+	linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, -1);
+	
+	fprintf(of, "\n");
+}
+
 
 /*
 rawrel output treats an ORG directive as an offset from the start of the

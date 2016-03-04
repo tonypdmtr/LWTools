@@ -44,7 +44,7 @@ static struct lw_cmdline_options options[] =
 {
 	{ "output",		'o',	"FILE",		0,							"Output to FILE"},
 	{ "debug",		'd',	"LEVEL",	lw_cmdline_opt_optional,	"Set debug mode"},
-	{ "format",		'f',	"TYPE",		0,							"Select output format: decb, raw, obj, os9"},
+	{ "format",		'f',	"TYPE",		0,							"Select output format: decb, basic, raw, obj, os9"},
 	{ "list",		'l',	"FILE",		lw_cmdline_opt_optional,	"Generate list [to FILE]"},
 	{ "symbols",	's',	0,			lw_cmdline_opt_optional,	"Generate symbol list in listing, no effect without --list"},
 	{ "symbols-nolocals", 0x103,	0,	lw_cmdline_opt_optional,	"Same as --symbols but with local labels ignored"},
@@ -175,6 +175,8 @@ static int parse_opts(int key, char *arg, void *state)
 	case 'f':
 		if (!strcasecmp(arg, "decb"))
 			as -> output_format = OUTPUT_DECB;
+		else if (strcasecmp(arg, "basic"))
+			as -> output_format = OUTPUT_BASIC;
 		else if (!strcasecmp(arg, "raw"))
 			as -> output_format = OUTPUT_RAW;
 		else if (!strcasecmp(arg, "rawrel"))

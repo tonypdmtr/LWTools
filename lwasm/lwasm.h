@@ -54,6 +54,7 @@ enum
 enum lwasm_output_e
 {
 	OUTPUT_DECB = 0,	// DECB multirecord format
+	OUTPUT_BASIC,		// Color BASIC program
 	OUTPUT_RAW,			// raw sequence of bytes
 	OUTPUT_OBJ,			// proprietary object file format
 	OUTPUT_RAWREL,		// raw bytes where ORG causes a SEEK in the file

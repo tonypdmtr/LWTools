@@ -102,7 +102,7 @@ PARSEFUNC(pseudo_parse_end)
 
 	as->endseen = 1;
 
-	if (as -> output_format != OUTPUT_DECB)
+	if ((as -> output_format != OUTPUT_DECB) && (as -> output_format != OUTPUT_BASIC))
 	{
 		skip_operand(p);
 		return;
