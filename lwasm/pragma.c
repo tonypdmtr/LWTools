@@ -140,6 +140,11 @@ PARSEFUNC(pseudo_parse_pragma)
 	}
 	if (as -> pragmas & PRAGMA_NOLIST)
 		l -> pragmas |= PRAGMA_NOLIST;
+	if (as->pragmas & PRAGMA_CC)
+	{
+		l->pragmas |= PRAGMA_CC;
+		as->pragmas &= ~PRAGMA_CC;
+	}
 	lw_free(ps);
 }
 
