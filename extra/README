@@ -108,3 +108,21 @@ Also fixes a clearly incorrect comparision when determining if a constant
 fits in 16 bits. For clarity, both the 8 bit and 16 bit comparisons are
 replaced with straight forward range comparisons rather than the excessively
 clever scheme that was present before.
+
+gcc6809lw-4.6.4-3.patch
+
+This is identical to the -2 version except it fixes the crt0.S file so it
+builds properly with the --pragma=newsource option. In fact, it never did
+build properly due to spaces in operands anyway. However, since gcc6809
+doesn't come with a C library, it hasn't proved to be an issue.
+
+Patches to provide a proper crt0.S file based around the actual way lwtools
+works will be considered.
+
+It's also worth noting that there are features inherited from previous
+versions of gcc6809 that are not properly supported by these patches. In
+particular, banking and "far calls" are not supported because there are no
+targets supported by lwtools that do anything meaningful in the face of such
+things. Patches to clean that up are also welcome. Either to do something
+meaningful or to remove such features entirely.
+
