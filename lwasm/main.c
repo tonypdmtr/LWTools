@@ -175,7 +175,7 @@ static int parse_opts(int key, char *arg, void *state)
 	case 'f':
 		if (!strcasecmp(arg, "decb"))
 			as -> output_format = OUTPUT_DECB;
-		else if (strcasecmp(arg, "basic"))
+		else if (!strcasecmp(arg, "basic"))
 			as -> output_format = OUTPUT_BASIC;
 		else if (!strcasecmp(arg, "raw"))
 			as -> output_format = OUTPUT_RAW;
