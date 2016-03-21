@@ -249,6 +249,7 @@ const char* lwasm_lookup_error(lwasm_errorcode_t error_code)
 		case E_STRING_BAD:				return "Bad string condition";
 		case E_SYMBOL_BAD:				return "Bad symbol";
 		case E_SYMBOL_MISSING:			return "Missing symbol";
+		case E_SYMBOL_UNDEFINED:		return "Undefined symbol";
 		case E_SYMBOL_UNDEFINED_EXPORT: return "Undefined exported symbol";
 		case E_MACRO_DUPE:				return "Duplicate macro definition";
 		case E_MACRO_ENDM:				return "ENDM without MACRO";
