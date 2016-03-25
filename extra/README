@@ -93,6 +93,19 @@ for "root" set up correctly if your install prefix requires root privileges.
 
 The above is WOMM certified. YMMV.
 
+NOTES ABOUT GCC6809
+===================
+
+There is one known code generation bug with current versions of gcc6809. If
+you are getting bad behaviour for some reason and are using optimization
+(-O1 or higher, -Os), you may be hitting this bug. Adding "-fno-tree-ter"
+after the "-O" options is known to correct this behaviour in some cases. If
+someone who understands the gcc code is willing to look at it, patches for
+the patch would be welcome (especially if that patch moves the base gcc
+version upward). It is not clear whether this is a bug in the m6809 specific
+code or the gcc core though it seems like it's in the gcc core.
+
+
 NOTES ABOUT SPECIFIC PATCHES
 ============================
 
