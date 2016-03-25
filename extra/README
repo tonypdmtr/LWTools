@@ -93,18 +93,6 @@ for "root" set up correctly if your install prefix requires root privileges.
 
 The above is WOMM certified. YMMV.
 
-NOTES ABOUT GCC6809
-===================
-
-There is one known code generation bug with current versions of gcc6809. If
-you are getting bad behaviour for some reason and are using optimization
-(-O1 or higher, -Os), you may be hitting this bug. If someone who
-understands the gcc code is willing to look at it, patches for the patch
-would be welcome (especially if that patch moves the base gcc version
-upward). It is not clear whether this is a bug in the m6809 specific code
-or the gcc core though it seems like it's in the gcc core. Disabling
-optimization completely seems to generate correct, if suboptimal, code.
-
 NOTES ABOUT SPECIFIC PATCHES
 ============================
 
@@ -138,3 +126,9 @@ targets supported by lwtools that do anything meaningful in the face of such
 things. Patches to clean that up are also welcome. Either to do something
 meaningful or to remove such features entirely.
 
+gcc6809lw-4.6.4-4.patch
+
+This is identical to the -3 version except it fixes a code generation bug
+that showed up under optimization. It would result in the sense of a branch
+following a subtraction being inverted for whatever reason. This change
+seems to fix that.
