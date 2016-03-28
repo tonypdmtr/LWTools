@@ -132,3 +132,15 @@ This is identical to the -3 version except it fixes a code generation bug
 that showed up under optimization. It would result in the sense of a branch
 following a subtraction being inverted for whatever reason. This change
 seems to fix that.
+
+gcc6809lw-4.6.4-5.patch
+
+This is the same as the -4 version except it removes two instruction
+patterns that gcc was choosing to use in cases where they simply did not
+apply and, thus, it was getting confused and leading to an ICE. These
+patterns were a useful optmization for incrementing and decrementing 16 bit
+values in memory but if the compiler core is going to select them in cases
+where it really isn't an increment or decrement in place, the patterns are
+not useful. The resulting code is slightly less good than it could be under
+-Os but it's still correct.
+
