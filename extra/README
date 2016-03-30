@@ -96,51 +96,15 @@ The above is WOMM certified. YMMV.
 NOTES ABOUT SPECIFIC PATCHES
 ============================
 
-gcc6809lw-4.6.4-2.patch
+Old gcc6809 patches have been removed to avoid confusion.
 
-This patch essentially disables the "soft registers". These were causing
-problems leading to compiler crashes. Removing the "t" constraint from
-the instruction patterns allowed various issues to go away. It is not clear
-if the original reasoning behind these soft registers is even valid any
-more.
-
-Also fixes a clearly incorrect comparision when determining if a constant
-fits in 16 bits. For clarity, both the 8 bit and 16 bit comparisons are
-replaced with straight forward range comparisons rather than the excessively
-clever scheme that was present before.
-
-gcc6809lw-4.6.4-3.patch
-
-This is identical to the -2 version except it fixes the crt0.S file so it
-builds properly with the --pragma=newsource option. In fact, it never did
-build properly due to spaces in operands anyway. However, since gcc6809
-doesn't come with a C library, it hasn't proved to be an issue.
-
-Patches to provide a proper crt0.S file based around the actual way lwtools
-works will be considered.
-
-It's also worth noting that there are features inherited from previous
-versions of gcc6809 that are not properly supported by these patches. In
-particular, banking and "far calls" are not supported because there are no
-targets supported by lwtools that do anything meaningful in the face of such
-things. Patches to clean that up are also welcome. Either to do something
-meaningful or to remove such features entirely.
-
-gcc6809lw-4.6.4-4.patch
-
-This is identical to the -3 version except it fixes a code generation bug
-that showed up under optimization. It would result in the sense of a branch
-following a subtraction being inverted for whatever reason. This change
-seems to fix that.
-
-gcc6809lw-4.6.4-5.patch
-
-This is the same as the -4 version except it removes two instruction
-patterns that gcc was choosing to use in cases where they simply did not
-apply and, thus, it was getting confused and leading to an ICE. These
-patterns were a useful optmization for incrementing and decrementing 16 bit
-values in memory but if the compiler core is going to select them in cases
-where it really isn't an increment or decrement in place, the patterns are
-not useful. The resulting code is slightly less good than it could be under
--Os but it's still correct.
+The -6 patch fixes a code generation ICE. The previous -4 patch fixed a code
+generation error that could have a substantial impact. The -3 patch fixed
+some compatibilty with new lwtools versions. The -2 patch fixed a major set
+of ICEs by completely removing the "soft registers" business. They're
+apparently not needed with gcc 4.6.x at all and it's not clear they were
+even needed with gcc 4.3.x. They also had the side effect of causing things
+to break even if they weren't in use so they had to go. In other words, the
+-6 patch is the current best version to use so there's no point including
+the old ones.
 

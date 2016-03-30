@@ -5832,7 +5832,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.md gcc-4.6.4/gcc/config/m6809/m
 +; Increment of a 16-bit MEM by 1 can be done without a register.
 +(define_insn "*addhi_mem_1"
 +  [(set (match_operand:HI 0 "memory_operand" "=m")
-+        (plus:HI (match_operand:HI 1 "memory_operand" "0") (const_int 1)))]
++        (plus:HI (match_dup 0) (const_int 1)))]
 +   "GET_CODE (XEXP (operands[0], 0)) == SYMBOL_REF"
 +{
 +  rtx xoperands[2];
@@ -5851,7 +5851,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.md gcc-4.6.4/gcc/config/m6809/m
 +; Decrement of a 16-bit MEM by 1 can be done without a register.
 +(define_insn "*addhi_mem_minus1"
 +  [(set (match_operand:HI 0 "memory_operand" "=m")
-+        (plus:HI (match_operand:HI 1 "memory_operand" "0") (const_int -1)))]
++        (plus:HI (match_dup 0) (const_int -1)))]
 +   "GET_CODE (XEXP (operands[0], 0)) == SYMBOL_REF"
 +{
 +  rtx xoperands[2];
@@ -8070,7 +8070,7 @@ diff -urN gcc-4.6.4-clean/gcc/version.c gcc-4.6.4/gcc/version.c
     Makefile.  */
  
 -const char version_string[] = BASEVER DATESTAMP DEVPHASE REVISION;
-+const char version_string[] = BASEVER DATESTAMP DEVPHASE REVISION " (gcc6809lw)";
++const char version_string[] = BASEVER DATESTAMP DEVPHASE REVISION " (gcc6809lw pl6)";
  const char pkgversion_string[] = PKGVERSION;
 diff -urN gcc-4.6.4-clean/libgcc/config.host gcc-4.6.4/libgcc/config.host
 --- gcc-4.6.4-clean/libgcc/config.host	2011-11-23 15:15:54.000000000 -0700
