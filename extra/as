@@ -84,6 +84,9 @@ while [ "$1" != "" ]; do
 		-o)
 			output_file=$1; shift
 			;;
+		--defsym)
+			options="${options} -D$1"; shift
+			;;
 		-v|-version)
 			show_version
 			;;
