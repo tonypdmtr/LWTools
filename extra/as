@@ -40,7 +40,6 @@ input_file=
 output_file=
 list_file=
 options=
-list_file_enabled=n
 
 # Parse the command-line options.  See the GNU 'as' man page for
 # an explanation of all these options.  Our goal is to translate
@@ -70,10 +69,11 @@ while [ "$1" != "" ]; do
 		--)
 			fatal_error "standard input not supported"
 			;;
-#		-a*)
-#			options="${options}lc"
-#			list_file_enabled=y
-#			;;
+		-a*)
+			list_file=${arg#${arg%=*}}
+			list_file=${list_file#=}
+			options="$options -l$list_file"
+			;;
 		-I*)
 			#include_file=${arg#-I}
 			#echo "warning: include path '$include_file' ignored"
@@ -98,10 +98,6 @@ while [ "$1" != "" ]; do
 			# These options are accepted but ignored by GNU as.
 			true
 			;;
-#		=*)
-#			# Set the name of the listing file
-#			list_file=${arg#=}
-#			;;
 		-Qy)
 			# "identify in output" - ignore
 			true
@@ -145,7 +141,7 @@ rc=$?
 
 if [ "$rc" != "0" ]; then
 	cp -p $input_file /tmp/as6809_error.s
-	rm -f $asoutput_file
+	rm -f $output_file $list_file
 	exit $rc
 fi
 
