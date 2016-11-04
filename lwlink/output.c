@@ -198,7 +198,7 @@ void do_output_srec(FILE *of)
 			recdlen = (SRECLEN>remainingcodebytes)?remainingcodebytes:SRECLEN;
 			recsum = recdlen + 3;
 			codeaddr = recaddr - sectlist[sn].ptr -> loadaddress;			
-			fprintf(of, "S1%02X%04X", recdlen + 3, recaddr);
+			fprintf(of, "S1%02X%04X", recdlen + 3, recaddr & 0xffff);
 			for (i = 0; i < recdlen; i++)
 			{
 				fprintf(of, "%02X", sectcode[codeaddr+i]);

@@ -396,7 +396,7 @@ void write_code_hex(asmstate_t *as, FILE *of)
 			// if address jump or xxx0 address, start new line
 			if ((rc == -1) || ((rc == 1) && (outaddr % RECLEN == 0)))
 			{
-				fprintf(of, "\r\n%04X:", (unsigned int)outaddr);
+				fprintf(of, "\r\n%04X:", (unsigned int)(outaddr & 0xffff));
 				fprintf(of, "%02X", (unsigned char)outbyte);
 				rc = -1;
 			}
@@ -459,7 +459,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 				if (recdlen > 0)
 				{
 					recsum = recdlen + 3;
-					fprintf(of, "S1%02X%04X", recdlen + 3, recaddr);
+					fprintf(of, "S1%02X%04X", recdlen + 3, recaddr & 0xffff);
 					for (i = 0; i < recdlen; i++)
 					{
 						fprintf(of, "%02X", (unsigned char)recdata[i]);
@@ -487,7 +487,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 	if (recdlen > 0)
 	{
 		recsum = recdlen + 3;
-		fprintf(of, "S1%02X%04X", recdlen + 3, recaddr);
+		fprintf(of, "S1%02X%04X", recdlen + 3, recaddr & 0xffff);
 		for (i = 0; i < recdlen; i++)
 		{
 			fprintf(of, "%02X", (unsigned char)recdata[i]);
@@ -513,7 +513,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 		recsum = 3;
 		recsum += (as -> execaddr >> 8) & 0xFF;
 		recsum += (as -> execaddr) & 0xFF;
-		fprintf(of, "S903%04X", as -> execaddr);
+		fprintf(of, "S903%04X", as -> execaddr & 0xffff);
 		fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
 	}
 }
@@ -548,7 +548,7 @@ void write_code_ihex(asmstate_t *as, FILE *of)
 				if (recdlen > 0)
 				{
 					recsum = recdlen;
-					fprintf(of, ":%02X%04X00", recdlen, recaddr);
+					fprintf(of, ":%02X%04X00", recdlen, recaddr & 0xffff);
 					for (i = 0; i < recdlen; i++)
 					{
 						fprintf(of, "%02X", (unsigned char)recdata[i]);
@@ -576,7 +576,7 @@ void write_code_ihex(asmstate_t *as, FILE *of)
 	if (recdlen > 0)
 	{
 		recsum = recdlen;
-		fprintf(of, ":%02X%04X00", recdlen, recaddr);
+		fprintf(of, ":%02X%04X00", recdlen, recaddr & 0xffff);
 		for (i = 0; i < recdlen; i++)
 		{
 			fprintf(of, "%02X", (unsigned char)recdata[i]);
