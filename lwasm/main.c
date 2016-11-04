@@ -302,6 +302,10 @@ int main(int argc, char **argv)
 	asmstate.nextcontext = 1;
 	asmstate.exprwidth = 16;
 	asmstate.tabwidth = 8;
+
+	// enable the "forward reference maximum size" pragma; old available
+	// can be obtained with --pragma=noforwardrefmax
+	asmstate.pragmas = PRAGMA_FORWARDREFMAX;
 	
 	/* parse command line arguments */	
 	lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, &asmstate);
