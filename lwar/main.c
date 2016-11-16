@@ -52,7 +52,7 @@ static int parse_opts(int key, char *arg, void *state)
 		debug_level++;
 		break;
 	
-	case 'f':
+	case 'n':
 		// filename only, no path
 		filename_flag++;
 		break;
