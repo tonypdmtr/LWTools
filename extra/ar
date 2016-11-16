@@ -61,4 +61,6 @@ if [ "x$options" = "x" ]; then
 fi
 
 # Run the real lwar with translated options.
-exec lwar $options $*
+# --nopaths is given to get the proper standard "ar" behaviour
+# which doesn't store path names
+exec lwar --nopaths $options $*
