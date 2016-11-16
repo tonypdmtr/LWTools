@@ -30,6 +30,7 @@ void do_extract(void)
 {
 	FILE *f;
 	char buf[8];
+	char *filename;
 	long l;
 	int c;
 	char fnbuf[1024];
@@ -78,6 +79,7 @@ void do_extract(void)
 			}
 		}
 		fnbuf[i] = 0;
+		filename = get_file_name(fnbuf);
 		
 		// get length of archive member
 		l = 0;
@@ -92,16 +94,16 @@ void do_extract(void)
 		
 		for (i = 0; i < nfiles; i++)
 		{
-			if (!strcmp(files[i], fnbuf))
+			if (!strcmp(get_file_name(files[i]), filename))
 				break;
 		}
 		if (i < nfiles || nfiles == 0)
 		{
 			// extract the file
-			nf = fopen(fnbuf, "wb");
+			nf = fopen(filename, "wb");
 			if (!nf)
 			{
-				fprintf(stderr, "Cannot extract '%s': %s\n", fnbuf, strerror(errno));
+				fprintf(stderr, "Cannot extract '%s': %s\n", filename, strerror(errno));
 				exit(1);
 			}
 			while (l)

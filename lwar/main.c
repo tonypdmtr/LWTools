@@ -52,6 +52,11 @@ static int parse_opts(int key, char *arg, void *state)
 		debug_level++;
 		break;
 	
+	case 'f':
+		// filename only, no path
+		filename_flag++;
+		break;
+	
 	case 'a':
 		// add members
 		operation = LWAR_OP_ADD;
@@ -111,6 +116,8 @@ static struct lw_cmdline_options options[] =
 				"Create new archive (or truncate existing one)" },
 	{ "merge",		'm',	0,		0,
 				"Add the contents of archive arguments instead of the archives themselves" },
+	{ "filename",	'f',	0,		0,
+				"Prevent the path from being archived" },
 	{ "debug",		'd',	0,		0,
 				"Set debug mode"},
 	{ 0 }

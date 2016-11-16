@@ -37,6 +37,7 @@ void do_replace(void)
 	FILE *f;
 	FILE *nf;
 	unsigned char buf[8];
+	char *filename;
 	long l;
 	int c;
 	FILE *f2;
@@ -106,6 +107,7 @@ void do_replace(void)
 			}
 		}
 		fnbuf2[i] = 0;
+		filename = get_file_name(fnbuf2);
 		
 		// get length of archive member
 		l = 0;
@@ -121,7 +123,7 @@ void do_replace(void)
 		// is it a file we are replacing? if so, do not copy it
 		for (i = 0; i < nfiles; i++)
 		{
-			if (!strcmp(files[i], fnbuf2))
+			if (!strcmp(get_file_name(files[i]), filename))
 				break;
 		}
 		if (i < nfiles)
@@ -131,7 +133,7 @@ void do_replace(void)
 		else
 		{
 			// otherwise, copy it
-			fprintf(nf, "%s", fnbuf2);
+			fprintf(nf, "%s", filename);
 			fputc(0, nf);
 			fputc(l >> 24, nf);
 			fputc((l >> 16) & 0xff, nf);
@@ -151,10 +153,11 @@ void do_replace(void)
 doadd:
 	for (i = 0; i < nfiles; i++)
 	{
-		f2 = fopen(files[i], "rb");
+		filename = get_file_name(files[i]);
+		f2 = fopen(filename, "rb");
 		if (!f2)
 		{
-			fprintf(stderr, "Cannot open file %s:", files[i]);
+			fprintf(stderr, "Cannot open file %s:", filename);
 			perror("");
 			exit(1);
 		}
@@ -220,7 +223,7 @@ doadd:
 		fseek(f2, 0, SEEK_END);
 		l = ftell(f2);
 		fseek(f2, 0, SEEK_SET);
-		fputs(files[i], nf);
+		fputs(filename, nf);
 		fputc(0, nf);
 		fputc(l >> 24, nf);
 		fputc((l >> 16) & 0xff, nf);
