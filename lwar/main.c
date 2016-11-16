@@ -116,8 +116,8 @@ static struct lw_cmdline_options options[] =
 				"Create new archive (or truncate existing one)" },
 	{ "merge",		'm',	0,		0,
 				"Add the contents of archive arguments instead of the archives themselves" },
-	{ "filename",	'f',	0,		0,
-				"Prevent the path from being archived" },
+	{ "nopaths",	'n',	0,		0,
+				"Store only the filename when adding members and ignore the path, if any, when extracting members" },
 	{ "debug",		'd',	0,		0,
 				"Set debug mode"},
 	{ 0 }
