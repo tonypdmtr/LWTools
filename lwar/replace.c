@@ -153,11 +153,10 @@ void do_replace(void)
 doadd:
 	for (i = 0; i < nfiles; i++)
 	{
-		filename = get_file_name(files[i]);
-		f2 = fopen(filename, "rb");
+		f2 = fopen(files[i], "rb");
 		if (!f2)
 		{
-			fprintf(stderr, "Cannot open file %s:", filename);
+			fprintf(stderr, "Cannot open file %s:", files[i]);
 			perror("");
 			exit(1);
 		}
@@ -223,7 +222,7 @@ doadd:
 		fseek(f2, 0, SEEK_END);
 		l = ftell(f2);
 		fseek(f2, 0, SEEK_SET);
-		fputs(filename, nf);
+		fputs(get_file_name(files[i]), nf);
 		fputc(0, nf);
 		fputc(l >> 24, nf);
 		fputc((l >> 16) & 0xff, nf);
