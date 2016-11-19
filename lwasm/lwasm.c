@@ -119,6 +119,10 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 		{
 //			sectiontab_t *s = priv;
 			asmstate_t *as = priv;
+			if (((sectiontab_t *)ptr) -> tbase != -1)
+			{
+				return lw_expr_build(lw_expr_type_int, ((sectiontab_t *)ptr) -> tbase);
+			}
 			if (as -> exportcheck && ptr == as -> csect)
 				return lw_expr_build(lw_expr_type_int, 0);
 			if (((sectiontab_t *)ptr) -> flags & section_flag_constant)
@@ -272,6 +276,7 @@ const char* lwasm_lookup_error(lwasm_errorcode_t error_code)
 		case E_SYMBOL_DUPE:				return "Multiply defined symbol";
 		case E_UNKNOWN_OPERATION:		return "Unknown operation";
 		case E_ORG_NOT_FOUND:			return "Previous ORG not found";
+		case E_COMPLEX_INCOMPLETE:      return "Incomplete expression too complex";
 		case E_USER_SPECIFIED:			return "User Specified:";
 
 		case W_ENDSTRUCT_WITHOUT:		return "ENDSTRUCT without STRUCT";
@@ -947,6 +952,47 @@ void skip_operand_real(line_t *cl, char **p)
 		/* do nothing */ ;
 }
 
+struct auxdata {
+	int v;
+	int oc;
+	int ms;
+};
+
+int lwasm_emitexpr_auxlwmod(lw_expr_t expr, void *arg)
+{
+	struct auxdata *ad = arg;
+	if (lw_expr_istype(expr, lw_expr_type_int))
+	{
+		ad -> v = lw_expr_intval(expr);
+		return 0;
+	}
+	if (lw_expr_istype(expr, lw_expr_type_special))
+	{
+		if (lw_expr_specint(expr) == lwasm_expr_secbase)
+		{
+			sectiontab_t *s;
+			s = lw_expr_specptr(expr);
+			if (strcmp(s -> name, "main") == 0)
+			{
+				ad -> ms = 1;
+				return 0;
+			}
+			if (strcmp(s -> name, "bss"))
+				return -1;
+			return 0;
+		}
+		return -1;
+	}
+	if (lw_expr_whichop(expr) == lw_expr_oper_plus)
+	{
+		if (ad -> oc)
+			return -1;
+		ad -> oc = 1;
+		return 0;
+	}
+	return -1;
+}
+
 int lwasm_emitexpr(line_t *l, lw_expr_t expr, int size)
 {
 	int v = 0;
@@ -963,7 +1009,78 @@ int lwasm_emitexpr(line_t *l, lw_expr_t expr, int size)
 	// handle external/cross-section/incomplete references here
 	else
 	{
-		if (l -> as -> output_format == OUTPUT_OBJ)
+		if (l -> as -> output_format == OUTPUT_LWMOD)
+		{
+			reloctab_t *re;
+			lw_expr_t te;
+			struct auxdata ad;
+			ad.v = 0;
+			ad.oc = 0;
+			ad.ms = 0;
+			
+			if (l -> csect == NULL)
+			{
+				lwasm_register_error(l -> as, l, E_INSTRUCTION_SECTION);
+				return -1;
+			}
+			if (size != 2)
+			{
+				lwasm_register_error(l -> as, l, E_OPERAND_BAD);
+				return -1;
+			}
+			// we have a 16 bit reference here - we need to check to make sure
+			// it's at most a + or - with the BSS section base
+			v = lw_expr_whichop(expr);
+			if (v == -1)
+			{
+				v = 0;
+				if (lw_expr_testterms(expr, lwasm_emitexpr_auxlwmod, &ad) != 0)
+				{
+					lwasm_register_error(l -> as, l, E_COMPLEX_INCOMPLETE);
+					return -1;
+				}
+				v = ad.v;
+			}
+			else if (v == lw_expr_oper_plus)
+			{
+				v = 0;
+				if (lw_expr_operandcount(expr) > 2)
+				{
+					lwasm_register_error(l -> as, l, E_COMPLEX_INCOMPLETE);
+					return -1;
+				}
+				if (lw_expr_testterms(expr, lwasm_emitexpr_auxlwmod, &ad) != 0)
+				{
+					lwasm_register_error(l -> as, l, E_COMPLEX_INCOMPLETE);
+					return -1;
+				}
+				v = ad.v;
+			}
+			else
+			{
+				lwasm_register_error(l -> as, l, E_COMPLEX_INCOMPLETE);
+				return -1;
+			}
+
+			// add "expression" record to section table
+			re = lw_alloc(sizeof(reloctab_t));
+			re -> next = l -> csect -> reloctab;
+			l -> csect -> reloctab = re;
+			te = lw_expr_build(lw_expr_type_int, ol);
+			re -> offset = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, l -> addr, te);
+			lw_expr_destroy(te);
+			lwasm_reduce_expr(l -> as, re -> offset);
+			re -> size = size;
+			if (ad.ms == 1)
+				re -> expr = lw_expr_copy(expr);
+			else
+				re -> expr = NULL;
+
+			lwasm_emit(l, v >> 8);
+			lwasm_emit(l, v & 0xff);
+			return 0;
+		}
+		else if (l -> as -> output_format == OUTPUT_OBJ)
 		{
 			reloctab_t *re;
 			lw_expr_t te;

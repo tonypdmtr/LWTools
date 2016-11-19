@@ -35,7 +35,7 @@ PARSEFUNC(pseudo_parse_section)
 	char *opts = NULL;
 	sectiontab_t *s;
 
-	if (as -> output_format != OUTPUT_OBJ)
+	if (as -> output_format != OUTPUT_OBJ && as -> output_format != OUTPUT_LWMOD)
 	{
 		lwasm_register_error(as, l, E_SECTION_TARGET);
 		return;
@@ -62,7 +62,7 @@ PARSEFUNC(pseudo_parse_section)
 	sn = lw_strndup(*p, p2 - *p);
 	*p = p2;
 	
-	if (**p == ',')
+	if (**p == ',' && as -> output_format != OUTPUT_LWMOD)
 	{
 		// have opts
 		(*p)++;
@@ -72,6 +72,20 @@ PARSEFUNC(pseudo_parse_section)
 		
 		opts = lw_strndup(*p, p2 - *p);
 		*p = p2;
+	}
+
+	if (as -> output_format == OUTPUT_LWMOD)
+	{
+		for (p2 = sn; *p2; p2++)
+			*p2 = tolower(*p2);
+		
+		if (strcmp(sn, "bss") && strcmp(sn, "main") && strcmp(sn, "init") && strcmp(sn, "calls") && strcmp(sn, "modname"))
+		{
+			lwasm_register_error(as, l, E_SECTION_NAME);
+			lw_free(sn);
+			lw_free(opts);
+			return;
+		}
 	}
 
 	for (s = as -> sections; s; s = s -> next)
@@ -90,6 +104,7 @@ PARSEFUNC(pseudo_parse_section)
 		s -> oblen = 0;
 		s -> obsize = 0;
 		s -> obytes = NULL;
+		s -> tbase = -1;
 		s -> name = lw_strdup(sn);
 		s -> offset = lw_expr_build(lw_expr_type_special, lwasm_expr_secbase, s);
 		s -> flags = section_flag_none;

@@ -42,6 +42,7 @@ void write_code_os9(asmstate_t *as, FILE *of);
 void write_code_hex(asmstate_t *as, FILE *of);
 void write_code_srec(asmstate_t *as, FILE *of);
 void write_code_ihex(asmstate_t *as, FILE *of);
+void write_code_lwmod(asmstate_t *as, FILE *of);
 
 // this prevents warnings about not using the return value of fwrite()
 // r++ prevents the "set but not used" warnings; should be optimized out
@@ -101,6 +102,10 @@ void do_output(asmstate_t *as)
 
 	case OUTPUT_IHEX:
 		write_code_ihex(as, of);
+		break;
+
+	case OUTPUT_LWMOD:
+		write_code_lwmod(as, of);
 		break;
 
 	default:
@@ -999,4 +1004,242 @@ void write_code_obj(asmstate_t *as, FILE *of)
 	// flag no more sections
 	// the "" is NOT an error
 	writebytes("", 1, 1, of);
+}
+
+
+void write_code_lwmod(asmstate_t *as, FILE *of)
+{
+	line_t *l;
+	sectiontab_t *s;
+	reloctab_t *re;
+	int initsize, bsssize, mainsize, callsnum, namesize;
+	unsigned char *initcode, *maincode, *callscode, *namecode;
+	int relocsize;
+	unsigned char *reloccode;
+	int tsize, bssoff;
+	int initaddr = -1;
+
+	int i;
+	unsigned char buf[16];
+
+	// the magic number
+	buf[0] = 0x8f;
+	buf[1] = 0xcf;
+	
+	// run through the entire system and build the byte streams for each
+	// section; we will make sure we only have simple references for
+	// any undefined references. That means at most an ADD (or SUB) operation
+	// with a single BSS symbol reference and a single constant value.
+	// We will use the constant value in the code stream and record the
+	// offset in a separate code stream for the BSS relocation table.
+	
+	// We build everything in memory here because we need to calculate the
+	// sizes of everything before we can output the complete header.
+	
+	for (l = as -> line_head; l; l = l -> next)
+	{
+		if (l -> csect)
+		{
+			// we're in a section - need to output some bytes
+			if (l -> outputl > 0)
+				for (i = 0; i < l -> outputl; i++)
+					write_code_obj_sbadd(l -> csect, l -> output[i]);
+			else if (l -> outputl == 0 || l -> outputl == -1)
+				for (i = 0; i < l -> len; i++)
+					write_code_obj_sbadd(l -> csect, 0);
+		}
+	}
+	
+	// now run through sections and set various parameters
+	initsize = 0;
+	bsssize = 0;
+	mainsize = 0;
+	callsnum = 0;
+	callscode = NULL;
+	maincode = NULL;
+	initcode = NULL;
+	namecode = NULL;
+	namesize = 0;
+	relocsize = 0;
+	for (s = as -> sections; s; s = s -> next)
+	{
+		if (!strcmp(s -> name, "bss"))
+		{
+			bsssize = s -> oblen;
+		}
+		else if (!strcmp(s -> name, "main"))
+		{
+			maincode = s -> obytes;
+			mainsize = s -> oblen;
+		}
+		else if (!strcmp(s -> name, "init"))
+		{
+			initcode = s -> obytes;
+			initsize = s -> oblen;
+		}
+		else if (!strcmp(s -> name, "calls"))
+		{
+			callscode = s -> obytes;
+			callsnum = s -> oblen / 2;
+		}
+		else if (!strcmp(s -> name, "modname"))
+		{
+			namecode = s -> obytes;
+			namesize = 0;
+		}
+		for (re = s -> reloctab; re; re = re -> next)
+		{
+			if (re -> expr == NULL)
+				relocsize += 2;
+		}
+	}
+	if (namesize == 0)
+	{
+		namecode = (unsigned char *)(as -> output_file);
+	}
+	else
+	{
+		if (namecode[namesize - 1] != '\0')
+		{
+			namecode[namesize - 1] = '\0';
+		}
+		if (!*namecode)
+			namecode = (unsigned char *)(as -> output_file);
+	}
+	namesize = strlen((char *)namecode);
+
+	tsize = namesize + 1 + initsize + mainsize + callsnum * 2 + relocsize + 11;
+	bssoff = namesize + 1 + mainsize + callsnum * 2 + 11;
+	// set up section base addresses
+	for (s = as -> sections; s; s = s -> next)
+	{
+		if (!strcmp(s -> name, "main"))
+		{
+			s -> tbase = 11 + namesize + 1 + callsnum * 2;
+		}
+		else if (!strcmp(s -> name, "init"))
+		{
+			s -> tbase = bssoff + relocsize;
+		}
+		else if (!strcmp(s -> name, "calls"))
+		{
+			s -> tbase = 11;
+		}
+		else if (!strcmp(s -> name, "modname"))
+		{
+			s -> tbase = 11 + callsnum * 2;
+		}
+	}
+
+	// resolve the "init" address
+	if (as -> execaddr_expr)
+	{
+		// need to resolve address with proper section bases
+		lwasm_reduce_expr(as, as -> execaddr_expr);
+		initaddr = lw_expr_intval(as -> execaddr_expr);
+	}
+	else
+	{
+		initaddr = as -> execaddr;
+	}
+	
+	// build relocation data
+	reloccode = NULL;
+	if (relocsize)
+	{
+		unsigned char *tptr;
+		reloccode = lw_alloc(relocsize);
+		tptr = reloccode;
+		
+		for (s = as -> sections; s; s = s -> next)
+		{
+			for (re = s -> reloctab; re; re = re -> next)
+			{
+				lw_expr_t te;
+				line_t tl;
+				int offset;
+			
+				tl.as = as;
+				as -> cl = &tl;
+				as -> csect = s;
+//				as -> exportcheck = 1;
+
+				if (re -> expr)
+				{
+					int val;
+					int x;
+					
+					te = lw_expr_copy(re -> expr);
+					lwasm_reduce_expr(as, te);
+					if (!lw_expr_istype(te, lw_expr_type_int))
+					{
+						val = 0;
+					}
+					else
+					{
+						val = lw_expr_intval(te);
+					}
+					lw_expr_destroy(te);
+					x = s -> tbase;
+					s -> tbase = 0;
+					te = lw_expr_copy(re -> offset);
+					lwasm_reduce_expr(as, te);
+					offset = lw_expr_intval(te);
+					lw_expr_destroy(te);
+					s -> tbase = x;
+					// offset *should* be the offset in the section
+					s -> obytes[offset] = val >> 8;
+					s -> obytes[offset + 1] = val & 0xff;
+					continue;
+				}
+				
+				offset = 0;
+				te = lw_expr_copy(re -> offset);
+				lwasm_reduce_expr(as, te);
+				if (!lw_expr_istype(te, lw_expr_type_int))
+				{
+					lw_expr_destroy(te);
+					offset = 0;
+					continue;
+				}
+				offset = lw_expr_intval(te);
+				lw_expr_destroy(te);
+				//offset += sbase;
+				
+				*tptr++ = offset >> 8;
+				*tptr++ = offset & 0xff;
+			}
+		}
+	}
+
+	// total size
+	buf[2] = tsize >> 8;
+	buf[3] = tsize & 0xff;
+	// offset to BSS relocs
+	buf[4] = bssoff >> 8;
+	buf[5] = bssoff & 0xff;
+	// BSS size
+	buf[6] = bsssize >> 8;
+	buf[7] = bsssize & 0xff;
+	// init routine offset
+	buf[8] = initaddr >> 8;
+	buf[9] = initaddr & 0xff;
+	// number of call entries
+	buf[10] = callsnum;
+	// write the header
+	writebytes(buf, 11, 1, of);
+	// call data
+	if (callsnum)
+		writebytes(callscode, callsnum * 2, 1, of);
+	// module name
+	writebytes(namecode, namesize + 1, 1, of);
+	// main code
+	if (mainsize)
+		writebytes(maincode, mainsize, 1, of);
+	// bss relocs
+	if (relocsize)
+		writebytes(reloccode, relocsize, 1, of);
+	// init stuff
+	if (initsize)
+		writebytes(initcode, initsize, 1, of);
 }

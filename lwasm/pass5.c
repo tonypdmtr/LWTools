@@ -43,7 +43,7 @@ static int exprok_aux(lw_expr_t e, void *priv)
 		return 0;
 	if (lw_expr_istype(e, lw_expr_type_oper))
 		return 0;
-	if (lw_expr_istype(e, lw_expr_type_special) && as -> output_format == OUTPUT_OBJ)
+	if (lw_expr_istype(e, lw_expr_type_special) && (as -> output_format == OUTPUT_OBJ || as -> output_format == OUTPUT_LWMOD))
 	{
 		int t;
 		t = lw_expr_specint(e);

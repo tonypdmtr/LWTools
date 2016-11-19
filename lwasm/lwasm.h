@@ -61,7 +61,8 @@ enum lwasm_output_e
 	OUTPUT_OS9,			// os9 module target
 	OUTPUT_SREC,		// motorola SREC format
 	OUTPUT_IHEX,		// intel hex format
-	OUTPUT_HEX			// generic hexadecimal format
+	OUTPUT_HEX,			// generic hexadecimal format
+	OUTPUT_LWMOD        // special module format for LW
 };
 
 enum lwasm_flags_e
@@ -131,6 +132,7 @@ struct sectiontab_s
 	lw_expr_t offset;					// offset for next instance
 	int oblen;							// size of section output
 	int obsize;							// size of output buffer
+	int tbase;                          // temporary base value for resolution
 	unsigned char *obytes;				// output buffer
 	reloctab_t *reloctab;				// table of relocations
 	sectiontab_t *next;
@@ -201,7 +203,8 @@ typedef enum
 	E_UNKNOWN_OPERATION			= 55,
 	E_USER_SPECIFIED			= 56,
 	E_ORG_NOT_FOUND				= 57,
-
+	E_COMPLEX_INCOMPLETE        = 58,
+	
 	/* warnings must be 1000 or greater */
 
 	W_DUPLICATE_SECTION			= 1000,
@@ -380,6 +383,7 @@ struct asmstate_s
 	int skipmacro;						// are we skipping in a macro?	
 	int endseen;						// have we seen an "end" pseudo?
 	int execaddr;						// address from "end"
+	lw_expr_t execaddr_expr;            // address from "end" but as an expression
 	int inmod;							// inside an os9 module?
 	int undefzero;						// used for handling "condundefzero"
 	int pretendmax;						// set if we need to pretend the instruction is max length

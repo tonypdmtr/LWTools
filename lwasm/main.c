@@ -194,6 +194,10 @@ static int parse_opts(int key, char *arg, void *state)
 			as -> pragmas |= PRAGMA_DOLLARNOTLOCAL;
 			as -> output_format = OUTPUT_OS9;
 		}
+		else if (!strcasecmp(arg, "lwmod"))
+		{
+			as -> output_format = OUTPUT_LWMOD;
+		}
 		else
 		{
 			fprintf(stderr, "Invalid output format: %s\n", arg);

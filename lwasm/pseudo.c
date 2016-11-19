@@ -102,7 +102,7 @@ PARSEFUNC(pseudo_parse_end)
 
 	as->endseen = 1;
 
-	if ((as -> output_format != OUTPUT_DECB) && (as -> output_format != OUTPUT_BASIC))
+	if ((as -> output_format != OUTPUT_DECB) && (as -> output_format != OUTPUT_BASIC) && (as -> output_format != OUTPUT_LWMOD))
 	{
 		skip_operand(p);
 		return;
@@ -136,9 +136,21 @@ EMITFUNC(pseudo_emit_end)
 	if (addr)
 	{
 		if (!lw_expr_istype(addr, lw_expr_type_int))
-			lwasm_register_error(as, l, E_EXEC_ADDRESS);
+		{
+			if (as -> output_format == OUTPUT_LWMOD)
+			{
+				as -> execaddr_expr = lw_expr_copy(addr);
+			}
+			else
+			{
+				lwasm_register_error(as, l, E_EXEC_ADDRESS);
+			}
+		}
 		else
+		{
+			as -> execaddr_expr = NULL;
 			as -> execaddr = lw_expr_intval(addr);
+		}
 	}
 	as -> endseen = 1;
 }
