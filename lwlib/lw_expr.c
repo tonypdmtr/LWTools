@@ -621,6 +621,8 @@ again:
 		lw_expr_t te;
 		
 		te = evaluate_var(E -> value2, priv);
+		if (!te)
+			return;
 		if (lw_expr_contains(te, E))
 			lw_expr_destroy(te);
 		else if (te)
@@ -946,11 +948,18 @@ again:
 					}
 					lw_expr_destroy(o -> p);
 					o -> p = e1;
-					for (o = o2 -> p -> operands; o; o = o -> next)
+					if (o2 -> p -> type == lw_expr_type_oper)
 					{
-						if (o -> p -> type == lw_expr_type_int)
-							continue;
-						lw_expr_add_operand(e1, o -> p);
+						for (o = o2 -> p -> operands; o; o = o -> next)
+						{
+							if (o -> p -> type == lw_expr_type_int)
+								continue;
+							lw_expr_add_operand(e1, o -> p);
+						}
+					}
+					else
+					{
+						lw_expr_add_operand(e1, o2 -> p);
 					}
 					lw_expr_destroy(o2 -> p);
 					o2 -> p = lw_expr_build(lw_expr_type_int, 0);
