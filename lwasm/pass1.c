@@ -165,6 +165,7 @@ void do_pass1(asmstate_t *as)
 			cl -> dpval = cl -> prev -> dpval;
 			
 		}
+		debug_message(as, 100, "Line pointer: %p", cl);
 		if (!lc && strcmp(cl -> linespec, cl -> prev -> linespec))
 			lc = 1;
 		if (lc)

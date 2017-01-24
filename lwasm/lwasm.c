@@ -64,15 +64,18 @@ lw_expr_t lwasm_evaluate_var(char *var, void *priv)
 	importlist_t *im;
 	struct symtabe *s;
 	
+	debug_message(as, 225, "eval var: look up %s", var);
 	s = lookup_symbol(as, as -> cl, var);
 	if (s)
 	{
+		debug_message(as, 225, "eval var: symbol found %s = %s (%p)", s -> symbol, lw_expr_print(s -> value), s);
 		e = lw_expr_build(lw_expr_type_special, lwasm_expr_syment, s);
 		return e;
 	}
 	
 	if (as -> undefzero)
 	{
+		debug_message(as, 225, "eval var: undefined symbol treated as 0");
 		e = lw_expr_build(lw_expr_type_int, 0);
 		return e;
 	}
@@ -91,6 +94,7 @@ lw_expr_t lwasm_evaluate_var(char *var, void *priv)
 	// check for "undefined" to import automatically
 	if ((as -> passno != 0) && !im && CURPRAGMA(as -> cl, PRAGMA_UNDEFEXTERN))
 	{
+		debug_message(as, 225, "eval var: importing undefined symbol");
 		im = lw_alloc(sizeof(importlist_t));
 		im -> symbol = lw_strdup(var);
 		im -> next = as -> importlist;
@@ -108,6 +112,7 @@ nomatch:
 	{
 		lwasm_register_error2(as, as -> cl, E_SYMBOL_UNDEFINED, "%s", var);
 	}
+	debug_message(as, 225, "eval var: undefined symbol - returning NULL");
 	return NULL;
 }
 
@@ -1420,6 +1425,7 @@ void lwasm_reduce_line_exprs(line_t *cl)
 	// simplify each expression
 	for (i = 0, le = cl -> exprs; le; le = le -> next, i++)
 	{
+		debug_message(as, 101, "Reduce expressions: (pre) exp[%d] = %s", i, lw_expr_print(le -> expr));
 		lwasm_reduce_expr(as, le -> expr);
 		debug_message(as, 100, "Reduce expressions: exp[%d] = %s", i, lw_expr_print(le -> expr));
 	}

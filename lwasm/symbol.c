@@ -252,6 +252,8 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 	int local = 0;
 	struct symtabe *s;
 	int cdir;
+
+	debug_message(as, 100, "Look up symbol %s", sym);
 	
 	// check if this is a local symbol
 	if (strchr(sym, '@') || strchr(sym, '?'))
@@ -283,13 +285,17 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 		}
 		
 		if (!cdir)
+		{
+			debug_message(as, 100, "Found symbol %s: %s, %s", sym, s -> symbol, lw_expr_print(s -> value));
 			return s;
+		}
 		
 		if (cdir < 0)
 			s = s -> left;
 		else
 			s = s -> right;
 	}
+	debug_message(as, 100, "Symbol not found %s", sym);
 	return NULL;
 }
 
