@@ -43,6 +43,7 @@ PARSEFUNC(pseudo_parse_macro)
 	if (as -> skipcond)
 	{
 		as -> skipmacro = 1;
+		skip_operand(p);
 		return;
 	}
 	
