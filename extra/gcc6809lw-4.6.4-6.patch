@@ -763,7 +763,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/libgcc1.s gcc-4.6.4/gcc/config/m6809/
 diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6809.c
 --- gcc-4.6.4-clean/gcc/config/m6809/m6809.c	1969-12-31 17:00:00.000000000 -0700
 +++ gcc-4.6.4/gcc/config/m6809/m6809.c	2015-07-20 22:11:37.726714746 -0600
-@@ -0,0 +1,3023 @@
+@@ -0,0 +1,3025 @@
 +/*-------------------------------------------------------------------
 +	FILE: m6809.c
 +-------------------------------------------------------------------*/
@@ -1257,6 +1257,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +		if (REG_P (SET_DEST (exp)) && src_code == MEM) {
 +			cc_status.value1 = SET_SRC (exp);
 +			cc_status.value2 = SET_DEST (exp);
++			cc_status.flags |= CC_NO_OVERFLOW;
 +			return;
 +		}
 +
@@ -1264,6 +1265,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +		if (dst_code == MEM && REG_P (SET_SRC (exp))) {
 +			cc_status.value1 = SET_SRC (exp);
 +			cc_status.value2 = SET_DEST (exp);
++			cc_status.flags |= CC_NO_OVERFLOW;
 +			return;
 +		}
 +
