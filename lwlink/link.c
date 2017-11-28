@@ -714,7 +714,7 @@ void resolve_files(void)
 		if (inputfiles[fn] -> forced == 1)
 			continue;
 		
-		fprintf(stderr, "Warning: %s (%d) does not resolve any symbols\n", inputfiles[fn] -> filename, fn);
+		fprintf(stderr, "Warning: library -l%s (%d) does not resolve any symbols\n", inputfiles[fn] -> filename, fn);
 	}
 }
 void find_section_by_name_once_aux(char *name, fileinfo_t *fn, section_t **rval, int *found);
