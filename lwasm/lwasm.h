@@ -424,6 +424,7 @@ struct asmstate_s
 	int preprocess;						// set if we are prepocessing
 	int fileerr;						// flags error opening file
 	int exprwidth;						// the bit width of the expression being evaluated
+	int listnofile;						// nonzero to suppress printing file name in listings
 };
 
 struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t value, int flags);

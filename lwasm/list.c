@@ -200,12 +200,19 @@ void do_list(asmstate_t *as)
 		#define max_linespec_len 17
 
 		// trim "include:" if it appears
-		linespec = cl -> linespec;
-		if ((strlen(linespec) > 8) && (linespec[7] == ':')) linespec += 8;
-		while (*linespec == ' ') linespec++;
+		if (as -> listnofile)
+		{
+			fprintf(of, "%05d ", cl->lineno);
+		}
+		else
+		{
+			linespec = cl -> linespec;
+			if ((strlen(linespec) > 8) && (linespec[7] == ':')) linespec += 8;
+			while (*linespec == ' ') linespec++;
 
-		fprintf(of, "(%*.*s):%05d ", max_linespec_len, max_linespec_len, linespec, cl->lineno);
-
+			fprintf(of, "(%*.*s):%05d ", max_linespec_len, max_linespec_len, linespec, cl->lineno);
+		}
+		
 		if (CURPRAGMA(cl, PRAGMA_CC))
 		{
 			as->cycle_total = 0;

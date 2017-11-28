@@ -46,6 +46,7 @@ static struct lw_cmdline_options options[] =
 	{ "debug",		'd',	"LEVEL",	lw_cmdline_opt_optional,	"Set debug mode"},
 	{ "format",		'f',	"TYPE",		0,							"Select output format: decb, basic, raw, obj, os9"},
 	{ "list",		'l',	"FILE",		lw_cmdline_opt_optional,	"Generate list [to FILE]"},
+	{ "list-nofiles", 0x104, 0,			0,							"Omit file names in list output"},
 	{ "symbols",	's',	0,			lw_cmdline_opt_optional,	"Generate symbol list in listing, no effect without --list"},
 	{ "symbols-nolocals", 0x103,	0,	lw_cmdline_opt_optional,	"Same as --symbols but with local labels ignored"},
 	{ "tabs",		't',	"WIDTH",	0,							"Set tab spacing in listing (0=don't expand tabs)" },
@@ -146,6 +147,10 @@ static int parse_opts(int key, char *arg, void *state)
 
 	case 0x103:
 		as -> flags |= FLAG_SYMBOLS | FLAG_SYMBOLS_NOLOCALS;
+		break;
+
+	case 0x104:
+		as -> listnofile = 1;
 		break;
 
 	case 'b':
