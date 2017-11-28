@@ -44,7 +44,7 @@ static struct lw_cmdline_options options[] =
 {
 	{ "output",		'o',	"FILE",		0,							"Output to FILE"},
 	{ "debug",		'd',	"LEVEL",	lw_cmdline_opt_optional,	"Set debug mode"},
-	{ "format",		'f',	"TYPE",		0,							"Select output format: decb, basic, raw, obj, os9"},
+	{ "format",		'f',	"TYPE",		0,							"Select output format: decb, basic, raw, obj, os9, ihex, srec"},
 	{ "list",		'l',	"FILE",		lw_cmdline_opt_optional,	"Generate list [to FILE]"},
 	{ "list-nofiles", 0x104, 0,			0,							"Omit file names in list output"},
 	{ "symbols",	's',	0,			lw_cmdline_opt_optional,	"Generate symbol list in listing, no effect without --list"},
