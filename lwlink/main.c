@@ -185,7 +185,11 @@ int main(int argc, char **argv)
 {
 	program_name = argv[0];
 
-	lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, NULL);
+	if (lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, NULL) != 0)
+	{
+		// bail if parsing failed
+		exit(1);
+	}
 	if (ninputfiles == 0)
 	{
 		fprintf(stderr, "No input files\n");

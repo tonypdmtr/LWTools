@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -380,7 +381,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 	int nextarg;
 	char *tstr;
 	int cch;
-	
+		
 	/* first, permute the argv array so that all option arguments are at the start */
 	for (i = 1, firstarg = 1; i < argc; i++)
 	{
@@ -496,7 +497,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 				fprintf(stderr, "Unknown option '%c'. See %s --usage.\n", argv[i][cch - 1], argv[0]);
 			else
 				fprintf(stderr, "Unknown option '%s'. See %s --usage.\n", argv[i - 1], argv[0]);
-			exit(1);
+			return EINVAL;
 		}
 		if (parser -> options[j].arg)
 		{
@@ -516,7 +517,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 			if (!tstr && (parser -> options[j].flags & lw_cmdline_opt_optional) == 0)
 			{
 				fprintf(stderr, "Option %s requires argument.\n", parser -> options[j].name);
-				continue;
+				return EINVAL;
 			}
 		}
 		r = (*(parser -> parser))(parser -> options[j].key, tstr, input);

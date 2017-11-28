@@ -143,7 +143,10 @@ extern void do_extract(void);
 int main(int argc, char **argv)
 {
 	program_name = argv[0];
-	lw_cmdline_parse(&argparser, argc, argv, 0, 0, NULL);
+	if (lw_cmdline_parse(&argparser, argc, argv, 0, 0, NULL) != 0)
+	{
+		exit(1);
+	}
 	if (archive_file == NULL)
 	{
 		fprintf(stderr, "You must specify an archive file.\n");

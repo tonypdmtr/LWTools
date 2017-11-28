@@ -312,7 +312,10 @@ int main(int argc, char **argv)
 	asmstate.pragmas = PRAGMA_FORWARDREFMAX;
 	
 	/* parse command line arguments */	
-	lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, &asmstate);
+	if (lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, &asmstate) != 0)
+	{
+		exit(1);
+	}
 
 	if (!asmstate.output_file)
 	{
