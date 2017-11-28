@@ -596,7 +596,7 @@ void write_code_ihex(asmstate_t *as, FILE *of)
 	// if any ihex records were output, close with a "01" record
 	if (reccnt > 0)
 	{
-		fprintf(of, ":00000001FF");		
+		fprintf(of, ":00%04X01FF", as -> execaddr & 0xffff);
 	}
 }
 	    
