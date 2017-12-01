@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # these tests determine if the opcodes for each instruction, in each
 # addressing mode, are correct.
