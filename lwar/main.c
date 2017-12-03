@@ -96,6 +96,9 @@ static int parse_opts(int key, char *arg, void *state)
 			archive_file = arg;
 		break;
 		
+	case lw_cmdline_key_end:
+		break;
+
 	default:
 		return lw_cmdline_err_unknown;
 	}
@@ -143,6 +146,7 @@ extern void do_extract(void);
 int main(int argc, char **argv)
 {
 	program_name = argv[0];
+
 	if (lw_cmdline_parse(&argparser, argc, argv, 0, 0, NULL) != 0)
 	{
 		exit(1);
