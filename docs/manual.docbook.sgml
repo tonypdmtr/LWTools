@@ -841,7 +841,7 @@ work, however.</para>
 </varlistentry>
 
 <varlistentry>
-<term>FILL <parameter>size</parameter>,<parameter>byte</parameter></term>
+<term>FILL <parameter>byte</parameter>,<parameter>size</parameter></term>
 <listitem>
 
 <para>
