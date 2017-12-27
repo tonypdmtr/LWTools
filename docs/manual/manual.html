@@ -1252,10 +1252,10 @@ work, however.</P
 ><DT
 >FILL <CODE
 CLASS="PARAMETER"
->size</CODE
+>byte</CODE
 >,<CODE
 CLASS="PARAMETER"
->byte</CODE
+>size</CODE
 ></DT
 ><DD
 ><P
@@ -2792,8 +2792,9 @@ CLASS="OPTION"
 ></DT
 ><DD
 ><P
->Load a library using the library search path. LIBSPEC will have "lib" prepended
-and ".a" appended.</P
+>Load a library using the library search path. If LIBSPEC is prefixed with a
+colon (":"), then LIBSPEC is the precise filename to be searched for in the
+library path. Otherwise, LIBSPEC will have "lib" prepended and ".a" appended.</P
 ></DD
 ><DT
 ><CODE
