@@ -709,7 +709,8 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 		}
 	}
 	
-	if (l -> lint == 2 && CURPRAGMA(l, PRAGMA_OPERANDSIZE))
+	// exclude expr,W since that can only be 16 bits
+	if (l -> lint == 2 && CURPRAGMA(l, PRAGMA_OPERANDSIZE) && (l -> pb != 0xAF && l -> pb != 0xB0))
 	{
 		int offs;
 		e = lwasm_fetch_expr(l, 0);
