@@ -91,7 +91,8 @@ void do_list(asmstate_t *as)
 					lwasm_error_t *e;
 					for (e = nl -> warn; e; e = e -> next)
 					{
-						printf("Warning: %s\n", e -> mess);
+						if (of != stdout) printf("Warning: %s\n", e -> mess);
+						fprintf(of, "Warning: %s\n", e -> mess);
 					}
 				}
 				if (nc == 0)
@@ -119,7 +120,8 @@ void do_list(asmstate_t *as)
 				lwasm_error_t *e;
 				for (e = cl -> warn; e; e = e -> next)
 				{
-					printf("Warning: %s\n", e -> mess);
+					if (of != stdout) printf("Warning: %s\n", e -> mess);
+					fprintf(of, "Warning: %s\n", e -> mess);
 				}
 			}
 			obytelen = cl -> outputl;
