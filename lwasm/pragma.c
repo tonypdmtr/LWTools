@@ -74,6 +74,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "6309conv", "no6309conv", PRAGMA_6309CONV },
 	{ "newsource", "nonewsource", PRAGMA_NEWSOURCE },
 	{ "nooldsource", "oldsource", PRAGMA_NEWSOURCE },
+	{ "operandsizewarning", "nooperandsizewarning", PRAGMA_OPERANDSIZE },
 	{ 0, 0, 0 }
 };
 

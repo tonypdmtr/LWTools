@@ -1975,6 +1975,22 @@ applies when the assembler is left to guess what the operand size is.</para>
 </varlistentry>
 
 <varlistentry>
+<term>operandsizewarning</term>
+<listitem>
+
+<para>Enabling this pragma will cause LWASM to show a warning when it
+detects that a smaller addressing mode could be used for an instruction.
+This is particularly useful for finding places where long branches are used
+where short branches could be used instead. It will also show the warnings
+for indexing offsets (regardless of whether the operand size is
+forced).</para>
+
+<para>As of LWASM 4.16, no other checks are performed.</para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
 <term>qrts</term>
 <listitem>
 <para>

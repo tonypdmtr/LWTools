@@ -105,6 +105,7 @@ enum lwasm_pragmas_e
 	PRAGMA_6809CONV				= 1 << 22,	// enable 6809 convenience ops
 	PRAGMA_6309CONV				= 1 << 23,	// enable 6309 convenience ops
 	PRAGMA_NEWSOURCE			= 1 << 24,	// don't use compatibility source format
+	PRAGMA_OPERANDSIZE			= 1 << 25,	// warn if operand size is bigger than required
 	PRAGMA_CLEARBIT				= 1 << 31	// reserved to indicate negated pragma flag status
 };
 
@@ -210,7 +211,8 @@ typedef enum
 	W_DUPLICATE_SECTION			= 1000,
 	W_ENDSTRUCT_WITHOUT			= 1001,
 	W_NOT_SUPPORTED				= 1002,
-	W_USER_SPECIFIED			= 1003
+	W_USER_SPECIFIED			= 1003,
+	W_OPERAND_SIZE				= 1004
 } lwasm_errorcode_t;
 
 typedef struct lwasm_error_s lwasm_error_t;

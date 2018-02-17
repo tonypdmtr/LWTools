@@ -287,7 +287,7 @@ const char* lwasm_lookup_error(lwasm_errorcode_t error_code)
 		case W_ENDSTRUCT_WITHOUT:		return "ENDSTRUCT without STRUCT";
 		case W_DUPLICATE_SECTION:		return "Section flags can only be specified the first time; ignoring duplicate definition";
 		case W_NOT_SUPPORTED:			return "Not supported";
-
+		case W_OPERAND_SIZE:			return "Operand size larger than required";
 		default:						return "Error";
 	}
 }

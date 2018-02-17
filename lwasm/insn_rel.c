@@ -314,6 +314,13 @@ EMITFUNC(insn_emit_relgen)
 	{
 		lwasm_emitop(l, instab[l -> insn].ops[3]);
 		lwasm_emitexpr(l, e, 2);
-
+		if (CURPRAGMA(l, PRAGMA_OPERANDSIZE) && lw_expr_istype(e, lw_expr_type_int))
+		{
+			offs = lw_expr_intval(e);
+			if (offs >= -128 && offs <= 127)
+			{
+				lwasm_register_error(as, l, W_OPERAND_SIZE);
+			}
+		}
 	}
 }

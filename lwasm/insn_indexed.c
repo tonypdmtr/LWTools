@@ -709,6 +709,20 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 		}
 	}
 	
+	if (l -> lint == 2 && CURPRAGMA(l, PRAGMA_OPERANDSIZE))
+	{
+		int offs;
+		e = lwasm_fetch_expr(l, 0);
+		if (lw_expr_istype(e, lw_expr_type_int))
+		{
+			offs = lw_expr_intval(e);
+			if ((offs >= -128 && offs <= 127) || offs >= 0xFF80)
+			{
+				lwasm_register_error(as, l, W_OPERAND_SIZE);
+			}
+		}
+	}
+	
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	lwasm_emitop(l, l -> pb);
 
