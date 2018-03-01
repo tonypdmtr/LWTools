@@ -171,7 +171,7 @@ PARSEFUNC(pseudo_parse_section)
 
 PARSEFUNC(pseudo_parse_endsection)
 {
-	if (as -> output_format != OUTPUT_OBJ)
+	if (as -> output_format != OUTPUT_OBJ && as -> output_format != OUTPUT_LWMOD)
 	{
 		lwasm_register_error(as, l, E_SECTION_TARGET);
 		return;
