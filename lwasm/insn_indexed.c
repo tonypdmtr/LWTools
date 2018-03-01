@@ -588,15 +588,18 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				as -> pretendmax = 1;
 				lwasm_reduce_expr(as, e2);
 				as -> pretendmax = v;
-				v = lw_expr_intval(e2);
-				// Actual range is -128 <= offset <= 127; we're allowing a fudge
-				// factor of 25 or so bytes so that we're less likely to accidentally
-				// cross into the 16 bit boundary in weird corner cases.
-				if (v >= -100 || v <= 100)
+				if (lw_expr_istype(e2, lw_expr_type_int))
 				{
-					l -> lint = 1;
-					l -> pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
-					return;
+					v = lw_expr_intval(e2);
+					// Actual range is -128 <= offset <= 127; we're allowing a fudge
+					// factor of 25 or so bytes so that we're less likely to accidentally
+					// cross into the 16 bit boundary in weird corner cases.
+					if (v >= -100 || v <= 100)
+					{
+						l -> lint = 1;
+						l -> pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
+						return;
+					}
 				}
 			}
 		}
