@@ -575,15 +575,27 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 		{
 			if ((l -> pb & 0x07) == 5 || (l -> pb & 0x07) == 6)
 			{
+				// NOTE: this will break in some particularly obscure corner cases
+				// which are not likely to show up in normal code. Notably, if, for
+				// some reason, the target gets *farther* away if shorter addressing
+				// modes are chosen, which should only happen if the symbol is before
+				// the instruction in the source file and there is some sort of ORG
+				// statement or similar in between which forces the address of this
+				// instruction, and the differences happen to cross the 8 bit boundary.
+				// For this reason, we use a heuristic and allow a margin on the 8
+				// bit boundary conditions.
 				v = as -> pretendmax;
 				as -> pretendmax = 1;
 				lwasm_reduce_expr(as, e2);
 				as -> pretendmax = v;
 				v = lw_expr_intval(e2);
-				if (v >= -128 || v <= 127)
+				// Actual range is -128 <= offset <= 127; we're allowing a fudge
+				// factor of 25 or so bytes so that we're less likely to accidentally
+				// cross into the 16 bit boundary in weird corner cases.
+				if (v >= -100 || v <= 100)
 				{
 					l -> lint = 1;
-					pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
+					l -> pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
 					return;
 				}
 			}
