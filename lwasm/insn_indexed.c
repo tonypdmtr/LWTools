@@ -469,13 +469,6 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 //		e3 = lw_expr_copy(e);
 //		lwasm_reduce_expr(as, e3);
 		l -> len = -1;
-		if (!lw_expr_istype(e2, lw_expr_type_int))
-		{
-			v = as -> pretendmax;
-			as -> pretendmax = 1;
-			lwasm_reduce_expr(as, e2);
-			as -> pretendmax = v;
-		}
 		if (lw_expr_istype(e2, lw_expr_type_int))
 		{
 			v = lw_expr_intval(e2);
@@ -576,6 +569,23 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				l -> pb = pb;
 				lw_expr_destroy(e2);
 				return;
+			}
+		}
+		else
+		{
+			if ((l -> pb & 0x07) == 5 || (l -> pb & 0x07) == 6)
+			{
+				v = as -> pretendmax;
+				as -> pretendmax = 1;
+				lwasm_reduce_expr(as, e2);
+				as -> pretendmax = v;
+				v = lw_expr_intval(e2);
+				if (v >= -128 || v <= 127)
+				{
+					l -> lint = 1;
+					pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
+					return;
+				}
 			}
 		}
 		lw_expr_destroy(e2);
