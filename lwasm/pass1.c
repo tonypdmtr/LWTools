@@ -330,7 +330,12 @@ void do_pass1(asmstate_t *as)
         			goto linedone;
         		}
         	}
-			if (instab[opnum].opcode == NULL)
+        	
+			if (instab[opnum].opcode == NULL ||
+			(
+				(CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309)) ||
+				(!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
+			))
 			{
 				cl -> insn = -1;
 				if (*tok != ';' && *tok != '*')
