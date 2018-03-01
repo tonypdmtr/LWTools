@@ -469,6 +469,13 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 //		e3 = lw_expr_copy(e);
 //		lwasm_reduce_expr(as, e3);
 		l -> len = -1;
+		if (!lw_expr_istype(e2, lw_expr_type_int))
+		{
+			v = as -> pretendmax;
+			as -> pretendmax = 1;
+			lwasm_reduce_expr(as, e2);
+			as -> pretendmax = v;
+		}
 		if (lw_expr_istype(e2, lw_expr_type_int))
 		{
 			v = lw_expr_intval(e2);
