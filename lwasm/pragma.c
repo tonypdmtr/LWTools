@@ -110,6 +110,7 @@ int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
 		p = lw_token(np, ',', &np);
 		debug_message(as, 200, "Setting/resetting pragma %s", p);
 		pragma = parse_pragma_helper(p);
+		debug_message(as, 200, "Got pragma code %08X", pragma);
 		lw_free(p);
 
 		if (pragma == 0 && !ignoreerr)
@@ -119,6 +120,8 @@ int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
 			as->pragmas &= ~pragma;
 		else
 			as->pragmas |= pragma;
+		
+		debug_message(as, 200, "New pragma state: %08X", as -> pragmas);
 	}
 	return 1;
 }

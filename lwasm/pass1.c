@@ -330,7 +330,11 @@ void do_pass1(asmstate_t *as)
         			goto linedone;
         		}
         	}
-			if (instab[opnum].opcode == NULL)
+        	
+			if (instab[opnum].opcode == NULL ||
+				(CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309)) ||
+				(!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
+			)
 			{
 				cl -> insn = -1;
 				if (*tok != ';' && *tok != '*')
@@ -343,7 +347,12 @@ void do_pass1(asmstate_t *as)
 						if (expand_struct(as, cl, &p1, sym) != 0)
 						{
 							// structure expansion failed
-							lwasm_register_error(as, cl, E_OPCODE_BAD);
+							if (CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309))
+								lwasm_register_error2(as, cl, E_6309_INVALID, "(%s)", sym);
+							else if (!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
+								lwasm_register_error2(as, cl, E_6809_INVALID, "(%s)", sym);
+							else
+								lwasm_register_error(as, cl, E_OPCODE_BAD);
 						}
 					}
 				}
