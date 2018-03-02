@@ -1,7 +1,7 @@
 /*
 lw_version.h
 
-Copyright © 2015 William Astle
+Copyright © 2018 William Astle
 
 This file is part of LWTOOLS.
 
@@ -19,9 +19,9 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ___lw_version_h_seen___
-#define ___lw_version_h_seen___
+#ifndef lw_version_h_seen___
+#define lw_version_h_seen___
 
-#define PACKAGE_STRING "lwtools 4.15+"
+#define PACKAGE_STRING "lwtools 5.0beta"
 
-#endif /* ___lw_version_h_seen___ */
+#endif /* lw_version_h_seen___ */

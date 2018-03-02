@@ -29,7 +29,7 @@ Implements the program startup code
 #include <sys/stat.h>
 
 #include <lw_cmdline.h>
-#include <lw_version.h>
+#include <version.h>
 
 #include "lwar.h"
 

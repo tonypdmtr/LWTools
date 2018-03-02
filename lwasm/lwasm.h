@@ -29,7 +29,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_expr.h>
 #include <lw_stringlist.h>
 #include <lw_stack.h>
-#include <lw_version.h>
+
+#include <version.h>
 
 // these are allowed chars BELOW 0x80 for symbols
 // first is symbol start chars, second is anywhere in symbol

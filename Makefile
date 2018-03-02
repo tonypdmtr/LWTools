@@ -27,7 +27,7 @@ AR := $(BUILDTPREFIX)$(AR)
 RANLIB := $(BUILDTPREFIX)$(RANLIB)
 endif
 
-CPPFLAGS += -I lwlib
+CPPFLAGS += -I lwlib -Icommon
 LDFLAGS += -Llwlib -llw
 
 CFLAGS ?= -O3 -Wall -Wno-char-subscripts
