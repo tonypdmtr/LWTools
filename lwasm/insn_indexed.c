@@ -594,7 +594,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 					// Actual range is -128 <= offset <= 127; we're allowing a fudge
 					// factor of 25 or so bytes so that we're less likely to accidentally
 					// cross into the 16 bit boundary in weird corner cases.
-					if (v >= -100 || v <= 100)
+					if (v >= -100 && v <= 100)
 					{
 						l -> lint = 1;
 						l -> pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
