@@ -206,6 +206,7 @@ typedef enum
 	E_USER_SPECIFIED			= 56,
 	E_ORG_NOT_FOUND				= 57,
 	E_COMPLEX_INCOMPLETE        = 58,
+	E_ILL5						= 59,
 	
 	/* warnings must be 1000 or greater */
 

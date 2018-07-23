@@ -283,6 +283,7 @@ const char* lwasm_lookup_error(lwasm_errorcode_t error_code)
 		case E_ORG_NOT_FOUND:			return "Previous ORG not found";
 		case E_COMPLEX_INCOMPLETE:      return "Incomplete expression too complex";
 		case E_USER_SPECIFIED:			return "User Specified:";
+		case E_ILL5:					return "Illegal 5 bit offset";
 
 		case W_ENDSTRUCT_WITHOUT:		return "ENDSTRUCT without STRUCT";
 		case W_DUPLICATE_SECTION:		return "Section flags can only be specified the first time; ignoring duplicate definition";

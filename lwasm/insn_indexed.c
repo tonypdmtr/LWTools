@@ -286,6 +286,16 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	{
 		l -> lint = 1;
 		(*p)++;
+		if (**p == '<')
+		{
+			l -> lint = 3;
+			(*p)++;
+			if (indir)
+			{
+				lwasm_register_error(as, l, E_ILL5);
+				return;
+			}
+		}
 	}
 	else if (**p == '>')
 	{
@@ -359,6 +369,10 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			l -> pb = 0x89 | (rn << 5) | (indir ? 0x10 : 0);
 			return;
 		}
+		else if (l -> lint == 3)
+		{
+			l -> pb = (rn << 5);
+		}
 	}
 
 	// nnnn,W is only 16 bit (or 0 bit)
@@ -367,6 +381,11 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		if (l -> lint == 1)
 		{
 			lwasm_register_error(as, l, E_NW_8);
+			return;
+		}
+		else if (l -> lint == 3)
+		{
+			lwasm_register_error(as, l, E_ILL5);
 			return;
 		}
 
@@ -409,9 +428,14 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			l -> pb = indir ? 0x9C : 0x8C;
 			return;
 		}
-		if (l -> lint == 2)
+		else if (l -> lint == 2)
 		{
 			l -> pb = indir ? 0x9D : 0x8D;
+			return;
+		}
+		else if (l -> lint == 3)
+		{
+			lwasm_register_error(as, l, E_ILL5);
 			return;
 		}
 	}
@@ -423,14 +447,20 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			l -> pb = indir ? 0x9C : 0x8C;
 			return;
 		}
-		if (l -> lint == 2)
+		else if (l -> lint == 2)
 		{
 			l -> pb = indir ? 0x9D : 0x8D;
 			return;
 		}
+		else if (l -> lint == 3)
+		{
+			lwasm_register_error(as, l, E_ILL5);
+			return;
+		}
 	}
 
-	l -> pb = (indir * 0x80) | rn | (f0 * 0x40);
+	if (l -> lint != 3)
+		l -> pb = (indir * 0x80) | rn | (f0 * 0x40);
 }
 
 PARSEFUNC(insn_parse_indexed)
@@ -440,7 +470,10 @@ PARSEFUNC(insn_parse_indexed)
 
 	if (l -> lint != -1)
 	{
-		l -> len = OPLEN(instab[l -> insn].ops[0]) + l -> lint + 1;
+		if (l -> lint == 3)
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
+		else
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + l -> lint + 1;
 	}
 }
 
@@ -722,7 +755,10 @@ RESOLVEFUNC(insn_resolve_indexed)
 	
 	if (l -> lint != -1 && l -> pb != -1)
 	{
-		l -> len = OPLEN(instab[l -> insn].ops[0]) + l -> lint + 1;
+		if (l -> lint == 3)
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
+		else
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + l -> lint + 1;
 	}
 }
 
@@ -742,7 +778,29 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 	}
 	
 	// exclude expr,W since that can only be 16 bits
-	if (l -> lint == 2 && CURPRAGMA(l, PRAGMA_OPERANDSIZE) && (l -> pb != 0xAF && l -> pb != 0xB0))
+	if (l -> lint == 3)
+	{
+		int offs;
+		e = lwasm_fetch_expr(l, 0);
+		if (lw_expr_istype(e, lw_expr_type_int))
+		{
+			offs = lw_expr_intval(e);
+			if ((offs >= -16 && offs <= 15) || offs >= 0xFFF0)
+			{
+				l -> pb |= offs & 0x1f;
+				l -> lint = 0;
+			}
+			else
+			{
+				lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+			}
+		}
+		else
+		{
+			lwasm_register_error(as, l, E_EXPRESSION_NOT_RESOLVED);
+		}
+	}
+	else if (l -> lint == 2 && CURPRAGMA(l, PRAGMA_OPERANDSIZE) && (l -> pb != 0xAF && l -> pb != 0xB0))
 	{
 		int offs;
 		e = lwasm_fetch_expr(l, 0);

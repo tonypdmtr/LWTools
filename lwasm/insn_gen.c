@@ -65,6 +65,11 @@ indexed:
 	{
 		(*p)++;
 		l -> lint2 = 0;
+		if (**p == '<')
+		{
+			*p = optr2;
+			goto indexed;
+		}
 	}
 	// for compatibility with asxxxx
 	// * followed by a digit, alpha, or _, or ., or ?, or another * is "f8"
@@ -175,7 +180,10 @@ out:
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1 + elen;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
 		}
 	}
 }
@@ -261,7 +269,10 @@ out:
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1 + elen;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
 		}
 	}
 }
@@ -278,6 +289,27 @@ void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 	
 	if (l -> lint2 == 1)
 	{
+		if (l -> lint == 3)
+		{
+			int offs;
+			if (lw_expr_istype(e, lw_expr_type_int))
+			{
+				offs = lw_expr_intval(e);
+				if ((offs >= -16 && offs <= 15) || offs >= 0xFFF0)
+				{
+					l -> pb |= offs & 0x1f;
+					l -> lint = 0;
+				}
+				else
+				{
+					lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+				}
+			}
+			else
+			{
+				lwasm_register_error(as, l, E_EXPRESSION_NOT_RESOLVED);
+			}
+		}
 		lwasm_emit(l, l -> pb);
 		if (l -> lint > 0)
 		{
@@ -375,7 +407,10 @@ PARSEFUNC(insn_parse_gen8)
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
 		}
 	}
 }
@@ -447,7 +482,10 @@ PARSEFUNC(insn_parse_gen16)
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
 		}
 	}
 }
@@ -509,7 +547,10 @@ PARSEFUNC(insn_parse_gen32)
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
 		}
 	}
 }
