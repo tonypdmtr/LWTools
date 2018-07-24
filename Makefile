@@ -136,7 +136,7 @@ print-%:
 	@echo $* = $($*)
 
 .PHONY: install
-install:
+install: $(MAIN_TARGETS)
 	install -d $(INSTALLDIR)
 	install $(MAIN_TARGETS) $(INSTALLDIR)
 
