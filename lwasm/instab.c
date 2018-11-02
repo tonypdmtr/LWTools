@@ -370,6 +370,10 @@ instab_t instab[] =
 	{ "negq",		{	-1,		-1,		-1,		12	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
 	{ "tstq",		{	0x10ed,	0x7c,	-1,		 9	},	insn_parse_conv,		insn_resolve_conv,				insn_emit_conv,				lwasm_insn_is6309conv },
 
+	// emulator extensions
+	{ "break",		{ 0x113e,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_isemuext },
+	{ "log",		{ 0x103e,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_isemuext },
+
 	{ "abx",		{	0x3a,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "adca",		{	0x99,	0xa9,	0xb9,	0x89},	insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_normal},
 	{ "adcb",		{	0xd9,	0xe9,	0xf9,	0xc9},	insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_normal},

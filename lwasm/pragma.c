@@ -75,6 +75,7 @@ static const struct pragma_list set_pragmas[] =
 	{ "newsource", "nonewsource", PRAGMA_NEWSOURCE },
 	{ "nooldsource", "oldsource", PRAGMA_NEWSOURCE },
 	{ "operandsizewarning", "nooperandsizewarning", PRAGMA_OPERANDSIZE },
+	{ "emuext", "noemuext", PRAGMA_EMUEXT },
 	{ 0, 0, 0 }
 };
 

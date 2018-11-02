@@ -2063,6 +2063,36 @@ error is ignored and the assembler continues ignoring the line in question.
 </listitem>
 </varlistentry>
 
+
+
+
+<varlistentry>
+<term>emuext</term>
+<listitem>
+<para>
+
+This pragma enables two instructions useful when running code in compatible
+emulators. Break breaks into the debugger. Log writes printf-style
+output to the debug window
+
+</para>
+<programlisting>
+      LOG           ; log output
+      FDB   FSTR    ; pointer to format string
+      FDB   PX1     ; 16 bit pointer to 16 bit value
+      FDB   PY1     ; 16 bit pointer to 8 bit value (see format string!)
+      FDB   PX2     ; 16 bit pointer to 16 bit value
+      FDB   PY2     ; 16 bit pointer to 8 bit value
+      ; execution continues here ...
+      RTS
+
+; format string
+FSTR  FCC   "%hu,%hhu - %hu,%hhu"
+      FCB   10,0
+</programlisting>
+</listitem>
+</varlistentry>
+
 </variablelist>
 
 <para>As a convenience, each input file has a pragma state stack. This
