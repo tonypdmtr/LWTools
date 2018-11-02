@@ -436,6 +436,8 @@ int lwasm_next_context(asmstate_t *as)
 
 void lwasm_emit(line_t *cl, int byte)
 {
+	if (CURPRAGMA(cl, PRAGMA_NOOUTPUT))
+		return;
 	if (cl -> as -> output_format == OUTPUT_OBJ && cl -> csect == NULL)
 	{
 		lwasm_register_error(cl -> as, cl, E_INSTRUCTION_SECTION);

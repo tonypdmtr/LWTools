@@ -108,6 +108,7 @@ enum lwasm_pragmas_e
 	PRAGMA_NEWSOURCE			= 1 << 24,	// don't use compatibility source format
 	PRAGMA_OPERANDSIZE			= 1 << 25,	// warn if operand size is bigger than required
 	PRAGMA_EMUEXT				= 1 << 26,  // enable emulator extensions
+	PRAGMA_NOOUTPUT             = 1 << 27,  // disable object code output
 	PRAGMA_CLEARBIT				= 1 << 31	// reserved to indicate negated pragma flag status
 };
 
