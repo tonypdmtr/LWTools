@@ -136,6 +136,8 @@ void do_list(asmstate_t *as)
 				memmove(obytes, cl -> output, cl -> outputl);
 			}
 		}
+		if (cl -> hidecond && CURPRAGMA(cl, PRAGMA_NOEXPANDCOND))
+			continue;
 		if ((cl -> len < 1 && cl -> dlen < 1) && obytelen < 1 && (cl -> symset == 1 || cl -> sym == NULL) )
 		{
 			if (cl -> soff >= 0)

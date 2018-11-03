@@ -109,6 +109,7 @@ enum lwasm_pragmas_e
 	PRAGMA_OPERANDSIZE			= 1 << 25,	// warn if operand size is bigger than required
 	PRAGMA_EMUEXT				= 1 << 26,  // enable emulator extensions
 	PRAGMA_NOOUTPUT             = 1 << 27,  // disable object code output
+	PRAGMA_NOEXPANDCOND         = 1 << 28,  // hide conditionals and skipped output in listings
 	PRAGMA_CLEARBIT				= 1 << 31	// reserved to indicate negated pragma flag status
 };
 
@@ -307,6 +308,7 @@ struct line_s
 	int noexpand_start;					// start of a no-expand block
 	int noexpand_end;					// end of a no-expand block
 	int hideline;						// set if we're going to hide this line on output	
+	int hidecond;                       // set if we're going to hide this line due to condition hiding
 };
 
 enum

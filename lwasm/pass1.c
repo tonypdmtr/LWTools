@@ -448,7 +448,9 @@ void do_pass1(asmstate_t *as)
 		}
 		if (as -> skipcond || as -> inmacro || cl -> ltext[0] == 1)
 			cl -> hideline = 1;
-			
+		if (as -> skipcond)
+			cl -> hidecond = 1;
+		
 	nextline:
 		if (sym)
 			lw_free(sym);

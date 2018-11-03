@@ -1102,7 +1102,8 @@ PARSEFUNC(pseudo_parse_ifp1)
 {
 	l -> len = 0;
 	l -> hideline = 1;
-	
+	l -> hidecond = 1;
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1117,6 +1118,7 @@ PARSEFUNC(pseudo_parse_ifp2)
 {
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1134,6 +1136,7 @@ PARSEFUNC(pseudo_parse_ifeq)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1158,6 +1161,7 @@ PARSEFUNC(pseudo_parse_ifne)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1183,6 +1187,7 @@ PARSEFUNC(pseudo_parse_ifgt)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1207,6 +1212,7 @@ PARSEFUNC(pseudo_parse_ifge)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1231,6 +1237,7 @@ PARSEFUNC(pseudo_parse_iflt)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1254,6 +1261,8 @@ PARSEFUNC(pseudo_parse_ifle)
 	lw_expr_t e;
 
 	l -> hideline = 1;
+	l -> hidecond = 1;
+
 	l -> len = 0;
 	
 	if (as -> skipcond && !(as -> skipmacro))
@@ -1276,6 +1285,8 @@ PARSEFUNC(pseudo_parse_ifle)
 PARSEFUNC(pseudo_parse_endc)
 {
 	l -> hideline = 1;
+	l -> hidecond = 1;
+
 	l -> len = 0;
 	skip_operand(p);
 	if (as -> skipcond && !(as -> skipmacro))
@@ -1289,6 +1300,7 @@ PARSEFUNC(pseudo_parse_endc)
 PARSEFUNC(pseudo_parse_else)
 {
 	l -> len = 0;
+	l -> hidecond = 1;
 	l -> hideline = 1;
 	skip_operand(p);
 	
@@ -1316,6 +1328,7 @@ PARSEFUNC(pseudo_parse_ifdef)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1356,6 +1369,7 @@ PARSEFUNC(pseudo_parse_ifndef)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1390,6 +1404,7 @@ PARSEFUNC(pseudo_parse_ifpragma)
 
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 
 	if (as -> skipcond && !(as -> skipmacro))
 	{
