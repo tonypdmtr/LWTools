@@ -200,43 +200,43 @@ HREF="#CONVINST"
 ></DT
 ><DT
 >3.12. <A
-HREF="#AEN805"
+HREF="#AEN810"
 >Cycle Counts</A
 ></DT
 ></DL
 ></DD
 ><DT
 >4. <A
-HREF="#AEN811"
+HREF="#AEN816"
 >LWLINK</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.1. <A
-HREF="#AEN814"
+HREF="#AEN819"
 >Command Line Options</A
 ></DT
 ><DT
 >4.2. <A
-HREF="#AEN911"
+HREF="#AEN916"
 >Linker Operation</A
 ></DT
 ><DT
 >4.3. <A
-HREF="#AEN925"
+HREF="#AEN930"
 >Linking Scripts</A
 ></DT
 ><DT
 >4.4. <A
-HREF="#AEN991"
+HREF="#AEN996"
 >Format Specific Linking Notes</A
 ></DT
 ><DD
 ><DL
 ><DT
 >4.4.1. <A
-HREF="#AEN994"
+HREF="#AEN999"
 >OS9 Modules</A
 ></DT
 ></DL
@@ -245,14 +245,14 @@ HREF="#AEN994"
 ></DD
 ><DT
 >5. <A
-HREF="#AEN1006"
+HREF="#AEN1011"
 >Libraries and LWAR</A
 ></DT
 ><DD
 ><DL
 ><DT
 >5.1. <A
-HREF="#AEN1010"
+HREF="#AEN1015"
 >Command Line Options</A
 ></DT
 ></DL
@@ -274,12 +274,12 @@ CLASS="LOT"
 ></DT
 ><DT
 >6-1. <A
-HREF="#AEN1093"
+HREF="#AEN1098"
 >Object File Term Types</A
 ></DT
 ><DT
 >6-2. <A
-HREF="#AEN1123"
+HREF="#AEN1128"
 >Object File Operator Numbers</A
 ></DT
 ></DL
@@ -2580,6 +2580,28 @@ CLASS="PROGRAMLISTING"
 1D24 1D24              FDB   *         ;.1d24
 1D26                   xyz   INV       ;.E:32    (Error 32 is "Bad opcode")</PRE
 ></DD
+><DT
+>emuext</DT
+><DD
+><P
+>&#13;This pragma enables two instructions useful when running code in compatible
+emulators. Break breaks into the debugger. Log writes printf-style
+output to the debug window&#13;</P
+><PRE
+CLASS="PROGRAMLISTING"
+>      LOG           ; log output
+      FDB   FSTR    ; pointer to format string
+      FDB   PX1     ; 16 bit pointer to 16 bit value
+      FDB   PY1     ; 16 bit pointer to 8 bit value (see format string!)
+      FDB   PX2     ; 16 bit pointer to 16 bit value
+      FDB   PY2     ; 16 bit pointer to 8 bit value
+      ; execution continues here ...
+      RTS
+
+; format string
+FSTR  FCC   "%hu,%hhu - %hu,%hhu"
+      FCB   10,0</PRE
+></DD
 ></DL
 ></DIV
 ><P
@@ -2629,7 +2651,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN805"
+NAME="AEN810"
 >3.12. Cycle Counts</A
 ></H2
 ><P
@@ -2668,7 +2690,7 @@ CLASS="PROGRAMLISTING"
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN811"
+NAME="AEN816"
 ></A
 >Chapter 4. LWLINK</H1
 ><P
@@ -2679,7 +2701,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN814"
+NAME="AEN819"
 >4.1. Command Line Options</A
 ></H2
 ><P
@@ -2877,7 +2899,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN911"
+NAME="AEN916"
 >4.2. Linker Operation</A
 ></H2
 ><P
@@ -2933,7 +2955,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN925"
+NAME="AEN930"
 >4.3. Linking Scripts</A
 ></H2
 ><P
@@ -3137,7 +3159,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN991"
+NAME="AEN996"
 >4.4. Format Specific Linking Notes</A
 ></H2
 ><P
@@ -3150,7 +3172,7 @@ CLASS="SECTION"
 ><HR><H3
 CLASS="SECTION"
 ><A
-NAME="AEN994"
+NAME="AEN999"
 >4.4.1. OS9 Modules</A
 ></H3
 ><P
@@ -3226,7 +3248,7 @@ offset from U technique.</P
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="AEN1006"
+NAME="AEN1011"
 ></A
 >Chapter 5. Libraries and LWAR</H1
 ><P
@@ -3245,7 +3267,7 @@ CLASS="SECTION"
 ><HR><H2
 CLASS="SECTION"
 ><A
-NAME="AEN1010"
+NAME="AEN1015"
 >5.1. Command Line Options</A
 ></H2
 ><P
@@ -3446,7 +3468,7 @@ by a NULL expression (only an end of expression term).</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN1093"
+NAME="AEN1098"
 ></A
 ><P
 ><B
@@ -3518,7 +3540,7 @@ exported symbols or external references.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN1123"
+NAME="AEN1128"
 ></A
 ><P
 ><B

@@ -17,7 +17,7 @@ TITLE="Object Files and Sections"
 HREF="x595.html"><LINK
 REL="NEXT"
 TITLE="Convenience Instructions"
-HREF="x800.html"></HEAD
+HREF="x805.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x800.html"
+HREF="x805.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -198,7 +198,7 @@ to display 6309 timings.</P
 >These pragmas enable convenience instructions extending the 6809 and 6309
 instruction sets respectively. For more information, see 
 <A
-HREF="x800.html"
+HREF="x805.html"
 >Section 3.11</A
 >.</P
 ></DD
@@ -467,6 +467,28 @@ CLASS="PROGRAMLISTING"
 1D24 1D24              FDB   *         ;.1d24
 1D26                   xyz   INV       ;.E:32    (Error 32 is "Bad opcode")</PRE
 ></DD
+><DT
+>emuext</DT
+><DD
+><P
+>&#13;This pragma enables two instructions useful when running code in compatible
+emulators. Break breaks into the debugger. Log writes printf-style
+output to the debug window&#13;</P
+><PRE
+CLASS="PROGRAMLISTING"
+>      LOG           ; log output
+      FDB   FSTR    ; pointer to format string
+      FDB   PX1     ; 16 bit pointer to 16 bit value
+      FDB   PY1     ; 16 bit pointer to 8 bit value (see format string!)
+      FDB   PX2     ; 16 bit pointer to 16 bit value
+      FDB   PY2     ; 16 bit pointer to 8 bit value
+      ; execution continues here ...
+      RTS
+
+; format string
+FSTR  FCC   "%hu,%hhu - %hu,%hhu"
+      FCB   10,0</PRE
+></DD
 ></DL
 ></DIV
 ><P
@@ -520,7 +542,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x800.html"
+HREF="x805.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
