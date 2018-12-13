@@ -339,9 +339,38 @@ void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 	}
 	
 	if (l -> lint2 == 2)
+	{
 		lwasm_emitexpr(l, e, 2);
+
+		if (CURPRAGMA(l, PRAGMA_OPERANDSIZE))
+		{
+			if (instab[l -> insn].ops[2] == 0xbd || instab[l -> insn].ops[2] == 0x7e)
+			{
+				// check if bsr or bra could be used instead
+				lw_expr_t e1, e2;
+				int offs;
+				e2 = lw_expr_build(lw_expr_type_special, lwasm_expr_linelen, l);
+				e1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, e, e2);
+				lw_expr_destroy(e2);
+				e2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, e1, l -> addr);
+				lw_expr_destroy(e1);
+				lwasm_reduce_expr(as, e2);
+				if (lw_expr_istype(e2, lw_expr_type_int))
+				{
+					offs = lw_expr_intval(e2);
+					if (offs >= -128 && offs <= 127)
+					{
+						lwasm_register_error(as, l, W_OPERAND_SIZE);
+					}
+				}
+				lw_expr_destroy(e2);
+			}
+		}
+	}
 	else
+	{
 		lwasm_emitexpr(l, e, 1);
+	}
 }
 
 // the various insn_gen? functions have an immediate mode of ? bits
