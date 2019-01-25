@@ -624,6 +624,28 @@ int lwasm_cycle_calc_ind(line_t *cl)
 	if ((pb & 0x80) == 0) /* 5 bit offset */
 		return 1;
 
+	// These need special handling because the *register* bits determine the specific operation (and, thus, cycle counts)
+	if (!CURPRAGMA(cl, PRAGMA_6809))
+	{
+		switch (pb)
+		{
+		case 0x8f:  // ,W
+			return 0;
+		case 0xaf:  // n,W (16 bit)
+			return 2;
+		case 0xcf:  // ,W++
+		case 0xef:  // ,--W
+			return 1;
+		case 0x90:  // [,W]
+			return 3;
+		case 0xb0: // [n,W] (16 bit)
+			return 5;
+		case 0xd0: // [,W++]
+		case 0xf0: // [,--W]
+			return 4;
+		}
+	}
+
 	if (pb & 0x10) /* indirect */
 		return CURPRAGMA(cl, PRAGMA_6809) ? indtab[pb & 0xf].cycles_6809_indirect : indtab[pb & 0xf].cycles_6309_indirect;
 	else
