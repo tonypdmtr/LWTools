@@ -75,6 +75,7 @@ enum lwasm_flags_e
 	FLAG_UNICORNS = 0x0010,
 	FLAG_MAP = 0x0020,
 	FLAG_SYMBOLS_NOLOCALS = 0x0040,
+	FLAG_NOOUT = 0x80,
 	FLAG_NONE = 0
 };
 

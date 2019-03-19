@@ -64,6 +64,7 @@ static struct lw_cmdline_options options[] =
 	{ "preprocess",	'P',	0,			0,							"Preprocess macros and conditionals and output revised source to stdout" },
 	{ "unicorns",	0x142,	0,			0,							"Add sooper sekrit sauce"},
 	{ "6800compat",	0x200,	0,			0,							"Enable 6800 compatibility instructions, equivalent to --pragma=6800compat" },
+	{ "no-output",  0x105,  0,          0,                          "Inhibit creation of output file" },
 	{ 0 }
 };
 
@@ -103,6 +104,11 @@ static int parse_opts(int key, char *arg, void *state)
 		if (as -> output_file)
 			lw_free(as -> output_file);
 		as -> output_file = lw_strdup(arg);
+		as -> flags &= ~FLAG_NOOUT;
+		break;
+
+	case 0x105:
+		as -> flags |= FLAG_NOOUT;
 		break;
 
 	case 'd':
@@ -371,7 +377,7 @@ int main(int argc, char **argv)
 			lw_free(n);
 		}
 	}	
-	else
+	else if ((asmstate.flags & FLAG_NOOUT) == 0)
 	{
 		debug_message(&asmstate, 50, "Doing output");
 		do_output(&asmstate);
