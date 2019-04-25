@@ -565,9 +565,9 @@ static cycletable_t cycletable[] =
 
 	{ 0x1f, 6, 4, 0 },					// TFR
 
-	{ 0x0b, 6, 6, CYCLE_ESTIMATED },	// TIM
-	{ 0x6b, 7, 7, CYCLE_ADJ | CYCLE_ESTIMATED },
-	{ 0x7b, 5, 5, CYCLE_ESTIMATED },
+	{ 0x0b, 6, 6, 0 },				// TIM
+	{ 0x6b, 7, 7, CYCLE_ADJ },
+	{ 0x7b, 7, 7, 0 },
 
 	{ 0x1138, 6, 6, CYCLE_ESTIMATED },	// TFM
 	{ 0x1139, 6, 6, CYCLE_ESTIMATED },	
