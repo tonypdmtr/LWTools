@@ -102,7 +102,7 @@ void dump_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 		
 		if (lw_expr_istype(te, lw_expr_type_int))
 		{
-			fprintf(of, " %04X\n", lw_expr_intval(te));
+			fprintf(of, " $%04X\n", lw_expr_intval(te));
 		}
 		else
 		{
