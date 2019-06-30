@@ -660,6 +660,7 @@ instab_t instab[] =
 	{ "fcc",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fcc,		pseudo_resolve_fcc,				pseudo_emit_fcc,			lwasm_insn_normal},
 	{ "fcn",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fcn,		pseudo_resolve_fcn,				pseudo_emit_fcn,			lwasm_insn_normal},
 	{ "fcs",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fcs,		pseudo_resolve_fcs,				pseudo_emit_fcs,			lwasm_insn_normal},
+	{ "fcz",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fcn,		pseudo_resolve_fcn,				pseudo_emit_fcn,			lwasm_insn_normal},
 
 	{ "fcb",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fcb,		pseudo_resolve_fcb,				pseudo_emit_fcb,			lwasm_insn_normal},
 	{ "fdb",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_fdb,		pseudo_resolve_fdb,				pseudo_emit_fdb,			lwasm_insn_normal},
