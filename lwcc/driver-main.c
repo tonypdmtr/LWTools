@@ -33,6 +33,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_string.h>
 #include <lw_stringlist.h>
 
+#include <version.h>
+
 #define VERSTRING "lwcc from " PACKAGE_STRING
 #define S(x) S2(x)
 #define S2(x) #x

@@ -29,6 +29,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_cmdline.h>
 #include <lw_string.h>
 
+#include <version.h>
+
 #include "cpp.h"
 #include "tree.h"
 
