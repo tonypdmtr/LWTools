@@ -22,7 +22,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <stdlib.h>
 
-#define ___lw_string_c_seen___
 #include "lw_alloc.h"
 #include "lw_string.h"
 

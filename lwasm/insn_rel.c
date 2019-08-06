@@ -25,6 +25,7 @@ for handling relative mode instructions
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <lw_expr.h>
 
@@ -47,7 +48,7 @@ a > or < on its own still specifies a branch point.
 */
 PARSEFUNC(insn_parse_relgen)
 {
-	lw_expr_t t, e1, e2;
+	lw_expr_t t = NULL, e1, e2;
 	
 	l -> lint = -1;
 	l -> maxlen = OPLEN(instab[l -> insn].ops[3]) + 2;
@@ -76,11 +77,73 @@ PARSEFUNC(insn_parse_relgen)
 	if (**p == '#')
 		(*p)++;
 
-	t = lwasm_parse_expr(as, p);
+	if (CURPRAGMA(l, PRAGMA_QRTS))
+	{
+		// handle ?RTS conditional return
+		if (**p == '?')
+		{
+			if (strncasecmp(*p, "?RTS", 4) == 0)
+			{
+				(*p) += 4;
+
+				line_t *cl = l;
+				for (cl = cl->prev; cl; cl = cl->prev)
+				{
+					if (cl->insn == -1)
+						continue;
+
+					if (l->addr->value - cl->addr->value > 128)
+					{
+						cl = NULL;
+						break;
+					}
+
+					if (cl->conditional_return)
+						break;
+
+					if (instab[cl->insn].ops[0] == 0x39)
+						break;
+				}
+
+				if (cl)
+				{
+					l->lint = -1;
+					if (cl->conditional_return)
+					{
+						e2 = lw_expr_build(lw_expr_type_special, lwasm_expr_lineaddr, cl);
+						e1 = lw_expr_build(lw_expr_type_int, 2);
+						t = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, e1, e2);
+					}
+					else
+					{
+						t = lw_expr_build(lw_expr_type_special, lwasm_expr_lineaddr, cl);
+					}
+				}
+				else
+				{
+					l->conditional_return = 1;
+
+					// t = * + 1
+
+					e2 = lw_expr_build(lw_expr_type_special, lwasm_expr_lineaddr, l);
+					e1 = lw_expr_build(lw_expr_type_int, 1);
+					t = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, e1, e2);
+
+					lw_expr_destroy(e1);
+					lw_expr_destroy(e2);
+				}
+			}
+		}
+	}
+	
+	if (!t)
+	{
+		t = lwasm_parse_expr(as, p);
+	}
 
 	if (!t)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 
@@ -88,6 +151,7 @@ PARSEFUNC(insn_parse_relgen)
 	if (l -> lint == 8)
 	{
 		l -> len = OPLEN(instab[l -> insn].ops[2]) + 1;
+		if (l->conditional_return) l->len++;
 	}
 	else if (l -> lint == 16)
 	{
@@ -222,24 +286,41 @@ EMITFUNC(insn_emit_relgen)
 	{
 		if (!lw_expr_istype(e, lw_expr_type_int))
 		{
-			lwasm_register_error(as, l, "Illegal non-constant expression");
+			lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 			return;
 		}
 	
 		offs = lw_expr_intval(e);
 		if (l -> lint == 8 && (offs < -128 || offs > 127))
 		{
-			lwasm_register_error(as, l, "Byte overflow");
+			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 			return;
 		}
-	
 
-		lwasm_emitop(l, instab[l -> insn].ops[2]);
-		lwasm_emit(l, offs);
+		if (l->conditional_return)
+		{
+			lwasm_emitop(l, instab[l->insn].ops[2] ^ 1);	/* flip branch, add RTS */
+			lwasm_emit(l, 1);
+			lwasm_emit(l, 0x39);
+			l->cycle_adj = 3;
+		}
+		else
+		{
+			lwasm_emitop(l, instab[l->insn].ops[2]);
+			lwasm_emit(l, offs);
+		}
 	}
 	else
 	{
 		lwasm_emitop(l, instab[l -> insn].ops[3]);
 		lwasm_emitexpr(l, e, 2);
+		if (CURPRAGMA(l, PRAGMA_OPERANDSIZE) && lw_expr_istype(e, lw_expr_type_int))
+		{
+			offs = lw_expr_intval(e);
+			if (offs >= -128 && offs <= 127)
+			{
+				lwasm_register_error(as, l, W_OPERAND_SIZE);
+			}
+		}
 	}
 }

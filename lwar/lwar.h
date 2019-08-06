@@ -39,6 +39,7 @@ extern int operation;
 extern int nfiles;
 extern char **files;
 extern int mergeflag;
+extern int filename_flag;
 
 //typedef void * ARHANDLE;
 
@@ -54,6 +55,8 @@ extern int mergeflag;
 #endif // __lwar_c_seen__
 
 __lwar_E__ void add_file_name(char *fn);
+
+__lwar_E__ char *get_file_name(char *fn);
 
 //__lwar_E__ ARHANDLE open_archive(char *fn, int mode);
 

@@ -24,7 +24,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <ctype.h>
 
-#define ___lw_expr_c_seen___
 #include "lw_alloc.h"
 #include "lw_expr.h"
 #include "lw_error.h"
@@ -37,8 +36,16 @@ static lw_expr_fn3_t *parse_term = NULL;
 /* Q&D to break out of infinite recursion */
 static int level = 0;
 static int bailing = 0;
+static int parse_compact = 0;
 
 static void (*divzero)(void *priv) = NULL;
+
+static int expr_width = 0;
+
+void lw_expr_setwidth(int w)
+{
+	expr_width = w;
+}
 
 void lw_expr_setdivzero(void (*fn)(void *priv))
 {
@@ -73,7 +80,11 @@ int lw_expr_intval(lw_expr_t e)
 int lw_expr_whichop(lw_expr_t e)
 {
 	if (e -> type == lw_expr_type_oper)
+	{
+		if (e -> value == lw_expr_oper_com8)
+			return lw_expr_oper_com;
 		return e -> value;
+	}
 	return -1;
 }
 
@@ -202,7 +213,7 @@ lw_expr_t lw_expr_build_aux(int exprtype, va_list args)
 	case lw_expr_type_oper:
 		t = va_arg(args, int);
 		te1 = va_arg(args, lw_expr_t);
-		if (t != lw_expr_oper_com && t != lw_expr_oper_neg)
+		if (t != lw_expr_oper_com && t != lw_expr_oper_neg && t != lw_expr_oper_com8)
 			te2 = va_arg(args, lw_expr_t);
 		else
 			te2 = NULL;
@@ -320,6 +331,10 @@ void lw_expr_print_aux(lw_expr_t E, char **obuf, int *buflen, int *bufloc)
 			
 		case lw_expr_oper_com:
 			strcat(buf, "COM ");
+			break;
+		
+		case lw_expr_oper_com8:
+			strcat(buf, "COM8 ");
 			break;
 			
 		default:
@@ -577,7 +592,7 @@ again:
 		te = evaluate_special(E -> value, E -> value2, priv);
 		if (lw_expr_contains(te, E))
 			lw_expr_destroy(te);
-		if (te)
+		else if (te)
 		{
 			for (o = E -> operands; o; o = o -> next)
 				lw_expr_destroy(o -> p);
@@ -606,6 +621,8 @@ again:
 		lw_expr_t te;
 		
 		te = evaluate_var(E -> value2, priv);
+		if (!te)
+			return;
 		if (lw_expr_contains(te, E))
 			lw_expr_destroy(te);
 		else if (te)
@@ -713,6 +730,10 @@ again:
 
 		case lw_expr_oper_com:
 			tr = ~(E -> operands -> p -> value);
+			break;
+		
+		case lw_expr_oper_com8:
+			tr = ~(E -> operands -> p -> value) & 0xff;
 			break;
 		
 		case lw_expr_oper_plus:
@@ -927,11 +948,18 @@ again:
 					}
 					lw_expr_destroy(o -> p);
 					o -> p = e1;
-					for (o = o2 -> p -> operands; o; o = o -> next)
+					if (o2 -> p -> type == lw_expr_type_oper)
 					{
-						if (o -> p -> type == lw_expr_type_int)
-							continue;
-						lw_expr_add_operand(e1, o -> p);
+						for (o = o2 -> p -> operands; o; o = o -> next)
+						{
+							if (o -> p -> type == lw_expr_type_int)
+								continue;
+							lw_expr_add_operand(e1, o -> p);
+						}
+					}
+					else
+					{
+						lw_expr_add_operand(e1, o2 -> p);
 					}
 					lw_expr_destroy(o2 -> p);
 					o2 -> p = lw_expr_build(lw_expr_type_int, 0);
@@ -1123,7 +1151,7 @@ The end of an expression is determined by the presence of any of the
 following conditions:
 
 1. a NUL character
-2. a whitespace character
+2. a whitespace character (if parse mode is "COMPACT")
 3. a )
 4. a ,
 5. any character that is not recognized as a term
@@ -1137,19 +1165,29 @@ error.
 
 lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec);
 
+static void lw_expr_parse_next_tok(char **p)
+{
+	if (parse_compact)
+		return;
+	for (; **p && isspace(**p); (*p)++)
+		/* do nothing */ ;
+}
+
 lw_expr_t lw_expr_parse_term(char **p, void *priv)
 {
 	lw_expr_t term, term2;
 	
 eval_next:
+	lw_expr_parse_next_tok(p);
+
 	if (!**p || isspace(**p) || **p == ')' || **p == ']')
 		return NULL;
-
 	// parentheses
 	if (**p == '(')
 	{
 		(*p)++;
 		term = lw_expr_parse_expr(p, priv, 0);
+		lw_expr_parse_next_tok(p);
 		if (**p != ')')
 		{
 			lw_expr_destroy(term);
@@ -1187,7 +1225,10 @@ eval_next:
 		if (!term)
 			return NULL;
 		
-		term2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_com, term);
+		if (expr_width == 8)
+			term2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_com8, term);
+		else
+			term2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_com, term);
 		lw_expr_destroy(term);
 		return term2;
 	}
@@ -1226,7 +1267,8 @@ lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec)
 	int opern, i;
 	lw_expr_t term1, term2, term3;
 	
-	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']')
+	lw_expr_parse_next_tok(p);
+	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']' || **p == ';')
 		return NULL;
 
 	term1 = lw_expr_parse_term(p, priv);
@@ -1234,7 +1276,8 @@ lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec)
 		return NULL;
 
 eval_next:
-	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']')
+	lw_expr_parse_next_tok(p);
+	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']' || **p == ';')
 		return term1;
 	
 	// expecting an operator here
@@ -1291,8 +1334,16 @@ eval_next:
 
 lw_expr_t lw_expr_parse(char **p, void *priv)
 {
+	parse_compact = 0;
 	return lw_expr_parse_expr(p, priv, 0);
 }
+
+lw_expr_t lw_expr_parse_compact(char **p, void *priv)
+{
+	parse_compact = 1;
+	return lw_expr_parse_expr(p, priv, 0);
+}
+	
 
 int lw_expr_testterms(lw_expr_t e, lw_expr_testfn_t *fn, void *priv)
 {

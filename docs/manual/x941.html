@@ -11,13 +11,13 @@ TITLE="LW Tool Chain"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="LWLINK"
-HREF="c693.html"><LINK
+HREF="c827.html"><LINK
 REL="PREVIOUS"
 TITLE="Linker Operation"
-HREF="x793.html"><LINK
+HREF="x927.html"><LINK
 REL="NEXT"
 TITLE="Format Specific Linking Notes"
-HREF="x864.html"></HEAD
+HREF="x1007.html"></HEAD
 ><BODY
 CLASS="SECTION"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x793.html"
+HREF="x927.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x864.html"
+HREF="x1007.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,7 +73,7 @@ CLASS="SECTION"
 ><H1
 CLASS="SECTION"
 ><A
-NAME="AEN807"
+NAME="AEN941"
 >4.3. Linking Scripts</A
 ></H1
 ><P
@@ -205,6 +205,32 @@ everything out.</P
 >section <CODE
 CLASS="PARAMETER"
 >name</CODE
+> high <CODE
+CLASS="PARAMETER"
+>addr</CODE
+></DT
+><DD
+><P
+>&#13;This causes the section <CODE
+CLASS="PARAMETER"
+>name</CODE
+> to load with its end
+address just below <CODE
+CLASS="PARAMETER"
+>addr</CODE
+>.  Subsequent sections are
+loaded at progressively lower addresses.  This may lead to inefficient file
+encoding for some targets.  As of this writing, it will also almost
+certainly do the wrong thing for a raw target.&#13;</P
+><P
+>&#13;This is useful for aligning a block of code with high memory.  As an
+example, if the total size of a section is $100 bytes and a high address of
+$FE00 is specified, the section will actually load at $FD00.&#13;</P
+></DD
+><DT
+>section <CODE
+CLASS="PARAMETER"
+>name</CODE
 ></DT
 ><DD
 ><P
@@ -262,7 +288,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x793.html"
+HREF="x927.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -280,7 +306,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x864.html"
+HREF="x1007.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -296,7 +322,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c693.html"
+HREF="c827.html"
 ACCESSKEY="U"
 >Up</A
 ></TD

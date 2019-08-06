@@ -19,6 +19,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "lwasm.h"
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -27,13 +29,12 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <lw_alloc.h>
 
-#include "lwasm.h"
 #include "instab.h"
 #include "input.h"
 
 #include "lw_string.h"
 
-extern void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab_t *ss);
+void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab_t *ss);
 
 // for "dts"
 PARSEFUNC(pseudo_parse_dts)
@@ -94,10 +95,14 @@ PARSEFUNC(pseudo_parse_end)
 {
 	lw_expr_t addr;
 	
-	as -> endseen = 1;
 	l -> len = 0;
-	
-	if (as -> output_format != OUTPUT_DECB)
+
+	if (CURPRAGMA(l, PRAGMA_M80EXT) && input_isinclude(as))
+		return;	/* ignore END inside includes */
+
+	as->endseen = 1;
+
+	if ((as -> output_format != OUTPUT_DECB) && (as -> output_format != OUTPUT_BASIC) && (as -> output_format != OUTPUT_LWMOD && (as -> output_format != OUTPUT_IHEX) && (as -> output_format != OUTPUT_SREC)))
 	{
 		skip_operand(p);
 		return;
@@ -113,7 +118,7 @@ PARSEFUNC(pseudo_parse_end)
 	}
 	if (!addr)
 	{
-		lwasm_register_error(as, l, "Bad expression");
+		lwasm_register_error(as, as->cl, E_EXPRESSION_BAD);
 		addr = lw_expr_build(lw_expr_type_int, 0);
 	}
 	lwasm_save_expr(l, 0, addr);
@@ -122,15 +127,30 @@ PARSEFUNC(pseudo_parse_end)
 EMITFUNC(pseudo_emit_end)
 {
 	lw_expr_t addr;
-	
+
+	if (CURPRAGMA(l, PRAGMA_M80EXT) && input_isinclude(as))
+		return;	/* ignore END inside includes */
+
 	addr = lwasm_fetch_expr(l, 0);
 	
 	if (addr)
 	{
 		if (!lw_expr_istype(addr, lw_expr_type_int))
-			lwasm_register_error(as, l, "Exec address not constant!");
+		{
+			if (as -> output_format == OUTPUT_LWMOD)
+			{
+				as -> execaddr_expr = lw_expr_copy(addr);
+			}
+			else
+			{
+				lwasm_register_error(as, l, E_EXEC_ADDRESS);
+			}
+		}
 		else
+		{
+			as -> execaddr_expr = NULL;
 			as -> execaddr = lw_expr_intval(addr);
+		}
 	}
 	as -> endseen = 1;
 }
@@ -145,7 +165,7 @@ PARSEFUNC(pseudo_parse_fcb)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad expression (#%d)", i);
+			lwasm_register_error2(as, l, E_EXPRESSION_BAD, "(#%d)", i);
 			break;
 		}
 		lwasm_save_expr(l, i++, e);
@@ -180,7 +200,7 @@ PARSEFUNC(pseudo_parse_fdb)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad expression (#%d)", i);
+			lwasm_register_error2(as, l, E_EXPRESSION_BAD, "(#%d)", i);
 			break;
 		}
 		lwasm_save_expr(l, i++, e);
@@ -215,7 +235,7 @@ PARSEFUNC(pseudo_parse_fdbs)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad expression (#%d)", i);
+			lwasm_register_error2(as, l, E_EXPRESSION_BAD, "(#%d)", i);
 			break;
 		}
 		lwasm_save_expr(l, i++, e);
@@ -258,7 +278,7 @@ PARSEFUNC(pseudo_parse_fqb)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad expression (#%d)", i);
+			lwasm_register_error2(as, l, E_EXPRESSION_BAD, "(#%d)", i);
 			break;
 		}
 		lwasm_save_expr(l, i++, e);
@@ -298,7 +318,7 @@ static int cstringlen(asmstate_t *as, line_t *ln, char **p, char delim)
 			if (blen >= bsize)
 			{
 				str = lw_realloc(str, bsize + 32);
-				bsize++;
+				bsize += 32;
 			}
 			str[blen++] = **p;
 		}
@@ -421,31 +441,50 @@ PARSEFUNC(pseudo_parse_fcc)
 	
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
 	delim = **p;
 	(*p)++;
 	
-	
 	i = cstringlen(as, l, p, delim);
 	
 	if (**p != delim)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	(*p)++;	
 	l -> len = i;
+
+	/* handle additional expressions, like FCC "Hello",13,0 */
+	if (CURPRAGMA(l, PRAGMA_M80EXT))
+	{
+		if (**p == ',')
+		{
+			(*p)++;
+			pseudo_parse_fcb(as, l, p);
+			l -> fcc_extras = l -> len;
+			l -> len = i + l -> fcc_extras;
+		}
+	}
 }
 
 EMITFUNC(pseudo_emit_fcc)
 {
 	int i;
-	
-	for (i = 0; i < l -> len; i++)
+	lw_expr_t e;
+
+	for (i = 0; i < l -> len - l -> fcc_extras; i++)
 		lwasm_emit(l, l -> lstr[i]);
+
+	/* PRAGMA_M80EXT */
+	for (i = 0; i < l -> fcc_extras; i++)
+	{
+		e = lwasm_fetch_expr(l, i);
+		lwasm_emitexpr(l, e, 1);
+	}
 }
 
 PARSEFUNC(pseudo_parse_fcs)
@@ -455,7 +494,7 @@ PARSEFUNC(pseudo_parse_fcs)
 	
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -466,7 +505,7 @@ PARSEFUNC(pseudo_parse_fcs)
 	
 	if (**p != delim)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	(*p)++;
@@ -489,7 +528,7 @@ PARSEFUNC(pseudo_parse_fcn)
 	
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -500,7 +539,7 @@ PARSEFUNC(pseudo_parse_fcn)
 
 	if (**p != delim)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	(*p)++;
@@ -523,7 +562,7 @@ PARSEFUNC(pseudo_parse_rmb)
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
-		lwasm_register_error(as, l, "Bad expression");
+		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
 
 	l -> lint = 0;
@@ -532,7 +571,7 @@ PARSEFUNC(pseudo_parse_rmb)
 		lwasm_reduce_expr(as, expr);
 		if (!lw_expr_istype(expr, lw_expr_type_int))
 		{
-			lwasm_register_error(as, l, "Expression must be constant at parse time");
+			lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 		}
 		else
 		{
@@ -579,7 +618,7 @@ RESOLVEFUNC(pseudo_resolve_rmb)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative reservation sizes make no sense! (%d)", lw_expr_intval(expr));
+			lwasm_register_error2(as, l, E_NEGATIVE_RESERVATION, "(%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			l -> dlen = 0;
 			return;
@@ -597,7 +636,7 @@ EMITFUNC(pseudo_emit_rmb)
 		return;
 
 	if (l -> len < 0 || l -> dlen < 0)
-		lwasm_register_error(as, l, "Expression not constant: %d %d", l -> len, l -> dlen);
+		lwasm_register_error2(as, l, E_EXPRESSION_NOT_CONST, "%d %d", l -> len, l -> dlen);
 }
 
 PARSEFUNC(pseudo_parse_rmd)
@@ -608,7 +647,7 @@ PARSEFUNC(pseudo_parse_rmd)
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
-		lwasm_register_error(as, l, "Bad expression");
+		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
 	
 	if (as -> instruct)
@@ -616,7 +655,7 @@ PARSEFUNC(pseudo_parse_rmd)
 		lwasm_reduce_expr(as, expr);
 		if (!lw_expr_istype(expr, lw_expr_type_int))
 		{
-			lwasm_register_error(as, l, "Expression must be constant at parse time");
+			lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 		}
 		else
 		{
@@ -663,7 +702,7 @@ RESOLVEFUNC(pseudo_resolve_rmd)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative reservation sizes make no sense! (%d)", lw_expr_intval(expr));
+			lwasm_register_error2(as, l, E_NEGATIVE_RESERVATION, "(%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			l -> dlen = 0;
 			return;
@@ -681,7 +720,7 @@ EMITFUNC(pseudo_emit_rmd)
 		return;
 
 	if (l -> len < 0 || l -> dlen < 0)
-		lwasm_register_error(as, l, "Expression not constant");
+		lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 }
 
 
@@ -693,14 +732,14 @@ PARSEFUNC(pseudo_parse_rmq)
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
-		lwasm_register_error(as, l, "Bad expression");
+		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
 	if (as -> instruct)
 	{
 		lwasm_reduce_expr(as, expr);
 		if (!lw_expr_istype(expr, lw_expr_type_int))
 		{
-			lwasm_register_error(as, l, "Expression must be constant at parse time");
+			lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 		}
 		else
 		{
@@ -747,7 +786,7 @@ RESOLVEFUNC(pseudo_resolve_rmq)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative reservation sizes make no sense! (%d)", lw_expr_intval(expr));
+			lwasm_register_error2(as, l, E_NEGATIVE_RESERVATION, "(%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			l -> dlen = 0;
 			return;
@@ -765,7 +804,7 @@ EMITFUNC(pseudo_emit_rmq)
 		return;
 
 	if (l -> len < 0 || l -> dlen < 0)
-		lwasm_register_error(as, l, "Expression not constant");
+		lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 }
 
 
@@ -776,7 +815,7 @@ PARSEFUNC(pseudo_parse_zmq)
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
-		lwasm_register_error(as, l, "Bad expression");
+		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
 	
 	lwasm_save_expr(l, 0, expr);
@@ -795,7 +834,7 @@ RESOLVEFUNC(pseudo_resolve_zmq)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative block sizes make no sense! (%d)", lw_expr_intval(expr));
+			lwasm_register_error2(as, l, E_NEGATIVE_BLOCKSIZE, "(%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			return;
 		}
@@ -809,7 +848,7 @@ EMITFUNC(pseudo_emit_zmq)
 
 	if (l -> len < 0)
 	{
-		lwasm_register_error(as, l, "Expression not constant");
+		lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 		return;
 	}
 
@@ -825,7 +864,7 @@ PARSEFUNC(pseudo_parse_zmd)
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
-		lwasm_register_error(as, l, "Bad expression");
+		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
 	
 	lwasm_save_expr(l, 0, expr);
@@ -844,7 +883,7 @@ RESOLVEFUNC(pseudo_resolve_zmd)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative block sizes make no sense! (%d)", lw_expr_intval(expr));
+			lwasm_register_error2(as, l, E_NEGATIVE_BLOCKSIZE, "(%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			return;
 		}
@@ -858,7 +897,7 @@ EMITFUNC(pseudo_emit_zmd)
 
 	if (l -> len < 0)
 	{
-		lwasm_register_error(as, l, "Expression not constant");
+		lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 		return;
 	}
 
@@ -873,7 +912,7 @@ PARSEFUNC(pseudo_parse_zmb)
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
-		lwasm_register_error(as, l, "Bad expression");
+		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
 	
 	lwasm_save_expr(l, 0, expr);
@@ -892,7 +931,7 @@ RESOLVEFUNC(pseudo_resolve_zmb)
 	{
 		if (lw_expr_intval(expr) < 0)
 		{
-			lwasm_register_error(as, l, "Negative block sizes make no sense! (%d)", lw_expr_intval(expr));
+			lwasm_register_error2(as, l, E_NEGATIVE_BLOCKSIZE, "(%d)", lw_expr_intval(expr));
 			l -> len = 0;
 			return;
 		}
@@ -906,7 +945,7 @@ EMITFUNC(pseudo_emit_zmb)
 
 	if (l -> len < 0)
 	{
-		lwasm_register_error(as, l, "Expression not constant");
+		lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 		return;
 	}
 
@@ -923,13 +962,51 @@ PARSEFUNC(pseudo_parse_org)
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
 	lw_expr_destroy(l -> daddr);
 	l -> daddr = e;
 	
+	if (l -> inmod == 0)
+	{
+		lw_expr_destroy(l -> addr);
+		l -> addr = e;
+	}
+	l -> len = 0;
+}
+
+PARSEFUNC(pseudo_parse_reorg)
+{
+	lw_expr_t e = NULL;
+
+	l -> len = 0;
+
+	line_t *cl = l;
+	for (cl = cl -> prev; cl; cl = cl -> prev)
+	{
+		if (cl -> insn == -1) continue;
+
+		if (!strcmp("org", instab[cl -> insn].opcode))
+		{
+			if (cl -> prev)
+			{
+				e = lw_expr_copy(cl -> prev -> daddr);
+				break;
+			}
+		}
+	}
+
+	if (!e)
+	{
+		lwasm_register_error(as, l, E_ORG_NOT_FOUND);
+		return;
+	}
+
+	lw_expr_destroy(l -> daddr);
+	l -> daddr = e;
+
 	if (l -> inmod == 0)
 	{
 		lw_expr_destroy(l -> addr);
@@ -946,14 +1023,14 @@ PARSEFUNC(pseudo_parse_equ)
 	
 	if (!(l -> sym))
 	{
-		lwasm_register_error(as, l, "Missing symbol");
+		lwasm_register_error(as, l, E_SYMBOL_MISSING);
 		return;
 	}
 	
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -971,14 +1048,14 @@ PARSEFUNC(pseudo_parse_set)
 	
 	if (!(l -> sym))
 	{
-		lwasm_register_error(as, l, "Missing symbol");
+		lwasm_register_error(as, l, E_SYMBOL_MISSING);
 		return;
 	}
 	
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -996,14 +1073,14 @@ PARSEFUNC(pseudo_parse_setdp)
 	
 	if (as -> output_format == OUTPUT_OBJ)
 	{
-		lwasm_register_error(as, l, "SETDP not permitted for object target");
+		lwasm_register_error(as, l, E_SETDP_INVALID);
 		return;
 	}
 	
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -1011,7 +1088,7 @@ PARSEFUNC(pseudo_parse_setdp)
 	lwasm_reduce_expr(as, e);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
-		lwasm_register_error(as, l, "SETDP must be constant on pass 1");
+		lwasm_register_error(as, l, E_SETDP_NOT_CONST);
 		lw_expr_destroy(e);
 		return;
 	}
@@ -1025,7 +1102,8 @@ PARSEFUNC(pseudo_parse_ifp1)
 {
 	l -> len = 0;
 	l -> hideline = 1;
-	
+	l -> hidecond = 1;
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1033,14 +1111,14 @@ PARSEFUNC(pseudo_parse_ifp1)
 		return;
 	}
 	
-	lwasm_register_warning(as, l, "IFP1 if is not supported; ignoring");
-	
+	lwasm_register_error2(as, l, W_NOT_SUPPORTED, "%s", "IFP1");
 }
 
 PARSEFUNC(pseudo_parse_ifp2)
 {
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1049,7 +1127,7 @@ PARSEFUNC(pseudo_parse_ifp2)
 		return;
 	}
 	
-	lwasm_register_warning(as, l, "IFP2 if is not supported; ignoring");
+	lwasm_register_error2(as, l, W_NOT_SUPPORTED, "%s", "IFP2");
 }
 
 PARSEFUNC(pseudo_parse_ifeq)
@@ -1058,6 +1136,7 @@ PARSEFUNC(pseudo_parse_ifeq)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1082,6 +1161,7 @@ PARSEFUNC(pseudo_parse_ifne)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1107,6 +1187,7 @@ PARSEFUNC(pseudo_parse_ifgt)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1131,6 +1212,7 @@ PARSEFUNC(pseudo_parse_ifge)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1155,6 +1237,7 @@ PARSEFUNC(pseudo_parse_iflt)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1178,6 +1261,8 @@ PARSEFUNC(pseudo_parse_ifle)
 	lw_expr_t e;
 
 	l -> hideline = 1;
+	l -> hidecond = 1;
+
 	l -> len = 0;
 	
 	if (as -> skipcond && !(as -> skipmacro))
@@ -1200,6 +1285,8 @@ PARSEFUNC(pseudo_parse_ifle)
 PARSEFUNC(pseudo_parse_endc)
 {
 	l -> hideline = 1;
+	l -> hidecond = 1;
+
 	l -> len = 0;
 	skip_operand(p);
 	if (as -> skipcond && !(as -> skipmacro))
@@ -1213,6 +1300,7 @@ PARSEFUNC(pseudo_parse_endc)
 PARSEFUNC(pseudo_parse_else)
 {
 	l -> len = 0;
+	l -> hidecond = 1;
 	l -> hideline = 1;
 	skip_operand(p);
 	
@@ -1240,6 +1328,7 @@ PARSEFUNC(pseudo_parse_ifdef)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1280,6 +1369,7 @@ PARSEFUNC(pseudo_parse_ifndef)
 	
 	l -> len = 0;
 	l -> hideline = 1;
+	l -> hidecond = 1;
 	
 	if (as -> skipcond && !(as -> skipmacro))
 	{
@@ -1305,15 +1395,68 @@ PARSEFUNC(pseudo_parse_ifndef)
 	}
 }
 
+PARSEFUNC(pseudo_parse_ifpragma)
+{
+	char *pstr;
+	int i;
+	int pragma;
+	int compare;
+
+	l -> len = 0;
+	l -> hideline = 1;
+	l -> hidecond = 1;
+
+	if (as -> skipcond && !(as -> skipmacro))
+	{
+		as -> skipcount++;
+		skip_operand(p);
+		return;
+	}
+
+again:
+	for (i = 0; (*p)[i] && !isspace((*p)[i]) && (*p)[i] != '|' && (*p)[i] != '&'; i++)
+		/* do nothing */;
+
+	pstr = lw_strndup(*p, i);
+	(*p) += i;
+
+	pragma = parse_pragma_helper(pstr);
+	if (!pragma) lwasm_register_error(as, l, E_PRAGMA_UNRECOGNIZED);
+
+	lw_free(pstr);
+
+	if (pragma & PRAGMA_CLEARBIT)
+	{
+		pragma &= ~PRAGMA_CLEARBIT;			/* strip off flag bit */
+		compare = l -> pragmas & pragma ? 0 : 1;
+	}
+	else
+	{
+		compare = l -> pragmas & pragma;
+	}
+
+	if (!compare)
+	{
+		if (**p == '|')
+		{
+			(*p)++;
+			goto again;
+		}
+		as -> skipcond = 1;
+		as -> skipcount = 1;
+	}
+	skip_operand(p);
+}
+
 PARSEFUNC(pseudo_parse_error)
 {
-	lwasm_register_error(as, l, "User error: %s", *p);
+	lwasm_register_error2(as, l, E_USER_SPECIFIED, "%s", *p);
 	skip_operand(p);
 }
 
 PARSEFUNC(pseudo_parse_warning)
 {
-	lwasm_register_warning(as, l, "User warning: %s", *p);
+	lwasm_register_error2(as, l, W_USER_SPECIFIED, "%s", *p);
 	l -> len = 0;
 	skip_operand(p);
 }
@@ -1328,7 +1471,7 @@ PARSEFUNC(pseudo_parse_includebin)
 	
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Missing filename");
+		lwasm_register_error(as, l, E_FILENAME_MISSING);
 		return;
 	}
 	
@@ -1353,7 +1496,7 @@ PARSEFUNC(pseudo_parse_includebin)
 	fp = input_open_standalone(as, fn, &rfn);
 	if (!fp)
 	{
-		lwasm_register_error(as, l, "Cannot open file");
+		lwasm_register_error(as, l, E_FILE_OPEN);
 		lw_free(fn);
 		return;
 	}
@@ -1372,10 +1515,10 @@ EMITFUNC(pseudo_emit_includebin)
 	FILE *fp;
 	int c;
 	
-	fp = fopen(l -> lstr, "r");
+	fp = fopen(l -> lstr, "rb");
 	if (!fp)
 	{
-		lwasm_register_error(as, l, "Cannot open file (emit)!");
+		lwasm_register_error2(as, l, E_FILE_OPEN, "%s", "(emit)!");
 		return;
 	}
 	
@@ -1401,7 +1544,7 @@ PARSEFUNC(pseudo_parse_include)
 		
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Missing filename");
+		lwasm_register_error(as, l, E_FILENAME_MISSING);
 		return;
 	}
 	
@@ -1445,7 +1588,7 @@ PARSEFUNC(pseudo_parse_align)
 	lw_expr_t e;
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -1453,7 +1596,7 @@ PARSEFUNC(pseudo_parse_align)
 	
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -1470,7 +1613,7 @@ PARSEFUNC(pseudo_parse_align)
 	}
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad padding");
+		lwasm_register_error(as, l, E_PADDING_BAD);
 		return;
 	}
 	
@@ -1491,7 +1634,7 @@ RESOLVEFUNC(pseudo_resolve_align)
 		align = lw_expr_intval(e);
 		if (align < 1)
 		{
-			lwasm_register_error(as, l, "Invalid alignment");
+			lwasm_register_error(as, l, E_ALIGNMENT_INVALID);
 			return;
 		}
 	}
@@ -1547,14 +1690,14 @@ PARSEFUNC(pseudo_parse_fill)
 	lw_expr_t e, e1;
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
 	e1 = lwasm_parse_expr(as, p);
 	if (**p != ',')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	(*p)++;
@@ -1562,7 +1705,7 @@ PARSEFUNC(pseudo_parse_fill)
 	
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
@@ -1571,7 +1714,7 @@ PARSEFUNC(pseudo_parse_fill)
 
 	if (!e1)
 	{
-		lwasm_register_error(as, l, "Bad padding");
+		lwasm_register_error(as, l, E_PADDING_BAD);
 		return;
 	}
 }
@@ -1594,7 +1737,7 @@ RESOLVEFUNC(pseudo_resolve_fill)
 		if (align < 0)
 		{
 			lw_expr_destroy(te);
-			lwasm_register_error(as, l, "Invalid fill length");
+			lwasm_register_error(as, l, E_FILL_INVALID);
 			return;
 		}
 	}
@@ -1770,7 +1913,7 @@ int strcond_peq(char **p)
 	char *arg0;
 	char *arg1;
 	char *arg2;
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1796,7 +1939,7 @@ int strcond_ipeq(char **p)
 	char *arg0;
 	char *arg1;
 	char *arg2;
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1822,7 +1965,7 @@ int strcond_pne(char **p)
 	char *arg0;
 	char *arg1;
 	char *arg2;
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1848,7 +1991,7 @@ int strcond_ipne(char **p)
 	char *arg0;
 	char *arg1;
 	char *arg2;
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1877,7 +2020,7 @@ int strcond_seq(char **p)
 	char *rarg1;
 	char *rarg2;
 	
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1912,7 +2055,7 @@ int strcond_iseq(char **p)
 	char *rarg1;
 	char *rarg2;
 	
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1949,7 +2092,7 @@ int strcond_sne(char **p)
 	char *rarg1;
 	char *rarg2;
 	
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -1985,7 +2128,7 @@ int strcond_isne(char **p)
 	char *rarg1;
 	char *rarg2;
 	
-	int plen;
+	size_t plen;
 	int c = 0;
 	
 	arg0 = strcond_parsearg(p);
@@ -2051,7 +2194,7 @@ PARSEFUNC(pseudo_parse_ifstr)
 	tstr = strcond_parsearg(p);
 	if (!**p || isspace(**p))	
 	{
-		lwasm_register_error(as, l, "Bad string condition");
+		lwasm_register_error(as, l, E_STRING_BAD);
 		return;
 	}
 		
@@ -2063,7 +2206,7 @@ PARSEFUNC(pseudo_parse_ifstr)
 	
 	if (strops[strop].str == NULL)
 	{
-		lwasm_register_error(as, l, "Bad string condition");
+		lwasm_register_error(as, l, E_STRING_BAD);
 	}
 
 	tv = (*(strops[strop].fn))(p);

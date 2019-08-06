@@ -35,15 +35,15 @@ PARSEFUNC(pseudo_parse_section)
 	char *opts = NULL;
 	sectiontab_t *s;
 
-	if (as -> output_format != OUTPUT_OBJ)
+	if (as -> output_format != OUTPUT_OBJ && as -> output_format != OUTPUT_LWMOD)
 	{
-		lwasm_register_error(as, l, "Cannot use sections unless using the object target");
+		lwasm_register_error(as, l, E_SECTION_TARGET);
 		return;
 	}
 	
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Need section name");
+		lwasm_register_error(as, l, E_SECTION_NAME);
 		return;
 	}
 
@@ -62,7 +62,7 @@ PARSEFUNC(pseudo_parse_section)
 	sn = lw_strndup(*p, p2 - *p);
 	*p = p2;
 	
-	if (**p == ',')
+	if (**p == ',' && as -> output_format != OUTPUT_LWMOD)
 	{
 		// have opts
 		(*p)++;
@@ -74,6 +74,20 @@ PARSEFUNC(pseudo_parse_section)
 		*p = p2;
 	}
 
+	if (as -> output_format == OUTPUT_LWMOD)
+	{
+		for (p2 = sn; *p2; p2++)
+			*p2 = tolower(*p2);
+		
+		if (strcmp(sn, "bss") && strcmp(sn, "main") && strcmp(sn, "init") && strcmp(sn, "calls") && strcmp(sn, "modname"))
+		{
+			lwasm_register_error(as, l, E_SECTION_NAME);
+			lw_free(sn);
+			lw_free(opts);
+			return;
+		}
+	}
+
 	for (s = as -> sections; s; s = s -> next)
 	{
 		if (!strcmp(s -> name, sn))
@@ -81,7 +95,7 @@ PARSEFUNC(pseudo_parse_section)
 	}
 	if (s && opts)
 	{
-		lwasm_register_warning(as, l, "Section flags can only be specified the first time; ignoring duplicate definition");
+		lwasm_register_error(as, l, W_DUPLICATE_SECTION);
 	}
 	if (!s)
 	{
@@ -90,6 +104,7 @@ PARSEFUNC(pseudo_parse_section)
 		s -> oblen = 0;
 		s -> obsize = 0;
 		s -> obytes = NULL;
+		s -> tbase = -1;
 		s -> name = lw_strdup(sn);
 		s -> offset = lw_expr_build(lw_expr_type_special, lwasm_expr_secbase, s);
 		s -> flags = section_flag_none;
@@ -125,7 +140,7 @@ PARSEFUNC(pseudo_parse_section)
 			}
 			else
 			{
-				lwasm_register_error(as, l, "Unrecognized section flag");
+				lwasm_register_error(as, l, E_SECTION_FLAG);
 				lw_free(sn);
 				lw_free(opts);
 				lw_free(s -> name);
@@ -156,9 +171,9 @@ PARSEFUNC(pseudo_parse_section)
 
 PARSEFUNC(pseudo_parse_endsection)
 {
-	if (as -> output_format != OUTPUT_OBJ)
+	if (as -> output_format != OUTPUT_OBJ && as -> output_format != OUTPUT_LWMOD)
 	{
-		lwasm_register_error(as, l, "Cannot use sections unless using the object target");
+		lwasm_register_error(as, l, E_SECTION_TARGET);
 		return;
 	}
 
@@ -166,7 +181,7 @@ PARSEFUNC(pseudo_parse_endsection)
 
 	if (!(as -> csect))
 	{
-		lwasm_register_error(as, l, "ENDSECTION without SECTION");
+		lwasm_register_error(as, l, E_SECTION_END);
 		return;
 	}
 
@@ -192,7 +207,7 @@ PARSEFUNC(pseudo_parse_export)
 	
 	if (as -> output_format != OUTPUT_OBJ)
 	{
-		lwasm_register_error(as, l, "EXPORT only supported for object target");
+		lwasm_register_error2(as, l, E_OBJTARGET_ONLY, "(%s)", "EXPORT");
 		return;
 	}
 
@@ -223,7 +238,7 @@ again:
 	}
 	if (!sym)
 	{
-		lwasm_register_error(as, l, "No symbol for EXPORT");
+		lwasm_register_error2(as, l, E_SYMBOL_MISSING, "for %s", "EXPORT");
 		return;
 	}
 	
@@ -254,7 +269,7 @@ PARSEFUNC(pseudo_parse_extern)
 	
 	if (as -> output_format != OUTPUT_OBJ)
 	{
-		lwasm_register_error(as, l, "IMPORT only supported for object target");
+		lwasm_register_error2(as, l, E_OBJTARGET_ONLY, "(%s)", "IMPORT");
 		return;
 	}
 	
@@ -285,7 +300,7 @@ again:
 	}
 	if (!sym)
 	{
-		lwasm_register_error(as, l, "No symbol for IMPORT");
+		lwasm_register_error2(as, l, E_SYMBOL_MISSING, "for %s", "IMPORT");
 		return;
 	}
 	
@@ -314,13 +329,13 @@ PARSEFUNC(pseudo_parse_extdep)
 	
 	if (as -> output_format != OUTPUT_OBJ)
 	{
-		lwasm_register_error(as, l, "EXTDEP only supported for object target");
+		lwasm_register_error2(as, l, E_OBJTARGET_ONLY, "(%s)", "EXTDEP");
 		return;
 	}
 	
 	if (!as -> csect)
 	{
-		lwasm_register_error(as, l, "EXTDEP must be within a section");
+		lwasm_register_error(as, l, E_SECTION_EXTDEP);
 		return;
 	}
 	
@@ -347,7 +362,7 @@ again:
 	}
 	if (!sym)
 	{
-		lwasm_register_error(as, l, "No symbol for EXTDEP");
+		lwasm_register_error2(as, l, E_SYMBOL_MISSING, "for %s", "EXTDEP");
 		return;
 	}
 	

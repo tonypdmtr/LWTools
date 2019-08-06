@@ -30,6 +30,7 @@ Contains the main defs used by the linker
 #define OUTPUT_RAW		1	// raw sequence of bytes
 #define OUTPUT_LWEX0	2	// LWOS LWEX binary version 0
 #define OUTPUT_OS9		3	// OS9 object code module
+#define OUTPUT_SREC		4	// motorola SREC format
 
 typedef struct symtab_s symtab_t;
 struct symtab_s
@@ -79,7 +80,7 @@ struct fileinfo_s
 {
 	char *filename;
 	unsigned char *filedata;
-	long filesize;
+	int filesize;
 	section_t *sections;
 	int nsections;
 	int islib;				// set to true if the file is a "-l" option
@@ -156,6 +157,7 @@ struct scriptline_s
 	int loadat;					// address to load at (or -1)
 	int noflags;				// flags to NOT have
 	int yesflags;				// flags to HAVE
+	int growsdown;				// sections are placed descending in memory
 };
 
 typedef struct

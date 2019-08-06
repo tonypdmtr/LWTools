@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # This program will execute all programs in the "tests" directory. Each
 # program is expected to produce output as follows on stdout:

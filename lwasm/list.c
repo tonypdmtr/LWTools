@@ -44,27 +44,34 @@ void do_list(asmstate_t *as)
 	char *tc;
 		
 	if (!(as -> flags & FLAG_LIST))
-		return;
-		
-	if (as -> list_file)
 	{
-		if (strcmp(as -> list_file, "-") == 0)
-		{
-			of = stdout;
-		}
-		else
-			of = fopen(as -> list_file, "w");
+		of = NULL;
 	}
 	else
-		of = stdout;
-	if (!of)
-	{
-		fprintf(stderr, "Cannot open list file; list not generated\n");
-		return;
+	{		
+		if (as -> list_file)
+		{
+			if (strcmp(as -> list_file, "-") == 0)
+			{
+				of = stdout;
+			}
+			else
+				of = fopen(as -> list_file, "w");
+		}
+		else
+			of = stdout;
+
+		if (!of)
+		{
+			fprintf(stderr, "Cannot open list file; list not generated\n");
+			return;
+		}
 	}
-	
+
 	for (cl = as -> line_head; cl; cl = nl)
 	{
+		char *linespec;
+
 		nl = cl -> next;
 		if (CURPRAGMA(cl, PRAGMA_NOLIST))
 		{
@@ -89,7 +96,8 @@ void do_list(asmstate_t *as)
 					lwasm_error_t *e;
 					for (e = nl -> warn; e; e = e -> next)
 					{
-						printf("Warning: %s\n", e -> mess);
+						if (of != stdout) printf("Warning (%s:%d): %s\n", cl -> linespec, cl -> lineno,  e -> mess);
+						if (of) fprintf(of, "Warning: %s\n", e -> mess);
 					}
 				}
 				if (nc == 0)
@@ -117,7 +125,8 @@ void do_list(asmstate_t *as)
 				lwasm_error_t *e;
 				for (e = cl -> warn; e; e = e -> next)
 				{
-					printf("Warning: %s\n", e -> mess);
+					if (of != stdout) printf("Warning (%s:%d): %s\n", cl -> linespec, cl -> lineno, e -> mess);
+					if (of) fprintf(of, "Warning: %s\n", e -> mess);
 				}
 			}
 			obytelen = cl -> outputl;
@@ -127,21 +136,23 @@ void do_list(asmstate_t *as)
 				memmove(obytes, cl -> output, cl -> outputl);
 			}
 		}
-		if ((cl -> len < 1 && cl -> dlen < 1) && obytelen < 1)
+		if (cl -> hidecond && CURPRAGMA(cl, PRAGMA_NOEXPANDCOND))
+			continue;
+		if ((cl -> len < 1 && cl -> dlen < 1) && obytelen < 1 && (cl -> symset == 1 || cl -> sym == NULL) )
 		{
 			if (cl -> soff >= 0)
 			{
-				fprintf(of, "%04Xs                 ", cl -> soff & 0xffff);
+				if (of) fprintf(of, "%04Xs                 ", cl -> soff & 0xffff);
 			}
 			else if (cl -> dshow >= 0)
 			{
 				if (cl -> dsize == 1)
 				{
-					fprintf(of, "     %02X               ", cl -> dshow & 0xff);
+					if (of) fprintf(of, "     %02X               ", cl -> dshow & 0xff);
 				}
 				else
 				{
-					fprintf(of, "     %04X               ", cl -> dshow & 0xff);
+					if (of) fprintf(of, "     %04X               ", cl -> dshow & 0xff);
 				}
 			}
 			else if (cl -> dptr)
@@ -154,17 +165,17 @@ void do_list(asmstate_t *as)
 				as -> exportcheck = 0;
 				if (lw_expr_istype(te, lw_expr_type_int))
 				{
-					fprintf(of, "     %04X             ", lw_expr_intval(te) & 0xffff);
+					if (of) fprintf(of, "     %04X             ", lw_expr_intval(te) & 0xffff);
 				}
 				else
 				{
-					fprintf(of, "     ????             ");
+					if (of) fprintf(of, "     ????             ");
 				}
 				lw_expr_destroy(te);
 			}
 			else
 			{
-				fprintf(of, "                      ");
+				if (of) fprintf(of, "                      ");
 			}
 		}
 		else
@@ -178,48 +189,118 @@ void do_list(asmstate_t *as)
 			as -> csect = cl -> csect;
 			lwasm_reduce_expr(as, te);
 			as -> exportcheck = 0;
-//			fprintf(of, "%s\n", lw_expr_print(te));
-			fprintf(of, "%04X%c", lw_expr_intval(te) & 0xffff, ((cl -> inmod || (cl -> dlen != cl -> len)) && instab[cl -> insn].flags & lwasm_insn_setdata) ? '.' : ' ');
+//			if (of) fprintf(of, "%s\n", lw_expr_print(te));
+			if (of) fprintf(of, "%04X%c", lw_expr_intval(te) & 0xffff, ((cl -> inmod || (cl -> dlen != cl -> len)) && instab[cl -> insn].flags & lwasm_insn_setdata) ? '.' : ' ');
 			lw_expr_destroy(te);
 			for (i = 0; i < obytelen && i < 8; i++)
 			{
-				fprintf(of, "%02X", obytes[i]);
+				if (of) fprintf(of, "%02X", obytes[i]);
 			}
 			for (; i < 8; i++)
 			{
-				fprintf(of, "  ");
+				if (of) fprintf(of, "  ");
 			}
-			fprintf(of, " ");
+			if (of) fprintf(of, " ");
 		}
-		/* the 32.32 below is deliberately chosen so that the start of the line text is at
-		   a multiple of 8 from the start of the list line */
-		fprintf(of, "(%32.32s):%05d ", cl -> linespec, cl -> lineno);
-		i = 0;
-		for (tc = cl -> ltext; *tc; tc++)
+
+		/* the format specifier below is deliberately chosen so that the start of the line text is at
+		a multiple of 8 from the start of the list line */
+
+		#define max_linespec_len 17
+
+		// trim "include:" if it appears
+		if (as -> listnofile)
 		{
-			if ((*tc) == '\t')
+			if (of) fprintf(of, "%05d ", cl->lineno);
+		}
+		else
+		{
+			linespec = cl -> linespec;
+			if ((strlen(linespec) > 8) && (linespec[7] == ':')) linespec += 8;
+			while (*linespec == ' ') linespec++;
+
+			if (of) fprintf(of, "(%*.*s):%05d ", max_linespec_len, max_linespec_len, linespec, cl->lineno);
+		}
+		
+		if (CURPRAGMA(cl, PRAGMA_CC))
+		{
+			as->cycle_total = 0;
+		}
+
+		/* display cycle counts */
+		char s[64] = "";
+		if (CURPRAGMA(cl, PRAGMA_C) || CURPRAGMA(cl, PRAGMA_CD))
+		{
+			if (cl->cycle_base != 0)
 			{
-				if (i % 8 == 0)
+				char ch = '(';
+				if (CURPRAGMA(cl, PRAGMA_6809)) ch = '[';
+
+				if (CURPRAGMA(cl, PRAGMA_CD) && cl->cycle_flags & CYCLE_ADJ)
 				{
-					i += 8;
-					fprintf(of, "        ");
+					sprintf(s, "%c%d+%d", ch, cl->cycle_base, cl->cycle_adj);	/* detailed cycle count */
 				}
 				else
 				{
-					while (i % 8)
-					{
-						fputc(' ', of);
-						i++;
-					}
+					sprintf(s, "%c%d", ch, cl->cycle_base + cl->cycle_adj);   /* normal cycle count*/
 				}
+
+				if (cl->cycle_flags & CYCLE_ESTIMATED)
+					strcat(s, "+?");
+
+				as->cycle_total += cl->cycle_base + cl->cycle_adj;
+
+				ch = ')';
+				if (CURPRAGMA(cl, PRAGMA_6809)) ch = ']';
+				sprintf(s, "%s%c", s, ch);
+			}
+		}
+
+		if (of) fprintf(of, "%-8s", s);
+
+		if (CURPRAGMA(cl, PRAGMA_CT)) 
+		{
+			if (cl->cycle_base != 0)
+			{
+				if (of) fprintf(of, "%-8d", as->cycle_total);
 			}
 			else
 			{
-				fputc(*tc, of);
-				i++;
+				if (of) fprintf(of, "        ");
 			}
 		}
-		fputc('\n', of);
+
+		if (as -> tabwidth == 0)
+		{
+			fputs(cl -> ltext, of);
+		}
+		else 
+		{
+			i = 0;
+			for (tc = cl -> ltext; *tc; tc++)
+			{
+				if ((*tc) == '\t')
+				{
+					if (i % as -> tabwidth == 0)
+					{
+						if (of) fputc(' ', of);
+						i++;
+					}
+					while (i % as -> tabwidth)
+					{
+						if (of) fputc(' ', of);
+						i++;
+					}
+				}
+				else
+				{
+					if (of) fputc(*tc, of);
+					i++;
+				}
+			}
+		}
+		if (of) fputc('\n', of);
+
 		if (obytelen > 8)
 		{
 			for (i = 8; i < obytelen; i++)
@@ -227,18 +308,24 @@ void do_list(asmstate_t *as)
 				if (i % 8 == 0)
 				{
 					if (i != 8)
-						fprintf(of, "\n     ");
+					{
+						if (of) fprintf(of, "\n     ");
+					}
 					else
-						fprintf(of, "     ");
+					{
+						if (of) fprintf(of, "     ");
+					}
 				}
-				fprintf(of, "%02X", obytes[i]);
+				if (of) fprintf(of, "%02X", obytes[i]);
 			}
 			if (i > 8)
-				fprintf(of, "\n");
+				if (of) fprintf(of, "\n");
 		}
 		lw_free(obytes);
 		obytes = NULL;
 	}
-	if ((as -> flags & FLAG_SYMBOLS))
+	if ((as -> flags & FLAG_SYMBOLS) && of)
 		list_symbols(as, of);
+	if (of && of != stdout)
+		fclose(of);
 }

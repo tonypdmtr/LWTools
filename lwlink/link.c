@@ -31,6 +31,10 @@ Resolve section and symbol addresses; handle incomplete references
 #include "expr.h"
 #include "lwlink.h"
 
+#ifdef _MSC_VER
+#include <lw_win.h>	// windows build
+#endif
+
 void check_os9(void);
 
 struct section_list *sectlist = NULL;
@@ -44,12 +48,18 @@ symlist_t *symlist = NULL;
 
 sectopt_t *section_opts = NULL;
 
-void check_section_name(char *name, int *base, fileinfo_t *fn)
+void check_section_name(char *name, int *base, fileinfo_t *fn, int down)
 {
 	int sn;
+	sectopt_t *so;
+	
 //	fprintf(stderr, "Considering sections in %s (%d) for %s\n", fn -> filename, fn -> forced, name);
 	if (fn -> forced == 0)
 		return;
+
+	for (so = section_opts; so; so = so -> next)
+		if (!strcmp(so -> name, name))
+			break;
 
 	for (sn = 0; sn < fn -> nsections; sn++)
 	{
@@ -62,22 +72,39 @@ void check_section_name(char *name, int *base, fileinfo_t *fn)
 //			fprintf(stderr, "    Found\n");
 			sectlist = lw_realloc(sectlist, sizeof(struct section_list) * (nsects + 1));
 			sectlist[nsects].ptr = &(fn -> sections[sn]);
-					
+			
+				
 			fn -> sections[sn].processed = 1;
-			fn -> sections[sn].loadaddress = *base;
-			*base += fn -> sections[sn].codesize;
+			if (down)
+			{
+				*base -= fn -> sections[sn].codesize;
+				fn -> sections[sn].loadaddress = *base;
+			}
+			else
+			{
+				fn -> sections[sn].loadaddress = *base;
+				*base += fn -> sections[sn].codesize;
+			}
+			if (down && so && so -> aftersize)
+			{
+				sectlist[nsects].ptr -> afterbytes = so -> afterbytes;
+				sectlist[nsects].ptr -> aftersize = so -> aftersize;
+				sectlist[nsects].ptr -> loadaddress -= so -> aftersize;
+				*base -= so -> aftersize;
+				so -> aftersize = 0;
+			}
 			nsects++;
 //			fprintf(stderr, "Adding section %s (%s)\n",fn -> sections[sn].name, fn -> filename);
 		}
 	}
 	for (sn = 0; sn < fn -> nsubs; sn++)
 	{
-		check_section_name(name, base, fn -> subs[sn]);
+		check_section_name(name, base, fn -> subs[sn], down);
 	}
 }
 
-void add_matching_sections(char *name, int yesflags, int noflags, int *base);
-void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
+void add_matching_sections(char *name, int yesflags, int noflags, int *base, int down);
+void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn, int down)
 {
 	int sn;
 	sectopt_t *so;
@@ -104,7 +131,7 @@ void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
 
 		// we have a match - now collect *all* sections of the same name!
 //		fprintf(stderr, "    Found\n");
-		add_matching_sections((char *)(fn -> sections[sn].name), 0, 0, base);
+		add_matching_sections((char *)(fn -> sections[sn].name), 0, 0, base, down);
 
 		/* handle "after padding" */
 		for (so = section_opts; so; so = so -> next)
@@ -116,7 +143,15 @@ void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
 			{
 				sectlist[nsects - 1].ptr -> afterbytes = so -> afterbytes;
 				sectlist[nsects - 1].ptr -> aftersize = so -> aftersize;
-				*base += so -> aftersize;
+				if (down)
+				{
+					sectlist[nsects - 1].ptr -> loadaddress -= so -> aftersize;
+					*base -= so -> aftersize;
+				}
+				else
+				{
+					*base += so -> aftersize;
+				}
 			}
 		}
 		
@@ -124,13 +159,13 @@ void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn)
 	}
 	for (sn = 0; sn < fn -> nsubs; sn++)
 	{
-		check_section_flags(yesflags, noflags, base, fn -> subs[sn]);
+		check_section_flags(yesflags, noflags, base, fn -> subs[sn], down);
 	}
 }
 
 
 
-void add_matching_sections(char *name, int yesflags, int noflags, int *base)
+void add_matching_sections(char *name, int yesflags, int noflags, int *base, int down)
 {
 	int fn;
 	if (name)
@@ -140,7 +175,7 @@ void add_matching_sections(char *name, int yesflags, int noflags, int *base)
 		// and resolve base addresses and add to the list
 		for (fn = 0; fn < ninputfiles; fn++)
 		{
-			check_section_name(name, base, inputfiles[fn]);
+			check_section_name(name, base, inputfiles[fn], down);
 		}
 	}
 	else
@@ -151,7 +186,7 @@ void add_matching_sections(char *name, int yesflags, int noflags, int *base)
 		// and resolve base addresses and add to the list
 		for (fn = 0; fn < ninputfiles; fn++)
 		{
-			check_section_flags(yesflags, noflags, base, inputfiles[fn]);
+			check_section_flags(yesflags, noflags, base, inputfiles[fn], down);
 		}
 	}
 }
@@ -161,15 +196,19 @@ void add_matching_sections(char *name, int yesflags, int noflags, int *base)
 void resolve_sections(void)
 {
 	int laddr = 0;
+	int growdown = 0;
 	int ln, sn, fn;
 	sectopt_t *so;
 	
 	for (ln = 0; ln < linkscript.nlines; ln++)
 	{
 		if (linkscript.lines[ln].loadat >= 0)
+		{
 			laddr = linkscript.lines[ln].loadat;
+			growdown = linkscript.lines[ln].growsdown;
+		}
 		//fprintf(stderr, "Adding section %s\n", linkscript.lines[ln].sectname);
-		add_matching_sections(linkscript.lines[ln].sectname, linkscript.lines[ln].yesflags, linkscript.lines[ln].noflags, &laddr);
+		add_matching_sections(linkscript.lines[ln].sectname, linkscript.lines[ln].yesflags, linkscript.lines[ln].noflags, &laddr, growdown);
 		
 		if (linkscript.lines[ln].sectname)
 		{
@@ -184,7 +223,15 @@ void resolve_sections(void)
 				{
 					sectlist[nsects - 1].ptr -> afterbytes = so -> afterbytes;
 					sectlist[nsects - 1].ptr -> aftersize = so -> aftersize;
-					laddr += so -> aftersize;
+					if (growdown)
+					{
+						sectlist[nsects-1].ptr -> loadaddress -= so -> aftersize;
+						laddr -= so -> aftersize;
+					}
+					else
+					{
+						laddr += so -> aftersize;
+					}
 				}
 			}
 		}
@@ -233,13 +280,22 @@ void resolve_sections(void)
 										f = 1;
 										sectlist[nsects].forceaddr = 1;
 										laddr = linkscript.lines[ln].loadat;
+										growdown = linkscript.lines[ln].growsdown;
 									}
 									else
 									{
 										sectlist[nsects].forceaddr = 0;
 									}
-									inputfiles[fn] -> sections[sn].loadaddress = laddr;
-									laddr += inputfiles[fn] -> sections[sn].codesize;
+									if (growdown)
+									{
+										laddr -= inputfiles[fn] -> sections[sn].codesize;
+										inputfiles[fn] -> sections[sn].loadaddress = laddr;
+									}
+									else
+									{
+										inputfiles[fn] -> sections[sn].loadaddress = laddr;
+										laddr += inputfiles[fn] -> sections[sn].codesize;
+									}
 									nsects++;
 								}
 							}
@@ -261,6 +317,8 @@ void generate_symbols(void)
 	char sym[256];
 	int len;
 	symlist_t *se;
+	int lowaddr;
+	
 	for (sn = 0; sn < nsects; sn++)
 	{
 		if (!lastsect || strcmp(lastsect, (char *)(sectlist[sn].ptr -> name)))
@@ -275,20 +333,22 @@ void generate_symbols(void)
 				se -> next = symlist;
 				symlist = se;
 			}
-			lastsect = (char *)(sectlist[sn].ptr -> name);
-			len = 0;
-			/* handle base symbol */
 			if (lastsect && linkscript.basesympat)
 			{
 				se = lw_alloc(sizeof(symlist_t));
-				se -> val = sectlist[sn].ptr -> loadaddress;
+				se -> val = lowaddr;
 				snprintf(sym, 255, linkscript.basesympat, lastsect);
 				se -> sym = lw_strdup(sym);
 				se -> next = symlist;
 				symlist = se;
 			}
+			lastsect = (char *)(sectlist[sn].ptr -> name);
+			len = 0;
+			lowaddr = sectlist[sn].ptr -> loadaddress;
 		}
 		len += sectlist[sn].ptr -> codesize;
+		if (sectlist[sn].ptr -> loadaddress < lowaddr)
+			lowaddr = sectlist[sn].ptr -> loadaddress;
 	}
 	if (lastsect && linkscript.lensympat)
 	{
@@ -300,7 +360,15 @@ void generate_symbols(void)
 		se -> next = symlist;
 		symlist = se;
 	}
-
+	if (lastsect && linkscript.basesympat)
+	{
+		se = lw_alloc(sizeof(symlist_t));
+		se -> val = lowaddr;
+		snprintf(sym, 255, linkscript.basesympat, lastsect);
+		se -> sym = lw_strdup(sym);
+		se -> next = symlist;
+		symlist = se;
+	}
 }
 
 lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
@@ -646,7 +714,7 @@ void resolve_files(void)
 		if (inputfiles[fn] -> forced == 1)
 			continue;
 		
-		fprintf(stderr, "Warning: %s (%d) does not resolve any symbols\n", inputfiles[fn] -> filename, fn);
+		fprintf(stderr, "Warning: library -l%s (%d) does not resolve any symbols\n", inputfiles[fn] -> filename, fn);
 	}
 }
 void find_section_by_name_once_aux(char *name, fileinfo_t *fn, section_t **rval, int *found);

@@ -34,7 +34,7 @@ PARSEFUNC(insn_parse_tfm)
 	c = strchr(reglist, toupper(*(*p)++));
 	if (!c)
 	{
-		lwasm_register_error(as, l, "Unknown operation");
+		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
 	r0 = c - reglist;
@@ -48,15 +48,17 @@ PARSEFUNC(insn_parse_tfm)
 		(*p)++;
 		tfm = 2;
 	}
+	lwasm_skip_to_next_token(l, p);
 	if (*(*p)++ != ',')
 	{
-		lwasm_register_error(as, l, "Unknown operation");
+		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
 		return;
 	}
+	lwasm_skip_to_next_token(l, p);
 	c = strchr(reglist, toupper(*(*p)++));
 	if (!c)
 	{
-		lwasm_register_error(as, l, "Unknown operation");
+		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
 	r1 = c - reglist;
@@ -74,10 +76,16 @@ PARSEFUNC(insn_parse_tfm)
 	
 	if (**p && !isspace(**p))
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-			
+	/* only D, X, Y, U, S are valid tfm registers */
+	if (r0 > 4 || r1 > 4)
+	{
+		if (r0 < r1) r0 = r1;
+		lwasm_register_error2(as, l, E_REGISTER_BAD, "'%c'", reglist[r0]);
+	}
+
 	// valid values of tfm here are:
 	// 1: r0+,r1 (2)
 	// 4: r0,r1+ (3)
@@ -102,7 +110,7 @@ PARSEFUNC(insn_parse_tfm)
 		break;
 
 	default:
-		lwasm_register_error(as, l, "Unknown operation");
+		lwasm_register_error(as, l, E_UNKNOWN_OPERATION);
 		return;
 	}
 	l -> pb = (r0 << 4) | r1;
@@ -125,17 +133,19 @@ PARSEFUNC(insn_parse_tfmrtor)
 	// D,X,Y,U,S,PC,W,V
 	// A,B,CC,DP,0,0,E,F
 	r0 = lwasm_lookupreg2(regs, p);
+	lwasm_skip_to_next_token(l, p);
 	if (r0 < 0 || *(*p)++ != ',')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		r0 = r1 = 0;
 	}
 	else
 	{
+		lwasm_skip_to_next_token(l, p);
 		r1 = lwasm_lookupreg2(regs, p);
 		if (r1 < 0)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			r0 = r1 = 0;
 		}
 	}

@@ -38,7 +38,7 @@ PARSEFUNC(pseudo_parse_os9)
 	
 	if (as -> output_format != OUTPUT_OS9 && as -> output_format != OUTPUT_OBJ)
 	{
-		lwasm_register_error(as, l, "os9 directive only valid for OS9 target");
+		lwasm_register_error2(as, l, E_DIRECTIVE_OS9_ONLY, "%s", "os9");
 		return;
 	}
 	
@@ -46,7 +46,7 @@ PARSEFUNC(pseudo_parse_os9)
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	lwasm_save_expr(l, 0, e);
@@ -70,14 +70,14 @@ PARSEFUNC(pseudo_parse_mod)
 	
 	if (as -> output_format != OUTPUT_OS9)
 	{
-		lwasm_register_error(as, l,  "mod directive only valid for OS9 target");
+		lwasm_register_error2(as, l, E_DIRECTIVE_OS9_ONLY, "%s", "mod");
 		skip_operand(p);
 		return;
 	}
 	
 	if (as -> inmod)
 	{
-		lwasm_register_error(as, l,  "Already in a module!");
+		lwasm_register_error(as, l, E_MODULE_IN);
 		skip_operand(p);
 		return;
 	}
@@ -88,7 +88,7 @@ PARSEFUNC(pseudo_parse_mod)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 
@@ -96,7 +96,7 @@ PARSEFUNC(pseudo_parse_mod)
 
 		if (**p != ',')
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		(*p)++;
@@ -105,7 +105,7 @@ PARSEFUNC(pseudo_parse_mod)
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	lwasm_save_expr(l, 5, e);
@@ -173,13 +173,13 @@ PARSEFUNC(pseudo_parse_emod)
 	skip_operand(p);
 	if (as -> output_format != OUTPUT_OS9)
 	{
-		lwasm_register_error(as, l, "emod directive only valid for OS9 target");
+		lwasm_register_error2(as, l, E_DIRECTIVE_OS9_ONLY, "%s", "emod");
 		return;
 	}
 	
 	if (!(as -> inmod))
 	{
-		lwasm_register_error(as, l, "not in a module!");
+		lwasm_register_error(as, l, E_MODULE_NOTIN);
 		return;
 	}
 	

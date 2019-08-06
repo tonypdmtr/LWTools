@@ -20,8 +20,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdlib.h>
-
-#define ___lw_alloc_c_seen___
 #include "lw_alloc.h"
 
 void *lw_alloc(int size)

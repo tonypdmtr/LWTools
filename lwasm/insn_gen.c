@@ -27,46 +27,50 @@ Contains code for parsing general addressing modes (IMM+DIR+EXT+IND)
 #include "lwasm.h"
 #include "instab.h"
 
-extern void insn_indexed_parse_aux(asmstate_t *as, line_t *l, char **p);
-extern void insn_indexed_resolve_aux(asmstate_t *as, line_t *l, int force, int elen);
-extern void insn_indexed_emit_aux(asmstate_t *as, line_t *l);
+void insn_indexed_parse_aux(asmstate_t *as, line_t *l, char **p);
+void insn_indexed_resolve_aux(asmstate_t *as, line_t *l, int force, int elen);
+void insn_indexed_emit_aux(asmstate_t *as, line_t *l);
 
-extern void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p);
-extern void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen);
+void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p);
+void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen);
 
 // "extra" is required due to the way OIM, EIM, TIM, and AIM work
 void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 {
-	const char *optr2;
+	char *optr2;
 	int v1, tv;
 	lw_expr_t s;
-
+	
 	if (!**p)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 
-	optr2 = *p;
-	while (*optr2 && !isspace(*optr2) && *optr2 != ',') optr2++
-		/* do nothing */ ;
-
-	if (*optr2 == ',' || **p == '[')
+	/* this is the easy case - start it [ or , means indexed */
+	if (**p == ',' || **p == '[')
 	{
+indexed:
 		l -> lint = -1;
-		l -> lint2 = 1;
+		l -> lint2  = 1;
 		insn_parse_indexed_aux(as, l, p);
 		l -> minlen = OPLEN(instab[l -> insn].ops[1]) + 1 + elen;
 		l -> maxlen = OPLEN(instab[l -> insn].ops[1]) + 3 + elen;
 		goto out;
 	}
 
+	/* we have to parse the first expression to find if we have a comma after it */
+	optr2 = *p;
 	if (**p == '<')
 	{
 		(*p)++;
 		l -> lint2 = 0;
+		if (**p == '<')
+		{
+			*p = optr2;
+			goto indexed;
+		}
 	}
-
 	// for compatibility with asxxxx
 	// * followed by a digit, alpha, or _, or ., or ?, or another * is "f8"
 	else if (**p == '*')
@@ -87,18 +91,27 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 	{
 		l -> lint2 = -1;
 	}
-
-	l -> minlen = OPLEN(instab[l -> insn].ops[0]) + 1 + elen;
-	l -> maxlen = OPLEN(instab[l -> insn].ops[2]) + 2 + elen;
+	lwasm_skip_to_next_token(l, p);
+	
 	s = lwasm_parse_expr(as, p);
+	
+	if (**p == ',')
+	{
+		/* we have an indexed mode here - reset and transfer control to indexing mode */
+		lw_expr_destroy(s);
+		*p = optr2;
+		goto indexed;
+	}
 	if (!s)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
 	lwasm_save_expr(l, 0, s);
 
+	l -> minlen = OPLEN(instab[l -> insn].ops[0]) + 1 + elen;
+	l -> maxlen = OPLEN(instab[l -> insn].ops[2]) + 2 + elen;
 	if (as -> output_format == OUTPUT_OBJ && l -> lint2 == -1)
 	{
 		l -> lint2 = 2;
@@ -111,6 +124,8 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 	// if we have a constant now, figure out dp vs nondp
 	if (lw_expr_istype(s, lw_expr_type_int))
 	{
+		if (s -> value > 0xffff) lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+
 		v1 = lw_expr_intval(s);
 		if (((v1 >> 8) & 0xff) == (l -> dpval & 0xff))
 		{
@@ -165,7 +180,10 @@ out:
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1 + elen;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
 		}
 	}
 }
@@ -251,7 +269,10 @@ out:
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1 + elen;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1 + elen;
 		}
 	}
 }
@@ -268,6 +289,27 @@ void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 	
 	if (l -> lint2 == 1)
 	{
+		if (l -> lint == 3)
+		{
+			int offs;
+			if (lw_expr_istype(e, lw_expr_type_int))
+			{
+				offs = lw_expr_intval(e);
+				if ((offs >= -16 && offs <= 15) || offs >= 0xFFF0)
+				{
+					l -> pb |= offs & 0x1f;
+					l -> lint = 0;
+				}
+				else
+				{
+					lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+				}
+			}
+			else
+			{
+				lwasm_register_error(as, l, E_EXPRESSION_NOT_RESOLVED);
+			}
+		}
 		lwasm_emit(l, l -> pb);
 		if (l -> lint > 0)
 		{
@@ -276,17 +318,60 @@ void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 			if (l -> lint == 1)
 			{
 				if (i < -128 || i > 127)
-					lwasm_register_error(as, l, "Byte overflow");
+					lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+			}
+			else if (l -> lint == 2 && lw_expr_istype(e, lw_expr_type_int) && CURPRAGMA(l, PRAGMA_OPERANDSIZE))
+			{
+				// note that W relative and extended indirect must be 16 bits
+				if (l -> pb != 0xAF && l -> pb != 0xB0 && l -> pb != 0x9f)
+				{
+					if ((i >= -128 && i <= 127) || i >= 0xFF80)
+					{
+						lwasm_register_error(as, l, W_OPERAND_SIZE);
+
+					}
+				}
 			}
 			lwasm_emitexpr(l, e, l -> lint);
 		}
+
+		l -> cycle_adj = lwasm_cycle_calc_ind(l);
 		return;
 	}
 	
 	if (l -> lint2 == 2)
+	{
 		lwasm_emitexpr(l, e, 2);
+
+		if (CURPRAGMA(l, PRAGMA_OPERANDSIZE))
+		{
+			if (instab[l -> insn].ops[2] == 0xbd || instab[l -> insn].ops[2] == 0x7e)
+			{
+				// check if bsr or bra could be used instead
+				lw_expr_t e1, e2;
+				int offs;
+				e2 = lw_expr_build(lw_expr_type_special, lwasm_expr_linelen, l);
+				e1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, e, e2);
+				lw_expr_destroy(e2);
+				e2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, e1, l -> addr);
+				lw_expr_destroy(e1);
+				lwasm_reduce_expr(as, e2);
+				if (lw_expr_istype(e2, lw_expr_type_int))
+				{
+					offs = lw_expr_intval(e2);
+					if (offs >= -128 && offs <= 127)
+					{
+						lwasm_register_error(as, l, W_OPERAND_SIZE);
+					}
+				}
+				lw_expr_destroy(e2);
+			}
+		}
+	}
 	else
+	{
 		lwasm_emitexpr(l, e, 1);
+	}
 }
 
 // the various insn_gen? functions have an immediate mode of ? bits
@@ -294,7 +379,7 @@ PARSEFUNC(insn_parse_gen0)
 {
 	if (**p == '#')
 	{
-		lwasm_register_error(as, l, "Immediate mode not allowed");
+		lwasm_register_error(as, l, E_IMMEDIATE_INVALID);
 		return;
 	}
 	
@@ -318,15 +403,18 @@ EMITFUNC(insn_emit_gen0)
 
 PARSEFUNC(insn_parse_gen8)
 {
+	l -> genmode = 8;
 	if (**p == '#')
 	{
 		lw_expr_t e;
 		
 		(*p)++;
+		as -> exprwidth = 8;
 		e = lwasm_parse_expr(as, p);
+		as -> exprwidth = 16;
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		l -> len = OPLEN(instab[l -> insn].ops[3]) + 1;
@@ -349,7 +437,10 @@ PARSEFUNC(insn_parse_gen8)
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
 		}
 	}
 }
@@ -369,6 +460,16 @@ EMITFUNC(insn_emit_gen8)
 	{
 		lw_expr_t e;
 		e = lwasm_fetch_expr(l, 0);
+		if (lw_expr_istype(e, lw_expr_type_int))
+		{
+			int i;
+			i = lw_expr_intval(e);
+			if (i < -128 || i > 255)
+			{
+				lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+			}
+		}
+
 		lwasm_emitop(l, instab[l -> insn].ops[3]);
 		lwasm_emitexpr(l, e, 1);
 		return;
@@ -379,6 +480,7 @@ EMITFUNC(insn_emit_gen8)
 
 PARSEFUNC(insn_parse_gen16)
 {
+	l -> genmode = 16;
 	if (**p == '#')
 	{
 		lw_expr_t e;
@@ -387,7 +489,7 @@ PARSEFUNC(insn_parse_gen16)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
@@ -410,7 +512,10 @@ PARSEFUNC(insn_parse_gen16)
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
 		}
 	}
 }
@@ -440,6 +545,7 @@ EMITFUNC(insn_emit_gen16)
 
 PARSEFUNC(insn_parse_gen32)
 {
+	l -> genmode = 32;
 	if (**p == '#')
 	{
 		lw_expr_t e;
@@ -448,7 +554,7 @@ PARSEFUNC(insn_parse_gen32)
 		e = lwasm_parse_expr(as, p);
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		l -> len = OPLEN(instab[l -> insn].ops[3]) + 4;
@@ -471,7 +577,10 @@ PARSEFUNC(insn_parse_gen32)
 		}
 		else if (l -> lint2 == 1 && l -> lint != -1)
 		{
-			l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
+			if (l -> lint == 3)
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + 1;
+			else
+				l -> len = OPLEN(instab[l -> insn].ops[1]) + l -> lint + 1;
 		}
 	}
 }
@@ -507,10 +616,12 @@ PARSEFUNC(insn_parse_imm8)
 	{
 		(*p)++;
 
+		as -> exprwidth = 8;
 		e = lwasm_parse_expr(as, p);
+		as -> exprwidth = 16;
 		if (!e)
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
@@ -518,7 +629,7 @@ PARSEFUNC(insn_parse_imm8)
 	}
 	else
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 	}
 }
 
@@ -528,5 +639,14 @@ EMITFUNC(insn_emit_imm8)
 	
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	e = lwasm_fetch_expr(l, 0);
+	if (lw_expr_istype(e, lw_expr_type_int))
+	{
+		int i;
+		i = lw_expr_intval(e);
+		if (i < -128 || i > 255)
+		{
+			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+		}
+	}
 	lwasm_emitexpr(l, e, 1);
 }

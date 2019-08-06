@@ -31,14 +31,14 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include "instab.h"
 #include "input.h"
 
-extern int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc);
-extern int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc);
-extern int add_macro_line(asmstate_t *as, char *optr);
+int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc);
+int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc);
+int add_macro_line(asmstate_t *as, char *optr);
 
 /*
 pass 1: parse the lines
 
-line format:
+line format if PRAGMA_NEWSOURCE is not in force:
 
 [<symbol>] <opcode> <operand>[ <comment>]
 
@@ -47,6 +47,14 @@ If <symbol> is followed by a :, whitespace may precede the symbol
 A line may optionally start with a number which must not be preceded by
 white space and must be followed by a single whitespace character. After
 that whitespace character, the line is parsed as if it had no line number.
+
+Also, no spaces are permitted within <operand>.
+
+With PRAGMA_NEWSOURCE in effect, line numbers are not allowed and there
+is no automatic comment at the end of each line. All comments must be
+introduced with the comment character. This allows the parser to handle
+spaces in operands unambiguously so in this mode, spaces are permitted
+within operands.
 
 */
 void do_pass1(asmstate_t *as)
@@ -157,6 +165,7 @@ void do_pass1(asmstate_t *as)
 			cl -> dpval = cl -> prev -> dpval;
 			
 		}
+		debug_message(as, 100, "Line pointer: %p", cl);
 		if (!lc && strcmp(cl -> linespec, cl -> prev -> linespec))
 			lc = 1;
 		if (lc)
@@ -174,12 +183,12 @@ void do_pass1(asmstate_t *as)
 		}
 	
 		// skip comments
-		// commends do not create a context break
+		// comments do not create a context break
 		if (*line == '*' || *line == ';' || *line == '#')
 			goto nextline;
 
 		p1 = line;
-		if (isdigit(*p1))
+		if (isdigit(*p1) && !CURPRAGMA(cl, PRAGMA_NEWSOURCE))
 		{
 			// skip line number
 			while (*p1 && isdigit(*p1))
@@ -212,8 +221,6 @@ void do_pass1(asmstate_t *as)
 		else
 			stspace = 0;
 
-//		if (*p1 == '*' || *p1 == ';' || *p1 == '#')
-//			goto nextline;
 		if (!*p1)
 		{
 			// nothing but whitespace - context break
@@ -235,7 +242,7 @@ void do_pass1(asmstate_t *as)
 				p1++;
 			for (; *p1 && isspace(*p1); p1++)
 				/* do nothing */ ;
-			
+		
 			if (*p1 == '=')
 			{
 				tok = p1++;
@@ -263,6 +270,14 @@ void do_pass1(asmstate_t *as)
 		}
 		if (*tok)
 		{
+			if (CURPRAGMA(cl, PRAGMA_TESTMODE))
+			{
+				/* in test mode, terminate the line here so we don't affect the parsers */
+				/* (cl -> ltext retains the full, unmodified string) */
+				char *t = strstr(p1, ";.");
+				if (t) *t = 0;
+			}
+
 			// look up operation code
 			lw_free(sym);
 			sym = lw_strndup(tok, p1 - tok);
@@ -271,11 +286,20 @@ void do_pass1(asmstate_t *as)
 
 			for (opnum = 0; instab[opnum].opcode; opnum++)
 			{
+				// ignore 6800 compatibility opcodes unless asked for
+				if ((instab[opnum].flags & lwasm_insn_is6800) && !CURPRAGMA(cl, PRAGMA_6800COMPAT)) continue;
+				// ignore 6809 convenience opcodes unless asked for
+				if ((instab[opnum].flags & lwasm_insn_is6809conv) && !CURPRAGMA(cl, PRAGMA_6809CONV)) continue;
+				// ignore 6809 convenience opcodes in 6309 mode
+				if ((instab[opnum].flags & lwasm_insn_is6809conv) && !CURPRAGMA(cl, PRAGMA_6809)) continue;
+				// ignore 6309 convenience opcodes unless asked for
+				if ((instab[opnum].flags & lwasm_insn_is6309conv) && !CURPRAGMA(cl, PRAGMA_6309CONV)) continue;
+				// ignore emulator extension opcodes unless asked for
+				if ((instab[opnum].flags & lwasm_insn_isemuext) && !CURPRAGMA(cl, PRAGMA_EMUEXT)) continue;
+
 				if (!strcasecmp(instab[opnum].opcode, sym))
 					break;
 			}
-			if ((as -> target != TARGET_6309) && (instab[opnum].flags & lwasm_insn_is6309))
-				lwasm_register_error(as, cl, "Illegal use of 6309 instruction in 6809 mode (%s)", sym);
 			
 			// have to go to linedone here in case there was a symbol
 			// to register on this line
@@ -298,7 +322,7 @@ void do_pass1(asmstate_t *as)
 			if (as -> skipcond && !(instab[opnum].flags & lwasm_insn_cond))
 				goto linedone;
         	
-        	if (!nomacro && (as -> pragmas & PRAGMA_SHADOW))
+			if (!nomacro && (as->pragmas & PRAGMA_SHADOW))
         	{
         		// check for macros even if they shadow real operations
         		// NOTE: "ENDM" cannot be shadowed
@@ -308,7 +332,11 @@ void do_pass1(asmstate_t *as)
         			goto linedone;
         		}
         	}
-			if (instab[opnum].opcode == NULL)
+        	
+			if (instab[opnum].opcode == NULL ||
+				(CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309)) ||
+				(!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
+			)
 			{
 				cl -> insn = -1;
 				if (*tok != ';' && *tok != '*')
@@ -321,7 +349,12 @@ void do_pass1(asmstate_t *as)
 						if (expand_struct(as, cl, &p1, sym) != 0)
 						{
 							// structure expansion failed
-							lwasm_register_error(as, cl, "Bad opcode");
+							if (CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309))
+								lwasm_register_error2(as, cl, E_6309_INVALID, "(%s)", sym);
+							else if (!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
+								lwasm_register_error2(as, cl, E_6809_INVALID, "(%s)", sym);
+							else
+								lwasm_register_error(as, cl, E_OPCODE_BAD);
 						}
 					}
 				}
@@ -332,14 +365,23 @@ void do_pass1(asmstate_t *as)
 				// no parse func means operand doesn't matter
 				if (instab[opnum].parse)
 				{
+					if (CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309))
+						lwasm_register_error2(as, cl, E_6309_INVALID, "(%s)", sym);
+					if (!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
+						lwasm_register_error2(as, cl, E_6809_INVALID, "(%s)", sym);
+
 					if (as -> instruct == 0 || instab[opnum].flags & lwasm_insn_struct)
 					{
-						struct line_expr_s *le;
-
 						cl -> len = -1;
 						// call parse function
-					debug_message(as, 100, "len = %d, dlen = %d", cl -> len, cl -> dlen);
+						debug_message(as, 100, "len = %d, dlen = %d", cl -> len, cl -> dlen);
 						(instab[opnum].parse)(as, cl, &p1);
+
+						// if we're forcing address modes on pass 1, force a resolution
+						if (CURPRAGMA(cl, PRAGMA_FORWARDREFMAX) && instab[opnum].resolve)
+						{
+							(instab[opnum].resolve)(as, cl, 1);
+						}
 						if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
 						{
 							if (cl -> len == 0)
@@ -347,40 +389,31 @@ void do_pass1(asmstate_t *as)
 							else
 								cl -> dlen = cl -> len;
 						}
-					
-						if (*p1 && !isspace(*p1) && !(cl -> err))
+						if (!CURPRAGMA(cl, PRAGMA_NEWSOURCE))
 						{
-							// flag bad operand error
-							lwasm_register_error(as, cl, "Bad operand (%s)", p1);
+							if (*p1 && !isspace(*p1) && !(cl -> err))
+							{
+								// flag bad operand error
+								lwasm_register_error2(as, cl, E_OPERAND_BAD, "(%s)", p1);
+							}
+						}
+						else
+						{
+							lwasm_skip_to_next_token(cl, &p1);
+							/* if we did not hit the end of the line and we aren't at a comment character, error out */
+							if (*p1 && *p1 != ';' && *p1 != '#' && *p1 != ';')
+							{
+								// flag bad operand error
+								lwasm_register_error2(as, cl, E_OPERAND_BAD, "%s", p1);
+							}
 						}
 						
 						/* do a reduction on the line expressions to avoid carrying excessive expression baggage if not needed */
-						as -> cl = cl;
-		
-						// simplify address
-						lwasm_reduce_expr(as, cl -> addr);
-		
-						// simplify each expression
-						for (le = cl -> exprs; le; le = le -> next)
-							lwasm_reduce_expr(as, le -> expr);
-						
-						/* try resolving the instruction as well */
-						if (cl -> insn >= 0 && instab[cl -> insn].resolve)
-						{
-							(instab[cl -> insn].resolve)(as, cl, 0);
-							if ((cl -> inmod == 0) && cl -> len >= 0 && cl -> dlen >= 0)
-							{
-								if (cl -> len == 0)
-									cl -> len = cl -> dlen;
-								else
-									cl -> dlen = cl -> len;
-							}
-						}
-
+						lwasm_reduce_line_exprs(cl);
 					}
 					else if (as -> instruct == 1)
 					{
-						lwasm_register_error(as, cl, "Bad operand (%s)", p1);
+						lwasm_register_error2(as, cl, E_OPERAND_BAD, "(%s)", p1);
 					}
 				}
 			}
@@ -399,7 +432,7 @@ void do_pass1(asmstate_t *as)
 					if (!register_symbol(as, cl, cl -> sym, cl -> daddr, symbol_flag_none))
 					{
 						// symbol error
-						// lwasm_register_error(as, cl, "Bad symbol '%s'", cl -> sym);
+						// lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", cl -> sym);
 					}
 				}
 				else
@@ -407,7 +440,7 @@ void do_pass1(asmstate_t *as)
 					if (!register_symbol(as, cl, cl -> sym, cl -> addr, symbol_flag_none))
 					{
 						// symbol error
-						// lwasm_register_error(as, cl, "Bad symbol '%s'", cl -> sym);
+						// lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", cl -> sym);
 					}
 				}
 			}
@@ -415,7 +448,9 @@ void do_pass1(asmstate_t *as)
 		}
 		if (as -> skipcond || as -> inmacro || cl -> ltext[0] == 1)
 			cl -> hideline = 1;
-			
+		if (as -> skipcond)
+			cl -> hidecond = 1;
+		
 	nextline:
 		if (sym)
 			lw_free(sym);

@@ -9,6 +9,13 @@
 /lwobjdump$
 /lwar$
 /lwasm$
-/lwcc$
-/lwcc-cpp$
-/lwcc-cc$
+/lwcc/lwcc$
+/lwcc/lwcc-cpp$
+/lwcc/lwcc-cc
+
+# for windows
+\.suo$
+\.sdf$
+\.opensdf$
+\Debug$
+\Release$

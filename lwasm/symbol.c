@@ -90,18 +90,18 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	{
 		if (!sym || !*sym)
 		{
-			lwasm_register_error(as, cl, "Bad symbol (%s)", sym);
+			lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", sym);
 			return NULL;
 		}
-		if (*sym < 0x80 && (!strchr(SSYMCHARS, *sym) && !strchr(sym + 1, '$') && !strchr(sym + 1, '@') && !strchr(sym + 1, '?')))
+		if (*(unsigned char *)sym < 0x80 && (!strchr(SSYMCHARS, *sym) && !strchr(sym + 1, '$') && !strchr(sym + 1, '@') && !strchr(sym + 1, '?')))
 		{
-			lwasm_register_error(as, cl, "Bad symbol (%s)", sym);
+			lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", sym);
 			return NULL;
 		}
 
 		if ((*sym == '$' || *sym == '@') && (sym[1] >= '0' && sym[1] <= '9'))
 		{
-			lwasm_register_error(as, cl, "Bad symbol (%s)", sym);
+			lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", sym);
 			return NULL;
 		}
 	}
@@ -114,9 +114,9 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 			islocal = 1;
 		
 		// bad symbol
-		if (!(flags & symbol_flag_nocheck) && *cp < 0x80 && !strchr(SYMCHARS, *cp))
+		if (!(flags & symbol_flag_nocheck) && *(unsigned char *)cp < 0x80 && !strchr(SYMCHARS, *cp))
 		{
-			lwasm_register_error(as, cl, "Bad symbol (%s)", sym);
+			lwasm_register_error2(as, cl, E_SYMBOL_BAD, "(%s)", sym);
 			return NULL;
 		}
 	}
@@ -163,7 +163,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	if (se && version == -1)
 	{
 		// multiply defined symbol
-		lwasm_register_error(as, cl, "Multiply defined symbol (%s)", sym);
+		lwasm_register_error2(as, cl, E_SYMBOL_DUPE, "(%s)", sym);
 		return NULL;
 	}
 
@@ -252,6 +252,8 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 	int local = 0;
 	struct symtabe *s;
 	int cdir;
+
+	debug_message(as, 100, "Look up symbol %s", sym);
 	
 	// check if this is a local symbol
 	if (strchr(sym, '@') || strchr(sym, '?'))
@@ -283,13 +285,17 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 		}
 		
 		if (!cdir)
+		{
+			debug_message(as, 100, "Found symbol %s: %s, %s", sym, s -> symbol, lw_expr_print(s -> value));
 			return s;
+		}
 		
 		if (cdir < 0)
 			s = s -> left;
 		else
 			s = s -> right;
 	}
+	debug_message(as, 100, "Symbol not found %s", sym);
 	return NULL;
 }
 
@@ -341,6 +347,10 @@ void list_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 	{	
 		if (s -> flags & symbol_flag_nolist)
 			continue;
+
+		if ((as -> flags & FLAG_SYMBOLS_NOLOCALS) && (s -> context >= 0))
+			continue;
+
 		lwasm_reduce_expr(as, s -> value);
 		fputc('[', of);
 		if (s -> flags & symbol_flag_set)
@@ -399,4 +409,78 @@ void list_symbols(asmstate_t *as, FILE *of)
 {
 	fprintf(of, "\nSymbol Table:\n");
 	list_symbols_aux(as, of, as -> symtab.head);
+}
+
+void map_symbols(asmstate_t *as, FILE *of, struct symtabe *se)
+{
+	struct symtabe *s;
+	lw_expr_t te;
+	struct listinfo li;
+
+	li.as = as;
+
+	if (!se)
+		return;
+
+	map_symbols(as, of, se -> left);
+
+	for (s = se; s; s = s -> nextver)
+	{
+		if (s -> flags & symbol_flag_nolist)
+			continue;
+		lwasm_reduce_expr(as, s -> value);
+
+		te = lw_expr_copy(s -> value);
+		li.complex = 0;
+		li.sect = NULL;
+		lw_expr_testterms(te, list_symbols_test, &li);
+		if (li.sect)
+		{
+			as -> exportcheck = 1;
+			as -> csect = li.sect;
+			lwasm_reduce_expr(as, te);
+			as -> exportcheck = 0;
+		}
+
+		if (lw_expr_istype(te, lw_expr_type_int))
+		{
+			fprintf(of, "Symbol: %s", s -> symbol);
+			if (s -> context != -1)
+				fprintf(of, "_%04X", lw_expr_intval(te));
+			fprintf(of, " (%s) = %04X\n", as -> output_file, lw_expr_intval(te));
+
+		}
+		lw_expr_destroy(te);
+	}
+
+	map_symbols(as, of, se -> right);
+}
+
+void do_map(asmstate_t *as)
+{
+	FILE *of = NULL;
+
+	if (!(as -> flags & FLAG_MAP))
+		return;
+
+	if (as -> map_file)
+	{
+		if (strcmp(as -> map_file, "-") == 0)
+		{
+			of = stdout;
+		}
+		else
+			of = fopen(as -> map_file, "w");
+	}
+	else
+		of = stdout;
+	if (!of)
+	{
+		fprintf(stderr, "Cannot open map file '%s' for output\n", as -> map_file);
+		return;
+	}
+
+	map_symbols(as, of, as -> symtab.head);
+
+	fclose(of);
 }

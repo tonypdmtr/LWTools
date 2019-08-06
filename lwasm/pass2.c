@@ -67,7 +67,7 @@ void do_pass2(asmstate_t *as)
 				else
 				{
 					// undefined export - register error
-					lwasm_register_error(as, ex -> line, "Undefined exported symbol");
+					lwasm_register_error(as, ex->line, E_SYMBOL_UNDEFINED_EXPORT);
 				}
 			}
 			ex -> se = s;

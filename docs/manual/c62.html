@@ -11,10 +11,10 @@ TITLE="LW Tool Chain"
 HREF="index.html"><LINK
 REL="PREVIOUS"
 TITLE="Object Files"
-HREF="x37.html"><LINK
+HREF="x54.html"><LINK
 REL="NEXT"
 TITLE="Dialects"
-HREF="x170.html"></HEAD
+HREF="x229.html"></HEAD
 ><BODY
 CLASS="CHAPTER"
 BGCOLOR="#FFFFFF"
@@ -42,7 +42,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x37.html"
+HREF="x54.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -56,7 +56,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x170.html"
+HREF="x229.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -69,7 +69,7 @@ WIDTH="100%"></DIV
 CLASS="CHAPTER"
 ><H1
 ><A
-NAME="AEN45"
+NAME="AEN62"
 ></A
 >Chapter 3. LWASM</H1
 ><P
@@ -81,7 +81,7 @@ CLASS="SECTION"
 ><H1
 CLASS="SECTION"
 ><A
-NAME="AEN48"
+NAME="AEN65"
 >3.1. Command Line Options</A
 ></H1
 ><P
@@ -105,6 +105,22 @@ CLASS="OPTION"
 >This will cause the assembler to accept the additional instructions available
 on the 6309 processor. This is the default mode; this option is provided for
 completeness and to override preset command arguments.</P
+><P
+>This option is the same as if the first line of the source code is "PRAGMA 6309".</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
+>--6800compat</CODE
+></DT
+><DD
+><P
+>This is equivalent to <CODE
+CLASS="OPTION"
+>--pragma=6800compat</CODE
+>.</P
+><P
+>This will enable recognition of 6800 compatibility instructions.</P
 ></DD
 ><DT
 ><CODE
@@ -117,7 +133,8 @@ CLASS="OPTION"
 ><DD
 ><P
 >This will cause the assembler to reject instructions that are only available
-on the 6309 processor.</P
+on the 6309 processor. This actually has the effect of starting the assembler
+as though the first line of the source is "PRAGMA 6809".</P
 ></DD
 ><DT
 ><CODE
@@ -160,11 +177,22 @@ CLASS="OPTION"
 <CODE
 CLASS="OPTION"
 >os9</CODE
-> for creating OS9 modules, and <CODE
+> for creating OS9 modules, <CODE
 CLASS="OPTION"
 >raw</CODE
 > for
-a raw binary.</P
+a raw binary, <CODE
+CLASS="OPTION"
+>hex</CODE
+> for ASCII hexadecminal format, 
+<CODE
+CLASS="OPTION"
+>srec</CODE
+> for Motorola S-Record format, and <CODE
+CLASS="OPTION"
+>ihex</CODE
+>
+ for Intel Hex format.</P
 ></DD
 ><DT
 ><CODE
@@ -190,6 +218,24 @@ is specified, the list will not include the symbol table.</P
 ><DT
 ><CODE
 CLASS="OPTION"
+>--symbol-dump[=file]</CODE
+></DT
+><DD
+><P
+>Cause LWASM to output the global symbol table in assembly source format. If
+<CODE
+CLASS="OPTION"
+>file</CODE
+> is specified, the table output will go to the specified
+file. Otherwise, it will go to the standard output stream. Local symbols will
+not be included. Incomplete symbols will be defined to zero with a comment
+indicating incompleteness. Symbols defined with SET will also be listed using
+SET in the symbol dump. However, if the symbol is defined multiple times, the
+order of the definitions in the dump file is undefined.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
 >--symbols</CODE
 >, <CODE
 CLASS="OPTION"
@@ -199,6 +245,27 @@ CLASS="OPTION"
 ><P
 >Causes LWASM to generate a list of symbols when generating a listing.
 It has no effect unless a listing is being generated.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
+>--symbols-nolocals</CODE
+></DT
+><DD
+><P
+>Behaves just like <CODE
+CLASS="OPTION"
+>--symbols</CODE
+> but with local labels omitted.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
+>--map=FILE</CODE
+></DT
+><DD
+><P
+>&#13;This option generates a map file which can be used by debuggers and monitors to provide symbol information. A map file may be created independent of a listing file. (Patches are pending for MAME and exec09.)&#13;</P
 ></DD
 ><DT
 ><CODE
@@ -224,6 +291,15 @@ default is <CODE
 CLASS="OPTION"
 >a.out</CODE
 >.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
+>--no-output</CODE
+></DT
+><DD
+><P
+>Do assembly as usual but suppress generation of the output file.</P
 ></DD
 ><DT
 ><CODE
@@ -281,6 +357,25 @@ the symbol is defined as 1.  The symbol will be defined as though it were
 defined using the SET directive in the assembly source.  That means it can
 be overridden by a SET directive within the source code.  Attempting to
 redefine SYM using EQU will result in a multiply defined symbol error.</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
+>-t WIDTH</CODE
+>, <CODE
+CLASS="OPTION"
+>--tabs=WIDTH</CODE
+></DT
+><DD
+><P
+>Specifies the handling of tabs in listing files. <CODE
+CLASS="OPTION"
+>--tabs=0</CODE
+>
+disables tab expansion. <CODE
+CLASS="OPTION"
+>--tabs=8</CODE
+> is the default setting.</P
 ></DD
 ><DT
 ><CODE
@@ -348,7 +443,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x37.html"
+HREF="x54.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -366,7 +461,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x170.html"
+HREF="x229.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

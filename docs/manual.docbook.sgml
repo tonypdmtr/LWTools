@@ -3,7 +3,8 @@
 <bookinfo>
 <title>LW Tool Chain</title>
 <author><firstname>William</firstname><surname>Astle</surname></author>
-<copyright><year>2009-2013</year><holder>William Astle</holder></copyright>
+<author><firstname>LWTools Contributors</firstname><surname></surname></author>
+<copyright><year>2009-2015</year><holder>William Astle and LWTools contributors</holder></copyright>
 </bookinfo>
 <chapter>
 
@@ -88,6 +89,83 @@ the execution address for the binary.
 
 <para>
 Both LWASM and LWLINK can output this format.
+</para>
+</section>
+
+<section>
+<title>ASCII Hexadecimal</title>
+
+<para>
+This human-readable ASCII hexadecimal format consists of CR+LF terminated 
+lines of ASCII text. Each line has the following structure: a zero-padded 
+four-digit ASCII hex address, a colon separator, and one or more zero-padded
+two-digit hex values separated by commas. ASCII Hexadecimal format favors 
+paragraph-aligned addresses (i.e. a least significant address nybble value
+of zero). During output, the number of hex values on each line are adjusted
+to align the address of the next line on a paragraph boundary. The sequence 
+of addresses in the ASCII Hexadecimal file directly follows that of the source
+file; multiple ORG directives in the source code may result in out-of-sequence
+addresses in the ASCII Hexadecimal output.
+</para>
+
+<para>
+LWASM can output this format since version 4.10.
+</para>
+</section>
+
+<section>
+<title>Motorola S-Record</title>
+
+<para>
+This ASCII format consists of a series of CR+LF terminated "records" of ASCII
+text. Each record has the following structure: a start-of-record character
+"S", an ASCII record type digit (0-9), a two-digit ASCII hex byte count, a 
+four-digit ASCII hex address, an optional sequence of two-digit ASCII hex data
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only S0, 
+S1, S5 and S9 record types. S1 records are limited to maximum of 16 data bytes
+in length, and  paragraph alignment of addresses is favored. The address
+sequence of the S-Records directly follows that of the source file; multiple
+ORG directives in the source code may result in out-of-sequence addresses in
+the S-Record output. 
+</para>
+
+<para>
+Motorola S-Record format is a standard ASCII format accepted by most memory
+device programming equipment. It is particularly useful when the assembled 
+code output is destined to reside within an EPROM or Flash memory device,
+for example.
+</para>
+
+<para>
+LWASM can output this format since version 4.10. LWLINK can output this format
+since version 4.11.
+</para>
+</section>
+
+<section>
+<title>Intel Hex</title>
+
+<para>
+This ASCII format consists of a series of CR+LF terminated "records" of ASCII
+text. Each record has the following structure: a start-of-record character
+":", a two-digit ASCII hex byte count, a four-digit ASCII hex address, a two-
+digit ASCII hex record type, an optional sequence of two-digit ASCII hex data 
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only 00, 
+and 01 Intel Hex record types. Data records are limited to maximum of 16 
+data bytes in length, and paragraph alignment of addresses is favored. The 
+address sequence of the Intel hex records directly follows that of the source 
+file; multiple ORG directives in the source code may result in out-of-sequence 
+addresses in the Intel Hex output. 
+</para>
+
+<para>
+Intel Hex format is the other standard ASCII format accepted by most memory 
+device programming equipment, it and the Motorola S-Record format are used for
+similar purposes.
+</para>
+
+<para>
+LWASM can output this format since version 4.10.
 </para>
 </section>
 
@@ -206,6 +284,18 @@ This will cause the assembler to accept the additional instructions available
 on the 6309 processor. This is the default mode; this option is provided for
 completeness and to override preset command arguments.
 </para>
+<para>
+This option is the same as if the first line of the source code is "PRAGMA 6309".
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--6800compat</option></term>
+<listitem>
+<para>
+This is equivalent to <option>--pragma=6800compat</option>.</para>
+<para>This will enable recognition of 6800 compatibility instructions.</para>
 </listitem>
 </varlistentry>
 
@@ -215,7 +305,8 @@ completeness and to override preset command arguments.
 <listitem>
 <para>
 This will cause the assembler to reject instructions that are only available
-on the 6309 processor.
+on the 6309 processor. This actually has the effect of starting the assembler
+as though the first line of the source is "PRAGMA 6809".
 </para>
 </listitem>
 </varlistentry>
@@ -241,8 +332,10 @@ this option if you need DECB output.
 <para>
 Select the output format. Valid values are <option>obj</option> for the
 object file target, <option>decb</option> for the DECB LOADM format,
-<option>os9</option> for creating OS9 modules, and <option>raw</option> for
-a raw binary.
+<option>os9</option> for creating OS9 modules, <option>raw</option> for
+a raw binary, <option>hex</option> for ASCII hexadecminal format, 
+<option>srec</option> for Motorola S-Record format, and <option>ihex</option>
+ for Intel Hex format.
 </para>
 </listitem>
 </varlistentry>
@@ -261,12 +354,47 @@ is specified, the list will not include the symbol table.
 </varlistentry>
 
 <varlistentry>
+<term><option>--symbol-dump[=file]</option></term>
+<listitem>
+<para>
+Cause LWASM to output the global symbol table in assembly source format. If
+<option>file</option> is specified, the table output will go to the specified
+file. Otherwise, it will go to the standard output stream. Local symbols will
+not be included. Incomplete symbols will be defined to zero with a comment
+indicating incompleteness. Symbols defined with SET will also be listed using
+SET in the symbol dump. However, if the symbol is defined multiple times, the
+order of the definitions in the dump file is undefined.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
 <term><option>--symbols</option></term>
 <term><option>-s</option></term>
 <listitem>
 <para>
 Causes LWASM to generate a list of symbols when generating a listing.
 It has no effect unless a listing is being generated.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--symbols-nolocals</option></term>
+<listitem>
+<para>
+Behaves just like <option>--symbols</option> but with local labels omitted.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--map=FILE</option></term>
+<listitem>
+<para>
+
+This option generates a map file which can be used by debuggers and monitors to provide symbol information. A map file may be created independent of a listing file. (Patches are pending for MAME and exec09.)
+
 </para>
 </listitem>
 </varlistentry>
@@ -288,6 +416,13 @@ Select the proprietary object file format as the output target.
 This option specifies the name of the output file. If not specified, the
 default is <option>a.out</option>.
 </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--no-output</option></term>
+<listitem>
+<para>Do assembly as usual but suppress generation of the output file.</para>
 </listitem>
 </varlistentry>
 
@@ -337,6 +472,16 @@ redefine SYM using EQU will result in a multiply defined symbol error.
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term><option>-t WIDTH</option></term>
+<term><option>--tabs=WIDTH</option></term>
+<listitem>
+<para>
+Specifies the handling of tabs in listing files. <option>--tabs=0</option>
+disables tab expansion. <option>--tabs=8</option> is the default setting.
+</para>
+</listitem>
+</varlistentry>
 
 <varlistentry>
 <term><option>--help</option></term>
@@ -384,16 +529,19 @@ LWASM source code itself.
 
 <section>
 <title>Dialects</title>
-<para>
-LWASM supports all documented MC6809 instructions as defined by Motorola. 
-It also supports all known HD6309 instructions.  While there is general
-agreement on the pneumonics for most of the 6309 instructions, there is some
-variance with the block transfer instructions. TFM for all four variations
-seems to have gained the most traction and, thus, this is the form that is
-recommended for LWASM. However, it also supports COPY, COPY-, IMP, EXP,
-TFRP, TFRM, TFRS, and TFRR. It further adds COPY+ as a synomym for COPY,
-IMPLODE for IMP, and EXPAND for EXP.
-</para>
+
+<para> LWASM supports all documented MC6809 instructions as defined by
+Motorola.  By default, this does not include any MC6800 compatibility
+instructions.  As of LWASM 4.11, those compatibility instructions can be
+enabled using the <parameter>--6800compat</parameter> option or the
+<parameter>6800compat</parameter> pragma.  It also supports all known HD6309
+instructions.  While there is general agreement on the pneumonics for most
+of the 6309 instructions, there is some variance with the block transfer
+instructions.  TFM for all four variations seems to have gained the most
+traction and, thus, this is the form that is recommended for LWASM. 
+However, it also supports COPY, COPY-, IMP, EXP, TFRP, TFRM, TFRS, and TFRR. 
+It further adds COPY+ as a synomym for COPY, IMPLODE for IMP, and EXPAND for
+EXP.  </para>
 
 <para>By default, LWASM accepts 6309 instructions. However, using the
 <parameter>--6809</parameter> parameter, you can cause it to throw errors on
@@ -715,7 +863,7 @@ work, however.</para>
 </varlistentry>
 
 <varlistentry>
-<term>FILL <parameter>size</parameter>,<parameter>byte</parameter></term>
+<term>FILL <parameter>byte</parameter>,<parameter>size</parameter></term>
 <listitem>
 
 <para>
@@ -739,10 +887,23 @@ or the assembly process itself.</para>
 <listitem>
 <para>Set the assembly address. The address must be fully resolvable on the
 first pass so no external or forward references are permitted. ORG is not
-permitted within sections when outputting to object files. For the DECB
-target, each ORG directive after which output is generated will cause
-a new preamble to be output. ORG is only used to determine the addresses
-of symbols when the raw target is used.
+permitted within sections when outputting to object files. For target formats
+that include address information (decb, hex, srec, and ihex), an ORG 
+directive will re-start the address sequence within the output. When using
+the raw target format, ORG is used only to determine the addresses of symbols.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>REORG</term>
+<listitem>
+<para>
+Sets the assembly address to the value it had immediately prior to the
+previous ORG statement. It is used to continue assembly after some
+specification that required an additional ORG. This directive is primarily
+intended for MACRO-80c compatibility. Consider using alternatives in
+modern code.
 </para>
 </listitem>
 </varlistentry>
@@ -893,6 +1054,16 @@ will be considered true.
 </para>
 </listitem>
 </varlistentry>
+
+<varlistentry>
+<term>IFPRAGMA <parameter>pragma</parameter></term>
+<listitem>
+<para>
+If <parameter>pragma</parameter> is in effect, the condition will be considered true.
+</para>
+</listitem>
+</varlistentry>
+
 
 <varlistentry>
 <term>IFNDEF <parameter>sym</parameter></term>
@@ -1532,6 +1703,62 @@ present or removing "no" from the beginning if it is present.</para>
 <para>Pragmas are not case sensitive.</para>
 
 <variablelist>
+
+<varlistentry>
+<term>6800compat</term>
+<listitem>
+
+<para>When in force, this pragma enables recognition of various
+compatibility instructions useful when assembling 6800 code.  These
+compatibility instructions are assembled into equivalent 6809 instructions. 
+This mode also includes several analogous instructions which are not
+strictly 6800 instructions but allow the similar style to be applied to 6809
+specific features.</para>
+
+<para>Technically, a compliant 6809 assembler must recognize these
+instructions by default since Motorola advertised the 6809 as being source
+compatible with the 6800.  However, most source code does not require this
+compatibility and LWASM itself did not support these instructions prior to
+version 4.11 so this mode is disabled by default.</para>
+
+</listitem>
+
+</varlistentry>
+
+<varlistentry>
+<term>6809</term>
+<listitem>
+<para>
+This pragma allows you to mark a section of code as 6809-only. In ths mode,
+the assembler will throw an error if any 6309 instructions are used.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>6309</term>
+<listitem>
+<para>
+This pragma enables the use of 6309 instructions and disables any 6809 specific
+instructions. It also changes the cycle count listing output (if selected)
+to display 6309 timings.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>6809conv</term>
+<term>6309conv</term>
+<listitem>
+<para>
+These pragmas enable convenience instructions extending the 6809 and 6309
+instruction sets respectively. For more information, see 
+<xref linkend="convinst">.
+</para>
+</listitem>
+</varlistentry>
+
+
 <varlistentry>
 <term>index0tonone</term>
 <listitem>
@@ -1735,6 +1962,159 @@ the assembler will still complain about a non constant condition.</para>
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term>forwardrefmax</term>
+<listitem>
+
+<para>This pragma will disable forward reference optimization completely.
+Ordinarily, LWASM will attempt to select the shortest possible addressing
+mode for forward references.  However, in many source files, especially
+those not using the PCR relative addressing modes, this optimization is
+pointless since the assembler will almost certainly settle on a 16 bit
+offset or address.  If all variables in the direct page are defined before
+the main body of the code, the benefit of forward reference optimization
+almost certainly vanishes completely.  However, the cost of doing that
+optimization remains and can result in a very long assembly time.</para>
+
+<para>Enabling this pragma will cause all forward references to use the
+maximum offset or address size, much the same has EDTASM and other pure
+two pass assemblers do. The side effect is that all line lengths and
+symbol values are fully resolved after the initial parsing pass and the
+amount of work to resolve everything becomes almost nil.</para>
+
+<para>While this pragma can be applied selectively to sections of source
+code (use *PRAGMA if doing so and compatibility with other assemblers
+is desired), it is likely more useful when provided as a command line
+pragma.</para>
+
+<para>It should be noted that the presence or absence of this pragma
+will not change the correctness of the generated code unless cycle counts
+or byte counts are critical (which they usually are not). It also will
+not override the operand size override prefixes (&lt; and &gt;). It only
+applies when the assembler is left to guess what the operand size is.</para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>operandsizewarning</term>
+<listitem>
+
+<para>Enabling this pragma will cause LWASM to show a warning when it
+detects that a smaller addressing mode could be used for an instruction.
+This is particularly useful for finding places where long branches are used
+where short branches could be used instead. It will also show the warnings
+for indexing offsets (regardless of whether the operand size is
+forced).</para>
+
+<para>As of LWASM 4.16, no other checks are performed.</para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>qrts</term>
+<listitem>
+<para>
+
+Enables the use of the ?RTS branch target. ?RTS is implemented to maintain
+compatibility with the MACRO-80c assembler.  It works by searching backward
+in the code for an RTS instruction.  If none is found, it inverts the branch
+logic and inserts an RTS following the branch instruction.  Below you can
+see how a BMI (2B xx) has been assembled as a BPL *+1 (2A 01) to skip over an
+inserted RTS (39).
+</para>
+<programlisting>
+1D1E 7D1D1D            TST   WHICH1
+1D21 2A0139            BMI   ?RTS
+1D24 BD1D65            JSR   INV
+</programlisting>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>m80ext</term>
+<listitem>
+<para>
+
+This pragma (along with pragma qrts) enables some uncommon behaviors to
+accomodate The Micro Works MACRO-80c assembler from 1982.  This assembler
+was used by a number of notable TRS-80 Color Computer applications and the
+goal of this pragma is to allow them to build identical binaries from
+unmodified, vintage source code.
+</para>
+<para>
+
+In m80ext mode, the handling of the "END" pseudo-op changes when used inside
+an include file.  Instead of terminating all assembly, it merely stops
+processing of the current include file (this behavior matches the original
+Motorola 6809 assembler).  In addition, loading an ASCII value with a single
+quote (e.g., LDA #'N) is extended to 16-bit registers (e.g., LDD #'NO). 
+LWASM normally supports this via double quote and that is the proper use in
+modern code.  Finally, the FCC pseudo-op is extended to handle FCB-like
+behavior after the closing delimiter:
+</para>
+<programlisting>
+                       FCC "Greetings from 1982",13,0
+</programlisting>
+</listitem>
+</varlistentry>
+
+
+
+<varlistentry>
+<term>testmode</term>
+<listitem>
+<para>
+
+This pragma is intended for internal testing purposes. In testmode, the
+assembler searches for a specially-formatted comment starting with a
+semicolon followed by a period.  Immediately afterward are a list of hex
+bytes that the assembler is expected to generate.  Likewise, if the
+assembler is expected to throw an error or warning on a given line, you can
+check by specifying "E:" followed by the error number.  In this case the
+error is ignored and the assembler continues ignoring the line in question.
+
+</para>
+<programlisting>
+1D1E 7D1D1D            TST   WHICH1    ;.7d1d1d
+1D21 2A0139            BMI   ?RTS      ;.2a0139
+1D24 1D24              FDB   *         ;.1d24
+1D26                   xyz   INV       ;.E:32    (Error 32 is "Bad opcode")
+</programlisting>
+</listitem>
+</varlistentry>
+
+
+
+
+<varlistentry>
+<term>emuext</term>
+<listitem>
+<para>
+
+This pragma enables two instructions useful when running code in compatible
+emulators. Break breaks into the debugger. Log writes printf-style
+output to the debug window
+
+</para>
+<programlisting>
+      LOG           ; log output
+      FDB   FSTR    ; pointer to format string
+      FDB   PX1     ; 16 bit pointer to 16 bit value
+      FDB   PY1     ; 16 bit pointer to 8 bit value (see format string!)
+      FDB   PX2     ; 16 bit pointer to 16 bit value
+      FDB   PY2     ; 16 bit pointer to 8 bit value
+      ; execution continues here ...
+      RTS
+
+; format string
+FSTR  FCC   "%hu,%hhu - %hu,%hhu"
+      FCB   10,0
+</programlisting>
+</listitem>
+</varlistentry>
+
 </variablelist>
 
 <para>As a convenience, each input file has a pragma state stack. This
@@ -1755,6 +2135,74 @@ while nolist is already engaged, it will not undo that state.</para>
 
 
 
+</section>
+
+<section id="convinst">
+<title id="convinsttitle">Convenience Instructions</title>
+<para>
+
+Similar to the 6800 compatibility instructions (pragma 6800compat) these
+pragma 6809conv and pragma 6309conv enable convenience extensions to the
+6809 and 6309 instruction set.  Originally intended for compatibility with
+the MACRO-80c assembler, these have proven useful in large codebases that
+target both the 6809 and the 6309.
+</para>
+
+<para>
+
+The 6809 extensions are straightforward with the exception of "TSTD" which
+assembles as "STD -2,S".  A benefit of using these is they will "just work"
+and take on their 6309 equivalent when you enable 6309 assembly mode. 
+Supported instructions: ASRD, CLRD,   COMD,   LSLD,   LSRD,   NEGD,   TSTD.
+</para>
+<para>
+
+6309 extensions are based on common patterns described by Chris Burke and
+Darren Atkinson in their 6309 documentation and include the following
+instructions: ASRQ,   CLRQ,   COMQ,   LSLE,   LSLF,   LSLQ,   LSRQ,   NEGE,
+   NEGF,   NEGW,   NEGQ,   TSTQ.
+</para>
+</section>
+
+<section>
+<title>Cycle Counts</title>
+<para>
+
+The following options for displaying cycle counts in listings are provided.
+These options are enabled from pragmas on the command line or in the
+assembly files themselves.  For compatibility with other assemblers you can
+use the "OPT" keyword in addition to "PRAGMA."
+</para>
+
+<programlisting>
+opt c  - enable cycle counts: [8]
+opt cd - enable detailed cycle counts breaking down addressing modes: [5+3]
+opt ct - show a running subtotal of cycles
+opt cc - clear the running subtotal
+</programlisting>
+
+<para>
+
+The assembler supports both 6809 as well as native-mode 6309 cycle counts.
+In 6309 mode the counts are displayed in parenthesis instead of brackets. 
+In addition, some operations have a variable cycle count.  In this case a
+"+?" is displayed to alert the reader.  Sample output is shown below.
+</para>
+
+<programlisting>
+266f 7d25e2     (window.asm):00313 [7]     7       move   tst   putflg
+2672 2602       (window.asm):00314 [5]     12             bne   a@
+2674 1e13       (window.asm):00315 [8]     20             exg   x,u
+2676 0dd6       (window.asm):00316 [6]     26      a@     tst   is6309
+2678 2618       (window.asm):00317 [5]     31             bne   exit@
+                (window.asm):00318                        opt   6309
+267a 10860085   (window.asm):00319 (4)     35      b@     ldw   #133
+267e 113813     (window.asm):00320 (6+?)   41             tfm   x+,u+
+2681 30881b     (window.asm):00321 (4+1)   46             leax  27,x
+2684 33c81b     (window.asm):00322 (4+1)   51             leau  27,u
+2687 4a         (window.asm):00323 (1)     52             deca
+2688 26f0       (window.asm):00324 (5)     57             bne   b@
+</programlisting>
 </section>
 
 </chapter>
@@ -1853,8 +2301,9 @@ This will output a description of the link result to FILE.
 <term><option>-l LIBSPEC</option></term>
 <listitem>
 <para>
-Load a library using the library search path. LIBSPEC will have "lib" prepended
-and ".a" appended.
+Load a library using the library search path. If LIBSPEC is prefixed with a
+colon (":"), then LIBSPEC is the precise filename to be searched for in the
+library path. Otherwise, LIBSPEC will have "lib" prepended and ".a" appended.
 </para>
 </listitem>
 </varlistentry>
@@ -2110,6 +2559,25 @@ For the decb target, each "load" entry will cause a new "block" to be
 output to the binary which will contain the load address. It is legal for
 sections to overlap in this manner - the linker assumes the loader will sort
 everything out.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>section <parameter>name</parameter> high <parameter>addr</parameter></term>
+<listitem><para>
+
+This causes the section <parameter>name</parameter> to load with its end
+address just below <parameter>addr</parameter>.  Subsequent sections are
+loaded at progressively lower addresses.  This may lead to inefficient file
+encoding for some targets.  As of this writing, it will also almost
+certainly do the wrong thing for a raw target.
+
+</para><para>
+
+This is useful for aligning a block of code with high memory.  As an
+example, if the total size of a section is $100 bytes and a high address of
+$FE00 is specified, the section will actually load at $FD00.
+
 </para></listitem>
 </varlistentry>
 

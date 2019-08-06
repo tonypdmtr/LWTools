@@ -23,7 +23,12 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#include <lw_win.h>	// windows build
+#else
 #include <unistd.h>
+#endif
 
 #include "lwar.h"
 
@@ -32,6 +37,7 @@ void do_replace(void)
 	FILE *f;
 	FILE *nf;
 	unsigned char buf[8];
+	char *filename;
 	long l;
 	int c;
 	FILE *f2;
@@ -101,6 +107,7 @@ void do_replace(void)
 			}
 		}
 		fnbuf2[i] = 0;
+		filename = get_file_name(fnbuf2);
 		
 		// get length of archive member
 		l = 0;
@@ -116,7 +123,7 @@ void do_replace(void)
 		// is it a file we are replacing? if so, do not copy it
 		for (i = 0; i < nfiles; i++)
 		{
-			if (!strcmp(files[i], fnbuf2))
+			if (!strcmp(get_file_name(files[i]), filename))
 				break;
 		}
 		if (i < nfiles)
@@ -126,7 +133,7 @@ void do_replace(void)
 		else
 		{
 			// otherwise, copy it
-			fprintf(nf, "%s", fnbuf2);
+			fprintf(nf, "%s", filename);
 			fputc(0, nf);
 			fputc(l >> 24, nf);
 			fputc((l >> 16) & 0xff, nf);
@@ -215,7 +222,7 @@ doadd:
 		fseek(f2, 0, SEEK_END);
 		l = ftell(f2);
 		fseek(f2, 0, SEEK_SET);
-		fputs(files[i], nf);
+		fputs(get_file_name(files[i]), nf);
 		fputc(0, nf);
 		fputc(l >> 24, nf);
 		fputc((l >> 16) & 0xff, nf);

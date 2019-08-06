@@ -29,9 +29,9 @@ Contains code for handling logic/mem instructions
 #include "lwasm.h"
 #include "instab.h"
 
-extern void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **optr, int elen);
-extern void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen);
-extern void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra);
+void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **optr, int elen);
+void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen);
+void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra);
 
 // for aim, oim, eim, tim
 PARSEFUNC(insn_parse_logicmem)
@@ -45,19 +45,20 @@ PARSEFUNC(insn_parse_logicmem)
 	s = lwasm_parse_expr(as, p);
 	if (!s)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
 	lwasm_save_expr(l, 100, s);
+	lwasm_skip_to_next_token(l, p);
 	if (**p != ',' && **p != ';')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	
 	(*p)++;
-
+	lwasm_skip_to_next_token(l, p);
 	// now we have a general addressing mode - call for it
 	insn_parse_gen_aux(as, l, p, 1);
 }
@@ -78,7 +79,7 @@ EMITFUNC(insn_emit_logicmem)
 	e = lwasm_fetch_expr(l, 100);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
-		lwasm_register_error(as, l, "Immediate byte must be fully resolved");
+		lwasm_register_error(as, l, E_IMMEDIATE_UNRESOLVED);
 		return;
 	}
 	
@@ -86,7 +87,7 @@ EMITFUNC(insn_emit_logicmem)
 /*	if (v < -128 || v > 255)
 	{
 		fprintf(stderr, "BYTE: %d\n", v);
-		lwasm_register_error(as, l, "Byte overflow");
+		lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 		return;
 	}
 */	

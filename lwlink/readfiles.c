@@ -70,25 +70,37 @@ void read_files(void)
 		if (inputfiles[i] -> islib)
 		{
 			char *tf;
+			char *sfn;
 			int s;
 			int j;
 			
 			f = NULL;
+			
+			if (inputfiles[i] -> filename[0] == ':')
+			{
+				// : suppresses the libfoo.a behaviour
+				sfn = lw_strdup(inputfiles[i] -> filename + 1);
+			}
+			else
+			{
+				sfn = lw_alloc(strlen(inputfiles[i] -> filename) + 6);
+				sprintf(sfn, "lib%s.a", inputfiles[i] -> filename);
+			}
 			
 			for (j = 0; j < nlibdirs; j++)
 			{
 				if (libdirs[j][0] == '=')
 				{
 					// handle sysroot
-					s = strlen(libdirs[j]) + 7 + strlen(sysroot) + strlen(inputfiles[i] -> filename);
+					s = strlen(libdirs[j]) + 2 + strlen(sysroot) + strlen(sfn);
 					tf = lw_alloc(s + 1);
-					sprintf(tf, "%s/%s/lib%s.a", sysroot, libdirs[j] + 1, inputfiles[i] -> filename);
+					sprintf(tf, "%s/%s/%s", sysroot, libdirs[j] + 1, sfn);
 				}
 				else
 				{
-					s = strlen(libdirs[j]) + 7 + strlen(inputfiles[i] -> filename);
+					s = strlen(libdirs[j]) + 1 + strlen(sfn);
 					tf = lw_alloc(s + 1);
-					sprintf(tf, "%s/lib%s.a", libdirs[j], inputfiles[i] -> filename);
+					sprintf(tf, "%s/%s", libdirs[j], sfn);
 				}
 				f = fopen(tf, "rb");
 				if (!f)
@@ -99,6 +111,7 @@ void read_files(void)
 				free(tf);
 				break;
 			}
+			free(sfn);
 			if (!f)
 			{
 				fprintf(stderr, "Can't open library: -l%s\n", inputfiles[i] -> filename);
@@ -388,8 +401,8 @@ An empty file name indicates the end of the file.
 */
 void read_lwar1v(fileinfo_t *fn)
 {
-	unsigned long cc = 6;
-	unsigned long flen;
+	int cc = 6;
+	int flen;
 	unsigned long l;
 	for (;;)
 	{

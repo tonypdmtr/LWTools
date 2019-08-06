@@ -85,7 +85,7 @@ void do_pass4_aux(asmstate_t *as, int force)
 			debug_message(as, 200, "Try resolve = %d/%d", sl -> len, sl -> dlen);
 			if (force && sl -> len == -1 && sl -> dlen == -1)
 			{
-				lwasm_register_error(as, sl, "Instruction failed to resolve.");
+				lwasm_register_error(as, sl, E_INSTRUCTION_FAILED);
 				return;
 			}
 		}

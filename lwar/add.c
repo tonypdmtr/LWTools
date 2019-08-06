@@ -175,7 +175,7 @@ doadd:
 		fseek(f2, 0, SEEK_END);
 		l = ftell(f2);
 		fseek(f2, 0, SEEK_SET);
-		fputs(files[i], f);
+		fputs(get_file_name(files[i]), f);
 		fputc(0, f);
 		fputc(l >> 24, f);
 		fputc((l >> 16) & 0xff, f);

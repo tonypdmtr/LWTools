@@ -36,14 +36,14 @@ typedef struct lw_stringlist_priv * lw_stringlist_t;
 #else /* def ___lw_stringlist_c_seen___ */
 
 typedef void * lw_stringlist_t;
-extern lw_stringlist_t lw_stringlist_create(void);
-extern void lw_stringlist_destroy(lw_stringlist_t S);
-extern void lw_stringlist_addstring(lw_stringlist_t S, char *str);
-extern void lw_stringlist_reset(lw_stringlist_t S);
-extern char *lw_stringlist_current(lw_stringlist_t S);
-extern char *lw_stringlist_next(lw_stringlist_t S);
-extern int lw_stringlist_nstrings(lw_stringlist_t S);
-extern lw_stringlist_t lw_stringlist_copy(lw_stringlist_t S);
+lw_stringlist_t lw_stringlist_create(void);
+void lw_stringlist_destroy(lw_stringlist_t S);
+void lw_stringlist_addstring(lw_stringlist_t S, char *str);
+void lw_stringlist_reset(lw_stringlist_t S);
+char *lw_stringlist_current(lw_stringlist_t S);
+char *lw_stringlist_next(lw_stringlist_t S);
+int lw_stringlist_nstrings(lw_stringlist_t S);
+lw_stringlist_t lw_stringlist_copy(lw_stringlist_t S);
 
 #endif /* def ___lw_stringlist_c_seen___ */
 

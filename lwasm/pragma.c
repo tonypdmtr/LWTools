@@ -60,43 +60,72 @@ static const struct pragma_list set_pragmas[] =
 	{ "symbolnocase", "nosymbolnocase", PRAGMA_SYMBOLNOCASE },
 	{ "nosymbolcase", "symbolcase", PRAGMA_SYMBOLNOCASE },
 	{ "condundefzero", "nocondundefzero", PRAGMA_CONDUNDEFZERO },
-	{ 0, 0, 0}
+	{ "6809", "6309", PRAGMA_6809 },
+	{ "6800compat", "no6800compat", PRAGMA_6800COMPAT },
+	{ "forwardrefmax", "noforwardrefmax", PRAGMA_FORWARDREFMAX },
+	{ "testmode", "notestmode", PRAGMA_TESTMODE },
+	{ "c", "noc", PRAGMA_C },
+	{ "cc", "nocc", PRAGMA_CC },
+	{ "cd", "nocd", PRAGMA_CD },
+	{ "ct", "noct", PRAGMA_CT },
+	{ "qrts", "noqrts", PRAGMA_QRTS },
+	{ "m80ext", "nom80ext", PRAGMA_M80EXT },
+	{ "6809conv", "no6809conv", PRAGMA_6809CONV },
+	{ "6309conv", "no6309conv", PRAGMA_6309CONV },
+	{ "newsource", "nonewsource", PRAGMA_NEWSOURCE },
+	{ "nooldsource", "oldsource", PRAGMA_NEWSOURCE },
+	{ "operandsizewarning", "nooperandsizewarning", PRAGMA_OPERANDSIZE },
+	{ "emuext", "noemuext", PRAGMA_EMUEXT },
+	{ "nooutput", "output", PRAGMA_NOOUTPUT },
+	{ "noexpandcond", "expandcond", PRAGMA_NOEXPANDCOND },
+	{ 0, 0, 0 }
 };
+
+int parse_pragma_helper(char *p)
+{
+	int i;
+
+	for (i = 0; set_pragmas[i].setstr; i++)
+	{
+		if (!strcasecmp(p, set_pragmas[i].setstr))
+		{
+			return set_pragmas[i].flag;
+			return 1;
+		}
+		if (!strcasecmp(p, set_pragmas[i].resetstr))
+		{
+			return set_pragmas[i].flag | PRAGMA_CLEARBIT;
+			return 2;
+		}
+	}
+
+	return 0;
+}
 
 int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
 {
 	char *p;
-	int i;
 	const char *np = str;
-	int pragmas = as -> pragmas;
+	int pragma;
 
 	while (np)
 	{
 		p = lw_token(np, ',', &np);
-		debug_message(as, 200, "Setting pragma %s", p);
-		for (i = 0; set_pragmas[i].setstr; i++)
-		{
-			if (!strcasecmp(p, set_pragmas[i].setstr))
-			{
-				pragmas |= set_pragmas[i].flag;
-				goto out;
-			}
-			if (!strcasecmp(p, set_pragmas[i].resetstr))
-			{
-				pragmas &= ~(set_pragmas[i].flag);
-				goto out;
-			}
-		}
-		/* unrecognized pragma here */
-		if (!ignoreerr)
-		{
-			lw_free(p);
-			return 0;
-		}
-	out:	
+		debug_message(as, 200, "Setting/resetting pragma %s", p);
+		pragma = parse_pragma_helper(p);
+		debug_message(as, 200, "Got pragma code %08X", pragma);
 		lw_free(p);
+
+		if (pragma == 0 && !ignoreerr)
+			return 0;
+
+		if (pragma & PRAGMA_CLEARBIT)
+			as->pragmas &= ~pragma;
+		else
+			as->pragmas |= pragma;
+		
+		debug_message(as, 200, "New pragma state: %08X", as -> pragmas);
 	}
-	as -> pragmas = pragmas;
 	return 1;
 }
 
@@ -114,10 +143,15 @@ PARSEFUNC(pseudo_parse_pragma)
 
 	if (parse_pragma_string(as, ps, 0) == 0)
 	{
-		lwasm_register_error(as, l, "Unrecognized pragma string");
+		lwasm_register_error(as, l, E_PRAGMA_UNRECOGNIZED);
 	}
 	if (as -> pragmas & PRAGMA_NOLIST)
 		l -> pragmas |= PRAGMA_NOLIST;
+	if (as->pragmas & PRAGMA_CC)
+	{
+		l->pragmas |= PRAGMA_CC;
+		as->pragmas &= ~PRAGMA_CC;
+	}
 	lw_free(ps);
 }
 
@@ -137,6 +171,11 @@ PARSEFUNC(pseudo_parse_starpragma)
 	parse_pragma_string(as, ps, 1);
 	if (as -> pragmas & PRAGMA_NOLIST)
 		l -> pragmas |= PRAGMA_NOLIST;
+	if (as->pragmas & PRAGMA_CC)
+	{
+		l->pragmas |= PRAGMA_CC;
+		as->pragmas &= ~PRAGMA_CC;
+	}
 	lw_free(ps);
 }
 

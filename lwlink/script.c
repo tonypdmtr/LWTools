@@ -58,6 +58,17 @@ static char *decb_script =
 	"entry 2000\n"
 	;
 
+// the built-in SREC target linker script
+static char *srec_script =
+	"define basesympat s_%s\n"
+	"define lensympat l_%s\n"
+	"section init load 0400\n"
+	"section code\n"
+	"section *,!bss\n"
+	"section *,bss\n"
+	"entry __start\n"
+	;
+
 // the built-in RAW target linker script
 static char *raw_script = 
 	"define basesympat s_%s\n"
@@ -147,6 +158,10 @@ void setup_script()
 			script = decb_script;
 			break;
 		
+		case OUTPUT_SREC:
+			script = srec_script;
+			break;
+		
 		case OUTPUT_LWEX0:
 			script = lwex0_script;
 			break;
@@ -214,8 +229,8 @@ void setup_script()
 		for (ptr = line; *ptr && isspace(*ptr); ptr++)
 			/* do nothing */ ;
 		
-		// ignore blank lines
-		if (!*ptr)
+		// ignore blank lines and comments
+		if (!*ptr || *ptr == '#' || *ptr == ';')
 			continue;
 		
 		for (ptr = line; *ptr && !isspace(*ptr); ptr++)
@@ -380,6 +395,7 @@ void setup_script()
 		}
 		else if (!strcmp(line, "section"))
 		{
+			int growsdown = 0;
 			// section
 			// parse out the section name and flags
 			for (ptr2 = ptr; *ptr2 && !isspace(*ptr2); ptr2++)
@@ -404,11 +420,23 @@ void setup_script()
 						ptr2++;
 					
 				}
+				else if (!strncmp(ptr2, "high", 4))
+				{
+					ptr2 += 4;
+					while (*ptr2 && isspace(*ptr2))
+						ptr2++;
+					growsdown = 1;
+				}
 				else
 				{
 					fprintf(stderr, "%s: bad script\n", scriptfile);
 					exit(1);
 				}
+			}
+			else
+			{
+				if (linkscript.nlines > 0)
+					growsdown = linkscript.lines[linkscript.nlines - 1].growsdown;
 			}
 			
 			// now ptr2 points to the load address if there is one
@@ -417,6 +445,7 @@ void setup_script()
 
 			linkscript.lines[linkscript.nlines].noflags = 0;
 			linkscript.lines[linkscript.nlines].yesflags = 0;
+			linkscript.lines[linkscript.nlines].growsdown = growsdown;
 			if (*ptr2)
 				linkscript.lines[linkscript.nlines].loadat = strtol(ptr2, NULL, 16);
 			else

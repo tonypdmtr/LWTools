@@ -22,13 +22,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ___lw_error_h_seen___
 #define ___lw_error_h_seen___
 
-
-#ifdef ___lw_error_c_seen___
-
-#else /* def ___lw_error_c_seen___ */
-
-extern void lw_error(const char *fmt, ...);
-extern void lw_error_setfunc(void (*f)(const char *fmt, ...));
-#endif /* def ___lw_error_c_seen___ */
+void lw_error(const char *fmt, ...);
+void lw_error_setfunc(void (*f)(const char *fmt, ...));
 
 #endif /* ___lw_error_h_seen___ */

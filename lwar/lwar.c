@@ -24,9 +24,9 @@ Implements the program startup code
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #include <lw_alloc.h>
 
@@ -43,6 +43,7 @@ int operation = 0;
 int nfiles = 0;
 char *archive_file = NULL;
 int mergeflag = 0;
+int filename_flag = 0;
 
 char **files = NULL;
 
@@ -51,4 +52,20 @@ void add_file_name(char *fn)
 	files = lw_realloc(files, sizeof(char *) * (nfiles + 1));
 	files[nfiles] = fn;
 	nfiles++;
+}
+
+char *get_file_name(char *fn)
+{
+	char *filename;
+	if (filename_flag != 0)
+	{
+#ifdef _MSC_VER
+		filename = strrchr(fn, '\\');
+#else
+		filename = strrchr(fn, '/');
+#endif
+		if (filename != NULL)
+			return filename + 1;
+	}
+	return fn;
 }

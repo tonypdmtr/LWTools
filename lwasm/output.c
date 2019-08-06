@@ -23,7 +23,10 @@ Contains the code for actually outputting the assembled code
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
+
+#ifndef _MSC_VER
+#include <unistd.h>  // for unlink
+#endif
 
 #include <lw_alloc.h>
 #include <lw_expr.h>
@@ -32,9 +35,14 @@ Contains the code for actually outputting the assembled code
 
 void write_code_raw(asmstate_t *as, FILE *of);
 void write_code_decb(asmstate_t *as, FILE *of);
+void write_code_BASIC(asmstate_t *as, FILE *of);
 void write_code_rawrel(asmstate_t *as, FILE *of);
 void write_code_obj(asmstate_t *as, FILE *of);
 void write_code_os9(asmstate_t *as, FILE *of);
+void write_code_hex(asmstate_t *as, FILE *of);
+void write_code_srec(asmstate_t *as, FILE *of);
+void write_code_ihex(asmstate_t *as, FILE *of);
+void write_code_lwmod(asmstate_t *as, FILE *of);
 
 // this prevents warnings about not using the return value of fwrite()
 // r++ prevents the "set but not used" warnings; should be optimized out
@@ -67,6 +75,10 @@ void do_output(asmstate_t *as)
 	case OUTPUT_DECB:
 		write_code_decb(as, of);
 		break;
+	
+	case OUTPUT_BASIC:
+		write_code_BASIC(as, of);
+		break;
 		
 	case OUTPUT_RAWREL:
 		write_code_rawrel(as, of);
@@ -80,6 +92,22 @@ void do_output(asmstate_t *as)
 		write_code_os9(as, of);
 		break;
 
+	case OUTPUT_HEX:
+		write_code_hex(as, of);
+		break;
+		
+	case OUTPUT_SREC:
+		write_code_srec(as, of);
+		break;
+
+	case OUTPUT_IHEX:
+		write_code_ihex(as, of);
+		break;
+
+	case OUTPUT_LWMOD:
+		write_code_lwmod(as, of);
+		break;
+
 	default:
 		fprintf(stderr, "BUG: unrecognized output format when generating output file\n");
 		fclose(of);
@@ -89,6 +117,106 @@ void do_output(asmstate_t *as)
 
 	fclose(of);
 }
+
+int write_code_BASIC_fprintf(FILE *of, int linelength, int *linenumber, int value)
+{
+	if (linelength > 247)
+	{
+		fprintf(of, "\n");
+		linelength = fprintf(of, "%d DATA ", *linenumber);
+		*linenumber += 10;
+	}
+	else
+	{
+		linelength += fprintf(of, ",");
+	}
+	linelength += fprintf(of, "%d", value);
+
+	return linelength;
+}
+
+void write_code_BASIC(asmstate_t *as, FILE *of)
+{
+	line_t *cl;
+	line_t *startblock = as -> line_head;
+	line_t *endblock;
+	int linenumber, linelength, startaddress, lastaddress, address;
+	int outidx;
+	
+	fprintf(of, "10 READ A,B\n");
+	fprintf(of, "20 IF A=-1 THEN 70\n");
+	fprintf(of, "30 FOR C = A TO B\n");
+	fprintf(of, "40 READ D:POKE C,D\n");
+	fprintf(of, "50 NEXT C\n");
+	fprintf(of, "60 GOTO 10\n");
+	
+	if (as -> execaddr == 0)
+	{
+		fprintf(of, "70 END");
+	}
+	else
+	{
+		fprintf(of, "70 EXEC %d", as -> execaddr);
+	}
+	
+	linenumber = 80;
+	linelength = 255;
+	
+	while(startblock)
+	{
+		startaddress = -1;
+		endblock = NULL;
+		
+		for (cl = startblock; cl; cl = cl -> next)
+		{
+			if (cl -> outputl < 0)
+				continue;
+		
+			address = lw_expr_intval(cl -> addr);
+		
+			if (startaddress == -1)
+			{
+				startaddress = address;
+				lastaddress = address + cl -> outputl - 1;
+			}
+			else
+			{
+				if (lastaddress != address - 1)
+				{
+					endblock = cl;
+					break;
+				}
+				
+				lastaddress += cl -> outputl;
+			}
+		}
+	
+		if (startaddress != -1)
+		{
+			linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, startaddress);
+			linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, lastaddress);
+	
+			for (cl = startblock; cl != endblock; cl = cl -> next)
+			{
+				if (cl -> outputl < 0)
+					continue;
+		
+				for (outidx=0; outidx<cl -> outputl; outidx++)
+				{
+					linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, cl -> output[outidx]);
+				}
+			}
+		}
+	
+		startblock = cl;
+	}
+	
+	linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, -1);
+	linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, -1);
+	
+	fprintf(of, "\n");
+}
+
 
 /*
 rawrel output treats an ORG directive as an offset from the start of the
@@ -219,6 +347,260 @@ void write_code_decb(asmstate_t *as, FILE *of)
 	writebytes(outbuf, 5, 1, of);
 }
 
+int fetch_output_byte(line_t *cl, char *value, int *addr)
+{
+	static int outidx = 0;
+	static int lastaddr = -2;
+	
+	// try to read next byte in current line's output field
+	if ((cl -> outputl > 0) && (outidx < cl -> outputl))
+	{
+		*addr = lw_expr_intval(cl -> addr) + outidx;
+		*value = *(cl -> output + outidx++);
+		
+		// this byte follows the previous byte (contiguous, rc = 1)
+		if (*addr == lastaddr + 1)
+		{
+			lastaddr = *addr;
+			return 1;
+		}
+		
+		// this byte does not follow prev byte (disjoint, rc = -1)
+		else 
+		{
+			lastaddr = *addr;
+			return -1;
+		}
+	}
+
+	// no (more) output from this line (rc = 0)
+	else
+	{
+		outidx = 0;
+		return 0;
+	}
+}
+
+
+/* a simple ASCII hex file format */
+
+void write_code_hex(asmstate_t *as, FILE *of)
+{
+	const int RECLEN = 16;
+	
+	line_t *cl;
+	char outbyte;
+	int outaddr;
+	int rc;
+	
+	for (cl = as -> line_head; cl; cl = cl -> next)
+		do
+		{
+			rc = fetch_output_byte(cl, &outbyte, &outaddr);
+			
+			// if address jump or xxx0 address, start new line
+			if ((rc == -1) || ((rc == 1) && (outaddr % RECLEN == 0)))
+			{
+				fprintf(of, "\r\n%04X:", (unsigned int)(outaddr & 0xffff));
+				fprintf(of, "%02X", (unsigned char)outbyte);
+				rc = -1;
+			}
+			if (rc == 1)
+				fprintf(of, ",%02X", (unsigned char)outbyte);
+		}
+		while (rc);
+}
+
+
+/* Motorola S19 hex file format */
+
+void write_code_srec(asmstate_t *as, FILE *of)
+{
+	#define SRECLEN 16
+	#define HDRLEN 51
+	
+	line_t *cl;
+	char outbyte;
+	int outaddr;
+	int rc;
+	unsigned int i;
+	int recaddr = 0;
+	unsigned int recdlen = 0;
+	unsigned char recdata[SRECLEN];
+	int recsum;
+	int reccnt = -1;
+	char rechdr[HDRLEN];
+	
+	for (cl = as -> line_head; cl; cl = cl -> next)
+		do
+		{
+			rc = fetch_output_byte(cl, &outbyte, &outaddr);
+			
+			// if address jump or xxx0 address, start new S1 record
+			if ((rc == -1) || ((rc == 1) && (outaddr % SRECLEN == 0)))
+			{
+				// if not already done so, emit an S0 header record
+				if (reccnt < 0)
+				{
+					// build header from version and filespec
+					// e.g. "[lwtools X.Y] filename.asm"
+					strcpy(rechdr, "[");
+					strcat(rechdr, PACKAGE_STRING);
+					strcat(rechdr, "] ");
+					i = strlen(rechdr);
+					strncat(rechdr, cl -> linespec, HDRLEN - 1 - i);
+					recsum = strlen(rechdr) + 3;
+					fprintf(of, "S0%02X0000", recsum);
+					for (i = 0; i < strlen(rechdr); i++)
+					{
+						fprintf(of, "%02X", (unsigned char)rechdr[i]);
+						recsum += (unsigned char)rechdr[i];
+					}
+					fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+					reccnt = 0;
+				}
+
+				// flush any current S1 record before starting new one
+				if (recdlen > 0)
+				{
+					recsum = recdlen + 3;
+					fprintf(of, "S1%02X%04X", recdlen + 3, recaddr & 0xffff);
+					for (i = 0; i < recdlen; i++)
+					{
+						fprintf(of, "%02X", (unsigned char)recdata[i]);
+						recsum += (unsigned char)recdata[i];
+					}
+					recsum += (recaddr >> 8) & 0xFF;
+					recsum += recaddr & 0xFF;
+					fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+					reccnt += 1;
+				}
+				
+				// now start the new S1 record
+				recdlen = 0;
+				recaddr = outaddr;
+				rc = 1;
+			}
+
+			// for each new byte read, add to recdata[]
+			if (rc == 1)
+				recdata[recdlen++] = outbyte;
+		}
+		while (rc);
+		
+	// done with all output lines, flush the final S1 record (if any)
+	if (recdlen > 0)
+	{
+		recsum = recdlen + 3;
+		fprintf(of, "S1%02X%04X", recdlen + 3, recaddr & 0xffff);
+		for (i = 0; i < recdlen; i++)
+		{
+			fprintf(of, "%02X", (unsigned char)recdata[i]);
+			recsum += (unsigned char)recdata[i];
+		}
+		recsum += (recaddr >> 8) & 0xFF;
+		recsum += recaddr & 0xFF;
+		fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+		reccnt += 1;
+	}
+
+	// if any S1 records were output, close with S5 and S9 records
+	if (reccnt > 0)
+	{
+		// emit S5 count record
+		recsum = 3;
+		recsum += (reccnt >> 8) & 0xFF;
+		recsum += reccnt & 0xFF;
+		fprintf(of, "S503%04X", (unsigned int)reccnt);
+		fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+		
+		// emit S9 end-of-file record
+		recsum = 3;
+		recsum += (as -> execaddr >> 8) & 0xFF;
+		recsum += (as -> execaddr) & 0xFF;
+		fprintf(of, "S903%04X", as -> execaddr & 0xffff);
+		fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
+	}
+}
+
+
+/* Intel hex file format */
+
+void write_code_ihex(asmstate_t *as, FILE *of)
+{
+	#define IRECLEN 16
+	
+	line_t *cl;
+	char outbyte;
+	int outaddr;
+	int rc;
+	int i;
+	int recaddr = 0;
+	int recdlen = 0;
+	unsigned char recdata[IRECLEN];
+	int recsum;
+	int reccnt = 0;
+	
+	for (cl = as -> line_head; cl; cl = cl -> next)
+		do
+		{
+			rc = fetch_output_byte(cl, &outbyte, &outaddr);
+			
+			// if address jump or xxx0 address, start new ihx record
+			if ((rc == -1) || ((rc == 1) && (outaddr % IRECLEN == 0)))
+			{
+				// flush any current ihex record before starting new one
+				if (recdlen > 0)
+				{
+					recsum = recdlen;
+					fprintf(of, ":%02X%04X00", recdlen, recaddr & 0xffff);
+					for (i = 0; i < recdlen; i++)
+					{
+						fprintf(of, "%02X", (unsigned char)recdata[i]);
+						recsum += (unsigned char)recdata[i];
+					}
+					recsum += (recaddr >> 8) & 0xFF;
+					recsum += recaddr & 0xFF;
+					fprintf(of, "%02X\r\n", (unsigned char)(256 - recsum));
+					reccnt += 1;
+				}
+				
+				// now start the new ihex record
+				recdlen = 0;
+				recaddr = outaddr;
+				rc = 1;
+			}
+
+			// for each new byte read, add to recdata[]
+			if (rc == 1)
+				recdata[recdlen++] = outbyte;
+		}
+		while (rc);
+		
+	// done with all output lines, flush the final ihex record (if any)
+	if (recdlen > 0)
+	{
+		recsum = recdlen;
+		fprintf(of, ":%02X%04X00", recdlen, recaddr & 0xffff);
+		for (i = 0; i < recdlen; i++)
+		{
+			fprintf(of, "%02X", (unsigned char)recdata[i]);
+			recsum += (unsigned char)recdata[i];
+		}
+		recsum += (recaddr >> 8) & 0xFF;
+		recsum += recaddr & 0xFF;
+		fprintf(of, "%02X\r\n", (unsigned char)(256 - recsum));
+		reccnt += 1;
+	}
+
+	// if any ihex records were output, close with a "01" record
+	if (reccnt > 0)
+	{
+		fprintf(of, ":00%04X01FF", as -> execaddr & 0xffff);
+	}
+}
+	    
+	    
 void write_code_obj_sbadd(sectiontab_t *s, unsigned char b)
 {
 	if (s -> oblen >= s -> obsize)
@@ -622,4 +1004,242 @@ void write_code_obj(asmstate_t *as, FILE *of)
 	// flag no more sections
 	// the "" is NOT an error
 	writebytes("", 1, 1, of);
+}
+
+
+void write_code_lwmod(asmstate_t *as, FILE *of)
+{
+	line_t *l;
+	sectiontab_t *s;
+	reloctab_t *re;
+	int initsize, bsssize, mainsize, callsnum, namesize;
+	unsigned char *initcode, *maincode, *callscode, *namecode;
+	int relocsize;
+	unsigned char *reloccode;
+	int tsize, bssoff;
+	int initaddr = -1;
+
+	int i;
+	unsigned char buf[16];
+
+	// the magic number
+	buf[0] = 0x8f;
+	buf[1] = 0xcf;
+	
+	// run through the entire system and build the byte streams for each
+	// section; we will make sure we only have simple references for
+	// any undefined references. That means at most an ADD (or SUB) operation
+	// with a single BSS symbol reference and a single constant value.
+	// We will use the constant value in the code stream and record the
+	// offset in a separate code stream for the BSS relocation table.
+	
+	// We build everything in memory here because we need to calculate the
+	// sizes of everything before we can output the complete header.
+	
+	for (l = as -> line_head; l; l = l -> next)
+	{
+		if (l -> csect)
+		{
+			// we're in a section - need to output some bytes
+			if (l -> outputl > 0)
+				for (i = 0; i < l -> outputl; i++)
+					write_code_obj_sbadd(l -> csect, l -> output[i]);
+			else if (l -> outputl == 0 || l -> outputl == -1)
+				for (i = 0; i < l -> len; i++)
+					write_code_obj_sbadd(l -> csect, 0);
+		}
+	}
+	
+	// now run through sections and set various parameters
+	initsize = 0;
+	bsssize = 0;
+	mainsize = 0;
+	callsnum = 0;
+	callscode = NULL;
+	maincode = NULL;
+	initcode = NULL;
+	namecode = NULL;
+	namesize = 0;
+	relocsize = 0;
+	for (s = as -> sections; s; s = s -> next)
+	{
+		if (!strcmp(s -> name, "bss"))
+		{
+			bsssize = s -> oblen;
+		}
+		else if (!strcmp(s -> name, "main"))
+		{
+			maincode = s -> obytes;
+			mainsize = s -> oblen;
+		}
+		else if (!strcmp(s -> name, "init"))
+		{
+			initcode = s -> obytes;
+			initsize = s -> oblen;
+		}
+		else if (!strcmp(s -> name, "calls"))
+		{
+			callscode = s -> obytes;
+			callsnum = s -> oblen / 2;
+		}
+		else if (!strcmp(s -> name, "modname"))
+		{
+			namecode = s -> obytes;
+			namesize = 0;
+		}
+		for (re = s -> reloctab; re; re = re -> next)
+		{
+			if (re -> expr == NULL)
+				relocsize += 2;
+		}
+	}
+	if (namesize == 0)
+	{
+		namecode = (unsigned char *)(as -> output_file);
+	}
+	else
+	{
+		if (namecode[namesize - 1] != '\0')
+		{
+			namecode[namesize - 1] = '\0';
+		}
+		if (!*namecode)
+			namecode = (unsigned char *)(as -> output_file);
+	}
+	namesize = strlen((char *)namecode);
+
+	tsize = namesize + 1 + initsize + mainsize + callsnum * 2 + relocsize + 11;
+	bssoff = namesize + 1 + mainsize + callsnum * 2 + 11;
+	// set up section base addresses
+	for (s = as -> sections; s; s = s -> next)
+	{
+		if (!strcmp(s -> name, "main"))
+		{
+			s -> tbase = 11 + namesize + 1 + callsnum * 2;
+		}
+		else if (!strcmp(s -> name, "init"))
+		{
+			s -> tbase = bssoff + relocsize;
+		}
+		else if (!strcmp(s -> name, "calls"))
+		{
+			s -> tbase = 11;
+		}
+		else if (!strcmp(s -> name, "modname"))
+		{
+			s -> tbase = 11 + callsnum * 2;
+		}
+	}
+
+	// resolve the "init" address
+	if (as -> execaddr_expr)
+	{
+		// need to resolve address with proper section bases
+		lwasm_reduce_expr(as, as -> execaddr_expr);
+		initaddr = lw_expr_intval(as -> execaddr_expr);
+	}
+	else
+	{
+		initaddr = as -> execaddr;
+	}
+	
+	// build relocation data
+	reloccode = NULL;
+	if (relocsize)
+	{
+		unsigned char *tptr;
+		reloccode = lw_alloc(relocsize);
+		tptr = reloccode;
+		
+		for (s = as -> sections; s; s = s -> next)
+		{
+			for (re = s -> reloctab; re; re = re -> next)
+			{
+				lw_expr_t te;
+				line_t tl;
+				int offset;
+			
+				tl.as = as;
+				as -> cl = &tl;
+				as -> csect = s;
+//				as -> exportcheck = 1;
+
+				if (re -> expr)
+				{
+					int val;
+					int x;
+					
+					te = lw_expr_copy(re -> expr);
+					lwasm_reduce_expr(as, te);
+					if (!lw_expr_istype(te, lw_expr_type_int))
+					{
+						val = 0;
+					}
+					else
+					{
+						val = lw_expr_intval(te);
+					}
+					lw_expr_destroy(te);
+					x = s -> tbase;
+					s -> tbase = 0;
+					te = lw_expr_copy(re -> offset);
+					lwasm_reduce_expr(as, te);
+					offset = lw_expr_intval(te);
+					lw_expr_destroy(te);
+					s -> tbase = x;
+					// offset *should* be the offset in the section
+					s -> obytes[offset] = val >> 8;
+					s -> obytes[offset + 1] = val & 0xff;
+					continue;
+				}
+				
+				offset = 0;
+				te = lw_expr_copy(re -> offset);
+				lwasm_reduce_expr(as, te);
+				if (!lw_expr_istype(te, lw_expr_type_int))
+				{
+					lw_expr_destroy(te);
+					offset = 0;
+					continue;
+				}
+				offset = lw_expr_intval(te);
+				lw_expr_destroy(te);
+				//offset += sbase;
+				
+				*tptr++ = offset >> 8;
+				*tptr++ = offset & 0xff;
+			}
+		}
+	}
+
+	// total size
+	buf[2] = tsize >> 8;
+	buf[3] = tsize & 0xff;
+	// offset to BSS relocs
+	buf[4] = bssoff >> 8;
+	buf[5] = bssoff & 0xff;
+	// BSS size
+	buf[6] = bsssize >> 8;
+	buf[7] = bsssize & 0xff;
+	// init routine offset
+	buf[8] = initaddr >> 8;
+	buf[9] = initaddr & 0xff;
+	// number of call entries
+	buf[10] = callsnum;
+	// write the header
+	writebytes(buf, 11, 1, of);
+	// call data
+	if (callsnum)
+		writebytes(callscode, callsnum * 2, 1, of);
+	// module name
+	writebytes(namecode, namesize + 1, 1, of);
+	// main code
+	if (mainsize)
+		writebytes(maincode, mainsize, 1, of);
+	// bss relocs
+	if (relocsize)
+		writebytes(reloccode, relocsize, 1, of);
+	// init stuff
+	if (initsize)
+		writebytes(initcode, initsize, 1, of);
 }

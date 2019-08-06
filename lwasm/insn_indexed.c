@@ -38,184 +38,310 @@ l -> pb: actual post byte (from "resolve" stage) or info passed
 */
 void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 {
-	struct opvals { char *opstr; int pb; };
-	
-	static const char *regs = "X  Y  U  S  W  PCRPC ";
-	static const struct opvals simpleindex[] =
-	{
-		{",x", 0x84},		{",y", 0xa4},		{",u", 0xc4},		{",s", 0xe4},
-		{",x+", 0x80},		{",y+", 0xa0},		{",u+", 0xc0},		{",s+", 0xe0},
-		{",x++", 0x81},		{",y++", 0xa1},		{",u++", 0xc1},		{",s++", 0xe1},
-		{",-x", 0x82},		{",-y", 0xa2},		{",-u", 0xc2},		{",-s", 0xe2},
-		{",--x", 0x83},		{",--y", 0xa3},		{",--u", 0xc3},		{",--s", 0xe3},
-		{"a,x", 0x86},		{"a,y", 0xa6},		{"a,u", 0xc6},		{"a,s", 0xe6},
-		{"b,x", 0x85},		{"b,y", 0xa5},		{"b,u", 0xc5},		{"b,s", 0xe5},
-		{"e,x", 0x87},		{"e,y", 0xa7},		{"e,u", 0xc7},		{"e,s", 0xe7},
-		{"f,x",	0x8a},		{"f,y",	0xaa},		{"f,u", 0xca},		{"f,s", 0xea},
-		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xed},
-		{"w,x", 0x8e},		{"w,y", 0xae},		{"w,u", 0xce},		{"w,s", 0xee},
-		{",w", 0x8f},							{",w++", 0xcf},		{",--w", 0xef},
-		
-		{"[,x]", 0x94},		{"[,y]", 0xb4},		{"[,u]", 0xd4},		{"[,s]", 0xf4},
-		{"[,x++]", 0x91},	{"[,y++]", 0xb1},	{"[,u++]", 0xd1},	{"[,s++]", 0xf1},
-		{"[,--x]", 0x93},	{"[,--y]", 0xb3},	{"[,--u]", 0xd3},	{"[,--s]", 0xf3},
-		{"[a,x]", 0x96},	{"[a,y]", 0xb6},	{"[a,u]", 0xd6},	{"[a,s]", 0xf6},
-		{"[b,x]", 0x95},	{"[b,y]", 0xb5},	{"[b,u]", 0xd5},	{"[b,s]", 0xf5},
-		{"[e,x]", 0x97},	{"[e,y]", 0xb7},	{"[e,u]", 0xd7},	{"[e,s]", 0xf7},
-		{"[f,x]", 0x9a},	{"[f,y]", 0xba},	{"[f,u]", 0xda},	{"[f,s]", 0xfa},
-		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfd},
-		{"[w,x]", 0x9e},	{"[w,y]", 0xbe},	{"[w,u]", 0xde},	{"[w,s]", 0xfe},
-		{"[,w]", 0x90},							{"[,w++]", 0xd0},	{"[,--w]", 0xf0},
-		
-		{ "", -1 }
-	};
-
 	static const char *regs9 = "X  Y  U  S     PCRPC ";
-	static const struct opvals simpleindex9[] =
-	{
-		{",x", 0x84},		{",y", 0xa4},		{",u", 0xc4},		{",s", 0xe4},
-		{",x+", 0x80},		{",y+", 0xa0},		{",u+", 0xc0},		{",s+", 0xe0},
-		{",x++", 0x81},		{",y++", 0xa1},		{",u++", 0xc1},		{",s++", 0xe1},
-		{",-x", 0x82},		{",-y", 0xa2},		{",-u", 0xc2},		{",-s", 0xe2},
-		{",--x", 0x83},		{",--y", 0xa3},		{",--u", 0xc3},		{",--s", 0xe3},
-		{"a,x", 0x86},		{"a,y", 0xa6},		{"a,u", 0xc6},		{"a,s", 0xe6},
-		{"b,x", 0x85},		{"b,y", 0xa5},		{"b,u", 0xc5},		{"b,s", 0xe5},
-		{"d,x", 0x8b},		{"d,y", 0xab},		{"d,u", 0xcb},		{"d,s", 0xed},
-		
-		{"[,x]", 0x94},		{"[,y]", 0xb4},		{"[,u]", 0xd4},		{"[,s]", 0xf4},
-		{"[,x++]", 0x91},	{"[,y++]", 0xb1},	{"[,u++]", 0xd1},	{"[,s++]", 0xf1},
-		{"[,--x]", 0x93},	{"[,--y]", 0xb3},	{"[,--u]", 0xd3},	{"[,--s]", 0xf3},
-		{"[a,x]", 0x96},	{"[a,y]", 0xb6},	{"[a,u]", 0xd6},	{"[a,s]", 0xf6},
-		{"[b,x]", 0x95},	{"[b,y]", 0xb5},	{"[b,u]", 0xd5},	{"[b,s]", 0xf5},
-		{"[d,x]", 0x9b},	{"[d,y]", 0xbb},	{"[d,u]", 0xdb},	{"[d,s]", 0xfd},
-		
-		{ "", -1 }
-	};
-	char stbuf[25];
-	int i, j, rn;
+	static const char *regs  = "X  Y  U  S  W  PCRPC ";
+	int i, rn;
 	int indir = 0;
-	int f0 = 1;
-	const struct opvals *simples;
+	int f0 = 0;
 	const char *reglist;
 	lw_expr_t e;
-		
-	if (as -> target == TARGET_6809)
+	char *tstr;
+	
+
+	if (CURPRAGMA(l, PRAGMA_6809))
 	{
-		simples = simpleindex9;
 		reglist = regs9;
 	}
 	else
 	{
-		simples = simpleindex;
 		reglist = regs;
 	}
-	
-	// fetch out operand for lookup
-	for (i = 0; i < 24; i++)
-	{
-		if (*((*p) + i) && !isspace(*((*p) + i)))
-			stbuf[i] = *((*p) + i);
-		else
-			break;
-	}
-	stbuf[i] = '\0';
-	
-	// now look up operand in "simple" table
-	if (!*((*p) + i) || isspace(*((*p) + i)))
-	{
-		// do simple lookup
-		for (j = 0; simples[j].opstr[0]; j++)
-		{
-			if (!strcasecmp(stbuf, simples[j].opstr))
-				break;
-		}
-		if (simples[j].opstr[0])
-		{
-			l -> pb = simples[j].pb;
-			l -> lint = 0;
-			(*p) += i;
-			return;
-		}
-	}
-
-	// now do the "hard" ones
-
 	// is it indirect?
 	if (**p == '[')
 	{
 		indir = 1;
 		(*p)++;
 	}
-	
-	// look for a "," - all indexed modes have a "," except extended indir
-	rn = 0;
-	for (i = 0; (*p)[i] && !isspace((*p)[i]); i++)
+	lwasm_skip_to_next_token(l, p);
+	if (**p == ',')
 	{
-		if ((*p)[i] == ',')
+		int incdec = 0;
+		/* we have a pre-dec, post-inc, or no offset mode here */
+		(*p)++;
+		lwasm_skip_to_next_token(l, p);
+		if (**p == '-')
 		{
+			incdec = -1;
+			(*p)++;
+			if (**p == '-')
+			{
+				incdec = -2;
+				(*p)++;
+			}
+			lwasm_skip_to_next_token(l, p);
+		}
+		/* allowed registers: X, Y, U, S, or W (6309) */
+		switch (**p)
+		{
+		case 'x':
+		case 'X':
+			rn = 0;
+			break;
+		
+		case 'y':
+		case 'Y':
 			rn = 1;
 			break;
-		}
-	}
-
-	// if no "," and indirect, do extended indir
-	if (!rn && indir)
-	{
-		// eat the extended addressing indicator if present
-		if (**p == '>')
-			(*p)++;
-		// extended indir
-		l -> pb = 0x9f;
-		e = lwasm_parse_expr(as, p);
-		if (!e || **p != ']')
-		{
-			lwasm_register_error(as, l, "Bad operand");
+			
+		case 'u':
+		case 'U':
+			rn = 2;
+			break;
+			
+		case 's':
+		case 'S':
+			rn = 3;
+			break;
+			
+		case 'w':
+		case 'W':
+			if (CURPRAGMA(l, PRAGMA_6809))
+			{
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+			rn = 4;
+			break;
+			
+		default:
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
-		lwasm_save_expr(l, 0, e);
-		
 		(*p)++;
-		l -> lint = 2;
+		lwasm_skip_to_next_token(l, p);
+		if (**p == '+')
+		{
+			if (incdec != 0)
+			{
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+			incdec = 1;
+			(*p)++;
+			if (**p == '+')
+			{
+				incdec = 2;
+				(*p)++;
+			}
+			lwasm_skip_to_next_token(l, p);
+		}
+		if (indir)
+		{
+			if (**p != ']')
+			{
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+			(*p)++;
+		}
+		if (indir || rn == 4)
+		{
+			if (incdec == 1 || incdec == -1)
+			{
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+		}
+		if (rn == 4)
+		{
+			if (indir)
+			{
+				if (incdec == 0)
+					i = 0x90;
+				else if (incdec == -2)
+					i = 0xF0;
+				else
+					i = 0xD0;
+			}
+			else
+			{
+				if (incdec == 0)
+					i = 0x8F;
+				else if (incdec == -2)
+					i = 0xEF;
+				else
+					i = 0xCF;
+			}
+		}
+		else
+		{
+			switch (incdec)
+			{
+			case 0:
+				i = 0x84;
+				break;
+			case 1:
+				i = 0x80;
+				break;
+			case 2:
+				i = 0x81;
+				break;
+			case -1:
+				i = 0x82;
+				break;
+			case -2:
+				i = 0x83;
+				break;
+			}
+			i = (rn << 5) | i | (indir << 4);
+		}
+		l -> pb = i;
+		l -> lint = 0;
 		return;
 	}
-
+	i = toupper(**p);
+	if (
+			(i == 'A' || i == 'B' || i == 'D') ||
+			(!CURPRAGMA(l, PRAGMA_6809) && (i == 'E' || i == 'F' || i == 'W'))
+	   )
+	{
+		tstr = *p + 1;
+		lwasm_skip_to_next_token(l, &tstr);
+		if (*tstr == ',')
+		{
+			*p = tstr + 1;
+			lwasm_skip_to_next_token(l, p);
+			switch (**p)
+			{
+			case 'x':
+			case 'X':
+				rn = 0;
+				break;
+		
+			case 'y':
+			case 'Y':
+				rn = 1;
+				break;
+			
+			case 'u':
+			case 'U':
+				rn = 2;
+				break;
+			
+			case 's':
+			case 'S':
+				rn = 3;
+				break;
+			
+			default:
+				lwasm_register_error(as, l, E_OPERAND_BAD);
+				return;
+			}
+			(*p)++;
+			lwasm_skip_to_next_token(l, p);
+			if (indir)
+			{
+				if (**p != ']')
+				{
+					lwasm_register_error(as, l, E_OPERAND_BAD);
+					return;
+				}
+				(*p)++;
+			}
+			
+			switch (i)
+			{
+			case 'A':
+				i = 0x86;
+				break;
+			
+			case 'B':
+				i = 0x85;
+				break;
+			
+			case 'D':
+				i = 0x8B;
+				break;
+			
+			case 'E':
+				i = 0x87;
+				break;
+			
+			case 'F':
+				i = 0x8A;
+				break;
+			
+			case 'W':
+				i = 0x8E;
+				break;
+			}
+			l -> pb = i | (indir << 4) | (rn << 5);
+			l -> lint = 0;
+			return;
+		}
+	}
+	
+	/* we have the "expression" types now */
 	if (**p == '<')
 	{
 		l -> lint = 1;
 		(*p)++;
+		if (**p == '<')
+		{
+			l -> lint = 3;
+			(*p)++;
+			if (indir)
+			{
+				lwasm_register_error(as, l, E_ILL5);
+				return;
+			}
+		}
 	}
 	else if (**p == '>')
 	{
 		l -> lint = 2;
 		(*p)++;
 	}
-
-	if (**p == '0' && *((*p)+1) == ',')
+	lwasm_skip_to_next_token(l, p);
+	if (**p == '0')
 	{
-		f0 = 1;
+		tstr = *p + 1;
+		lwasm_skip_to_next_token(l, &tstr);
+		if (*tstr == ',')
+		{
+			f0 = 1;
+		}
 	}
-	
+
 	// now we have to evaluate the expression
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
 	lwasm_save_expr(l, 0, e);
-
-	// now look for a comma; if not present, explode
-	if (*(*p)++ != ',')
+	
+	if (**p != ',')
 	{
-		lwasm_register_error(as, l, "Bad operand");
+		/* if no comma, we have extended indirect */
+		if (l -> lint == 1 || **p != ']')
+		{
+			lwasm_register_error(as, l, E_OPERAND_BAD);
+			return;
+		}
+		(*p)++;
+		l -> lint = 2;
+		l -> pb = 0x9F;
 		return;
 	}
-	
+	(*p)++;
+	lwasm_skip_to_next_token(l, p);
 	// now get the register
 	rn = lwasm_lookupreg3(reglist, p);
 	if (rn < 0)
 	{
-		lwasm_register_error(as, l, "Bad register");
+		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
 	
@@ -223,7 +349,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	{
 		if (**p != ']')
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
 		}
 		else
@@ -243,6 +369,10 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			l -> pb = 0x89 | (rn << 5) | (indir ? 0x10 : 0);
 			return;
 		}
+		else if (l -> lint == 3)
+		{
+			l -> pb = (rn << 5);
+		}
 	}
 
 	// nnnn,W is only 16 bit (or 0 bit)
@@ -250,7 +380,12 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	{
 		if (l -> lint == 1)
 		{
-			lwasm_register_error(as, l, "n,W cannot be 8 bit");
+			lwasm_register_error(as, l, E_NW_8);
+			return;
+		}
+		else if (l -> lint == 3)
+		{
+			lwasm_register_error(as, l, E_ILL5);
 			return;
 		}
 
@@ -293,9 +428,14 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			l -> pb = indir ? 0x9C : 0x8C;
 			return;
 		}
-		if (l -> lint == 2)
+		else if (l -> lint == 2)
 		{
 			l -> pb = indir ? 0x9D : 0x8D;
+			return;
+		}
+		else if (l -> lint == 3)
+		{
+			lwasm_register_error(as, l, E_ILL5);
 			return;
 		}
 	}
@@ -307,14 +447,20 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			l -> pb = indir ? 0x9C : 0x8C;
 			return;
 		}
-		if (l -> lint == 2)
+		else if (l -> lint == 2)
 		{
 			l -> pb = indir ? 0x9D : 0x8D;
 			return;
 		}
+		else if (l -> lint == 3)
+		{
+			lwasm_register_error(as, l, E_ILL5);
+			return;
+		}
 	}
 
-	l -> pb = (indir * 0x80) | rn | (f0 * 0x40);
+	if (l -> lint != 3)
+		l -> pb = (indir * 0x80) | rn | (f0 * 0x40);
 }
 
 PARSEFUNC(insn_parse_indexed)
@@ -324,7 +470,10 @@ PARSEFUNC(insn_parse_indexed)
 
 	if (l -> lint != -1)
 	{
-		l -> len = OPLEN(instab[l -> insn].ops[0]) + l -> lint + 1;
+		if (l -> lint == 3)
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
+		else
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + l -> lint + 1;
 	}
 }
 
@@ -455,6 +604,38 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				return;
 			}
 		}
+		else
+		{
+			if ((l -> pb & 0x07) == 5 || (l -> pb & 0x07) == 6)
+			{
+				// NOTE: this will break in some particularly obscure corner cases
+				// which are not likely to show up in normal code. Notably, if, for
+				// some reason, the target gets *farther* away if shorter addressing
+				// modes are chosen, which should only happen if the symbol is before
+				// the instruction in the source file and there is some sort of ORG
+				// statement or similar in between which forces the address of this
+				// instruction, and the differences happen to cross the 8 bit boundary.
+				// For this reason, we use a heuristic and allow a margin on the 8
+				// bit boundary conditions.
+				v = as -> pretendmax;
+				as -> pretendmax = 1;
+				lwasm_reduce_expr(as, e2);
+				as -> pretendmax = v;
+				if (lw_expr_istype(e2, lw_expr_type_int))
+				{
+					v = lw_expr_intval(e2);
+					// Actual range is -128 <= offset <= 127; we're allowing a fudge
+					// factor of 25 or so bytes so that we're less likely to accidentally
+					// cross into the 16 bit boundary in weird corner cases.
+					if (v >= -100 && v <= 100)
+					{
+						l -> lint = 1;
+						l -> pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
+						return;
+					}
+				}
+			}
+		}
 		lw_expr_destroy(e2);
 	}
 		
@@ -462,7 +643,8 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 	{
 		// we know how big it is
 		v = lw_expr_intval(e);
-		if (v == 0 && !CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) && (l -> pb & 0x07) <= 4)
+			
+		if (v == 0 && !CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) && (l -> pb & 0x07) <= 4 && ((l -> pb & 0x40) == 0))
 		{
 			if ((l -> pb & 0x07) < 4)
 			{
@@ -573,7 +755,10 @@ RESOLVEFUNC(insn_resolve_indexed)
 	
 	if (l -> lint != -1 && l -> pb != -1)
 	{
-		l -> len = OPLEN(instab[l -> insn].ops[0]) + l -> lint + 1;
+		if (l -> lint == 3)
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
+		else
+			l -> len = OPLEN(instab[l -> insn].ops[0]) + l -> lint + 1;
 	}
 }
 
@@ -588,12 +773,53 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 		i = lw_expr_intval(e);
 		if (i < -128 || i > 127)
 		{
-			lwasm_register_error(as, l, "Byte overflow");
+			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+		}
+	}
+	
+	// exclude expr,W since that can only be 16 bits
+	if (l -> lint == 3)
+	{
+		int offs;
+		e = lwasm_fetch_expr(l, 0);
+		if (lw_expr_istype(e, lw_expr_type_int))
+		{
+			offs = lw_expr_intval(e);
+			if ((offs >= -16 && offs <= 15) || offs >= 0xFFF0)
+			{
+				l -> pb |= offs & 0x1f;
+				l -> lint = 0;
+			}
+			else
+			{
+				lwasm_register_error(as, l, E_BYTE_OVERFLOW);
+			}
+		}
+		else
+		{
+			lwasm_register_error(as, l, E_EXPRESSION_NOT_RESOLVED);
+		}
+	}
+	// note that extended indirect (post byte 0x9f) can only be 16 bits
+	else if (l -> lint == 2 && CURPRAGMA(l, PRAGMA_OPERANDSIZE) && (l -> pb != 0xAF && l -> pb != 0xB0 && l -> pb != 0x9f))
+	{
+		int offs;
+		e = lwasm_fetch_expr(l, 0);
+		if (lw_expr_istype(e, lw_expr_type_int))
+		{
+			offs = lw_expr_intval(e);
+			if ((offs >= -128 && offs <= 127) || offs >= 0xFF80)
+			{
+				lwasm_register_error(as, l, W_OPERAND_SIZE);
+			}
 		}
 	}
 	
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	lwasm_emitop(l, l -> pb);
+
+	l -> cycle_adj = lwasm_cycle_calc_ind(l);
+
 	if (l -> lint > 0)
 	{
 		e = lwasm_fetch_expr(l, 0);

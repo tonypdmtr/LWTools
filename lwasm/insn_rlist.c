@@ -33,20 +33,41 @@ PARSEFUNC(insn_parse_rlist)
 	int rn;
 	static const char *regs = "CCA B DPX Y U PCD S ";
 
-	while (**p && !isspace(**p))
+	while (**p && !isspace(**p) && **p != ';' && **p != '*')
 	{
 		rn = lwasm_lookupreg2(regs, p);
 		if (rn < 0)
 		{
-			lwasm_register_error(as, l, "Bad register '%s'", *p);
+			lwasm_register_error2(as, l, E_REGISTER_BAD, "'%s'", *p);
 			return;
 		}
-		if (**p && **p != ',' && !isspace(**p))
+		lwasm_skip_to_next_token(l, p);
+		if (**p && **p != ',' && !isspace(**p) && **p != ';' && **p != '*')
 		{
-			lwasm_register_error(as, l, "Bad operand");
+			lwasm_register_error(as, l, E_OPERAND_BAD);
 		}
 		if (**p == ',')
+		{
 			(*p)++;
+			lwasm_skip_to_next_token(l, p);
+		}
+		if ((instab[l -> insn].ops[0]) & 2)
+		{
+			// pshu/pulu
+			if (rn == 6)
+			{
+				lwasm_register_error2(as, l, E_REGISTER_BAD, "'%s'", "u");
+				return;
+			}
+		}
+		else
+		{
+			if (rn == 9)
+			{
+				lwasm_register_error2(as, l, E_REGISTER_BAD, "'%s'", "s");
+				return;
+			}
+		}
 		if (rn == 8)
 			rn = 6;
 		else if (rn == 9)
@@ -55,6 +76,8 @@ PARSEFUNC(insn_parse_rlist)
 			rn = 1 << rn;
 		rb |= rn;
 	}
+	if (rb == 0)
+		lwasm_register_error(as, l, E_OPERAND_BAD);
 	l -> len = OPLEN(instab[l -> insn].ops[0]) + 1;
 	l -> pb = rb;
 }
@@ -63,4 +86,6 @@ EMITFUNC(insn_emit_rlist)
 {
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	lwasm_emit(l, l -> pb);
+
+	l -> cycle_adj = lwasm_cycle_calc_rlist(l);
 }

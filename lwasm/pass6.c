@@ -46,11 +46,11 @@ static int exprok_aux(lw_expr_t e, void *priv)
 	if (lw_expr_istype(e, lw_expr_type_int))
 		return 0;
 	
-	if (as -> output_format == OUTPUT_OBJ)
+	if (as -> output_format == OUTPUT_OBJ || as -> output_format == OUTPUT_LWMOD)
 	{
 		if (lw_expr_istype(e, lw_expr_type_oper))
 			return 0;
-		if (lw_expr_istype(e, lw_expr_type_special) && as -> output_format == OUTPUT_OBJ)
+		if (lw_expr_istype(e, lw_expr_type_special) && (as -> output_format == OUTPUT_OBJ || as -> output_format == OUTPUT_LWMOD))
 		{
 			int t;
 			t = lw_expr_specint(e);
@@ -83,7 +83,7 @@ void do_pass6(asmstate_t *as)
 			lwasm_reduce_expr(as, le -> expr);
 			if (!exprok(as, le -> expr))
 			{
-				lwasm_register_error(as, cl, "Invalid expression: %s", lw_expr_print(le -> expr));
+				lwasm_register_error2(as, cl, E_EXPRESSION_BAD, "%s", lw_expr_print(le -> expr));
 			}
 		}
 	}

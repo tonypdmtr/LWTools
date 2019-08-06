@@ -22,15 +22,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ___lw_string_h_seen___
 #define ___lw_string_h_seen___
 
-
-#ifdef ___lw_string_c_seen___
-
-#else /* def ___lw_string_c_seen___ */
-
-extern char *lw_strdup(const char *s);
-extern char *lw_strndup(const char *s, int len);
-extern char *lw_token(const char *s, int sep, const char **ap);
-
-#endif /* def ___lw_string_c_seen___ */
+char *lw_strdup(const char *s);
+char *lw_strndup(const char *s, int len);
+char *lw_token(const char *s, int sep, const char **ap);
 
 #endif /* ___lw_string_h_seen___ */

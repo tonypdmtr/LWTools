@@ -27,11 +27,17 @@ Implements the program startup code
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #include <lw_cmdline.h>
+#include <version.h>
 
 #include "lwar.h"
+
+#ifdef _MSC_VER
+#include <lw_win.h>	// windows build
+#else
+#include <unistd.h>
+#endif
 
 // command line option handling
 #define PROGVER "lwar from " PACKAGE_STRING
@@ -44,6 +50,11 @@ static int parse_opts(int key, char *arg, void *state)
 	case 'd':
 		// debug
 		debug_level++;
+		break;
+	
+	case 'n':
+		// filename only, no path
+		filename_flag++;
 		break;
 	
 	case 'a':
@@ -85,6 +96,9 @@ static int parse_opts(int key, char *arg, void *state)
 			archive_file = arg;
 		break;
 		
+	case lw_cmdline_key_end:
+		break;
+
 	default:
 		return lw_cmdline_err_unknown;
 	}
@@ -105,6 +119,8 @@ static struct lw_cmdline_options options[] =
 				"Create new archive (or truncate existing one)" },
 	{ "merge",		'm',	0,		0,
 				"Add the contents of archive arguments instead of the archives themselves" },
+	{ "nopaths",	'n',	0,		0,
+				"Store only the filename when adding members and ignore the path, if any, when extracting members" },
 	{ "debug",		'd',	0,		0,
 				"Set debug mode"},
 	{ 0 }
@@ -130,7 +146,11 @@ extern void do_extract(void);
 int main(int argc, char **argv)
 {
 	program_name = argv[0];
-	lw_cmdline_parse(&argparser, argc, argv, 0, 0, NULL);
+
+	if (lw_cmdline_parse(&argparser, argc, argv, 0, 0, NULL) != 0)
+	{
+		exit(1);
+	}
 	if (archive_file == NULL)
 	{
 		fprintf(stderr, "You must specify an archive file.\n");

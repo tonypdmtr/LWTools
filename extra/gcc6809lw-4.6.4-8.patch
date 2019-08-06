@@ -1,6 +1,6 @@
-diff -urN gcc-4.6.1-orig/config.sub gcc-4.6.1/config.sub
---- gcc-4.6.1-orig/config.sub	2010-05-25 07:22:07.000000000 -0600
-+++ gcc-4.6.1/config.sub	2011-09-17 14:07:51.597643628 -0600
+diff -urN gcc-4.6.4-clean/config.sub gcc-4.6.4/config.sub
+--- gcc-4.6.4-clean/config.sub	2010-05-25 07:22:07.000000000 -0600
++++ gcc-4.6.4/config.sub	2017-11-28 21:12:11.136911706 -0700
 @@ -313,7 +313,7 @@
  	c6x)
  		basic_machine=tic6x-unknown
@@ -30,10 +30,10 @@ diff -urN gcc-4.6.1-orig/config.sub gcc-4.6.1/config.sub
  	convex-c1)
  		basic_machine=c1-convex
  		os=-bsd
-diff -urN gcc-4.6.1-orig/configure gcc-4.6.1/configure
---- gcc-4.6.1-orig/configure	2011-03-16 12:27:36.000000000 -0600
-+++ gcc-4.6.1/configure	2011-09-17 14:06:01.187643616 -0600
-@@ -3441,6 +3441,9 @@
+diff -urN gcc-4.6.4-clean/configure gcc-4.6.4/configure
+--- gcc-4.6.4-clean/configure	2011-12-18 03:03:44.000000000 -0700
++++ gcc-4.6.4/configure	2017-11-28 21:12:11.136911706 -0700
+@@ -3439,6 +3439,9 @@
    m32r-*-*)
      noconfigdirs="$noconfigdirs ${libgcj}"
      ;;
@@ -41,12 +41,12 @@ diff -urN gcc-4.6.1-orig/configure gcc-4.6.1/configure
 +    noconfigdirs="$noconfigdirs target-libiberty target-libstdc++-v3 target-libgloss ${libgcj}"
 +    ;;
    m68hc11-*-*|m6811-*-*|m68hc12-*-*|m6812-*-*)
-     noconfigdirs="$noconfigdirs target-libiberty target-libstdc++-v3 ${libgcj}"
+     noconfigdirs="$noconfigdirs target-libstdc++-v3 ${libgcj}"
      libgloss_dir=m68hc11
-diff -urN gcc-4.6.1-orig/configure.ac gcc-4.6.1/configure.ac
---- gcc-4.6.1-orig/configure.ac	2011-03-16 12:27:36.000000000 -0600
-+++ gcc-4.6.1/configure.ac	2011-09-17 14:06:01.187643616 -0600
-@@ -887,6 +887,9 @@
+diff -urN gcc-4.6.4-clean/configure.ac gcc-4.6.4/configure.ac
+--- gcc-4.6.4-clean/configure.ac	2011-11-18 04:45:44.000000000 -0700
++++ gcc-4.6.4/configure.ac	2017-11-28 21:12:11.140911685 -0700
+@@ -885,6 +885,9 @@
    m32r-*-*)
      noconfigdirs="$noconfigdirs ${libgcj}"
      ;;
@@ -54,12 +54,12 @@ diff -urN gcc-4.6.1-orig/configure.ac gcc-4.6.1/configure.ac
 +    noconfigdirs="$noconfigdirs target-libiberty target-libstdc++-v3 target-libgloss ${libgcj}"
 +    ;;
    m68hc11-*-*|m6811-*-*|m68hc12-*-*|m6812-*-*)
-     noconfigdirs="$noconfigdirs target-libiberty target-libstdc++-v3 ${libgcj}"
+     noconfigdirs="$noconfigdirs target-libstdc++-v3 ${libgcj}"
      libgloss_dir=m68hc11
-diff -urN gcc-4.6.1-orig/gcc/calls.c gcc-4.6.1/gcc/calls.c
---- gcc-4.6.1-orig/gcc/calls.c	2011-06-06 05:46:14.000000000 -0600
-+++ gcc-4.6.1/gcc/calls.c	2011-09-17 14:06:01.217643616 -0600
-@@ -2434,7 +2434,7 @@
+diff -urN gcc-4.6.4-clean/gcc/calls.c gcc-4.6.4/gcc/calls.c
+--- gcc-4.6.4-clean/gcc/calls.c	2012-02-09 10:27:25.000000000 -0700
++++ gcc-4.6.4/gcc/calls.c	2017-11-28 21:12:11.140911685 -0700
+@@ -2561,7 +2561,7 @@
  	 call sequence.
  	 Also do the adjustments before a throwing call, otherwise
  	 exception handling can fail; PR 19225. */
@@ -68,10 +68,10 @@ diff -urN gcc-4.6.1-orig/gcc/calls.c gcc-4.6.1/gcc/calls.c
  	  || (pending_stack_adjust > 0
  	      && (flags & ECF_MAY_BE_ALLOCA))
  	  || (pending_stack_adjust > 0
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/crt0.S gcc-4.6.1/gcc/config/m6809/crt0.S
---- gcc-4.6.1-orig/gcc/config/m6809/crt0.S	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/crt0.S	2011-09-17 14:06:01.227643616 -0600
-@@ -0,0 +1,180 @@
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/crt0.S gcc-4.6.4/gcc/config/m6809/crt0.S
+--- gcc-4.6.4-clean/gcc/config/m6809/crt0.S	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/crt0.S	2017-11-28 21:12:11.152911619 -0700
+@@ -0,0 +1,173 @@
 +;;;
 +;;; Copyright 2006, 2007, 2008, 2009 by Brian Dominy <brian@oddchange.com>
 +;;;
@@ -124,15 +124,10 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/crt0.S gcc-4.6.1/gcc/config/m6809/crt0
 +#endif
 +
 +
-+	/* Declare all linker sections, and combine them into a single bank */
-+	.bank	prog
-+	.area	.text  (BANK=prog)
-+	.area .data  (BANK=prog)
-+	.area .ctors (BANK=prog)
-+	.word 0
-+	.area .dtors (BANK=prog)
-+	.word 0
-+	.area .bss   (BANK=prog)
++	.area .data
++	.area .ctors
++	.area .dtors
++	.area .bss
 +
 +   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 +	;;;
@@ -250,11 +245,9 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/crt0.S gcc-4.6.1/gcc/config/m6809/crt0
 +	.word ___crt0_vector
 +	.word ___crt0_vector
 +	.word __start
-+
-+	.end __start
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/libgcc1.s gcc-4.6.1/gcc/config/m6809/libgcc1.s
---- gcc-4.6.1-orig/gcc/config/m6809/libgcc1.s	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/libgcc1.s	2011-09-17 14:06:01.227643616 -0600
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/libgcc1.s gcc-4.6.4/gcc/config/m6809/libgcc1.s
+--- gcc-4.6.4-clean/gcc/config/m6809/libgcc1.s	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/libgcc1.s	2017-11-28 21:12:11.152911619 -0700
 @@ -0,0 +1,511 @@
 +/* libgcc routines for m6809
 +   Copyright (C) 2006 Free Software Foundation, Inc.
@@ -767,10 +760,10 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/libgcc1.s gcc-4.6.1/gcc/config/m6809/l
 +
 +
 +
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.c gcc-4.6.1/gcc/config/m6809/m6809.c
---- gcc-4.6.1-orig/gcc/config/m6809/m6809.c	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/m6809.c	2011-09-18 19:48:42.137654855 -0600
-@@ -0,0 +1,3013 @@
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6809.c
+--- gcc-4.6.4-clean/gcc/config/m6809/m6809.c	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/m6809.c	2017-11-28 21:12:11.152911619 -0700
+@@ -0,0 +1,3025 @@
 +/*-------------------------------------------------------------------
 +	FILE: m6809.c
 +-------------------------------------------------------------------*/
@@ -1264,6 +1257,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.c gcc-4.6.1/gcc/config/m6809/m68
 +		if (REG_P (SET_DEST (exp)) && src_code == MEM) {
 +			cc_status.value1 = SET_SRC (exp);
 +			cc_status.value2 = SET_DEST (exp);
++			cc_status.flags |= CC_NO_OVERFLOW;
 +			return;
 +		}
 +
@@ -1271,6 +1265,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.c gcc-4.6.1/gcc/config/m6809/m68
 +		if (dst_code == MEM && REG_P (SET_SRC (exp))) {
 +			cc_status.value1 = SET_SRC (exp);
 +			cc_status.value2 = SET_DEST (exp);
++			cc_status.flags |= CC_NO_OVERFLOW;
 +			return;
 +		}
 +
@@ -1696,10 +1691,19 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.c gcc-4.6.1/gcc/config/m6809/m68
 +	/* Check cases based on type code of rtx */
 +	switch (GET_CODE(x))
 +	{
++		/*
++		 * Observation, 2015-07-19, William Astle
++		 *
++		 * The original comparison for range for 16 bits was wrong, adding 0x80
++		 * instead of 0x8000. Replaced both 8 bit and 16 bit comparisions with
++		 * a more straight forward range comparison - excessive cleverness isn't
++		 * really required here.
++		 */    
 +		case CONST_INT:
 +		   /* Constants that can fit into 1 byte should be
 +			 * loaded into a Q_REGS reg */
-+			if (((unsigned) (INTVAL(x) + 0x80) < 0x100) &&
++			if ((INTVAL(x) >= -128 && INTVAL(x) <= 127) &&
++//			if (((unsigned) (INTVAL(x) + 0x80) < 0x100) && 
 +  				 (regclass > A_REGS))
 +      		return Q_REGS;
 +
@@ -1711,7 +1715,8 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.c gcc-4.6.1/gcc/config/m6809/m68
 +			 * it's best to avoid using D register since it is
 +			 * needed for other things.
 +			 */
-+			else if (((unsigned) (INTVAL(x) + 0x80) < 0x10000) &&
++			else if ((INTVAL(x) >= -32768 && INTVAL(x) <= 32767) &&
++//			else if (((unsigned) (INTVAL(x) + 0x80) < 0x10000) &&
 +  				 (regclass > A_REGS))
 +      		return A_REGS;
 +			break;
@@ -3784,10 +3789,10 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.c gcc-4.6.1/gcc/config/m6809/m68
 +
 +/* Defines the target-specific hooks structure. */
 +struct gcc_target targetm = TARGET_INITIALIZER;
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.h gcc-4.6.1/gcc/config/m6809/m6809.h
---- gcc-4.6.1-orig/gcc/config/m6809/m6809.h	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/m6809.h	2011-09-18 19:47:50.207654849 -0600
-@@ -0,0 +1,1352 @@
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.h gcc-4.6.4/gcc/config/m6809/m6809.h
+--- gcc-4.6.4-clean/gcc/config/m6809/m6809.h	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/m6809.h	2017-11-28 21:17:43.127091341 -0700
+@@ -0,0 +1,1336 @@
 +/* Definitions of target machine for GNU compiler.  MC6809 version.
 +
 + MC6809 Version by Tom Jones (jones@sal.wisc.edu)
@@ -4006,7 +4011,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.h gcc-4.6.1/gcc/config/m6809/m68
 +
 +/* Which registers can hold 8-bits */
 +#define BYTE_REGSET \
-+	(Z_REGBIT | A_REGBIT | D_REGBIT | CC_REGBIT | DP_REGBIT | SOFT_M_REGBITS)
++	(Z_REGBIT | A_REGBIT | D_REGBIT | CC_REGBIT | DP_REGBIT)
 +
 +/* Which registers can hold 16-bits.
 + * Note: D_REGBIT is defined as both an 8-bit and 16-bit register */
@@ -4887,16 +4892,13 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.h gcc-4.6.1/gcc/config/m6809/m68
 +
 +/* The .set foo,bar construct doesn't work by default */
 +#undef SET_ASM_OP
-+#define ASM_OUTPUT_DEF(FILE, LABEL1, LABEL2)			\
-+  do								\
-+    {								\
-+      fputc ('\t', FILE);					\
-+      assemble_name (FILE, LABEL1);				\
-+      fputs (" = ", FILE);					\
-+      assemble_name (FILE, LABEL2);				\
-+      fputc ('\n', FILE);					\
-+    }								\
-+  while (0)
++#define ASM_OUTPUT_DEF(FILE, LABEL1, LABEL2) \
++  do { \
++      assemble_name (FILE, LABEL1); \
++      fputs ("\tequ\t", FILE); \
++      assemble_name (FILE, LABEL2); \
++      fputc ('\n', FILE); \
++  } while (0)
 +
 +/* How to refer to registers in assembler output.
 +   This sequence is indexed by compiler's hard-register-number (see above).  */
@@ -5066,23 +5068,10 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.h gcc-4.6.1/gcc/config/m6809/m68
 +**
 +*****************************************************************************/
 +
-+/* ASM_OUTPUT_SKIP is supposed to zero initialize the data.
-+ * So use the .byte and .word directives instead of .blkb */
++/* ASM_OUTPUT_SKIP is supposed to zero initialize the data. */
 +#define ASM_OUTPUT_SKIP(FILE,SIZE) \
 +  do { \
-+    int __size = SIZE; \
-+    while (__size > 0) { \
-+      if (__size >= 2) \
-+      { \
-+        fprintf (FILE, "\t.word\t0\t;skip space %d\n", __size); \
-+        __size -= 2; \
-+      } \
-+      else \
-+      { \
-+        fprintf (FILE, "\t.byte\t0\t;skip space\n"); \
-+        __size--; \
-+      } \
-+    } \
++    fprintf (FILE, "\tzmb\t%d\t;skip space\n", SIZE); \
 +  } while (0)
 +
 +/* This says how to output an assembler line
@@ -5140,10 +5129,10 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.h gcc-4.6.1/gcc/config/m6809/m68
 +	M6809_BLOCKAGE
 +};
 +
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6809.md
---- gcc-4.6.1-orig/gcc/config/m6809/m6809.md	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/m6809.md	2011-09-21 20:40:01.287068005 -0600
-@@ -0,0 +1,2359 @@
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.md gcc-4.6.4/gcc/config/m6809/m6809.md
+--- gcc-4.6.4-clean/gcc/config/m6809/m6809.md	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/m6809.md	2017-11-28 21:12:11.156911596 -0700
+@@ -0,0 +1,2358 @@
 +;; GCC machine description for Motorola 6809
 +;; Copyright (C) 1989, 2005, 2006, 2007, 2008,
 +;; 2009 Free Software Foundation, Inc.
@@ -5656,8 +5645,8 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +
 +
 +(define_insn "*movhi_1"
-+  [(set (match_operand:HI 0 "nonimmediate_operand" "=a,d,a,ad,tmu")
-+    (match_operand:HI 1 "general_operand"          " a,a,d,tmiu,ad"))]
++  [(set (match_operand:HI 0 "nonimmediate_operand" "=a,d,a,ad,mu")
++    (match_operand:HI 1 "general_operand"          " a,a,d,miu,ad"))]
 +  ""
 +  "@
 +   lea%0\t,%1
@@ -5741,8 +5730,8 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +
 +
 +(define_insn "movqi"
-+  [(set (match_operand:QI 0 "nonimmediate_operand" "=q,q,tm,q,tm,q,z")
-+    (match_operand:QI 1 "general_operand"          " q,O,O,tmi,q,z,q"))]
++  [(set (match_operand:QI 0 "nonimmediate_operand" "=q,q,m,q,m,q,z")
++    (match_operand:QI 1 "general_operand"          " q,O,O,mi,q,z,q"))]
 +  ""
 +  "@
 +   tfr\t%1,%0
@@ -5829,7 +5818,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +; Increment of a 16-bit MEM by 1 can be done without a register.
 +(define_insn "*addhi_mem_1"
 +  [(set (match_operand:HI 0 "memory_operand" "=m")
-+        (plus:HI (match_operand:HI 1 "memory_operand" "0") (const_int 1)))]
++        (plus:HI (match_dup 0) (const_int 1)))]
 +   "GET_CODE (XEXP (operands[0], 0)) == SYMBOL_REF"
 +{
 +  rtx xoperands[2];
@@ -5848,7 +5837,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +; Decrement of a 16-bit MEM by 1 can be done without a register.
 +(define_insn "*addhi_mem_minus1"
 +  [(set (match_operand:HI 0 "memory_operand" "=m")
-+        (plus:HI (match_operand:HI 1 "memory_operand" "0") (const_int -1)))]
++        (plus:HI (match_dup 0) (const_int -1)))]
 +   "GET_CODE (XEXP (operands[0], 0)) == SYMBOL_REF"
 +{
 +  rtx xoperands[2];
@@ -5966,7 +5955,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +  [(set (match_operand:QI 0 "nonimmediate_operand" "=A,?q")
 +    (unspec:QI [
 +      (match_operand:QI 1 "general_operand"        "%0,0")
-+      (match_operand:QI 2 "general_operand"        "tmi,tmi")] UNSPEC_ADD_DECIMAL))]
++      (match_operand:QI 2 "general_operand"        "mi,mi")] UNSPEC_ADD_DECIMAL))]
 +  ""
 +  "@
 +   adda\t%2\;daa
@@ -5975,9 +5964,9 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +
 +
 +(define_insn "addqi3"
-+  [(set (match_operand:QI 0 "nonimmediate_operand"       "=q,q,q,tm,tm,q")
++  [(set (match_operand:QI 0 "nonimmediate_operand"       "=q,q,q,m,m,q")
 +    (plus:QI (match_operand:QI 1 "whole_general_operand" "%0,0,0,0,0,0")
-+    (match_operand:QI 2 "whole_general_operand"          " 0,I,N,I,N,tmi")))]
++    (match_operand:QI 2 "whole_general_operand"          " 0,I,N,I,N,mi")))]
 +  ""
 +  "@
 +   asl%0\t\t;addqi: R:%0 = R:%0 + R:%0
@@ -6029,17 +6018,16 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +
 +
 +(define_insn "subqi3"
-+  [(set (match_operand:QI 0 "register_operand"            "=q, q, !q, !q,   q")
-+    (minus:QI (match_operand:QI 1 "whole_register_operand" "0, 0,  I,  tmn, 0")
-+    (match_operand:QI 2 "whole_general_operand"            "I, mi, 0,  0,   t")))]
++  [(set (match_operand:QI 0 "register_operand"            "=q, q, !q, q")
++    (minus:QI (match_operand:QI 1 "whole_register_operand" "0, 0,  I, 0")
++    (match_operand:QI 2 "whole_general_operand"            "I, mi, 0, t")))]
 +  ""
 +  "@
 +   dec%0
 +   sub%0\t%2
 +   dec%0\;neg%0
-+   sub%0\t%1\;neg%0
 +   sub%0\t%2"
-+   [(set_attr "length" "1,3,2,4,3")])
++   [(set_attr "length" "1,3,2,3")])
 +
 +
 +;;--------------------------------------------------------------------
@@ -6278,7 +6266,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +(define_insn "andqi3"
 +  [(set (match_operand:QI 0 "register_operand"           "=q,q,q,qc")
 +    (and:QI (match_operand:QI 1 "whole_register_operand" "%0,0,0,0")
-+    (match_operand:QI 2 "whole_general_operand"          " O,N,tm,i")))]
++    (match_operand:QI 2 "whole_general_operand"          " O,N,m,i")))]
 +  ""
 +  "@
 +   clr%0\t;andqi(ZERO)
@@ -6303,7 +6291,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +(define_insn "iorqi3"
 +  [(set (match_operand:QI 0 "register_operand"           "=q,q, qc")
 +    (ior:QI (match_operand:QI 1 "whole_register_operand" "%0,0, 0")
-+    (match_operand:QI 2 "whole_general_operand"          " O,tm,i")))]
++    (match_operand:QI 2 "whole_general_operand"          " O,m,i")))]
 +  ""
 +  "@
 +   \t;iorqi(ZERO)
@@ -6326,7 +6314,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +(define_insn "xorqi3"
 +  [(set (match_operand:QI 0 "register_operand"           "=q,q,q,q")
 +    (xor:QI (match_operand:QI 1 "whole_register_operand" "%0,0,0,0")
-+    (match_operand:QI 2 "whole_general_operand"          " O,N,tm,i")))]
++    (match_operand:QI 2 "whole_general_operand"          " O,N,m,i")))]
 +  ""
 +  "@
 +   \t;xorqi(ZERO)
@@ -6375,7 +6363,7 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +
 +
 +(define_insn "one_cmplqi2"
-+  [(set (match_operand:QI 0 "nonimmediate_operand"    "=q,tm")
++  [(set (match_operand:QI 0 "nonimmediate_operand"    "=q,m")
 +    (not:QI (match_operand:QI 1 "nonimmediate_operand" "0,0")))]
 +  ""
 +  "@
@@ -7503,9 +7491,9 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.md gcc-4.6.1/gcc/config/m6809/m6
 +;-; vim: set expandtab:
 +;-; vim: set filetype=lisp:
 +;;- End:
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.opt gcc-4.6.1/gcc/config/m6809/m6809.opt
---- gcc-4.6.1-orig/gcc/config/m6809/m6809.opt	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/m6809.opt	2011-09-17 14:06:01.227643616 -0600
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.opt gcc-4.6.4/gcc/config/m6809/m6809.opt
+--- gcc-4.6.4-clean/gcc/config/m6809/m6809.opt	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/m6809.opt	2017-11-28 21:12:11.156911596 -0700
 @@ -0,0 +1,98 @@
 +; Options for the M6809 port of the compiler
 +;
@@ -7605,9 +7593,9 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809.opt gcc-4.6.1/gcc/config/m6809/m
 +Enable stack parameters to a farcall
 +
 +
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809-protos.h gcc-4.6.1/gcc/config/m6809/m6809-protos.h
---- gcc-4.6.1-orig/gcc/config/m6809/m6809-protos.h	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/m6809-protos.h	2011-09-17 17:26:19.227644879 -0600
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809-protos.h gcc-4.6.4/gcc/config/m6809/m6809-protos.h
+--- gcc-4.6.4-clean/gcc/config/m6809/m6809-protos.h	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/m6809-protos.h	2017-11-28 21:12:11.156911596 -0700
 @@ -0,0 +1,94 @@
 +/* GCC for 6809 : machine-specific function prototypes
 +
@@ -7703,9 +7691,9 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/m6809-protos.h gcc-4.6.1/gcc/config/m6
 +#endif /* RTX_CODE */
 +
 +#endif /* __M6809_PROTOS_H__ */
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/predicates.md gcc-4.6.1/gcc/config/m6809/predicates.md
---- gcc-4.6.1-orig/gcc/config/m6809/predicates.md	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/predicates.md	2011-09-18 15:09:37.057653095 -0600
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/predicates.md gcc-4.6.4/gcc/config/m6809/predicates.md
+--- gcc-4.6.4-clean/gcc/config/m6809/predicates.md	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/predicates.md	2017-11-28 21:12:11.156911596 -0700
 @@ -0,0 +1,78 @@
 +;; Predicate definitions for Motorola 6809
 +;; Copyright (C) 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
@@ -7785,9 +7773,9 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/predicates.md gcc-4.6.1/gcc/config/m68
 +
 +(define_predicate "symbolic_operand" (match_code "symbol_ref"))
 +
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/t-coco gcc-4.6.1/gcc/config/m6809/t-coco
---- gcc-4.6.1-orig/gcc/config/m6809/t-coco	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/t-coco	2011-09-17 14:06:01.227643616 -0600
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/t-coco gcc-4.6.4/gcc/config/m6809/t-coco
+--- gcc-4.6.4-clean/gcc/config/m6809/t-coco	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/t-coco	2017-11-28 21:12:11.156911596 -0700
 @@ -0,0 +1,6 @@
 +# For a few minor differences in code generation on the CoCo...
 +T_CFLAGS = -DTARGET_COCO
@@ -7795,9 +7783,9 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/t-coco gcc-4.6.1/gcc/config/m6809/t-co
 +# For doing the startup differently on the CoCo...
 +CRT0STUFF_T_CFLAGS += -Wa,--globalize-symbols -DTARGET_COCO
 +# vim: set filetype=make:
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/t-m6809 gcc-4.6.1/gcc/config/m6809/t-m6809
---- gcc-4.6.1-orig/gcc/config/m6809/t-m6809	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/t-m6809	2011-09-17 21:38:35.437646470 -0600
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/t-m6809 gcc-4.6.4/gcc/config/m6809/t-m6809
+--- gcc-4.6.4-clean/gcc/config/m6809/t-m6809	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/t-m6809	2017-11-28 21:12:11.156911596 -0700
 @@ -0,0 +1,64 @@
 +
 +# ranlib doesn't exist, so define it to 'true' to make it a no-op
@@ -7863,15 +7851,15 @@ diff -urN gcc-4.6.1-orig/gcc/config/m6809/t-m6809 gcc-4.6.1/gcc/config/m6809/t-m
 +
 +$(T)mcrt0.o: $(MCRT0_S) $(GCC_PASSES)
 +	$(GCC_FOR_TARGET) $(CRT0STUFF_T_CFLAGS) $(MULTILIB_CFLAGS) -c -o $(T)mcrt0.o -x assembler-with-cpp $(MCRT0_S)
-diff -urN gcc-4.6.1-orig/gcc/config/m6809/t-sim gcc-4.6.1/gcc/config/m6809/t-sim
---- gcc-4.6.1-orig/gcc/config/m6809/t-sim	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/gcc/config/m6809/t-sim	2011-09-17 14:06:01.227643616 -0600
+diff -urN gcc-4.6.4-clean/gcc/config/m6809/t-sim gcc-4.6.4/gcc/config/m6809/t-sim
+--- gcc-4.6.4-clean/gcc/config/m6809/t-sim	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/gcc/config/m6809/t-sim	2017-11-28 21:12:11.156911596 -0700
 @@ -0,0 +1 @@
 +CRT0STUFF_T_CFLAGS += -DTARGET_SIM
-diff -urN gcc-4.6.1-orig/gcc/config.gcc gcc-4.6.1/gcc/config.gcc
---- gcc-4.6.1-orig/gcc/config.gcc	2011-05-22 14:03:43.000000000 -0600
-+++ gcc-4.6.1/gcc/config.gcc	2011-09-17 14:08:56.257643636 -0600
-@@ -374,6 +374,9 @@
+diff -urN gcc-4.6.4-clean/gcc/config.gcc gcc-4.6.4/gcc/config.gcc
+--- gcc-4.6.4-clean/gcc/config.gcc	2013-03-06 10:40:07.000000000 -0700
++++ gcc-4.6.4/gcc/config.gcc	2017-11-28 21:12:11.156911596 -0700
+@@ -375,6 +375,9 @@
          cpu_type=m32r
  	extra_options="${extra_options} g.opt"
          ;;
@@ -7881,7 +7869,7 @@ diff -urN gcc-4.6.1-orig/gcc/config.gcc gcc-4.6.1/gcc/config.gcc
  m68k-*-*)
  	extra_headers=math-68881.h
  	;;
-@@ -1689,6 +1692,12 @@
+@@ -1706,6 +1709,12 @@
  		thread_file='posix'
  	fi
  	;;
@@ -7894,9 +7882,9 @@ diff -urN gcc-4.6.1-orig/gcc/config.gcc gcc-4.6.1/gcc/config.gcc
  # m68hc11 and m68hc12 share the same machine description.
  m68hc11-*-*|m6811-*-*)
  	tm_file="dbxelf.h elfos.h usegas.h newlib-stdint.h m68hc11/m68hc11.h"
-diff -urN gcc-4.6.1-orig/gcc/gcse.c gcc-4.6.1/gcc/gcse.c
---- gcc-4.6.1-orig/gcc/gcse.c	2011-02-02 23:04:04.000000000 -0700
-+++ gcc-4.6.1/gcc/gcse.c	2011-09-18 17:25:17.527653952 -0600
+diff -urN gcc-4.6.4-clean/gcc/gcse.c gcc-4.6.4/gcc/gcse.c
+--- gcc-4.6.4-clean/gcc/gcse.c	2011-02-02 23:04:04.000000000 -0700
++++ gcc-4.6.4/gcc/gcse.c	2017-11-28 21:12:11.156911596 -0700
 @@ -833,7 +833,6 @@
  	      max_distance = (GCSE_COST_DISTANCE_RATIO * cost) / 10;
  	      if (max_distance == 0)
@@ -7905,9 +7893,9 @@ diff -urN gcc-4.6.1-orig/gcc/gcse.c gcc-4.6.1/gcc/gcse.c
  	      gcc_assert (max_distance > 0);
  	    }
  	  else
-diff -urN gcc-4.6.1-orig/gcc/libgcc2.c gcc-4.6.1/gcc/libgcc2.c
---- gcc-4.6.1-orig/gcc/libgcc2.c	2011-01-03 13:52:22.000000000 -0700
-+++ gcc-4.6.1/gcc/libgcc2.c	2011-09-17 14:06:01.227643616 -0600
+diff -urN gcc-4.6.4-clean/gcc/libgcc2.c gcc-4.6.4/gcc/libgcc2.c
+--- gcc-4.6.4-clean/gcc/libgcc2.c	2011-01-03 13:52:22.000000000 -0700
++++ gcc-4.6.4/gcc/libgcc2.c	2017-11-28 21:12:11.156911596 -0700
 @@ -485,6 +485,7 @@
  #endif
  
@@ -7961,10 +7949,10 @@ diff -urN gcc-4.6.1-orig/gcc/libgcc2.c gcc-4.6.1/gcc/libgcc2.c
  #endif
  }
  #endif
-diff -urN gcc-4.6.1-orig/gcc/longlong.h gcc-4.6.1/gcc/longlong.h
---- gcc-4.6.1-orig/gcc/longlong.h	2011-06-06 08:34:54.000000000 -0600
-+++ gcc-4.6.1/gcc/longlong.h	2011-09-17 14:06:01.227643616 -0600
-@@ -527,6 +527,11 @@
+diff -urN gcc-4.6.4-clean/gcc/longlong.h gcc-4.6.4/gcc/longlong.h
+--- gcc-4.6.4-clean/gcc/longlong.h	2011-10-04 01:28:50.000000000 -0600
++++ gcc-4.6.4/gcc/longlong.h	2017-11-28 21:12:11.160911575 -0700
+@@ -528,6 +528,11 @@
  	   : "cbit")
  #endif /* __M32R__ */
  
@@ -7976,10 +7964,10 @@ diff -urN gcc-4.6.1-orig/gcc/longlong.h gcc-4.6.1/gcc/longlong.h
  #if defined (__mc68000__) && W_TYPE_SIZE == 32
  #define add_ssaaaa(sh, sl, ah, al, bh, bl) \
    __asm__ ("add%.l %5,%1\n\taddx%.l %3,%0"				\
-diff -urN gcc-4.6.1-orig/gcc/Makefile.in gcc-4.6.1/gcc/Makefile.in
---- gcc-4.6.1-orig/gcc/Makefile.in	2011-05-23 12:12:34.000000000 -0600
-+++ gcc-4.6.1/gcc/Makefile.in	2011-09-17 14:06:01.197643616 -0600
-@@ -1987,14 +1987,14 @@
+diff -urN gcc-4.6.4-clean/gcc/Makefile.in gcc-4.6.4/gcc/Makefile.in
+--- gcc-4.6.4-clean/gcc/Makefile.in	2013-04-01 02:32:34.000000000 -0600
++++ gcc-4.6.4/gcc/Makefile.in	2017-11-28 21:12:11.160911575 -0700
+@@ -2003,14 +2003,14 @@
  
  # Compile the start modules crt0.o and mcrt0.o that are linked with
  # every program
@@ -7998,9 +7986,9 @@ diff -urN gcc-4.6.1-orig/gcc/Makefile.in gcc-4.6.1/gcc/Makefile.in
  	$(STAMP) s-crt0
  #
  # Compiling object files from source files.
-diff -urN gcc-4.6.1-orig/gcc/opth-gen.awk gcc-4.6.1/gcc/opth-gen.awk
---- gcc-4.6.1-orig/gcc/opth-gen.awk	2011-02-08 10:41:00.000000000 -0700
-+++ gcc-4.6.1/gcc/opth-gen.awk	2011-09-17 14:06:01.227643616 -0600
+diff -urN gcc-4.6.4-clean/gcc/opth-gen.awk gcc-4.6.4/gcc/opth-gen.awk
+--- gcc-4.6.4-clean/gcc/opth-gen.awk	2011-02-08 10:41:00.000000000 -0700
++++ gcc-4.6.4/gcc/opth-gen.awk	2017-11-28 21:12:11.160911575 -0700
 @@ -121,7 +121,7 @@
  END {
  print "/* This file is auto-generated by opth-gen.awk.  */"
@@ -8032,9 +8020,9 @@ diff -urN gcc-4.6.1-orig/gcc/opth-gen.awk gcc-4.6.1/gcc/opth-gen.awk
  }
  print ""
  
-diff -urN gcc-4.6.1-orig/gcc/tree.h gcc-4.6.1/gcc/tree.h
---- gcc-4.6.1-orig/gcc/tree.h	2011-06-14 09:28:21.000000000 -0600
-+++ gcc-4.6.1/gcc/tree.h	2011-09-17 20:28:05.987646026 -0600
+diff -urN gcc-4.6.4-clean/gcc/tree.h gcc-4.6.4/gcc/tree.h
+--- gcc-4.6.4-clean/gcc/tree.h	2011-10-06 13:57:52.000000000 -0600
++++ gcc-4.6.4/gcc/tree.h	2017-11-28 21:12:11.160911575 -0700
 @@ -3563,6 +3563,8 @@
    TI_UINTDI_TYPE,
    TI_UINTTI_TYPE,
@@ -8044,9 +8032,9 @@ diff -urN gcc-4.6.1-orig/gcc/tree.h gcc-4.6.1/gcc/tree.h
    TI_UINT32_TYPE,
    TI_UINT64_TYPE,
  
-diff -urN gcc-4.6.1-orig/gcc/version.c gcc-4.6.1/gcc/version.c
---- gcc-4.6.1-orig/gcc/version.c	2009-04-21 13:03:23.000000000 -0600
-+++ gcc-4.6.1/gcc/version.c	2011-09-18 19:49:48.437654863 -0600
+diff -urN gcc-4.6.4-clean/gcc/version.c gcc-4.6.4/gcc/version.c
+--- gcc-4.6.4-clean/gcc/version.c	2009-04-21 13:03:23.000000000 -0600
++++ gcc-4.6.4/gcc/version.c	2017-11-28 21:20:44.918095673 -0700
 @@ -21,16 +21,16 @@
  
  /* This is the location of the online document giving instructions for
@@ -8068,12 +8056,12 @@ diff -urN gcc-4.6.1-orig/gcc/version.c gcc-4.6.1/gcc/version.c
     Makefile.  */
  
 -const char version_string[] = BASEVER DATESTAMP DEVPHASE REVISION;
-+const char version_string[] = BASEVER DATESTAMP DEVPHASE REVISION " (gcc6809lw)";
++const char version_string[] = BASEVER DATESTAMP DEVPHASE REVISION " (gcc6809lw pl8)";
  const char pkgversion_string[] = PKGVERSION;
-diff -urN gcc-4.6.1-orig/libgcc/config.host gcc-4.6.1/libgcc/config.host
---- gcc-4.6.1-orig/libgcc/config.host	2011-03-14 00:06:23.000000000 -0600
-+++ gcc-4.6.1/libgcc/config.host	2011-09-17 14:06:01.257643616 -0600
-@@ -380,6 +380,8 @@
+diff -urN gcc-4.6.4-clean/libgcc/config.host gcc-4.6.4/libgcc/config.host
+--- gcc-4.6.4-clean/libgcc/config.host	2011-11-23 15:15:54.000000000 -0700
++++ gcc-4.6.4/libgcc/config.host	2017-11-28 21:12:11.160911575 -0700
+@@ -371,6 +371,8 @@
   	;;
  m32rle-*-linux*)
  	;;
@@ -8082,9 +8070,9 @@ diff -urN gcc-4.6.1-orig/libgcc/config.host gcc-4.6.1/libgcc/config.host
  m68hc11-*-*|m6811-*-*)
          ;;
  m68hc12-*-*|m6812-*-*)
-diff -urN gcc-4.6.1-orig/libgcc/fixed-obj.mk gcc-4.6.1/libgcc/fixed-obj.mk
---- gcc-4.6.1-orig/libgcc/fixed-obj.mk	2007-09-17 16:18:13.000000000 -0600
-+++ gcc-4.6.1/libgcc/fixed-obj.mk	2011-09-17 14:06:01.257643616 -0600
+diff -urN gcc-4.6.4-clean/libgcc/fixed-obj.mk gcc-4.6.4/libgcc/fixed-obj.mk
+--- gcc-4.6.4-clean/libgcc/fixed-obj.mk	2007-09-17 16:18:13.000000000 -0600
++++ gcc-4.6.4/libgcc/fixed-obj.mk	2017-11-28 21:12:11.160911575 -0700
 @@ -23,7 +23,7 @@
  #$(info $o$(objext): -DL$($o-label) $($o-opt))
  
@@ -8094,9 +8082,9 @@ diff -urN gcc-4.6.1-orig/libgcc/fixed-obj.mk gcc-4.6.1/libgcc/fixed-obj.mk
  
  ifeq ($(enable_shared),yes)
  $(o)_s$(objext): %_s$(objext): $(gcc_srcdir)/config/fixed-bit.c
-diff -urN gcc-4.6.1-orig/libgcc/Makefile.in gcc-4.6.1/libgcc/Makefile.in
---- gcc-4.6.1-orig/libgcc/Makefile.in	2011-01-25 21:19:58.000000000 -0700
-+++ gcc-4.6.1/libgcc/Makefile.in	2011-09-17 14:06:01.257643616 -0600
+diff -urN gcc-4.6.4-clean/libgcc/Makefile.in gcc-4.6.4/libgcc/Makefile.in
+--- gcc-4.6.4-clean/libgcc/Makefile.in	2012-12-04 12:11:33.000000000 -0700
++++ gcc-4.6.4/libgcc/Makefile.in	2017-11-28 21:12:11.160911575 -0700
 @@ -374,8 +374,8 @@
  # Build lib2funcs.  For the static library also include LIB2FUNCS_ST.
  lib2funcs-o = $(patsubst %,%$(objext),$(lib2funcs) $(LIB2FUNCS_ST))
@@ -8140,9 +8128,9 @@ diff -urN gcc-4.6.1-orig/libgcc/Makefile.in gcc-4.6.1/libgcc/Makefile.in
  libgcc-objects += $(dpbit-o)
  
  ifeq ($(enable_shared),yes)
-diff -urN gcc-4.6.1-orig/README.LW gcc-4.6.1/README.LW
---- gcc-4.6.1-orig/README.LW	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-4.6.1/README.LW	2011-09-18 19:44:52.457654831 -0600
+diff -urN gcc-4.6.4-clean/README.LW gcc-4.6.4/README.LW
+--- gcc-4.6.4-clean/README.LW	1969-12-31 17:00:00.000000000 -0700
++++ gcc-4.6.4/README.LW	2017-11-28 21:12:11.160911575 -0700
 @@ -0,0 +1,14 @@
 +This is a port of gcc6809 which is designed to work with the lwtools
 +cross-assembler and linker package.  You will need several scripts from that

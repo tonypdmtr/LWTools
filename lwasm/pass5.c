@@ -43,7 +43,7 @@ static int exprok_aux(lw_expr_t e, void *priv)
 		return 0;
 	if (lw_expr_istype(e, lw_expr_type_oper))
 		return 0;
-	if (lw_expr_istype(e, lw_expr_type_special) && as -> output_format == OUTPUT_OBJ)
+	if (lw_expr_istype(e, lw_expr_type_special) && (as -> output_format == OUTPUT_OBJ || as -> output_format == OUTPUT_LWMOD))
 	{
 		int t;
 		t = lw_expr_specint(e);
@@ -121,11 +121,11 @@ void do_pass5(asmstate_t *as)
 		{
 			if (!exprok(as, cl -> addr))
 			{
-				lwasm_register_error(as, cl, "Cannot resolve line address");
+				lwasm_register_error(as, cl, E_LINE_ADDRESS);
 			}
 			if (!exprok(as, cl -> daddr))
 			{
-				lwasm_register_error(as, cl, "Cannot resolve line data address");
+				lwasm_register_error(as, cl, E_LINED_ADDRESS);
 			}
 		}
 	}
