@@ -1580,7 +1580,7 @@ expandmacro:
 				if (t2 -> ttype != TOK_WSPACE)
 					break;
 			}
-			for (t3 = t -> next; t3; t3 = t3 -> next);
+			for (t3 = t -> next; t3; t3 = t3 -> next)
 			{
 				if (t3 -> ttype != TOK_WSPACE)
 					break;
