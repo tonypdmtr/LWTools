@@ -37,6 +37,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 node_t *process_file(const char *);
 static void do_error(const char *f, ...);
 extern node_t *parse_program(struct preproc_info *pp);
+extern void generate_code(node_t *n, FILE *of);
 
 node_t *program_tree = NULL;
 
@@ -173,6 +174,10 @@ int main(int argc, char **argv)
 	lw_stringlist_destroy(macrolist);
 	
 	node_display(program_tree, stdout);
+	
+	// generate output
+	generate_code(program_tree, output_fp);
+	
 	node_destroy(program_tree);
 	exit(retval);
 }
@@ -209,6 +214,7 @@ node_t *process_file(const char *fn)
 
 	n = parse_program(pp);
 	preproc_finish(pp);
+	
 	return n;
 }
 
