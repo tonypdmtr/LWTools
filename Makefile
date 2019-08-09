@@ -108,8 +108,7 @@ lwcc_cpp_srcs := $(addprefix lwcc/,$(lwcc_cpp_srcs))
 lwcc_cpp_objs := $(lwcc_cpp_srcs:.c=.o)
 lwcc_cpp_deps := $(lwcc_cpp_srcs:.c=.d)
 
-# parse_c.c needs to be first here
-lwcc_cc_srcs := parse_c.c cc-main.c tree.c parse.c token_names.c
+lwcc_cc_srcs := cc-main.c tree.c cc-parse.c
 lwcc_cc_srcs := $(addprefix lwcc/,$(lwcc_cc_srcs))
 lwcc_cc_objs := $(lwcc_cc_srcs:.c=.o)
 lwcc_cc_deps := $(lwcc_cc_srcs:.c=.d)
@@ -179,17 +178,6 @@ alldeps := $(lwasm_deps) $(lwlink_deps) $(lwar_deps) $(lwlib_deps) ($lwobjdump_d
 -include $(alldeps)
 
 extra_clean := $(extra_clean) *~ */*~
-
-lwcc/parse_c.c lwcc/parse_c.h: lwcc/parse_c.y
-	rm -f lwcc/parse_c.h lwcc/parse_c.c
-	lemon -q lwcc/parse_c.y
-
-lwcc/token_names.c: lwcc/parse_c.h
-	echo "char *ptoken_names[] = {" > $@
-	echo '"TOKEN_NONE",' >> $@
-	cat lwcc/parse_c.h | sed -e 's/#define \(.*\) .*$$/"\1",/g' -e 's/ //g' >> $@
-	echo '"" };' >> $@
-
 
 %.o: %.c
 	@echo "Building dependencies for $@"

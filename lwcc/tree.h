@@ -49,7 +49,9 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #define NODE_FUNDECL		21	// function declaration
 #define NODE_FUNARGS		22	// list of function args
 #define NODE_BLOCK			23	// statement block
-#define NODE_NUMTYPES		24	// the number of node types
+#define NODE_STMT_RETURN    24  // return statement
+#define NODE_CONST_INT      25  // constant integer
+#define NODE_NUMTYPES		26	// the number of node types
 
 typedef struct node_s node_t;
 

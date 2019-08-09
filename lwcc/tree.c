@@ -51,6 +51,8 @@ static char *node_names[] = {
 	"FUNDECL",
 	"FUNARGS",
 	"BLOCK",
+	"STMT_RETURN",
+	"CONST_INT",
 };
 
 
@@ -77,6 +79,7 @@ node_t *node_create(int type, ...)
 		break;
 		
 	case NODE_IDENT:
+	case NODE_CONST_INT:
 		r -> strval = lw_strdup(va_arg(args, char *));
 		break;
 	
