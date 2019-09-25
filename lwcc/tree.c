@@ -53,6 +53,10 @@ static char *node_names[] = {
 	"BLOCK",
 	"STMT_RETURN",
 	"CONST_INT",
+	"OPER_PLUS",
+	"OPER_MINUS",
+	"OPER_TIMES",
+	"OPER_DIVIDE",
 };
 
 
@@ -70,6 +74,13 @@ node_t *node_create(int type, ...)
 	
 	switch (type)
 	{
+	case NODE_OPER_PLUS:
+	case NODE_OPER_MINUS:
+	case NODE_OPER_TIMES:
+	case NODE_OPER_DIVIDE:
+		nargs = 2;
+		break;
+
 	case NODE_DECL:
 		nargs = 2;
 		break;

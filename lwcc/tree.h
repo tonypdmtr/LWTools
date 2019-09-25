@@ -51,7 +51,11 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #define NODE_BLOCK			23	// statement block
 #define NODE_STMT_RETURN    24  // return statement
 #define NODE_CONST_INT      25  // constant integer
-#define NODE_NUMTYPES		26	// the number of node types
+#define NODE_OPER_PLUS      26  // addition
+#define NODE_OPER_MINUS     27  // subtraction
+#define NODE_OPER_TIMES     28  // multiplcation
+#define NODE_OPER_DIVIDE    29  // division
+#define NODE_NUMTYPES		30	// the number of node types
 
 typedef struct node_s node_t;
 

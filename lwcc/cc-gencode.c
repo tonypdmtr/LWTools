@@ -43,6 +43,34 @@ void generate_code(node_t *n, FILE *output)
         fprintf(output, "\tldd #%s\n", n->strval);
         break;
 
+    case NODE_OPER_PLUS:
+        generate_code(n->children, output);
+        fprintf(output, "\tpshs d\n");
+        generate_code(n->children->next_child, output);
+        fprintf(output, "\taddd ,s++\n");
+        break;
+    
+    case NODE_OPER_MINUS:
+        generate_code(n->children, output);
+        fprintf(output, "\tpshs d,x\n");
+        generate_code(n->children->next_child, output);
+        fprintf(output, "\tstd 2,s\n\tpuls d\n\tsubd ,s++\n");
+        break;
+
+    case NODE_OPER_TIMES:
+        generate_code(n -> children, output);
+        fprintf(output, "\tpshs d\n");
+        generate_code(n->children->next_child, output);
+        fprintf(output, "\tjsr ___mul16i\n");
+        break;
+
+    case NODE_OPER_DIVIDE:
+        generate_code(n -> children, output);
+        fprintf(output, "\tpshs d\n");
+        generate_code(n->children->next_child, output);
+        fprintf(output, "\tjsr ___div16i\n");
+        break;
+
     default:
         for (nn = n -> children; nn; nn = nn -> next_child)
             generate_code(nn, output);

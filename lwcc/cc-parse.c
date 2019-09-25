@@ -169,17 +169,67 @@ void parse_generr(struct parser_state *ps, char *tag)
 
 }
 
-node_t *parse_expr(struct parser_state *ps)
+node_t *parse_term_real(struct parser_state *ps)
 {
     node_t *rv;
-    if (ps -> curtok -> ttype == TOK_CONST_INT)
+
+    switch (ps -> curtok -> ttype)
     {
+    case TOK_CONST_INT:
         rv = node_create(NODE_CONST_INT, ps -> curtok -> strval);
         parse_next(ps);
         return rv;
     }
-    parse_generr(ps, "expr");
+
+    parse_generr(ps, "term");
     return NULL;
+}
+
+node_t *parse_expr_real(struct parser_state *ps, int prec)
+{
+    static struct { int tok; int nodetype; int prec; } operlist[] = {
+        { TOK_STAR, NODE_OPER_TIMES, 150 },
+        { TOK_DIV, NODE_OPER_DIVIDE, 150 },
+        { TOK_ADD, NODE_OPER_PLUS, 100 },
+        { TOK_SUB, NODE_OPER_MINUS, 100 },
+        { 0, 0, 0 }
+    };
+    node_t *term1, *term2;
+    int i;
+    
+    term1 = parse_term_real(ps);
+    if (!term1)
+        return NULL;
+
+nextoper:
+    for (i = 0; operlist[i].tok; i++)
+        if (operlist[i].tok == ps -> curtok -> ttype)
+            break;
+    fprintf(stderr, "Matched operator: %d, %d\n", operlist[i].tok, operlist[i].prec);
+    // if we hit the end of the expression, return
+    if (operlist[i].tok == 0)
+        return term1;
+
+    // is the next operator less or same precedence?
+    if (operlist[i].prec <= prec)
+        return term1;
+
+    parse_next(ps);
+    term2 = parse_expr_real(ps, operlist[i].prec);
+    if (!term2)
+    {
+        parse_generr(ps, "expr");
+        node_destroy(term2);
+    }
+    
+    term1 = node_create(operlist[i].nodetype, term1, term2);
+    term2 = NULL;
+    goto nextoper;
+}
+
+node_t *parse_expr(struct parser_state *ps)
+{
+    return parse_expr_real(ps, 0);
 }
 
 node_t *parse_statement(struct parser_state *ps)
