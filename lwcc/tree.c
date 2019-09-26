@@ -57,6 +57,39 @@ static char *node_names[] = {
 	"OPER_MINUS",
 	"OPER_TIMES",
 	"OPER_DIVIDE",
+	"OPER_MOD",
+	"OPER_COND",
+	"OPER_FNCALL",
+	"OPER_SUBSCRIPT",
+	"OPER_POSTINC",
+	"OPER_POSTDEC",
+	"OPER_PTRMEM",
+	"OPER_OBJMEM",
+	"OPER_LSH",
+	"OPER_RSH",
+	"OPER_LT",
+	"OPER_LE",
+	"OPER_GT",
+	"OPER_GE",
+	"OPER_EQ",
+	"OPER_NE",
+	"OPER_BWAND",
+	"OPER_BWXOR",
+	"OPER_BWOR",
+	"OPER_BAND",
+	"OPER_BOR",
+	"OPER_ASS",
+	"OPER_ADDASS",
+	"OPER_SUBASS",
+	"OPER_MULASS",
+	"OPER_DIVASS",
+	"OPER_MODASS",
+	"OPER_LSHASS",
+	"OPER_RSHASS",
+	"OPER_BWANDASS",
+	"OPER_BWXORASS",
+	"OPER_BWORASS",
+	"OPER_COMMA",
 };
 
 
@@ -78,11 +111,49 @@ node_t *node_create(int type, ...)
 	case NODE_OPER_MINUS:
 	case NODE_OPER_TIMES:
 	case NODE_OPER_DIVIDE:
+	case NODE_OPER_MOD:
+	case NODE_OPER_BWAND:
+	case NODE_OPER_BWXOR:
+	case NODE_OPER_BWOR:
+	case NODE_OPER_BAND:
+	case NODE_OPER_BOR:
+	case NODE_OPER_SUBSCRIPT:
+	case NODE_OPER_PTRMEM:
+	case NODE_OPER_OBJMEM:
+	case NODE_OPER_ASS:
+	case NODE_OPER_ADDASS:
+	case NODE_OPER_SUBASS:
+	case NODE_OPER_MULASS:
+	case NODE_OPER_DIVASS:
+	case NODE_OPER_MODASS:
+	case NODE_OPER_LSH:
+	case NODE_OPER_LSHASS:
+	case NODE_OPER_RSH:
+	case NODE_OPER_RSHASS:
+	case NODE_OPER_BWANDASS:
+	case NODE_OPER_BWORASS:
+	case NODE_OPER_BWXORASS:
+	case NODE_OPER_LT:
+	case NODE_OPER_LE:
+	case NODE_OPER_GT:
+	case NODE_OPER_GE:
+	case NODE_OPER_EQ:
+	case NODE_OPER_NE:
+	case NODE_OPER_COMMA:
+		nargs = 2;
+		break;
+
+	case NODE_OPER_FNCALL:
 		nargs = 2;
 		break;
 
 	case NODE_DECL:
 		nargs = 2;
+		break;
+
+	case NODE_OPER_POSTINC:
+	case NODE_OPER_POSTDEC:
+		nargs = 1;
 		break;
 	
 	case NODE_TYPE_PTR:
@@ -96,6 +167,10 @@ node_t *node_create(int type, ...)
 	
 	case NODE_FUNDEF:
 		nargs = 4;
+		break;
+	
+	case NODE_OPER_COND:
+		nargs = 3;
 		break;
 	
 	case NODE_FUNDECL:

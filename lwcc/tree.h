@@ -55,7 +55,40 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #define NODE_OPER_MINUS     27  // subtraction
 #define NODE_OPER_TIMES     28  // multiplcation
 #define NODE_OPER_DIVIDE    29  // division
-#define NODE_NUMTYPES		30	// the number of node types
+#define NODE_OPER_MOD       30  // modulus
+#define NODE_OPER_COND      31  // ternary conditional
+#define NODE_OPER_FNCALL    32  // function call
+#define NODE_OPER_SUBSCRIPT 33  // array subscript
+#define NODE_OPER_POSTINC   34  // post increment
+#define NODE_OPER_POSTDEC   35  // post decrement
+#define NODE_OPER_PTRMEM    36  // member of pointer operator
+#define NODE_OPER_OBJMEM    37  // member of object operator
+#define NODE_OPER_LSH       38  // left shift
+#define NODE_OPER_RSH       39  // right shift
+#define NODE_OPER_LT        40  // less than
+#define NODE_OPER_LE        41  // less than or equal
+#define NODE_OPER_GT        42  // greater than
+#define NODE_OPER_GE        43  // greater than or equal
+#define NODE_OPER_EQ        44  // equality
+#define NODE_OPER_NE        45  // inequality
+#define NODE_OPER_BWAND     46  // bitwise and
+#define NODE_OPER_BWXOR     47  // bitwise xor
+#define NODE_OPER_BWOR      48  // bitwise or
+#define NODE_OPER_BAND      49  // boolean and
+#define NODE_OPER_BOR       50  // boolean or
+#define NODE_OPER_ASS       51  // assignment
+#define NODE_OPER_ADDASS    52  // add/assign combo
+#define NODE_OPER_SUBASS    53  // subtract/assign combo
+#define NODE_OPER_MULASS    54  // multiply/assign combo
+#define NODE_OPER_DIVASS    55  // divide/assign combo
+#define NODE_OPER_MODASS    56  // modulus/assign combo
+#define NODE_OPER_LSHASS    57  // left shift/assign combo
+#define NODE_OPER_RSHASS    58  // right shift/assign combo
+#define NODE_OPER_BWANDASS  59  // bitwise and/assign combo
+#define NODE_OPER_BWXORASS  60  // bitwise xor/assign combo
+#define NODE_OPER_BWORASS   61  // bitwise or/assign combo
+#define NODE_OPER_COMMA     62  // comma sequential evaluation operator
+#define NODE_NUMTYPES		63	// the number of node types
 
 typedef struct node_s node_t;
 

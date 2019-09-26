@@ -169,6 +169,8 @@ void parse_generr(struct parser_state *ps, char *tag)
 
 }
 
+node_t *parse_expr_real(struct parser_state *ps, int prec);
+
 node_t *parse_term_real(struct parser_state *ps)
 {
     node_t *rv;
@@ -185,13 +187,125 @@ node_t *parse_term_real(struct parser_state *ps)
     return NULL;
 }
 
+node_t *parse_expr_fncall(struct parser_state *ps, node_t *term1)
+{
+    if (ps -> curtok -> ttype != TOK_CPAREN)
+    {
+        node_destroy(term1);
+        parse_generr(ps, "missing )");
+        return NULL;
+    }
+    parse_next(ps);
+    return node_create(NODE_OPER_FNCALL, term1, NULL);
+}
+
+node_t *parse_expr_postinc(struct parser_state *ps, node_t *term1)
+{
+    return node_create(NODE_OPER_POSTINC, term1);
+}
+
+node_t *parse_expr_postdec(struct parser_state *ps, node_t *term1)
+{
+    return node_create(NODE_OPER_POSTDEC, term1);
+}
+
+node_t *parse_expr_subscript(struct parser_state *ps, node_t *term1)
+{
+    node_t *term2;
+    term2 = parse_expr_real(ps, 0);
+    if (!term2)
+    {
+        node_destroy(term1);
+        return NULL;
+    }
+    if (ps -> curtok -> ttype != TOK_CSQUARE)
+    {
+        node_destroy(term2);
+        node_destroy(term1);
+        parse_generr(ps, "missing ]");
+        return NULL;
+    }
+    parse_next(ps);
+    return node_create(NODE_OPER_SUBSCRIPT, term1, term2);
+}
+
+node_t *parse_expr_cond(struct parser_state *ps, node_t *term1)
+{
+    node_t *term2, *term3;
+    // conditional operator
+    // NOTE: the middle operand is evaluated as though it is its own
+    // independent expression because the : must appear. The third
+    // operand is evaluated at the ternary operator precedence so that
+    // subsequent operand binding behaves correctly (if surprisingly). This
+    // would be less confusing if the ternary operator was fully bracketed
+    // (that is, had a terminator)
+    term2 = parse_expr_real(ps, 0);
+    if (!term2)
+    {
+        node_destroy(term1);
+        return NULL;
+    }
+    if (ps -> curtok -> ttype == TOK_COLON)
+    {
+        parse_next(ps);
+        term3 = parse_expr_real(ps, 25);
+        if (!term3)
+        {
+            node_destroy(term1);
+            node_destroy(term2);
+            return NULL;
+        }
+        return node_create(NODE_OPER_COND, term1, term2, term3);
+    }
+    else
+    {
+        node_destroy(term1);
+        node_destroy(term2);
+        parse_generr(ps, "missing :");
+        return NULL;
+    }
+}
+
 node_t *parse_expr_real(struct parser_state *ps, int prec)
 {
-    static struct { int tok; int nodetype; int prec; } operlist[] = {
+    static struct { int tok; int nodetype; int prec; int ra; node_t *(*spec)(struct parser_state *, node_t *); } operlist[] = {
+//        { TOK_OPAREN, NODE_OPER_FNCALL, 200, 0, parse_expr_fncall },
+//        { TOK_OSQUARE, NODE_OPER_SUBSCRIPT, 200, 0, parse_expr_subscript },
+//        { TOK_ARROW, NODE_OPER_PTRMEM, 200, 0 },
+//        { TOK_DOT, NODE_OPER_OBJMEM, 200, 0 },
+//        { TOK_DBLADD, NODE_OPER_POSTINC, 200, 0, parse_expr_postinc },
+//        { TOK_DBLSUB, NODE_OPER_POSTDEC, 200, 0, parse_expr_postdec },
         { TOK_STAR, NODE_OPER_TIMES, 150 },
         { TOK_DIV, NODE_OPER_DIVIDE, 150 },
+        { TOK_MOD, NODE_OPER_MOD, 150 },
         { TOK_ADD, NODE_OPER_PLUS, 100 },
         { TOK_SUB, NODE_OPER_MINUS, 100 },
+        { TOK_LSH, NODE_OPER_LSH, 90 },
+        { TOK_RSH, NODE_OPER_RSH, 90 },
+        { TOK_LT, NODE_OPER_LT, 80 },
+        { TOK_LE, NODE_OPER_LE, 80 },
+        { TOK_GT, NODE_OPER_GT, 80 },
+        { TOK_GE, NODE_OPER_GE, 80 },
+        { TOK_EQ, NODE_OPER_EQ, 70 },
+        { TOK_NE, NODE_OPER_NE, 70 },
+        { TOK_BWAND, NODE_OPER_BWAND, 60},
+        { TOK_XOR, NODE_OPER_BWXOR, 55 },
+        { TOK_BWOR, NODE_OPER_BWOR, 50 },
+        { TOK_BAND, NODE_OPER_BAND, 40 },
+        { TOK_BOR, NODE_OPER_BOR, 35 },
+        { TOK_QMARK, NODE_OPER_COND, 25, 1, parse_expr_cond },
+//        { TOK_ASS, NODE_OPER_ASS, 20, 1 },
+//        { TOK_ADDASS, NODE_OPER_ADDASS, 20, 1 },
+//        { TOK_SUBASS, NODE_OPER_SUBASS, 20, 1 },
+//        { TOK_MULASS, NODE_OPER_MULASS, 20, 1 },
+//        { TOK_DIVASS, NODE_OPER_DIVASS, 20, 1 },
+//        { TOK_MODASS, NODE_OPER_MODASS, 20, 1 },
+//        { TOK_LSHASS, NODE_OPER_LSHASS, 20, 1 },
+//        { TOK_RSHASS, NODE_OPER_RSHASS, 20, 1 },
+//        { TOK_BWANDASS, NODE_OPER_BWANDASS, 20, 1},
+//        { TOK_BWORASS, NODE_OPER_BWORASS, 20, 1 },
+//        { TOK_XORASS, NODE_OPER_BWXORASS, 20, 1 },
+        { TOK_COMMA, NODE_OPER_COMMA, 1 },
         { 0, 0, 0 }
     };
     node_t *term1, *term2;
@@ -210,16 +324,35 @@ nextoper:
     if (operlist[i].tok == 0)
         return term1;
 
-    // is the next operator less or same precedence?
-    if (operlist[i].prec <= prec)
+    // is previous operation higher precedence? If so, just return the first term
+    if (operlist[i].prec < prec)
         return term1;
 
+    // is this operator left associative and previous operation is same precedence?
+    // if so, just return the first term
+    if (operlist[i].ra == 0 && operlist[i].prec == prec)
+        return term1;
+
+    // consume the operator
     parse_next(ps);
+    
+    // special handling
+    if (operlist[i].spec)
+    {
+        term2 = (operlist[i].spec)(ps, term1);
+        if (!term2)
+        {
+            node_destroy(term1);
+            return NULL;
+        }
+        term1 = term2;
+        goto nextoper;
+    }
     term2 = parse_expr_real(ps, operlist[i].prec);
     if (!term2)
     {
         parse_generr(ps, "expr");
-        node_destroy(term2);
+        node_destroy(term1);
     }
     
     term1 = node_create(operlist[i].nodetype, term1, term2);
