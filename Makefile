@@ -7,11 +7,6 @@
 #PROGSUFFIX := .exe
 #BUILDTPREFIX=i586-mingw32msvc-
 
-LWTOOLS_VERSION = 4.8
-LWTOOLS_VERSION_SUFFIX = -devcc
-
-PACKAGE_VERSION = $(LWTOOLS_VERSION)$(LWTOOLS_VERSION_SUFFIX)
-
 ifeq ($(PREFIX),)
 ifneq ($(DESTDIR),)
 PREFIX = /usr
@@ -181,7 +176,7 @@ extra_clean := $(extra_clean) *~ */*~
 
 %.o: %.c
 	@echo "Building dependencies for $@"
-	@$(CC) -MM -MG $(CPPFLAGS) -o $*.d $<
+	@$(CC) -MM $(CPPFLAGS) -o $*.d $<
 	@mv -f $*.d $*.d.tmp
 	@sed -e 's|.*:|$*.o $*.d:|' < $*.d.tmp > $*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
@@ -212,7 +207,8 @@ print-%:
 .PHONY: install
 install: $(MAIN_TARGETS)
 	install -d $(INSTALLDIR)
-	install $(MAIN_TARGETS) $(INSTALLDIR)
+	install -d $(INSTALLBIN)
+	install $(MAIN_TARGETS) $(INSTALLBIN)
 	install -d $(LWCC_INSTALLLIBDIR)
 	install -d $(LWCC_INSTALLLIBDIR)/bin
 	install -d $(LWCC_INSTALLLIBDIR)/lib
