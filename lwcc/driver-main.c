@@ -52,9 +52,9 @@ enum phase_t {
 
 /* these are the names of various programs the compiler calls */
 const char *linker_program_name = "lwlink";
-const char *compiler_program_name = "lwcc1";
+const char *compiler_program_name = "lwcc-cc";
 const char *assembler_program_name = "lwasm";
-const char *preprocessor_program_name = "lwcpp";
+const char *preprocessor_program_name = "lwcc-cpp";
 
 /* this will be set to the directory where temporary files get created */
 const char *temp_directory = NULL;
@@ -250,7 +250,7 @@ static int execute_program(lw_stringlist_t args)
 	lw_stringlist_reset(args);
 	for (result = 0, s = lw_stringlist_current(args); s; s = lw_stringlist_next(args))
 	{
-		argv[result] = s;
+		argv[result++] = s;
 	}
 	argv[result] = NULL;
 
@@ -462,6 +462,9 @@ static int assemble_file(const char *file, char *input, char **output, const cha
 	s = find_file(assembler_program_name, program_dirs, X_OK);
 	lw_stringlist_addstring(args, s);
 	lw_free(s);
+	
+	/* add some necessary args */
+	lw_stringlist_addstring(args, "--format=obj");
 	
 	/* add asm_args to argv */
 	lw_stringlist_reset(asm_args);
@@ -986,7 +989,7 @@ struct option_e optionlist[] =
 	{ "--sysroot=",			OPT_ARG_INC,	0,	0,					&sysroot,		cmdline_set_string },
 	{ "-B",					OPT_ARG_INC,	0,	0,					&basedir,		cmdline_set_string },
 	{ "-C",					OPT_ARG_OPT,	1,	0,					&preproc_args,	cmdline_arglist },
-	{ "-c",					OPT_ARG_OPT,	1,	PHASE_COMPILE,		&stop_after,	cmdline_set_intifzero },
+	{ "-c",					OPT_ARG_OPT,	1,	PHASE_ASSEMBLE,		&stop_after,	cmdline_set_intifzero },
 	{ "-D",					OPT_ARG_INC,	0,	0,					&preproc_args,	cmdline_arglist },
 	{ "-E",					OPT_ARG_OPT,	1,	PHASE_PREPROCESS,	&stop_after,	cmdline_set_intifzero },
 	{ "-fPIC",				OPT_ARG_OPT,	1,	2,					&pic_mode,		cmdline_set_int },
@@ -1002,7 +1005,7 @@ struct option_e optionlist[] =
 	{ "-nostdlib",			OPT_ARG_OPT,	1,	1,					&nostdlib,		cmdline_set_int },
 	{ "-O",					OPT_ARG_OPT,	0,	CMD_MISC_OPTIMIZE,	NULL,			cmdline_misc },
 	{ "-o",					OPT_ARG_SEP,	0,	2,					&output_file,	cmdline_set_stringifnull },
-	{ "-S",					OPT_ARG_OPT,	1,	PHASE_ASSEMBLE,		&stop_after,	cmdline_set_intifzero },
+	{ "-S",					OPT_ARG_OPT,	1,	PHASE_COMPILE,		&stop_after,	cmdline_set_intifzero },
 	{ "-save-temps",		OPT_ARG_OPT,	1,	1,					&save_temps,	cmdline_set_int },
 	{ "-trigraphs",			OPT_ARG_OPT,	1,	0,					&preproc_args,	cmdline_arglist },
 	{ "-U",					OPT_ARG_INC,	0,	0,					&preproc_args,	cmdline_arglist },
