@@ -20,6 +20,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <lw_alloc.h>
@@ -36,6 +37,65 @@ char *generate_nextlabel(void)
     return lw_strdup(buf);
 }
 
+void generate_code(node_t *n, FILE *output);
+
+void generate_code_shift(node_t *n, FILE *output, int dir)
+{
+    generate_code(n -> children, output);
+    if (n -> children -> next_child -> type == NODE_CONST_INT)
+    {
+        long ival;
+        int i;
+        ival = strtol(n -> children -> next_child -> strval, NULL, 0);
+        if (ival <= 0)
+            return;
+        if (ival >= 16)
+        {
+            fprintf(output, "\tldd #%d\n", dir == 1 ? 0 : -1);
+            return;
+        }
+        if (ival >= 8)
+        {
+            if (dir == 1)
+            {
+                fprintf(output, "\ttfr b,a\n\tclrb\n");
+                for (i = ival - 8; i > 0; i--)
+                {
+                    fprintf(output, "\tlsla\n");
+                }
+            }
+            else
+            {
+                fprintf(output, "\ttfr a,b\n\tsex\n");
+                for (i = ival - 8; i > 0; i--)
+                {
+                    fprintf(output, "\tasrb\n");
+                }
+            }
+            return;
+        }
+        for (i = ival; i > 0; i--)
+        {
+            if (dir == 1)
+            {
+                fprintf(output, "\taslb\n\trola\n");
+            }
+            else
+            {
+                fprintf(output, "\tasra\n\trorb\n");
+            }
+        }
+        return;
+    }
+    else
+    {
+        fprintf(output, "\tpshs d\n");
+        generate_code(n -> children -> next_child, output);
+        fprintf(output, "\tjsr ___%ssh16\n\tpuls d\n", dir == 1 ? "l" : "r");
+    }
+}
+
+
 void generate_code(node_t *n, FILE *output)
 {
     node_t *nn;
@@ -45,7 +105,7 @@ void generate_code(node_t *n, FILE *output)
     {
     // function definition - output prologue, then statements, then epilogue
     case NODE_FUNDEF:
-        fprintf(output, "_%s\n", n->children->next_child->strval);
+        fprintf(output, "\tsection .text\n\texport _%s\n_%s\n", n->children->next_child->strval, n->children->next_child->strval);
         generate_code(n->children->next_child->next_child->next_child, output);
         fprintf(output, "\trts\n");
         break;
@@ -72,21 +132,29 @@ void generate_code(node_t *n, FILE *output)
         generate_code(n -> children, output);
         fprintf(output, "\tpshs d\n");
         generate_code(n->children->next_child, output);
-        fprintf(output, "\tjsr ___mul16i\n");
+        fprintf(output, "\tjsr ___mul16i\n\tpuls d\n");
         break;
 
     case NODE_OPER_DIVIDE:
         generate_code(n -> children, output);
         fprintf(output, "\tpshs d\n");
         generate_code(n->children->next_child, output);
-        fprintf(output, "\tjsr ___div16i\n");
+        fprintf(output, "\tjsr ___div16i\n\tpuls d\n");
         break;
     
     case NODE_OPER_MOD:
         generate_code(n -> children, output);
         fprintf(output, "\tpshs d\n");
         generate_code(n -> children -> next_child, output);
-        fprintf(output, "\tjsr ___mod16i\n");
+        fprintf(output, "\tjsr ___mod16i\n\tpuls d\n");
+        break;
+
+    case NODE_OPER_LSH:
+        generate_code_shift(n, output, 1);
+        break;
+
+    case NODE_OPER_RSH:
+        generate_code_shift(n, output, 0);
         break;
 
     case NODE_OPER_COND:
