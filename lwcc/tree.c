@@ -90,6 +90,7 @@ static char *node_names[] = {
 	"OPER_BWXORASS",
 	"OPER_BWORASS",
 	"OPER_COMMA",
+	"TYPECAST",
 };
 
 
@@ -148,6 +149,10 @@ node_t *node_create(int type, ...)
 		break;
 
 	case NODE_DECL:
+		nargs = 2;
+		break;
+
+	case NODE_TYPECAST:
 		nargs = 2;
 		break;
 

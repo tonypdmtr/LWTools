@@ -88,7 +88,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #define NODE_OPER_BWXORASS  60  // bitwise xor/assign combo
 #define NODE_OPER_BWORASS   61  // bitwise or/assign combo
 #define NODE_OPER_COMMA     62  // comma sequential evaluation operator
-#define NODE_NUMTYPES		63	// the number of node types
+#define NODE_TYPECAST       63  // type cast to unsigned long long
+#define NODE_NUMTYPES		64	// the number of node types
 
 typedef struct node_s node_t;
 

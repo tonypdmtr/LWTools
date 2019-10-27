@@ -171,14 +171,133 @@ void parse_generr(struct parser_state *ps, char *tag)
 
 node_t *parse_expr_real(struct parser_state *ps, int prec);
 
-node_t *parse_term_real(struct parser_state *ps)
+// parse an elementary type (int, etc.)
+node_t *parse_elem_type(struct parser_state *ps)
+{
+    int sgn = -1;
+    int nt = -1;
+    int nn = 1;
+
+    if (ps -> curtok -> ttype == TOK_KW_SIGNED)
+    {
+        sgn = 1;
+        parse_next(ps);
+    }
+    else if (ps -> curtok -> ttype == TOK_KW_UNSIGNED)
+    {
+        sgn = 0;
+        parse_next(ps);
+    }
+    
+    switch (ps -> curtok -> ttype)
+    {
+    // NOTE: char is unsigned by default
+    case TOK_KW_CHAR:
+        if (sgn == -1 || sgn == 0)
+            nt = NODE_TYPE_UCHAR;
+        else
+            nt = NODE_TYPE_CHAR;
+        break;
+    
+    case TOK_KW_SHORT:
+        nt = sgn ? NODE_TYPE_SHORT : NODE_TYPE_USHORT;
+        break;
+    
+    case TOK_KW_INT:
+        nt = sgn ? NODE_TYPE_INT : NODE_TYPE_UINT;
+        break;
+    
+    case TOK_KW_LONG:
+        parse_next(ps);
+        if (ps -> curtok -> ttype == TOK_KW_LONG)
+        {
+            nt = sgn ? NODE_TYPE_LONGLONG : NODE_TYPE_ULONGLONG;
+            break;
+        }
+        nn = 0;
+        nt = sgn ? NODE_TYPE_LONG : NODE_TYPE_ULONG;
+        break;
+    
+    }
+    if (nt == -1)
+    {
+        if (sgn == -1)
+        {
+            return NULL;
+        }
+        else
+        {
+            nt = sgn ? NODE_TYPE_INT : NODE_TYPE_UINT;
+        }
+    }
+    else if (nn)
+    {
+        parse_next(ps);
+    }
+    return node_create(nt);
+}
+
+// if ident is non-zero, accept an identifier as part of the type; otherwise
+// do not accept an identifier; currently a stub
+node_t *parse_type(struct parser_state *ps, int ident)
 {
     node_t *rv;
+
+    // see if we have an elementary type
+    rv = parse_elem_type(ps);
+
+    // look for "struct", etc.
+
+    // look for pointer indicator(s)
+
+    // look for identifier if wanted/allowed
+
+    // look for array indicator or function parameter list
+    return rv;
+}
+
+node_t *parse_term_real(struct parser_state *ps)
+{
+    node_t *rv, *rv2;
 
     switch (ps -> curtok -> ttype)
     {
     case TOK_CONST_INT:
         rv = node_create(NODE_CONST_INT, ps -> curtok -> strval);
+        parse_next(ps);
+        return rv;
+     
+    // opening paren: either grouping or type cast
+    case TOK_OPAREN:
+        parse_next(ps);
+        // parse a type without an identifier
+        rv2 = parse_type(ps, 0);
+        if (rv2)
+        {
+            if (ps -> curtok -> ttype != TOK_CPAREN)
+            {   
+                node_destroy(rv2);
+                parse_generr(ps, "missing ) on type cast");
+                return NULL;
+            }
+            parse_next(ps);
+            // detect C99 compound literal here
+            rv = parse_expr_real(ps, 175);
+            if (!rv)
+            {
+                node_destroy(rv);
+                return NULL;
+            }
+            return node_create(NODE_TYPECAST, rv2, rv);
+        }
+        // grouping
+        rv = parse_expr_real(ps, 0);
+        if (ps -> curtok -> ttype != TOK_CPAREN)
+        {
+            node_destroy(rv);
+            parse_generr(ps, "missing ) on expression grouping");
+            return NULL;
+        }
         parse_next(ps);
         return rv;
     }
