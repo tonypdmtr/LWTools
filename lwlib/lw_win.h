@@ -29,8 +29,4 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #define strncasecmp _strnicmp
 #define unlink _unlink
 
-int c99_snprintf(char* str, size_t size, const char* format, ...);
-
-#define snprintf c99_snprintf
-
 #endif /* ___lw_win_h_seen___ */
