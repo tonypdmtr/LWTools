@@ -50,6 +50,7 @@ static struct lw_cmdline_options options[] =
 	{ "symbols",	's',	0,			lw_cmdline_opt_optional,	"Generate symbol list in listing, no effect without --list"},
 	{ "symbols-nolocals", 0x103,	0,	lw_cmdline_opt_optional,	"Same as --symbols but with local labels ignored"},
 	{ "symbol-dump", 0x106, "FILE",		lw_cmdline_opt_optional,	"Dump global symbol table in assembly format" },
+	{ "audit",		'a',	"FILE",		lw_cmdline_opt_optional,	"Output a list of CPU features used (opcodes, addressing modes, etc.)" },
 	{ "tabs",		't',	"WIDTH",	0,							"Set tab spacing in listing (0=don't expand tabs)" },
 	{ "map",		'm',	"FILE",		lw_cmdline_opt_optional,	"Generate map [to FILE]"},
 	{ "decb",		'b',	0,			0,							"Generate DECB .bin format output, equivalent of --format=decb"},
@@ -136,6 +137,18 @@ static int parse_opts(int key, char *arg, void *state)
 	case 't':
 		if (arg)
 			as -> tabwidth = atoi(arg);
+		break;
+
+	case 'a':
+		if (as -> audit_file)
+			lw_free(as -> audit_file);
+
+		if (!arg)
+			as -> audit_file = lw_strdup("-");
+		else
+			as -> audit_file = lw_strdup(arg);
+
+		as -> flags |= FLAG_AUDIT;
 		break;
 
 	case 'l':
@@ -288,6 +301,7 @@ void do_output(asmstate_t *as);
 void do_symdump(asmstate_t *as);
 void do_list(asmstate_t *as);
 void do_map(asmstate_t *as);
+void do_audit(asmstate_t *as);
 lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv);
 lw_expr_t lwasm_evaluate_var(char *var, void *priv);
 lw_expr_t lwasm_parse_term(char **p, void *priv);
@@ -405,6 +419,7 @@ int main(int argc, char **argv)
 	do_symdump(&asmstate);
 	do_list(&asmstate);
 	do_map(&asmstate);
+	do_audit(&asmstate);
 
 	if (asmstate.testmode_errorcount > 0) exit(1);
 

@@ -68,16 +68,17 @@ enum lwasm_output_e
 
 enum lwasm_flags_e
 {
-	FLAG_LIST = 0x0001,
-	FLAG_DEPEND = 0x0002,
-	FLAG_SYMBOLS = 0x004,
-	FLAG_DEPENDNOERR = 0x0008,
-	FLAG_UNICORNS = 0x0010,
-	FLAG_MAP = 0x0020,
-	FLAG_SYMBOLS_NOLOCALS = 0x0040,
-	FLAG_NOOUT = 0x80,
-	FLAG_SYMDUMP = 0x100,
-	FLAG_NONE = 0
+	FLAG_NONE = 0,
+	FLAG_LIST					= 1 << 0,
+	FLAG_DEPEND					= 1 << 1,
+	FLAG_SYMBOLS				= 1 << 2,
+	FLAG_DEPENDNOERR			= 1 << 3,
+	FLAG_UNICORNS				= 1 << 4,
+	FLAG_MAP					= 1 << 5,
+	FLAG_SYMBOLS_NOLOCALS		= 1 << 6,
+	FLAG_NOOUT					= 1 << 7,
+	FLAG_SYMDUMP				= 1 << 8,
+	FLAG_AUDIT					= 1 << 9
 };
 
 enum lwasm_pragmas_e
@@ -418,6 +419,7 @@ struct asmstate_s
 	importlist_t *importlist;			// list of imported symbols
 	char *list_file;					// name of file to list to
 	char *symbol_dump_file;				// name of file to dump symbol table to
+	char *audit_file;					// name of file to output used opcodes to
 	int tabwidth;						// tab width in list file
 	char *map_file;						// name of map file
 	char *output_file;					// output file name	

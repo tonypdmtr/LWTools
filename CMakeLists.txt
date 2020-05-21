@@ -22,6 +22,7 @@ add_library(lwlib
 )
 
 add_executable(lwasm 
+    lwasm/audit.c
     lwasm/cycle.c
     lwasm/debug.c
     lwasm/input.c
