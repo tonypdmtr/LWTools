@@ -1,0 +1,13 @@
+version: build.{build}
+
+image: Visual Studio 2019
+
+platform: x64
+
+build_script:
+  - cmd: mkdir build
+  - cmd: cd build
+  - cmd: cmake .. 
+  - cmd: cmake --build . --config Debug
+  - cmd: cmake --build . --clean-first --config Release
+
