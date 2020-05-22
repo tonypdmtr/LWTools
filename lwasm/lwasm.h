@@ -78,7 +78,8 @@ enum lwasm_flags_e
 	FLAG_SYMBOLS_NOLOCALS		= 1 << 6,
 	FLAG_NOOUT					= 1 << 7,
 	FLAG_SYMDUMP				= 1 << 8,
-	FLAG_AUDIT					= 1 << 9
+	FLAG_AUDIT					= 1 << 9,
+	FLAG_CMT					= 1 << 10
 };
 
 enum lwasm_pragmas_e
@@ -419,7 +420,9 @@ struct asmstate_s
 	importlist_t *importlist;			// list of imported symbols
 	char *list_file;					// name of file to list to
 	char *symbol_dump_file;				// name of file to dump symbol table to
-	char *audit_file;					// name of file to output used opcodes to
+	char *audit_file;					// name of file to output audit file to
+	char *cmt_file;						// name of file to output cmt file to
+	char *cmt_system;					// system the cmt file applies to
 	int tabwidth;						// tab width in list file
 	char *map_file;						// name of map file
 	char *output_file;					// output file name	

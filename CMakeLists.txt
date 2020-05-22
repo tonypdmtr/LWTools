@@ -24,6 +24,7 @@ add_library(lwlib
 add_executable(lwasm 
     lwasm/audit.c
     lwasm/cycle.c
+    lwasm/cmt.c
     lwasm/debug.c
     lwasm/input.c
     lwasm/insn_bitbit.c

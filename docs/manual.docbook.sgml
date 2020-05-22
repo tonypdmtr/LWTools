@@ -389,6 +389,26 @@ Behaves just like <option>--symbols</option> but with local labels omitted.
 </varlistentry>
 
 <varlistentry>
+<term><option>--cmt=FILE</option></term>
+<listitem>
+<para>
+This option generates a listing file in an XML format supported by the MAME debugger.
+</para>
+</listitem>
+</varlistentry>  
+
+<varlistentry>
+<term><option>--cmt-system=SYS</option></term>
+<listitem>
+<para>
+MAME comment files are tied to a specific system/driver. The default is coco3 but you can
+override with others such as coco, coco2, coco3h, etc. This option sets the system string
+inside the XML file.
+</para>
+</listitem>
+</varlistentry> 
+  
+<varlistentry>
 <term><option>--audit[=file]</option></term>
 <term><option>-a[file]</option></term>
 <listitem>
@@ -403,14 +423,12 @@ it will go to the standard output stream. By default, no audit file is generated
 </para>
 </listitem>
 </varlistentry>   
-  
+    
 <varlistentry>
 <term><option>--map=FILE</option></term>
 <listitem>
 <para>
-
-This option generates a map file which can be used by debuggers and monitors to provide symbol information. A map file may be created independent of a listing file. (Patches are pending for MAME and exec09.)
-
+This option generates a map file which can be used by debuggers and monitors to provide symbol information. A map file may be created independent of a listing file.
 </para>
 </listitem>
 </varlistentry>
