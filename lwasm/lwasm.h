@@ -30,7 +30,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 #include <lw_stringlist.h>
 #include <lw_stack.h>
 
-#include <version.h>
+#include "../common/version.h"
 
 // these are allowed chars BELOW 0x80 for symbols
 // first is symbol start chars, second is anywhere in symbol
@@ -153,7 +153,7 @@ typedef enum
 	TF_ERROR = 2
 } lwasm_testflags_t;
 
-typedef enum 
+typedef enum
 {
 	E_6309_INVALID				= 1,
 	E_6809_INVALID				= 2,
@@ -214,7 +214,7 @@ typedef enum
 	E_ORG_NOT_FOUND				= 57,
 	E_COMPLEX_INCOMPLETE        = 58,
 	E_ILL5						= 59,
-	
+
 	/* warnings must be 1000 or greater */
 
 	W_DUPLICATE_SECTION			= 1000,
@@ -311,7 +311,7 @@ struct line_s
 
 	int noexpand_start;					// start of a no-expand block
 	int noexpand_end;					// end of a no-expand block
-	int hideline;						// set if we're going to hide this line on output	
+	int hideline;						// set if we're going to hide this line on output
 	int hidecond;                       // set if we're going to hide this line due to condition hiding
 };
 
@@ -392,7 +392,7 @@ struct asmstate_s
 	int instruct;						// are w in a structure?
 	int skipcond;						// skipping a condition?
 	int skipcount;						// depth of "skipping"
-	int skipmacro;						// are we skipping in a macro?	
+	int skipmacro;						// are we skipping in a macro?
 	int endseen;						// have we seen an "end" pseudo?
 	int execaddr;						// address from "end"
 	lw_expr_t execaddr_expr;            // address from "end" but as an expression
@@ -407,12 +407,12 @@ struct asmstate_s
 	line_t *line_tail;					// tail of lines list
 
 	line_t *cl;							// current line pointer
-	
+
 	sectiontab_t *csect;				// current section
-	
+
 	int context;						// the current "context"
 	int nextcontext;					// the next available context
-	
+
 	symtab_t symtab;					// meta data for the symbol table
 	macrotab_t *macros;					// macro table
 	sectiontab_t *sections;				// section table
@@ -425,7 +425,7 @@ struct asmstate_s
 	char *cmt_system;					// system the cmt file applies to
 	int tabwidth;						// tab width in list file
 	char *map_file;						// name of map file
-	char *output_file;					// output file name	
+	char *output_file;					// output file name
 	lw_stringlist_t input_files;		// files to assemble
 	void *input_data;					// opaque data used by the input system
 	lw_stringlist_t include_list;		// include paths
@@ -434,7 +434,7 @@ struct asmstate_s
 
 	structtab_t *structs;				// defined structures
 	structtab_t *cstruct;				// current structure
-	lw_expr_t savedaddr;				// old address counter before struct started	
+	lw_expr_t savedaddr;				// old address counter before struct started
 	int exportcheck;					// set if we need to collapse out the section base to 0
 	int passno;							// set to the current pass number
 	int preprocess;						// set if we are prepocessing

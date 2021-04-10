@@ -29,7 +29,7 @@ Implements the program startup code
 #include <sys/stat.h>
 
 #include <lw_cmdline.h>
-#include <version.h>
+#include "../common/version.h"
 
 #include "lwar.h"
 
@@ -51,22 +51,22 @@ static int parse_opts(int key, char *arg, void *state)
 		// debug
 		debug_level++;
 		break;
-	
+
 	case 'n':
 		// filename only, no path
 		filename_flag++;
 		break;
-	
+
 	case 'a':
 		// add members
 		operation = LWAR_OP_ADD;
 		break;
-	
+
 	case 'c':
 		// create archive
 		operation = LWAR_OP_CREATE;
 		break;
-	
+
 	case 'm':
 		mergeflag = 1;
 		break;
@@ -75,12 +75,12 @@ static int parse_opts(int key, char *arg, void *state)
 		// replace members
 		operation = LWAR_OP_REPLACE;
 		break;
-	
+
 	case 'l':
 		// list members
 		operation = LWAR_OP_LIST;
 		break;
-	
+
 	case 'x':
 		// extract members
 		operation = LWAR_OP_EXTRACT;
@@ -95,7 +95,7 @@ static int parse_opts(int key, char *arg, void *state)
 		else
 			archive_file = arg;
 		break;
-		
+
 	case lw_cmdline_key_end:
 		break;
 
@@ -195,29 +195,29 @@ int main(int argc, char **argv)
 				perror("");
 				exit(2);
 			}
-				
+
 		}
 	}
-	
+
 	switch (operation)
 	{
 	case LWAR_OP_LIST:
 		do_list();
 		break;
-	
+
 	case LWAR_OP_ADD:
 	case LWAR_OP_CREATE:
 		do_add();
 		break;
-	
+
 	case LWAR_OP_REMOVE:
 		do_remove();
 		break;
-	
+
 	case LWAR_OP_REPLACE:
 		do_replace();
 		break;
-	
+
 	case LWAR_OP_EXTRACT:
 		do_extract();
 		break;

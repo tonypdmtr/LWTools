@@ -29,7 +29,7 @@ Implements the program startup code
 
 #include <lw_cmdline.h>
 
-#include <version.h>
+#include "../common/version.h"
 
 #include "lwlink.h"
 
@@ -52,7 +52,7 @@ static int parse_opts(int key, char *arg, void *state)
 		// output
 		outfile = arg;
 		break;
-	
+
 	case 's':
 		// script file
 		scriptfile = arg;
@@ -67,17 +67,17 @@ static int parse_opts(int key, char *arg, void *state)
 		// entry symbol
 		entrysym = arg;
 		break;
-	
+
 	case 'b':
 		// decb output
 		outformat = OUTPUT_DECB;
 		break;
-	
+
 	case 'r':
 		// raw binary output
 		outformat = OUTPUT_RAW;
 		break;
-	
+
 	case 'f':
 		// output format
 		if (!strcasecmp(arg, "decb"))
@@ -101,31 +101,31 @@ static int parse_opts(int key, char *arg, void *state)
 		if (!outfile)
 			outfile = "a.out";
 		break;
-	
+
 	case 'l':
 		add_input_library(arg);
 		break;
-	
+
 	case 'L':
 		add_library_search(arg);
 		break;
-	
+
 	case 0x100:
 		add_section_base(arg);
 		break;
-	
+
 	case 0x101:
 		sysroot = arg;
 		break;
-	
+
 	case 'm':
 		map_file = arg;
 		break;
-	
+
 	case lw_cmdline_key_arg:
 		add_input_file(arg);
 		break;
-		
+
 	default:
 		return lw_cmdline_err_unknown;
 	}
@@ -208,19 +208,19 @@ int main(int argc, char **argv)
 	// trace unresolved references and determine which non-forced
 	// objects must be included
 	resolve_files();
-	
+
 	// resolve section bases and section order
 	resolve_sections();
 
 	// generate symbols
 	generate_symbols();
-	
+
 	// resolve incomplete references
 	resolve_references();
 
 	// resolve section padding bits
 	resolve_padding();
-	
+
 	// do the actual output
 	do_output();
 
