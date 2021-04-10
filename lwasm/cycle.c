@@ -312,8 +312,8 @@ static cycletable_t cycletable[] =
 	{ 0x1025, 5, 5, 0 },				// 6309 native: always 5 cycles
 	{ 0x1026, 5, 5, 0 },				//
 	{ 0x1027, 5, 5, 0 },				// this is handled as a special case elsewhere
-	{ 0x1028, 5, 5, 0 },		
-	{ 0x1029, 5, 5, 0 },		
+	{ 0x1028, 5, 5, 0 },
+	{ 0x1029, 5, 5, 0 },
 	{ 0x102a, 5, 5, 0 },
 	{ 0x102b, 5, 5, 0 },
 	{ 0x102c, 5, 5, 0 },
@@ -397,7 +397,7 @@ static cycletable_t cycletable[] =
 	{ 0x3d, 11, 10, 0 },				// MUL
 
 	{ 0x118f, 28, 28, 0 },				// MULD
-	{ 0x119f, 30, 29, 0 },	
+	{ 0x119f, 30, 29, 0 },
 	{ 0x11af, 30, 30, CYCLE_ADJ },
 	{ 0x11bf, 31, 30, 0 },
 
@@ -570,9 +570,9 @@ static cycletable_t cycletable[] =
 	{ 0x7b, 7, 7, 0 },
 
 	{ 0x1138, 6, 6, CYCLE_ESTIMATED },	// TFM
-	{ 0x1139, 6, 6, CYCLE_ESTIMATED },	
-	{ 0x113a, 6, 6, CYCLE_ESTIMATED },	
-	{ 0x113b, 6, 6, CYCLE_ESTIMATED },	
+	{ 0x1139, 6, 6, CYCLE_ESTIMATED },
+	{ 0x113a, 6, 6, CYCLE_ESTIMATED },
+	{ 0x113b, 6, 6, CYCLE_ESTIMATED },
 
 	{ 0x4d, 2, 1, 0 },					// TSTA
 	{ 0x5d, 2, 1, 0 },					// TSTB
@@ -598,9 +598,9 @@ typedef struct
 
 static indtab_t indtab[] =
 {
-	{ 2, 1, -1, -1, },	// 0000		,R+   
+	{ 2, 1, -1, -1, },	// 0000		,R+
 	{ 3, 2, 6, 6, },	// 0001		,R++	[,R++]
-	{ 2, 1, -1, -1, },	// 0010		,-R   
+	{ 2, 1, -1, -1, },	// 0010		,-R
 	{ 3, 2, 6, 6, },	// 0011		,--R	[,--R]
 	{ 0, 0, 3, 3, },	// 0100		,R		[,R]
 	{ 1, 1, 4, 4, },	// 0101		B,R		[B,R]
@@ -608,8 +608,8 @@ static indtab_t indtab[] =
 	{ 1, 1, 1, 1, },	// 0111		E,R		[E,R]
 	{ 1, 1, 4, 4, },	// 1000		n,R		[n,R]
 	{ 4, 3, 7, 7, },	// 1001		n,R		[n,R]  (16 bit)
-	{ 1, 1, 1, 1, },	// 1010		F,R		[F,R] 
-	{ 4, 2, 4, 4, },	// 1011		D,R		[D,R] 
+	{ 1, 1, 1, 1, },	// 1010		F,R		[F,R]
+	{ 4, 2, 4, 4, },	// 1011		D,R		[D,R]
 	{ 1, 1, 4, 4, },	// 1100		n,PC	[n,PC]
 	{ 5, 3, 8, 8, },	// 1101		n,PC	[n,PC] (16 bit)
 	{ 4, 1, 4, 4, },	// 1110		W,R		[W,R]

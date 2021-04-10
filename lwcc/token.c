@@ -29,7 +29,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 struct token *token_create(int ttype, char *strval, int row, int col, const char *fn)
 {
 	struct token *t;
-	
+
 	t = lw_alloc(sizeof(struct token));
 	t -> ttype = ttype;
 	if (strval)
@@ -54,7 +54,7 @@ void token_free(struct token *t)
 struct token *token_dup(struct token *t)
 {
 	struct token *t2;
-	
+
 	t2 = lw_alloc(sizeof(struct token));
 	t2 -> ttype = t -> ttype;
 	t2 -> lineno = t -> lineno;
@@ -211,13 +211,13 @@ void token_list_prepend(struct token_list *tl, struct token *tok)
 void token_list_insert(struct token_list *tl, struct token *after, struct token *newt)
 {
 	struct token *t;
-	
+
 	if (after == NULL || tl -> head == NULL)
 	{
 		token_list_prepend(tl, newt);
 		return;
 	}
-	
+
 	for (t = tl -> head; t && t != after; t = t -> next)
 		/* do nothing */ ;
 	if (!t)
@@ -238,7 +238,7 @@ struct token_list *token_list_dup(struct token_list *tl)
 {
 	struct token_list *nl;
 	struct token *t;
-	
+
 	nl = token_list_create();
 	for (t = tl -> head; t; t = t -> next)
 	{

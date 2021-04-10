@@ -67,7 +67,7 @@ void do_pass1(asmstate_t *as)
 	int opnum;
 	int lc = 1;
 	int nomacro;
-	
+
 	for (;;)
 	{
 		nomacro = 0;
@@ -108,7 +108,7 @@ void do_pass1(asmstate_t *as)
 			continue;
 		}
 		debug_message(as, 75, "Read line: %s", line);
-		
+
 		cl = lw_alloc(sizeof(line_t));
 		memset(cl, 0, sizeof(line_t));
 		cl -> outputl = -1;
@@ -163,7 +163,7 @@ void do_pass1(asmstate_t *as)
 
 			// carry DP value forward
 			cl -> dpval = cl -> prev -> dpval;
-			
+
 		}
 		debug_message(as, 100, "Line pointer: %p", cl);
 		if (!lc && strcmp(cl -> linespec, cl -> prev -> linespec))
@@ -181,7 +181,7 @@ void do_pass1(asmstate_t *as)
 			as -> context = lwasm_next_context(as);
 			goto nextline;
 		}
-	
+
 		// skip comments
 		// comments do not create a context break
 		if (*line == '*' || *line == ';' || *line == '#')
@@ -231,7 +231,7 @@ void do_pass1(asmstate_t *as)
 		// find the end of the first token
 		for (tok = p1; *p1 && !isspace(*p1) && *p1 != ':' && *p1 != '='; p1++)
 			/* do nothing */ ;
-		
+
 		if (*p1 == ':' || *p1 == '=' || stspace == 0)
 		{
 			if (*tok == '*' || *tok == ';' || *tok == '#')
@@ -242,7 +242,7 @@ void do_pass1(asmstate_t *as)
 				p1++;
 			for (; *p1 && isspace(*p1); p1++)
 				/* do nothing */ ;
-		
+
 			if (*p1 == '=')
 			{
 				tok = p1++;
@@ -258,9 +258,9 @@ void do_pass1(asmstate_t *as)
 		else if (sym)
 			cl -> sym = lw_strdup(sym);
 		cl -> symset = 0;
-		
+
 		// tok points to the opcode for the line or NUL if none
-		
+
 		// if the first two chars of the opcode are "??", that's
 		// a flag to inhibit macro expansion
 		if (*tok && tok[0] == '?' && tok[1] == '?')
@@ -300,14 +300,14 @@ void do_pass1(asmstate_t *as)
 				if (!strcasecmp(instab[opnum].opcode, sym))
 					break;
 			}
-			
+
 			// have to go to linedone here in case there was a symbol
 			// to register on this line
 			if (instab[opnum].opcode == NULL && (*tok == '*' || *tok == ';' || *tok == '#'))
 				goto linedone;
-			
+
 			// p1 points to the start of the operand
-			
+
 			// if we're inside a macro definition and not at ENDM,
 			// add the line to the macro definition and continue
 			if (as -> inmacro && !(instab[opnum].flags & lwasm_insn_endm))
@@ -315,13 +315,13 @@ void do_pass1(asmstate_t *as)
 				add_macro_line(as, line);
 				goto linedone;
 			}
-			
+
 			// if skipping a condition and the operation code doesn't
 			// operate within a condition (not a conditional)
 			// do nothing
 			if (as -> skipcond && !(instab[opnum].flags & lwasm_insn_cond))
 				goto linedone;
-        	
+
 			if (!nomacro && (as->pragmas & PRAGMA_SHADOW))
         	{
         		// check for macros even if they shadow real operations
@@ -332,7 +332,7 @@ void do_pass1(asmstate_t *as)
         			goto linedone;
         		}
         	}
-        	
+
 			if (instab[opnum].opcode == NULL ||
 				(CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6309)) ||
 				(!CURPRAGMA(cl, PRAGMA_6809) && (instab[opnum].flags & lwasm_insn_is6809))
@@ -407,7 +407,7 @@ void do_pass1(asmstate_t *as)
 								lwasm_register_error2(as, cl, E_OPERAND_BAD, "%s", p1);
 							}
 						}
-						
+
 						/* do a reduction on the line expressions to avoid carrying excessive expression baggage if not needed */
 						lwasm_reduce_line_exprs(cl);
 					}
@@ -418,14 +418,14 @@ void do_pass1(asmstate_t *as)
 				}
 			}
 		}
-	
+
 	linedone:
 		if (!as -> skipcond && !as -> inmacro)
 		{
 			if (cl -> sym && cl -> symset == 0)
 			{
 				debug_message(as, 50, "Register symbol %s: %s", cl -> sym, lw_expr_print(cl -> addr));
-	
+
 				// register symbol at line address
 				if (instab[cl -> insn].flags & lwasm_insn_setdata)
 				{
@@ -450,19 +450,19 @@ void do_pass1(asmstate_t *as)
 			cl -> hideline = 1;
 		if (as -> skipcond)
 			cl -> hidecond = 1;
-		
+
 	nextline:
 		if (sym)
 			lw_free(sym);
 		sym = NULL;
-		
+
 		lw_free(line);
-		
+
 		if (as -> preprocess && cl -> hideline == 0)
 		{
 			printf("%s\n", cl -> ltext);
 		}
-		
+
 		// if we've hit the "end" bit, finish out
 		if (as -> endseen)
 			return;

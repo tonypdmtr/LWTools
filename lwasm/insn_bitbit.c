@@ -85,7 +85,7 @@ PARSEFUNC(insn_parse_bitbit)
 	// ignore base page address modifier
 	if (**p == '<')
 		(*p)++;
-			
+
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
@@ -102,7 +102,7 @@ EMITFUNC(insn_emit_bitbit)
 {
 	int v1, v2;
 	lw_expr_t e;
-	
+
 	e = lwasm_fetch_expr(l, 0);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
@@ -129,7 +129,7 @@ EMITFUNC(insn_emit_bitbit)
 		v2 = 0;
 	}
 	l -> pb = (l -> lint << 6) | (v1 << 3) | v2;
-	
+
 	e = lwasm_fetch_expr(l, 2);
 	if (lw_expr_istype(e, lw_expr_type_int))
 	{

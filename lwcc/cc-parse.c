@@ -110,7 +110,7 @@ struct token *parse_next(struct parser_state *ps)
 {
     struct token *tok;
     int i;
-    
+
     for (;;)
     {
         tok = preproc_next(ps -> pp);
@@ -188,7 +188,7 @@ node_t *parse_elem_type(struct parser_state *ps)
         sgn = 0;
         parse_next(ps);
     }
-    
+
     switch (ps -> curtok -> ttype)
     {
     // NOTE: char is unsigned by default
@@ -198,15 +198,15 @@ node_t *parse_elem_type(struct parser_state *ps)
         else
             nt = NODE_TYPE_CHAR;
         break;
-    
+
     case TOK_KW_SHORT:
         nt = sgn ? NODE_TYPE_SHORT : NODE_TYPE_USHORT;
         break;
-    
+
     case TOK_KW_INT:
         nt = sgn ? NODE_TYPE_INT : NODE_TYPE_UINT;
         break;
-    
+
     case TOK_KW_LONG:
         parse_next(ps);
         if (ps -> curtok -> ttype == TOK_KW_LONG)
@@ -217,7 +217,7 @@ node_t *parse_elem_type(struct parser_state *ps)
         nn = 0;
         nt = sgn ? NODE_TYPE_LONG : NODE_TYPE_ULONG;
         break;
-    
+
     }
     if (nt == -1)
     {
@@ -266,7 +266,7 @@ node_t *parse_term_real(struct parser_state *ps)
         rv = node_create(NODE_CONST_INT, ps -> curtok -> strval);
         parse_next(ps);
         return rv;
-     
+
     // opening paren: either grouping or type cast
     case TOK_OPAREN:
         parse_next(ps);
@@ -275,7 +275,7 @@ node_t *parse_term_real(struct parser_state *ps)
         if (rv2)
         {
             if (ps -> curtok -> ttype != TOK_CPAREN)
-            {   
+            {
                 node_destroy(rv2);
                 parse_generr(ps, "missing ) on type cast");
                 return NULL;
@@ -429,7 +429,7 @@ node_t *parse_expr_real(struct parser_state *ps, int prec)
     };
     node_t *term1, *term2;
     int i;
-    
+
     term1 = parse_term_real(ps);
     if (!term1)
         return NULL;
@@ -454,7 +454,7 @@ nextoper:
 
     // consume the operator
     parse_next(ps);
-    
+
     // special handling
     if (operlist[i].spec)
     {
@@ -473,7 +473,7 @@ nextoper:
         parse_generr(ps, "expr");
         node_destroy(term1);
     }
-    
+
     term1 = node_create(operlist[i].nodetype, term1, term2);
     term2 = NULL;
     goto nextoper;
@@ -506,7 +506,7 @@ node_t *parse_statement(struct parser_state *ps)
     default:
         return NULL;
     }
-    
+
     if (ps -> curtok -> ttype != TOK_EOS)
         parse_generr(ps, "statement");
     else
@@ -543,10 +543,10 @@ node_t *parse_globaldecl(struct parser_state *ps)
         if (ps -> curtok -> ttype != TOK_CBRACE)
             goto error;
         parse_next(ps);
-        lw_free(fnname);        
+        lw_free(fnname);
         return rv;
-    }        
-        
+    }
+
 
 error:
     if (fnname)
@@ -560,7 +560,7 @@ node_t *parse_program(struct preproc_info *pp)
     node_t *rv;
     node_t *node;
     struct parser_state ps;
-    
+
     ps.pp = pp;
     ps.curtok = NULL;
 

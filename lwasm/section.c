@@ -40,7 +40,7 @@ PARSEFUNC(pseudo_parse_section)
 		lwasm_register_error(as, l, E_SECTION_TARGET);
 		return;
 	}
-	
+
 	if (!**p)
 	{
 		lwasm_register_error(as, l, E_SECTION_NAME);
@@ -55,21 +55,21 @@ PARSEFUNC(pseudo_parse_section)
 		as -> csect -> offset = lw_expr_copy(l -> addr);
 		as -> csect = NULL;
 	}
-	
+
 	for (p2 = *p; *p2 && *p2 != ',' && !isspace(*p2); p2++)
 		/* do nothing */ ;
-	
+
 	sn = lw_strndup(*p, p2 - *p);
 	*p = p2;
-	
+
 	if (**p == ',' && as -> output_format != OUTPUT_LWMOD)
 	{
 		// have opts
 		(*p)++;
-		
+
 		for (p2 = *p; *p2 && !isspace(*p2); p2++)
 			/* do nothing */ ;
-		
+
 		opts = lw_strndup(*p, p2 - *p);
 		*p = p2;
 	}
@@ -78,7 +78,7 @@ PARSEFUNC(pseudo_parse_section)
 	{
 		for (p2 = sn; *p2; p2++)
 			*p2 = tolower(*p2);
-		
+
 		if (strcmp(sn, "bss") && strcmp(sn, "main") && strcmp(sn, "init") && strcmp(sn, "calls") && strcmp(sn, "modname"))
 		{
 			lwasm_register_error(as, l, E_SECTION_NAME);
@@ -117,7 +117,7 @@ PARSEFUNC(pseudo_parse_section)
 		{
 			s -> flags |= section_flag_constant;
 		}
-		
+
 		// parse options
 		if (opts)
 		{
@@ -152,7 +152,7 @@ PARSEFUNC(pseudo_parse_section)
 		s -> next = as -> sections;
 		as -> sections = s;
 	}
-	
+
 	// cause all instances of "constant" sections to start at 0
 	if (s -> flags & section_flag_constant)
 		s -> offset = lw_expr_build(lw_expr_type_int, 0);
@@ -164,7 +164,7 @@ PARSEFUNC(pseudo_parse_section)
 	as -> context = lwasm_next_context(as);
 
 	l -> len = 0;
-	
+
 	lw_free(opts);
 	lw_free(sn);
 }
@@ -185,14 +185,14 @@ PARSEFUNC(pseudo_parse_endsection)
 		return;
 	}
 
-	// save offset in case another instance of the section appears	
+	// save offset in case another instance of the section appears
 	lw_expr_destroy(as -> csect -> offset);
 	as -> csect -> offset = l -> addr;
-	
+
 	// reset address to 0
 	l -> addr = lw_expr_build(lw_expr_type_int, 0);
 	as -> csect = NULL;
-	
+
 	// end of section is a context break
 	as -> context = lwasm_next_context(as);
 
@@ -204,7 +204,7 @@ PARSEFUNC(pseudo_parse_export)
 	int after = 0;
 	char *sym = NULL;
 	exportlist_t *e;
-	
+
 	if (as -> output_format != OUTPUT_OBJ)
 	{
 		lwasm_register_error2(as, l, E_OBJTARGET_ONLY, "(%s)", "EXPORT");
@@ -212,13 +212,13 @@ PARSEFUNC(pseudo_parse_export)
 	}
 
 	l -> len = 0;
-	
+
 	if (l -> sym)
 	{
 		sym = lw_strdup(l -> sym);
 		l -> symset = 1;
 	}
-	
+
 	if (l -> sym)
 	{
 		skip_operand(p);
@@ -228,11 +228,11 @@ again:
 	if (after || !sym)
 	{
 		char *p2;
-		
+
 		after = 1;
 		for (p2 = *p; *p2 && *p2 != ',' && !isspace(*p2); p2++)
 			/* do nothing */ ;
-		
+
 		sym = lw_strndup(*p, p2 - *p);
 		*p = p2;
 	}
@@ -241,7 +241,7 @@ again:
 		lwasm_register_error2(as, l, E_SYMBOL_MISSING, "for %s", "EXPORT");
 		return;
 	}
-	
+
 	// add the symbol to the "export" list (which will be resolved
 	// after the parse pass is complete
 	e = lw_alloc(sizeof(exportlist_t));
@@ -251,7 +251,7 @@ again:
 	e -> se = NULL;
 	as -> exportlist = e;
 	lw_free(sym);
-	
+
 	if (after && **p == ',')
 	{
 		(*p)++;
@@ -266,21 +266,21 @@ PARSEFUNC(pseudo_parse_extern)
 	int after = 0;
 	char *sym = NULL;
 	importlist_t *e;
-	
+
 	if (as -> output_format != OUTPUT_OBJ)
 	{
 		lwasm_register_error2(as, l, E_OBJTARGET_ONLY, "(%s)", "IMPORT");
 		return;
 	}
-	
+
 	l -> len = 0;
-	
+
 	if (l -> sym)
 	{
 		sym = lw_strdup(l -> sym);
 		l -> symset = 1;
 	}
-	
+
 	if (l -> sym)
 	{
 		skip_operand(p);
@@ -290,11 +290,11 @@ again:
 	if (after || !sym)
 	{
 		char *p2;
-		
+
 		after = 1;
 		for (p2 = *p; *p2 && *p2 != ',' && !isspace(*p2); p2++)
 			/* do nothing */ ;
-		
+
 		sym = lw_strndup(*p, p2 - *p);
 		*p = p2;
 	}
@@ -303,7 +303,7 @@ again:
 		lwasm_register_error2(as, l, E_SYMBOL_MISSING, "for %s", "IMPORT");
 		return;
 	}
-	
+
 	// add the symbol to the "export" list (which will be resolved
 	// after the parse pass is complete
 	e = lw_alloc(sizeof(importlist_t));
@@ -311,7 +311,7 @@ again:
 	e -> symbol = lw_strdup(sym);
 	as -> importlist = e;
 	lw_free(sym);
-	
+
 	if (after && **p == ',')
 	{
 		(*p)++;
@@ -326,24 +326,24 @@ PARSEFUNC(pseudo_parse_extdep)
 	int after = 0;
 	char *sym = NULL;
 //	importlist_t *e;
-	
+
 	if (as -> output_format != OUTPUT_OBJ)
 	{
 		lwasm_register_error2(as, l, E_OBJTARGET_ONLY, "(%s)", "EXTDEP");
 		return;
 	}
-	
+
 	if (!as -> csect)
 	{
 		lwasm_register_error(as, l, E_SECTION_EXTDEP);
 		return;
 	}
-	
+
 	l -> len = 0;
-	
+
 	if (l -> sym)
 		sym = lw_strdup(l -> sym);
-	
+
 	if (l -> sym)
 	{
 		skip_operand(p);
@@ -353,11 +353,11 @@ again:
 	if (after || !sym)
 	{
 		char *p2;
-		
+
 		after = 1;
 		for (p2 = *p; *p2 && *p2 != ',' && !isspace(*p2); p2++)
 			/* do nothing */ ;
-		
+
 		sym = lw_strndup(*p, p2 - *p);
 	}
 	if (!sym)
@@ -365,7 +365,7 @@ again:
 		lwasm_register_error2(as, l, E_SYMBOL_MISSING, "for %s", "EXTDEP");
 		return;
 	}
-	
+
 	// create a zero-width dependency
 	{
 		lw_expr_t e;
@@ -373,7 +373,7 @@ again:
 		lwasm_emitexpr(l, e, 0);
 		lw_expr_destroy(e);
 	}
-	
+
 	if (after && **p == ',')
 	{
 		(*p)++;

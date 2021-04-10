@@ -36,14 +36,14 @@ void do_extract(void)
 	char fnbuf[1024];
 	int i;
 	FILE *nf;
-	
+
 	f = fopen(archive_file, "rb");
 	if (!f)
 	{
 		perror("Opening archive file");
 		exit(1);
 	}
-	
+
 	(void)(fread(buf, 1, 6, f) && 1);
 	if (memcmp("LWAR1V", buf, 6))
 	{
@@ -61,12 +61,12 @@ void do_extract(void)
 		}
 		if (c == EOF)
 			return;
-		
-		
+
+
 		// find the end of the file name
 		if (!c)
 			return;
-		
+
 		i = 0;
 		while (c)
 		{
@@ -80,7 +80,7 @@ void do_extract(void)
 		}
 		fnbuf[i] = 0;
 		filename = get_file_name(fnbuf);
-		
+
 		// get length of archive member
 		l = 0;
 		c = fgetc(f);
@@ -91,7 +91,7 @@ void do_extract(void)
 		l |= c << 8;
 		c = fgetc(f);
 		l |= c;
-		
+
 		for (i = 0; i < nfiles; i++)
 		{
 			if (!strcmp(get_file_name(files[i]), filename))

@@ -73,9 +73,9 @@ void read_files(void)
 			char *sfn;
 			int s;
 			int j;
-			
+
 			f = NULL;
-			
+
 			if (inputfiles[i] -> filename[0] == ':')
 			{
 				// : suppresses the libfoo.a behaviour
@@ -86,7 +86,7 @@ void read_files(void)
 				sfn = lw_alloc(strlen(inputfiles[i] -> filename) + 6);
 				sprintf(sfn, "lib%s.a", inputfiles[i] -> filename);
 			}
-			
+
 			for (j = 0; j < nlibdirs; j++)
 			{
 				if (libdirs[j][0] == '=')
@@ -131,10 +131,10 @@ void read_files(void)
 		fseek(f, 0, SEEK_END);
 		size = ftell(f);
 		rewind(f);
-		
+
 		inputfiles[i] -> filedata = lw_alloc(size);
 		inputfiles[i] -> filesize = size;
-		
+
 		bread = fread(inputfiles[i] -> filedata, 1, size, f);
 		if (bread < size)
 		{
@@ -142,9 +142,9 @@ void read_files(void)
 			perror("");
 			exit(1);
 		}
-			
+
 		fclose(f);
-		
+
 		read_file(inputfiles[i]);
 	}
 }
@@ -178,10 +178,10 @@ void read_lwobj16v0(fileinfo_t *fn)
 	section_t *s;
 	int val;
 	symtab_t *se;
-	
+
 	// start reading *after* the magic number
 	cc = 8;
-	
+
 	// init data
 	fn -> sections = NULL;
 	fn -> nsections = 0;
@@ -192,15 +192,15 @@ void read_lwobj16v0(fileinfo_t *fn)
 		// bail out if no more sections
 		if (!(CURBYTE()))
 			break;
-		
+
 		fp = CURSTR();
-		
+
 		// we now have a section name in fp
 		// create new section entry
 		fn -> sections = lw_realloc(fn -> sections, sizeof(section_t) * (fn -> nsections + 1));
 		s = &(fn -> sections[fn -> nsections]);
 		fn -> nsections += 1;
-		
+
 		s -> localsyms = NULL;
 		s -> flags = 0;
 		s -> codesize = 0;
@@ -213,7 +213,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 		s -> file = fn;
 		s -> afterbytes = NULL;
 		s -> aftersize = 0;
-		
+
 		// read flags
 		while (CURBYTE())
 		{
@@ -226,7 +226,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 			case 0x02:
 				s -> flags |= SECTION_CONST;
 				break;
-				
+
 			default:
 				fprintf(stderr, "%s (%s): unrecognized section flag %02X\n", fn -> filename, s -> name, (int)(CURBYTE()));
 				exit(1);
@@ -235,7 +235,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 		}
 		// skip NUL terminating flags
 		NEXTBYTE();
-		
+
 		// now parse the local symbol table
 		while (CURBYTE())
 		{
@@ -247,7 +247,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 			val |= (CURBYTE());
 			NEXTBYTE();
 			// val is now the symbol value
-			
+
 			// create symbol table entry
 			se = lw_alloc(sizeof(symtab_t));
 			se -> next = s -> localsyms;
@@ -257,7 +257,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 		}
 		// skip terminating NUL
 		NEXTBYTE();
-		
+
 		// now parse the exported symbol table
 		while (CURBYTE())
 		{
@@ -269,7 +269,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 			val |= (CURBYTE());
 			NEXTBYTE();
 			// val is now the symbol value
-			
+
 			// create symbol table entry
 			se = lw_alloc(sizeof(symtab_t));
 			se -> next = s -> exportedsyms;
@@ -279,14 +279,14 @@ void read_lwobj16v0(fileinfo_t *fn)
 		}
 		// skip terminating NUL
 		NEXTBYTE();
-		
+
 		// now parse the incomplete references and make a list of
 		// external references that need resolution
 		while (CURBYTE())
 		{
 			reloc_t *rp;
 			lw_expr_term_t *term;
-			
+
 			// we have a reference
 			rp = lw_alloc(sizeof(reloc_t));
 			rp -> next = s -> incompletes;
@@ -294,7 +294,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 			rp -> offset = 0;
 			rp -> expr = lw_expr_stack_create();
 			rp -> flags = RELOC_NORM;
-			
+
 			// parse the expression
 			while (CURBYTE())
 			{
@@ -309,7 +309,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 					NEXTBYTE();
 					term = NULL;
 					break;
-					
+
 				case 0x01:
 					// 16 bit integer
 					tt = CURBYTE() << 8;
@@ -321,17 +321,17 @@ void read_lwobj16v0(fileinfo_t *fn)
 						tt -= 0x10000;
 					term = lw_expr_term_create_int(tt);
 					break;
-				
+
 				case 0x02:
 					// external symbol reference
 					term = lw_expr_term_create_sym((char *)CURSTR(), 0);
 					break;
-					
+
 				case 0x03:
 					// internal symbol reference
 					term = lw_expr_term_create_sym((char *)CURSTR(), 1);
 					break;
-				
+
 				case 0x04:
 					// operator
 					term = lw_expr_term_create_oper(CURBYTE());
@@ -343,7 +343,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 					// the section base address
 					term = lw_expr_term_create_sym(NULL, 1);
 					break;
-					
+
 				default:
 					fprintf(stderr, "%s (%s): bad relocation expression (%02X)\n", fn -> filename, s -> name, tt);
 					exit(1);
@@ -356,7 +356,7 @@ void read_lwobj16v0(fileinfo_t *fn)
 			}
 			// skip the NUL
 			NEXTBYTE();
-			
+
 			// fetch the offset
 			rp -> offset = CURBYTE() << 8;
 			NEXTBYTE();
@@ -365,16 +365,16 @@ void read_lwobj16v0(fileinfo_t *fn)
 		}
 		// skip the NUL terminating the relocations
 		NEXTBYTE();
-				
+
 		// now set code location and size and verify that the file
 		// contains data going to the end of the code (if !SECTION_BSS)
 		s -> codesize = CURBYTE() << 8;
 		NEXTBYTE();
 		s -> codesize |= CURBYTE();
 		NEXTBYTE();
-		
+
 		s -> code = &(CURBYTE());
-		
+
 		// skip the code if we're not in a BSS section
 		if (!(s -> flags & SECTION_BSS))
 		{
@@ -430,13 +430,13 @@ void read_lwar1v(fileinfo_t *fn)
 
 		if (flen == 0)
 			return;
-		
+
 		if (cc + flen > fn -> filesize)
 		{
 			fprintf(stderr, "Malformed archive file %s.\n", fn -> filename);
 			exit(1);
 		}
-		
+
 		// add the "sub" input file
 		fn -> subs = lw_realloc(fn -> subs, sizeof(fileinfo_t *) * (fn -> nsubs + 1));
 		fn -> subs[fn -> nsubs] = lw_alloc(sizeof(fileinfo_t));
@@ -445,7 +445,7 @@ void read_lwar1v(fileinfo_t *fn)
 		fn -> subs[fn -> nsubs] -> filesize = flen;
 		fn -> subs[fn -> nsubs] -> filename = lw_strdup((char *)(fn -> filedata + l));
 		fn -> subs[fn -> nsubs] -> parent = fn;
-		fn -> subs[fn -> nsubs] -> forced = fn -> forced;		
+		fn -> subs[fn -> nsubs] -> forced = fn -> forced;
 		read_file(fn -> subs[fn -> nsubs]);
 		fn -> nsubs++;
 		cc += flen;

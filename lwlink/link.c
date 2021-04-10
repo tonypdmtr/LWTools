@@ -52,7 +52,7 @@ void check_section_name(char *name, int *base, fileinfo_t *fn, int down)
 {
 	int sn;
 	sectopt_t *so;
-	
+
 //	fprintf(stderr, "Considering sections in %s (%d) for %s\n", fn -> filename, fn -> forced, name);
 	if (fn -> forced == 0)
 		return;
@@ -72,8 +72,8 @@ void check_section_name(char *name, int *base, fileinfo_t *fn, int down)
 //			fprintf(stderr, "    Found\n");
 			sectlist = lw_realloc(sectlist, sizeof(struct section_list) * (nsects + 1));
 			sectlist[nsects].ptr = &(fn -> sections[sn]);
-			
-				
+
+
 			fn -> sections[sn].processed = 1;
 			if (down)
 			{
@@ -154,7 +154,7 @@ void check_section_flags(int yesflags, int noflags, int *base, fileinfo_t *fn, i
 				}
 			}
 		}
-		
+
 		// and then continue looking for sections
 	}
 	for (sn = 0; sn < fn -> nsubs; sn++)
@@ -199,7 +199,7 @@ void resolve_sections(void)
 	int growdown = 0;
 	int ln, sn, fn;
 	sectopt_t *so;
-	
+
 	for (ln = 0; ln < linkscript.nlines; ln++)
 	{
 		if (linkscript.lines[ln].loadat >= 0)
@@ -209,7 +209,7 @@ void resolve_sections(void)
 		}
 		//fprintf(stderr, "Adding section %s\n", linkscript.lines[ln].sectname);
 		add_matching_sections(linkscript.lines[ln].sectname, linkscript.lines[ln].yesflags, linkscript.lines[ln].noflags, &laddr, growdown);
-		
+
 		if (linkscript.lines[ln].sectname)
 		{
 			char *sname = linkscript.lines[ln].sectname;
@@ -243,7 +243,7 @@ void resolve_sections(void)
 			int f = 0;
 			int fn0, sn0;
 			char *sname;
-			
+
 			// named section
 			// look for all instances of a section by the specified name
 			// and resolve base addresses and add to the list
@@ -273,7 +273,7 @@ void resolve_sections(void)
 									// we have a match
 									sectlist = lw_realloc(sectlist, sizeof(struct section_list) * (nsects + 1));
 									sectlist[nsects].ptr = &(inputfiles[fn] -> sections[sn]);
-						
+
 									inputfiles[fn] -> sections[sn].processed = 1;
 									if (!f && linkscript.lines[ln].loadat >= 0)
 									{
@@ -305,7 +305,7 @@ void resolve_sections(void)
 			}
 		}
 	}
-	
+
 	// theoretically, all the base addresses are set now
 }
 
@@ -318,7 +318,7 @@ void generate_symbols(void)
 	int len;
 	symlist_t *se;
 	int lowaddr;
-	
+
 	for (sn = 0; sn < nsects; sn++)
 	{
 		if (!lastsect || strcmp(lastsect, (char *)(sectlist[sn].ptr -> name)))
@@ -378,7 +378,7 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 	lw_expr_term_t *term;
 	symtab_t *se;
 	int val;
-	
+
 	for (sn = 0; sn < fn -> nsections; sn++)
 	{
 		for (se = fn -> sections[sn].exportedsyms; se; se = se -> next)
@@ -429,7 +429,7 @@ lw_expr_stack_t *find_external_sym_recurse(char *sym, fileinfo_t *fn)
 			}
 		}
 	}
-		
+
 	for (sn = 0; sn < fn -> nsubs; sn++)
 	{
 //		fprintf(stderr, "Looking in %s\n", fn -> subs[sn] -> filename);
@@ -471,7 +471,7 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 			val = sect -> loadaddress;
 			goto out;
 		}
-		
+
 		// start with this section
 		for (se = sect -> localsyms; se; se = se -> next)
 		{
@@ -510,7 +510,7 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 	else
 	{
 		symlist_t *se;
-		
+
 		// external symbol
 		// first look up synthesized symbols
 		for (se = symlist; se; se = se -> next)
@@ -521,7 +521,7 @@ lw_expr_stack_t *resolve_sym(char *sym, int symtype, void *state)
 				goto out;
 			}
 		}
-		
+
 		// read all files in order until found (or not found)
 		if (sect)
 		{
@@ -581,7 +581,7 @@ void resolve_references(void)
 	if (linkscript.execsym)
 	{
 		lw_expr_stack_t *s;
-		
+
 		s = resolve_sym(linkscript.execsym, 0, NULL);
 		if (!s)
 		{
@@ -594,7 +594,7 @@ void resolve_references(void)
 			lw_expr_stack_free(s);
 		}
 	}
-	
+
 	for (sn = 0; sn < nsects; sn++)
 	{
 		for (rl = sectlist[sn].ptr -> incompletes; rl; rl = rl -> next)
@@ -624,12 +624,12 @@ void resolve_references(void)
 			}
 		}
 	}
-	
+
 	if (symerr)
 		exit(1);
-	
+
 	if (outformat == OUTPUT_OS9)
-		check_os9();	
+		check_os9();
 }
 
 void resolve_files_aux(fileinfo_t *fn)
@@ -637,13 +637,13 @@ void resolve_files_aux(fileinfo_t *fn)
 	int sn;
 	reloc_t *rl;
 	lw_expr_stack_t *te;
-	
+
 //	int rval;
 
-	
+
 	if (fn -> forced == 0)
 		return;
-	
+
 	for (sn = 0; sn < fn -> nsections; sn++)
 	{
 		for (rl = fn -> sections[sn].incompletes; rl; rl = rl -> next)
@@ -651,7 +651,7 @@ void resolve_files_aux(fileinfo_t *fn)
 			// do a "simplify" on the expression
 			te = lw_expr_stack_dup(rl -> expr);
 			lw_expr_reval(te, resolve_sym, &(fn -> sections[sn]));
-			
+
 			// is it constant? error out if not
 			// incompletes will error out during resolve_references()
 			//if (rval != 0 || !lw_expr_is_constant(te))
@@ -683,7 +683,7 @@ void resolve_files(void)
 //	if (linkscript.execsym)
 //	{
 //		lw_expr_stack_t *s;
-//		
+//
 //		s = resolve_sym(linkscript.execsym, 0, NULL);
 //		if (!s)
 //		{
@@ -691,7 +691,7 @@ void resolve_files(void)
 //			symerr = 1;
 //		}
 //	}
-	
+
 	do
 	{
 		nforced = 0;
@@ -707,13 +707,13 @@ void resolve_files(void)
 //	if (symerr)
 //		exit(1);
 
-	symerr = 0;	
+	symerr = 0;
 	// theoretically, all files referenced by other files now have "forced" set to 1
 	for (fn = 0; fn < ninputfiles; fn++)
 	{
 		if (inputfiles[fn] -> forced == 1)
 			continue;
-		
+
 		fprintf(stderr, "Warning: library -l%s (%d) does not resolve any symbols\n", inputfiles[fn] -> filename, fn);
 	}
 }
@@ -721,7 +721,7 @@ void find_section_by_name_once_aux(char *name, fileinfo_t *fn, section_t **rval,
 void find_section_by_name_once_aux(char *name, fileinfo_t *fn, section_t **rval, int *found)
 {
 	int sn;
-	
+
 	if (fn -> forced == 0)
 		return;
 
@@ -744,7 +744,7 @@ section_t *find_section_by_name_once(char *name)
 	int fn;
 	int found = 0;
 	section_t *rval = NULL;
-	
+
 	for (fn = 0; fn < ninputfiles; fn++)
 	{
 		find_section_by_name_once_aux(name, inputfiles[fn], &rval, &found);
@@ -761,7 +761,7 @@ section_t *find_section_by_name_once(char *name)
 void foreach_section_aux(char *name, fileinfo_t *fn, void (*fnp)(section_t *s, void *arg), void *arg)
 {
 	int sn;
-	
+
 	if (fn -> forced == 0)
 		return;
 
@@ -780,7 +780,7 @@ void foreach_section_aux(char *name, fileinfo_t *fn, void (*fnp)(section_t *s, v
 void foreach_section(char *name, void (*fnp)(section_t *s, void *arg), void *arg)
 {
 	int fn;
-	
+
 	for (fn = 0; fn < ninputfiles; fn++)
 	{
 		foreach_section_aux(name, inputfiles[fn], fnp, arg);
@@ -813,7 +813,7 @@ void check_os9_aux(section_t *s, void *arg)
 	// the symbols are not case sensitive
 	//
 	// any unrecognized symbols are ignored
-	
+
 	// the contents of the actual data to the first NUL
 	// is assumed to be the module name unless it is an empty string
 	if (s -> codesize > 0 && (s -> flags & SECTION_BSS) == 0 && s -> code[0] != 0)
@@ -821,7 +821,7 @@ void check_os9_aux(section_t *s, void *arg)
 		linkscript.name = (char *)(s -> code);
 		st -> nameseen++;
 	}
-	
+
 	for (sym = s -> localsyms; sym; sym = sym -> next)
 	{
 		char *sm = (char *)(sym -> sym);
@@ -865,15 +865,15 @@ void check_os9(void)
 	foreach_section("__os9", check_os9_aux, &st);
 	if (linkscript.modtype > 15)
 		linkscript.modtype = linkscript.modtype >> 4;
-	
+
 	if (linkscript.modattr > 15)
 		linkscript.modattr = linkscript.modattr >> 4;
-	
+
 	linkscript.modlang &= 15;
 	linkscript.modtype &= 15;
 	linkscript.modrev &= 15;
 	linkscript.modattr &= 15;
-	
+
 	if (st.attrseen > 1 || st.typeseen > 1 ||
 		st.langseen > 1 || st.revseen > 1 ||
 		st.nameseen > 1 || st.edseen > 1
@@ -886,13 +886,13 @@ void check_os9(void)
 void resolve_padding(void)
 {
 	int sn;
-	
+
 	for (sn = 0; sn < nsects; sn++)
 	{
 		if (sectlist[sn].ptr -> afterbytes)
 		{
 			unsigned char *t;
-			
+
 			t = lw_alloc(sectlist[sn].ptr -> codesize + sectlist[sn].ptr -> aftersize);
 			memmove(t, sectlist[sn].ptr -> code, sectlist[sn].ptr -> codesize);
 			sectlist[sn].ptr -> code = t;

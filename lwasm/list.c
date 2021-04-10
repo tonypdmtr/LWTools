@@ -37,13 +37,13 @@ Do listing
 void do_list(asmstate_t *as)
 {
 	FILE *of = NULL;
-		
+
 	if (!(as -> flags & FLAG_LIST))
 	{
 		of = NULL;
 	}
 	else
-	{		
+	{
 		if (as -> list_file)
 		{
 			if (strcmp(as -> list_file, "-") == 0)
@@ -81,7 +81,7 @@ line_t *list_one_line(asmstate_t* as, FILE *of, line_t *cl)
 	int i;
 	unsigned char *obytes = NULL;
 	int obytelen = 0;
-	
+
 	char *tc;
 	char *linespec;
 
@@ -102,7 +102,7 @@ line_t *list_one_line(asmstate_t* as, FILE *of, line_t *cl)
 				nc += nl -> noexpand_start;
 			if (nl -> noexpand_end)
 				nc -= nl -> noexpand_end;
-				
+
 			if (nl -> outputl > 0)
 				obytelen += nl -> outputl;
 			if (nl -> warn)
@@ -235,7 +235,7 @@ line_t *list_one_line(asmstate_t* as, FILE *of, line_t *cl)
 
 		if (of) fprintf(of, "(%*.*s):%05d ", max_linespec_len, max_linespec_len, linespec, cl->lineno);
 	}
-		
+
 	if (CURPRAGMA(cl, PRAGMA_CC))
 	{
 		as->cycle_total = 0;
@@ -269,7 +269,7 @@ line_t *list_one_line(asmstate_t* as, FILE *of, line_t *cl)
 
 	if (of) fprintf(of, "%-8s", s);
 
-	if (CURPRAGMA(cl, PRAGMA_CT)) 
+	if (CURPRAGMA(cl, PRAGMA_CT))
 	{
 		if (cl->cycle_base != 0)
 		{
@@ -285,7 +285,7 @@ line_t *list_one_line(asmstate_t* as, FILE *of, line_t *cl)
 	{
 		fputs(cl -> ltext, of);
 	}
-	else 
+	else
 	{
 		i = 0;
 		for (tc = cl -> ltext; *tc; tc++)

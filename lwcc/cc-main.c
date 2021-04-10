@@ -76,7 +76,7 @@ static int parse_opts(int key, char *arg, void *state)
 			do_error("Output file specified more than once.");
 		output_file = arg;
 		break;
-		
+
 	case 0x100:
 		trigraphs = 1;
 		break;
@@ -84,7 +84,7 @@ static int parse_opts(int key, char *arg, void *state)
 	case 'I':
 		lw_stringlist_addstring(includedirs, arg);
 		break;
-	
+
 	case 'S':
 		lw_stringlist_addstring(sysincludedirs, arg);
 		break;
@@ -92,14 +92,14 @@ static int parse_opts(int key, char *arg, void *state)
 	case 'D':
 		lw_stringlist_addstring(macrolist, arg);
 		break;
-		
+
 	case lw_cmdline_key_end:
 		break;
-	
+
 	case lw_cmdline_key_arg:
 		lw_stringlist_addstring(input_files, arg);
 		break;
-		
+
 	default:
 		return lw_cmdline_err_unknown;
 	}
@@ -120,13 +120,13 @@ int main(int argc, char **argv)
 	program_name = argv[0];
 	int retval = 0;
 	node_t *n;
-	
+
 	input_files = lw_stringlist_create();
 	includedirs = lw_stringlist_create();
 	sysincludedirs = lw_stringlist_create();
 	macrolist = lw_stringlist_create();
-	
-	/* parse command line arguments */	
+
+	/* parse command line arguments */
 	lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, NULL);
 
 	/* set up output file */
@@ -139,12 +139,12 @@ int main(int argc, char **argv)
 		output_fp = fopen(output_file, "wb");
 		if (output_fp == NULL)
 		{
-			do_error("Failed to create output file %s: %s", output_file, strerror(errno)); 
+			do_error("Failed to create output file %s: %s", output_file, strerror(errno));
 		}
 	}
-	
-	program_tree = node_create(NODE_PROGRAM);	
-	
+
+	program_tree = node_create(NODE_PROGRAM);
+
 	if (lw_stringlist_nstrings(input_files) == 0)
 	{
 		/* if no input files, work on stdin */
@@ -172,12 +172,12 @@ int main(int argc, char **argv)
 	lw_stringlist_destroy(includedirs);
 	lw_stringlist_destroy(sysincludedirs);
 	lw_stringlist_destroy(macrolist);
-	
+
 	node_display(program_tree, stdout);
-	
+
 	// generate output
 	generate_code(program_tree, output_fp);
-	
+
 	node_destroy(program_tree);
 	exit(retval);
 }
@@ -187,7 +187,7 @@ node_t *process_file(const char *fn)
 	struct preproc_info *pp;
 	char *tstr;
 	node_t *n;
-			
+
 	pp = preproc_init(fn);
 	if (!pp)
 		return NULL;
@@ -214,7 +214,7 @@ node_t *process_file(const char *fn)
 
 	n = parse_program(pp);
 	preproc_finish(pp);
-	
+
 	return n;
 }
 

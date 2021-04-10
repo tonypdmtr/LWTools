@@ -34,28 +34,28 @@ struct symtabe *symbol_findprev(asmstate_t *as, struct symtabe *se)
 {
 	struct symtabe *se1, *se2;
 	int i;
-	
+
 	for (se2 = NULL, se1 = as -> symtab.head; se1; se1 = se1 -> next)
 	{
 		debug_message(as, 200, "Sorting; looking at symbol %s (%p) for %s", se1 -> symbol, se1, se -> symbol);
 		/* compare se with se1 */
 		i = strcasecmp(se -> symbol, se1 -> symbol);
-		
+
 		/* if the symbol sorts before se1, we just need to return */
 		if (i < 0)
 			return se2;
-		
+
 		if (i == 0)
 		{
 			/* symbol name matches; compare other things */
-			
+
 			/*if next version is greater than this one, return */
 			if (se -> version > se1 -> version)
 				return se2;
-			/* if next context is great than this one, return */ 
+			/* if next context is great than this one, return */
 			if (se -> context > se1 -> context)
 				return se2;
-			
+
 			/* if section name is greater, return */
 			/* if se has no section but se1 does, we go first */
 			if (se -> section == NULL && se1 -> section != NULL)
@@ -68,7 +68,7 @@ struct symtabe *symbol_findprev(asmstate_t *as, struct symtabe *se)
 					return se2;
 			}
 		}
-		
+
 		se2 = se1;
 	}
 	return se2;
@@ -83,7 +83,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	int version = -1;
 	char *cp;
 	int cdir;
-	
+
 	debug_message(as, 200, "Register symbol %s (%02X), %s", sym, flags, lw_expr_print(val));
 
 	if (!(flags & symbol_flag_nocheck))
@@ -112,7 +112,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 			islocal = 1;
 		if (*cp == '$' && !(CURPRAGMA(cl, PRAGMA_DOLLARNOTLOCAL)))
 			islocal = 1;
-		
+
 		// bad symbol
 		if (!(flags & symbol_flag_nocheck) && *(unsigned char *)cp < 0x80 && !strchr(SYMCHARS, *cp))
 		{
@@ -123,7 +123,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 
 	if (islocal)
 		context = cl -> context;
-	
+
 	// first, look up symbol to see if it is already defined
 	cdir = 0;
 	for (se = as -> symtab.head, sprev = NULL; se; )
@@ -171,7 +171,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	{
 		version++;
 	}
-	
+
 	// symplify the symbol expression - replaces "SET" symbols with
 	// symbol table entries
 	lwasm_reduce_expr(as, val);
@@ -225,7 +225,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 	if (CURPRAGMA(cl, PRAGMA_EXPORT) && cl -> csect && !islocal)
 	{
 		exportlist_t *e;
-		
+
 		/* export symbol if not already exported */
 		e = lw_alloc(sizeof(exportlist_t));
 		e -> next = as -> exportlist;
@@ -238,7 +238,7 @@ struct symtabe *register_symbol(asmstate_t *as, line_t *cl, char *sym, lw_expr_t
 }
 
 // for "SET" symbols, always returns the LAST definition of the
-// symbol. This works because the lwasm_reduce_expr() call in 
+// symbol. This works because the lwasm_reduce_expr() call in
 // register_symbol will ensure there are no lingering "var" references
 // to the set symbol anywhere in the symbol table; they will all be
 // converted to direct references
@@ -254,20 +254,20 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 	int cdir;
 
 	debug_message(as, 100, "Look up symbol %s", sym);
-	
+
 	// check if this is a local symbol
 	if (strchr(sym, '@') || strchr(sym, '?'))
 		local = 1;
-	
+
 	if (cl && !CURPRAGMA(cl, PRAGMA_DOLLARNOTLOCAL) && strchr(sym, '$'))
 		local = 1;
 	if (!cl && !(as -> pragmas & PRAGMA_DOLLARNOTLOCAL) && strchr(sym, '$'))
 		local = 1;
-	
+
 	// cannot look up local symbol in global context!!!!!
 	if (!cl && local)
 		return NULL;
-	
+
 	for (s = as -> symtab.head; s; )
 	{
 		cdir = strcasecmp(sym, s -> symbol);
@@ -281,15 +281,15 @@ struct symtabe * lookup_symbol(asmstate_t *as, line_t *cl, char *sym)
 			if (local && s -> context != cl -> context)
 			{
 				cdir = (cl -> context < s -> context) ? -1 : 1;
-			}	
+			}
 		}
-		
+
 		if (!cdir)
 		{
 			debug_message(as, 100, "Found symbol %s: %s, %s", sym, s -> symbol, lw_expr_print(s -> value));
 			return s;
 		}
-		
+
 		if (cdir < 0)
 			s = s -> left;
 		else
@@ -309,10 +309,10 @@ struct listinfo
 int list_symbols_test(lw_expr_t e, void *p)
 {
 	struct listinfo *li = p;
-	
+
 	if (li -> complex)
 		return 0;
-	
+
 	if (lw_expr_istype(e, lw_expr_type_special))
 	{
 		if (lw_expr_specint(e) == lwasm_expr_secbase)
@@ -337,14 +337,14 @@ void list_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 	struct listinfo li;
 
 	li.as = as;
-	
+
 	if (!se)
 		return;
-	
+
 	list_symbols_aux(as, of, se -> left);
-	
+
 	for (s = se; s; s = s -> nextver)
-	{	
+	{
 		if (s -> flags & symbol_flag_nolist)
 			continue;
 
@@ -372,7 +372,7 @@ void list_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 		fputc(']', of);
 		fputc(' ', of);
 		fprintf(of, "%-32s ", s -> symbol);
-		
+
 		te = lw_expr_copy(s -> value);
 		li.complex = 0;
 		li.sect = NULL;
@@ -384,7 +384,7 @@ void list_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 			lwasm_reduce_expr(as, te);
 			as -> exportcheck = 0;
 		}
-		
+
 		if (lw_expr_istype(te, lw_expr_type_int))
 		{
 			fprintf(of, "%04X", lw_expr_intval(te));
@@ -401,7 +401,7 @@ void list_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 		}
 		lw_expr_destroy(te);
 	}
-	
+
 	list_symbols_aux(as, of, se -> right);
 }
 

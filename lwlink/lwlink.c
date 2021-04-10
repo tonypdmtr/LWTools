@@ -69,7 +69,7 @@ void add_input_library(char *libname)
 	memset(inputfiles[ninputfiles], 0, sizeof(fileinfo_t));
 	inputfiles[ninputfiles] -> islib = 1;
 	inputfiles[ninputfiles] -> forced = 0;
-	inputfiles[ninputfiles++] -> filename = lw_strdup(libname);	
+	inputfiles[ninputfiles++] -> filename = lw_strdup(libname);
 }
 
 void add_library_search(char *libdir)
@@ -85,7 +85,7 @@ void add_section_base(char *sectspec)
 	int baseaddr;
 	char *t;
 	int l;
-	
+
 	base = strchr(sectspec, '=');
 	if (!base)
 	{
@@ -99,12 +99,12 @@ void add_section_base(char *sectspec)
 		*base = '\0';
 	}
 	baseaddr = baseaddr & 0xffff;
-	
+
 	t = lw_alloc(l + 25);
 	sprintf(t, "section %s load %04X", sectspec, baseaddr);
 	if (base)
 		*base = '=';
-	
+
 	scriptls = lw_realloc(scriptls, sizeof(char *) * (nscriptls + 1));
 	scriptls[nscriptls++] = t;
 }
@@ -114,7 +114,7 @@ char *sanitize_symbol(char *symbol)
 	static char symbuf[2048];
 	char *sym = symbol;
 	char *tp = symbuf;
-	
+
 	for (; *sym; sym++)
 	{
 		int c1 = *sym;

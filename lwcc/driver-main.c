@@ -100,7 +100,7 @@ lw_stringlist_t include_dirs;		// include paths specified with -I
 lw_stringlist_t includes;			// include paths specified with -include
 lw_stringlist_t user_sysincdirs;	// include paths specified with -isystem
 lw_stringlist_t asm_args;			// recorded arguments to pass through to the assembler
-lw_stringlist_t linker_args;		// recorded arguments to pass through to the linker 
+lw_stringlist_t linker_args;		// recorded arguments to pass through to the linker
 lw_stringlist_t sysincdirs;			// the standard system include directories
 lw_stringlist_t tempfiles;			// a list of temporary files created which need to be cleaned up
 lw_stringlist_t compiler_args;		// recorded arguments to pass through to the compiler
@@ -171,7 +171,7 @@ static void expand_sysroot(void)
 	lw_stringlist_t newlist;
 	lw_stringlist_t working;
 	char *s;
-	
+
 	/* for each list, run through entry by entry, do any needed replacement
 	   and add the entry to a new list. Then replace the old list with the
 	   new one. */
@@ -179,7 +179,7 @@ static void expand_sysroot(void)
 	{
 		working = *lists[i];
 		newlist = lw_stringlist_create();
-		
+
 		lw_stringlist_reset(working);
 		for (s = lw_stringlist_current(working); s; s = lw_stringlist_next(working))
 		{
@@ -213,7 +213,7 @@ static char *find_file(const char *fn, lw_stringlist_t p, int mode)
 	char *f;
 	size_t lf, lp;
 	int need_slash;
-	
+
 	lf = strlen(fn);
 	lw_stringlist_reset(p);
 	for (s = lw_stringlist_current(p); s; s = lw_stringlist_next(p))
@@ -244,7 +244,7 @@ static int execute_program(lw_stringlist_t args)
 	char **argv;
 	int result;
 	char *s;
-	
+
 	argc = lw_stringlist_nstrings(args);
 	argv = lw_alloc(sizeof(char *) * (argc + 1));
 	lw_stringlist_reset(args);
@@ -260,7 +260,7 @@ static int execute_program(lw_stringlist_t args)
 		print_array(argv);
 		printf("\n");
 	}
-	
+
 	/* bail now if a signal happened */
 	if (sigterm_received)
 	{
@@ -271,7 +271,7 @@ static int execute_program(lw_stringlist_t args)
 	/* make sure stdio has flushed everything so that output from the
 	   child process doesn't get intermingled */
 	fflush(NULL);
-	
+
 	/* now make the child process */
 	child_pid = fork();
 	if (child_pid == 0)
@@ -291,7 +291,7 @@ static int execute_program(lw_stringlist_t args)
 	}
 	/* clean up argv */
 	lw_free(argv);
-	
+
 	/* parent process - wait for child to exit */
 	while (waitpid(child_pid, &result, 0) == -1 && errno == EINTR)
 		/* do nothing */;
@@ -324,25 +324,25 @@ static char *output_name(const char *f, const char *nsuffix, int last)
 	char *name;
 	size_t lf, ls, len;
 	int counter_len;
-	
+
 	/* get a new file counter */
 	file_counter++;
-	
+
 	/* if the output was specified, use it */
 	if (last && output_file)
 	{
 		return lw_strdup(output_file);
 	}
 
-	/* find the start of the old suffix */	
+	/* find the start of the old suffix */
 	osuffix = strrchr(f, '.');
 	if (osuffix != NULL && strchr(osuffix, '/') != NULL)
 		osuffix = NULL;
 	if (osuffix == NULL)
 		osuffix = f + strlen(f);
-	
+
 	ls = strlen(nsuffix);
-	
+
 	/* if this is the last stage or we're saving temps, use a name derived
 	   from the original file name by replacing the suffix with nsuffix */
 	if (save_temps || last)
@@ -363,7 +363,7 @@ static char *output_name(const char *f, const char *nsuffix, int last)
 		char *path;
 		size_t dirtempl_len;
 		int need_slash;
-		
+
 		/* look for a TMPFIR environment variable and use that if present
 		   but use /tmp as a fallback */
 		dirtempl = getenv("TMPDIR");
@@ -400,7 +400,7 @@ static char *output_name(const char *f, const char *nsuffix, int last)
 	name = lw_alloc(len);
 	/* it should be impossible for ths snprintf call to fail */
 	snprintf(name, len, "%s/%d%s", temp_directory, file_counter, nsuffix);
-	
+
 	/* record the temporary file name for later */
 	lw_stringlist_addstring(tempfiles, name);
 	return name;
@@ -414,14 +414,14 @@ static int compile_file(const char *file, char *input, char **output, const char
 	char *out;
 	int retval;
 	char *s;
-	
+
 	args = lw_stringlist_create();
-	
+
 	/* find the compiler executable and make that argv[0] */
 	s = find_file(compiler_program_name, program_dirs, X_OK);
 	lw_stringlist_addstring(args, s);
 	lw_free(s);
-	
+
 	/* add all the saved compiler arguments to argv */
 	lw_stringlist_reset(compiler_args);
 	for (s = lw_stringlist_current(compiler_args); s; s = lw_stringlist_next(compiler_args))
@@ -436,7 +436,7 @@ static int compile_file(const char *file, char *input, char **output, const char
 	lw_stringlist_addstring(args, input);
 	/* if the input file name and the output file name pointers are the same
 	   free the input one */
-	if (*output == input) 
+	if (*output == input)
 		lw_free(input);
 	/* tell the caller what the output name is */
 	*output = out;
@@ -455,17 +455,17 @@ static int assemble_file(const char *file, char *input, char **output, const cha
 	char *out;
 	int retval;
 	char *s;
-	
+
 	args = lw_stringlist_create();
-	
+
 	/* find the assembler binary and add that as argv[0] */
 	s = find_file(assembler_program_name, program_dirs, X_OK);
 	lw_stringlist_addstring(args, s);
 	lw_free(s);
-	
+
 	/* add some necessary args */
 	lw_stringlist_addstring(args, "--format=obj");
-	
+
 	/* add asm_args to argv */
 	lw_stringlist_reset(asm_args);
 	for (s = lw_stringlist_current(asm_args); s; s = lw_stringlist_next(asm_args))
@@ -485,7 +485,7 @@ static int assemble_file(const char *file, char *input, char **output, const cha
 	*output = out;
 	/* actually run the assembler */
 	retval = execute_program(args);
-	
+
 	lw_stringlist_destroy(args);
 	return retval;
 }
@@ -498,21 +498,21 @@ static int preprocess_file(const char *file, char *input, char **output, const c
 	char *s;
 	char *out;
 	int retval;
-	
+
 	args = lw_stringlist_create();
 
-	/* find the linker binary and make that argv[0] */	
+	/* find the linker binary and make that argv[0] */
 	s = find_file(preprocessor_program_name, program_dirs, X_OK);
 	lw_stringlist_addstring(args, s);
 	lw_free(s);
-	
+
 	/* add preproc_args to argv */
 	lw_stringlist_reset(preproc_args);
 	for (s = lw_stringlist_current(preproc_args); s; s = lw_stringlist_next(preproc_args))
 	{
 		lw_stringlist_addstring(args, s);
 	}
-	
+
 	/* add the include files specified by -i */
 	lw_stringlist_reset(includes);
 	for (s = lw_stringlist_current(includes); s; s = lw_stringlist_next(includes))
@@ -542,18 +542,18 @@ static int preprocess_file(const char *file, char *input, char **output, const c
 	{
 		lw_stringlist_reset(priv_sysincdirs);
 		for (s = lw_stringlist_current(priv_sysincdirs); s; s = lw_stringlist_next(priv_sysincdirs))
-		{	
+		{
 			lw_stringlist_addstring(args, "-S");
 			lw_stringlist_addstring(args, s);
 		}
 		lw_stringlist_reset(sysincdirs);
 		for (s = lw_stringlist_current(sysincdirs); s; s = lw_stringlist_next(sysincdirs))
-		{	
+		{
 			lw_stringlist_addstring(args, "-S");
 			lw_stringlist_addstring(args, s);
 		}
 	}
-	
+
 	/* if we stop after preprocessing, output to stdout if no output file */
 	if (stop_after == PHASE_PREPROCESS && output_file == NULL)
 	{
@@ -573,14 +573,14 @@ static int preprocess_file(const char *file, char *input, char **output, const c
 	/* add the input file name to argv */
 	lw_stringlist_addstring(args, input);
 
-	/* if input and output pointers are same, clean up input */	
+	/* if input and output pointers are same, clean up input */
 	if (*output == input)
 		lw_free(input);
 	/* tell caller what our output file is */
 	*output = out;
 	/* finally, actually run the preprocessor */
 	retval = execute_program(args);
-	
+
 	lw_stringlist_destroy(args);
 	return retval;
 }
@@ -598,8 +598,8 @@ static int handle_input_file(const char *f)
 	const char *suffix;
 	char *src;
 	int handled, retval;
-	
-	/* note: this needs to handle -x but for now, assume c for stdin */	
+
+	/* note: this needs to handle -x but for now, assume c for stdin */
 	if (strcmp(f, "-") == 0)
 	{
 		suffix = ".c";
@@ -613,10 +613,10 @@ static int handle_input_file(const char *f)
 		if (suffix == NULL)
 			suffix = "";
 	}
-	
+
 	/* make a copy of the file */
 	src = lw_strdup(f);
-	
+
 	/* preprocess if appropriate */
 	if (strcmp(suffix, ".c") == 0)
 	{
@@ -639,7 +639,7 @@ static int handle_input_file(const char *f)
 	/* if we're only preprocessing, bail */
 	if (stop_after == PHASE_PREPROCESS)
 		goto done;
-	
+
 	/* now on to compile if appropriate */
 	if (strcmp(suffix, ".i") == 0)
 	{
@@ -653,7 +653,7 @@ static int handle_input_file(const char *f)
 	/* bail if we're only compiling, not assembling */
 	if (stop_after == PHASE_COMPILE)
 		goto done;
-	
+
 	/* assemble if appropriate */
 	if (strcmp(suffix, ".s") == 0)
 	{
@@ -668,10 +668,10 @@ static int handle_input_file(const char *f)
 	if (stop_after == PHASE_ASSEMBLE)
 		goto done;
 
-	/* if we get here with a .o unhandled, pretend it is handled */	
+	/* if we get here with a .o unhandled, pretend it is handled */
 	if (strcmp(suffix, ".o") == 0)
 		handled = 1;
-	
+
 	/* add the final file name to the linker args */
 	lw_stringlist_addstring(linker_args, src);
 done:
@@ -689,7 +689,7 @@ done:
 	}
 	/* clean up the file name */
 	lw_free(src);
-	
+
 	return retval;
 }
 
@@ -702,41 +702,41 @@ static int handle_linking(void)
 	lw_stringlist_t linker_flags;
 	char *s;
 	int retval;
-	
+
 	linker_flags = lw_stringlist_create();
-	
+
 	/* find the linker binary and make that argv[0] */
 	s = find_file(linker_program_name, program_dirs, X_OK);
 	lw_stringlist_addstring(linker_flags, s);
 	lw_free(s);
-	
+
 	/* tell the linker about the output file name, if specified */
 	if (output_file)
 	{
 		lw_stringlist_addstring(linker_flags, "-o");
 		lw_stringlist_addstring(linker_flags, (char *)output_file);
 	}
-	
+
 	/* add the standard library options if not -nostdlib */
 	if (!nostdlib)
 	{
 	}
-	
+
 	/* add the standard startup files if not -nostartfiles */
 	if (!nostartfiles)
 	{
 	}
-	
+
 	/* pass along the various input files, etc., to the linker */
 	lw_stringlist_reset(linker_args);
 	for (s = lw_stringlist_current(linker_args); s; s = lw_stringlist_next(linker_args))
 	{
 		lw_stringlist_addstring(linker_flags, s);
 	}
-	
+
 	/* actually run the linker */
 	retval = execute_program(linker_flags);
-	
+
 	lw_stringlist_destroy(linker_flags);
 	return retval;
 }
@@ -749,7 +749,7 @@ int main(int argc, char **argv)
 {
 	char *ap;
 	int retval;
-	
+
 	input_files = lw_stringlist_create();
 	runtime_dirs = lw_stringlist_create();
 	lib_dirs = lw_stringlist_create();
@@ -764,7 +764,7 @@ int main(int argc, char **argv)
 	tempfiles = lw_stringlist_create();
 	compiler_args = lw_stringlist_create();
 	priv_sysincdirs = lw_stringlist_create();
-		
+
 	parse_command_line(argc, argv);
 	if (stop_after == PHASE_DEFAULT)
 		stop_after = PHASE_LINK;
@@ -775,16 +775,16 @@ int main(int argc, char **argv)
 	if (isysroot == NULL)
 		isysroot = sysroot;
 	expand_sysroot();
-	
+
 	if (stop_after != PHASE_LINK && output_file && lw_stringlist_nstrings(input_files) > 1)
 	{
 		do_error("-o cannot be specified with multiple inputs unless linking");
 	}
-	
+
 	// default to stdout for preprocessing
 	if (stop_after == PHASE_PREPROCESS && output_file == NULL)
 		output_file = "-";
-	
+
 	if (lw_stringlist_nstrings(input_files) == 0)
 		do_error("No input files specified");
 
@@ -800,11 +800,11 @@ int main(int argc, char **argv)
 	strcat(ap, "/include");
 	lw_stringlist_addstring(priv_sysincdirs, ap);
 	lw_free(ap);
-	
+
 	retval = 0;
 	/* make sure we exit if interrupted */
 	signal(SIGTERM, exit_on_signal);
-	
+
 	/* handle input files */
 	lw_stringlist_reset(input_files);
 	for (ap = lw_stringlist_current(input_files); ap; ap = lw_stringlist_next(input_files))
@@ -857,7 +857,7 @@ int main(int argc, char **argv)
 	lw_stringlist_destroy(tempfiles);
 	lw_stringlist_destroy(compiler_args);
 	lw_stringlist_destroy(priv_sysincdirs);
-	return retval;	
+	return retval;
 }
 
 struct option_e
@@ -893,7 +893,7 @@ static int cmdline_set_string(char *opt, char *optarg, int optcode, void *optptr
 {
 	char **s = (char **)optptr;
 	*s = optarg;
-	
+
 	return 0;
 }
 
@@ -901,11 +901,11 @@ static int cmdline_set_string(char *opt, char *optarg, int optcode, void *optptr
 static int cmdline_set_stringifnull(char *opt, char *optarg, int optcode, void *optptr)
 {
 	char **s = (char **)optptr;
-	
+
 	if (*s)
 		do_error("Multiple %.*s options specified", optcode ? optcode : strlen(opt), opt);
 	*s = optarg;
-	
+
 	return 0;
 }
 
@@ -914,7 +914,7 @@ static int cmdline_argsplit(char *opt, char *arg, int optcode, void *optptr)
 {
 	lw_stringlist_t l = *(lw_stringlist_t *)optptr;
 	char *next;
-	
+
 	for (; arg != NULL; arg = next)
 	{
 		next = strchr(arg, ',');
@@ -974,7 +974,7 @@ static int cmdline_misc(char *opt, char *optarg, int optcode, void *optptr)
 static int cmdline_set_intifzero(char *opt, char *optarg, int optcode, void *optptr)
 {
 	int *iv = (int *)optptr;
-	
+
 	if (*iv && *iv != optcode)
 	{
 		do_error("conflicting compiler option specified: %s", opt);
@@ -1022,7 +1022,7 @@ static void parse_command_line(int argc, char **argv)
 {
 	int i, j, olen, ilen;
 	char *optarg;
-	
+
 	for (i = 1; i < argc; i++)
 	{
 		if (argv[i][0] != '-' || argv[i][1] == '\0')

@@ -37,7 +37,7 @@ PARSEFUNC(pseudo_parse_macro)
 	macrotab_t *m;
 	char *t;
 	char tc;
-		
+
 	l -> len = 0;
 	l -> hideline = 1;
 	if (as -> skipcond)
@@ -46,13 +46,13 @@ PARSEFUNC(pseudo_parse_macro)
 		skip_operand(p);
 		return;
 	}
-	
+
 	if (as -> inmacro)
 	{
 		lwasm_register_error(as, l, E_MACRO_RECURSE);
 		return;
 	}
-	
+
 	if (!(l -> sym))
 	{
 		lwasm_register_error(as, l, E_MACRO_NONAME);
@@ -69,7 +69,7 @@ PARSEFUNC(pseudo_parse_macro)
 		lwasm_register_error(as, l, E_MACRO_DUPE);
 		return;
 	}
-	
+
 	m = lw_alloc(sizeof(macrotab_t));
 	m -> name = lw_strdup(l -> sym);
 	m -> next = as -> macros;
@@ -100,15 +100,15 @@ PARSEFUNC(pseudo_parse_endm)
 		as -> skipmacro = 0;
 		return;
 	}
-	
+
 	if (!as -> inmacro)
 	{
 		lwasm_register_error(as, l, E_MACRO_ENDM);
 		return;
 	}
-	
+
 	as -> inmacro = 0;
-	
+
 	// a macro definition counts as a context break for local symbols
 	as -> context = lwasm_next_context(as);
 }
@@ -118,7 +118,7 @@ int add_macro_line(asmstate_t *as, char *optr)
 {
 	if (!as -> inmacro)
 		return 0;
-	
+
 	as -> macros -> lines = lw_realloc(as -> macros -> lines, sizeof(char *) * (as -> macros -> numlines + 1));
 	as -> macros -> lines[as -> macros -> numlines] = lw_strdup(optr);
 	as -> macros -> numlines += 1;
@@ -154,7 +154,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 	int nargs = 0;			// number of arguments
 
 	char *p2, *p3;
-	
+
 	int bloc, blen;
 	char *linebuff;
 
@@ -166,7 +166,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 	// signal no macro expansion
 	if (!m)
 		return -1;
-	
+
 	// save current symbol context for after macro expansion
 	oldcontext = as -> context;
 
@@ -204,12 +204,12 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 			*p3 = *p2;
 		}
 		*p3 = '\0';
-		
+
 		nargs++;
 		if (**p == ',')
 			(*p)++;
 	}
-	
+
 
 	// now create a string for the macro
 	// and push it into the front of the input stack
@@ -225,7 +225,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 			macro_add_to_buff(&linebuff, &bloc, &blen, *p);
 	}
 
-	
+
 	for (lc = 0; lc < m -> numlines; lc++)
 	{
 		for (p2 = m -> lines[lc]; *p2; p2++)
@@ -250,7 +250,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 			else if (*p2 == '\\' && isdigit(p2[1]))
 			{
 				int n;
-					
+
 				p2++;
 				n = *p2 - '0';
 				if (n == 0)
@@ -279,7 +279,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 				}
 				if (*p2 == '}')
 					p2++;
-				 
+
 				if (n == 0)
 				{
 					for (p3 = m -> name; *p3; p3++)
@@ -299,7 +299,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 		}
 
 		macro_add_to_buff(&linebuff, &bloc, &blen, '\n');
-		
+
 	}
 
 	if (m -> flags & macro_noexpand)
@@ -319,7 +319,7 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 			macro_add_to_buff(&linebuff, &bloc, &blen, *p);
 	}
 	macro_add_to_buff(&linebuff, &bloc, &blen, 0);
-	
+
 	// push the macro into the front of the stream
 	input_openstring(as, opc, linebuff);
 	lw_free(linebuff);
@@ -336,5 +336,5 @@ int expand_macro(asmstate_t *as, line_t *l, char **p, char *opc)
 
 	// indicate a macro was expanded
 	l -> hideline = 1;
-	return 0;	
+	return 0;
 }

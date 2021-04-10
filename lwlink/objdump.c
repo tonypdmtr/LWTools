@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	long bread;
 	unsigned char *filedata;
 
-	program_name = argv[0];	
+	program_name = argv[0];
 	if (argc != 2)
 	{
 		fprintf(stderr, "Must specify exactly one input file.\n");
@@ -99,9 +99,9 @@ int main(int argc, char **argv)
 	fseek(f, 0, SEEK_END);
 	size = ftell(f);
 	rewind(f);
-		
+
 	filedata = lw_alloc(size);
-		
+
 	bread = fread(filedata, 1, size, f);
 	if (bread < size)
 	{
@@ -109,9 +109,9 @@ int main(int argc, char **argv)
 		perror("");
 		exit(1);
 	}
-			
+
 	fclose(f);
-		
+
 	if (!memcmp(filedata, "LWOBJ16", 8))
 	{
 		// read v0 LWOBJ16 file
@@ -173,23 +173,23 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 		"COM"
 	};
 	static const int numopers = 13;
-		
+
 	// start reading *after* the magic number
 	cc = 8;
-	
+
 	while (1)
 	{
 		bss = 0;
 //		constant = 0;
-		
+
 		// bail out if no more sections
 		if (!(CURBYTE()))
 			break;
-		
+
 		fp = CURSTR();
-		
+
 		printf("SECTION %s\n", fp);
-		
+
 		// read flags
 		while (CURBYTE())
 		{
@@ -203,7 +203,7 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 				printf("    FLAG: CONSTANT\n");
 //				constant = 1;
 				break;
-				
+
 			default:
 				printf("    FLAG: %02X (unknown)\n", CURBYTE());
 				break;
@@ -212,7 +212,7 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 		}
 		// skip NUL terminating flags
 		NEXTBYTE();
-		
+
 		printf("    Local symbols:\n");
 		// now parse the local symbol table
 		while (CURBYTE())
@@ -225,15 +225,15 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 			val |= (CURBYTE());
 			NEXTBYTE();
 			// val is now the symbol value
-			
+
 			printf("        %s=%04X\n", string_cleanup((char *)fp), val);
-			
+
 		}
 		// skip terminating NUL
 		NEXTBYTE();
 
 		printf("    Exported symbols\n");
-				
+
 		// now parse the exported symbol table
 		while (CURBYTE())
 		{
@@ -245,12 +245,12 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 			val |= (CURBYTE());
 			NEXTBYTE();
 			// val is now the symbol value
-			
+
 			printf("        %s=%04X\n", string_cleanup((char *)fp), val);
 		}
 		// skip terminating NUL
 		NEXTBYTE();
-		
+
 		// now parse the incomplete references and make a list of
 		// external references that need resolution
 		printf("    Incomplete references\n");
@@ -275,17 +275,17 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 						tt -= 0x10000;
 					printf(" I16=%d", tt);
 					break;
-				
+
 				case 0x02:
 					// external symbol reference
 					printf(" ES=%s", string_cleanup((char *)CURSTR()));
 					break;
-					
+
 				case 0x03:
 					// internal symbol reference
 					printf(" IS=%s", string_cleanup((char *)CURSTR()));
 					break;
-				
+
 				case 0x04:
 					// operator
 					if (CURBYTE() > 0 && CURBYTE() <= numopers)
@@ -300,20 +300,20 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 					// the section base address
 					printf(" SB");
 					break;
-				
+
 				case 0xFF:
 					// section flags
 					printf(" FLAGS=%02X", CURBYTE());
 					NEXTBYTE();
 					break;
-					
+
 				default:
 					printf(" ERR");
 				}
 			}
 			// skip the NUL
 			NEXTBYTE();
-			
+
 			// fetch the offset
 			val = CURBYTE() << 8;
 			NEXTBYTE();
@@ -323,16 +323,16 @@ void read_lwobj16v0(unsigned char *filedata, long filesize)
 		}
 		// skip the NUL terminating the relocations
 		NEXTBYTE();
-				
+
 		// now set code location and size and verify that the file
 		// contains data going to the end of the code (if !SECTION_BSS)
 		val = CURBYTE() << 8;
 		NEXTBYTE();
 		val |= CURBYTE();
 		NEXTBYTE();
-		
+
 		printf("    CODE %04X bytes", val);
-		
+
 		// skip the code if we're not in a BSS section
 		if (!bss)
 		{

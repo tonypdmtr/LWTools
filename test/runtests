@@ -29,7 +29,7 @@ while ($fe = readdir DH)
 {
 	next if ($fe =~ /^\./);
 	next if ($fe =~ /~$/);
-	
+
 	$fn = $testdir . '/' . $fe;
 
 	open P,"$fn|";

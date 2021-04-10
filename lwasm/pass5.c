@@ -38,7 +38,7 @@ Force resolution of all line addresses
 static int exprok_aux(lw_expr_t e, void *priv)
 {
 	asmstate_t *as = priv;
-	
+
 	if (lw_expr_istype(e, lw_expr_type_int))
 		return 0;
 	if (lw_expr_istype(e, lw_expr_type_oper))
@@ -50,7 +50,7 @@ static int exprok_aux(lw_expr_t e, void *priv)
 		if (t == lwasm_expr_secbase)
 			return 0;
 	}
-	
+
 	return 1;
 }
 
@@ -86,7 +86,7 @@ void do_pass5(asmstate_t *as)
 	while (cnt > 0)
 	{
 		ocnt = cnt;
-		
+
 		// find an unresolved address
 		for ( ; sl && exprok(as, sl -> addr) && exprok(as, sl -> daddr); sl = sl -> next)
 			/* do nothing */ ;
@@ -96,7 +96,7 @@ void do_pass5(asmstate_t *as)
 		{
 			as -> cl = sl;
 			lwasm_reduce_expr(as, sl -> addr);
-		
+
 			if (exprok(as, cl -> addr))
 			{
 				if (0 == --cnt)
@@ -109,11 +109,11 @@ void do_pass5(asmstate_t *as)
 					return;
 			}
 		}
-		
+
 		if (cnt == ocnt)
 			break;
 	}
-	
+
 	if (cnt)
 	{
 		// we have non-resolved line addresses here

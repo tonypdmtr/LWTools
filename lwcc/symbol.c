@@ -33,7 +33,7 @@ void symbol_free(struct symtab_e *s)
 	int i;
 
 	lw_free(s -> name);
-	
+
 	for (i = 0; i < s -> nargs; i++)
 		lw_free(s -> params[i]);
 	lw_free(s -> params);
@@ -43,7 +43,7 @@ void symbol_free(struct symtab_e *s)
 struct symtab_e *symtab_find(struct preproc_info *pp, char *name)
 {
 	struct symtab_e *s;
-	
+
 	for (s = pp -> sh; s; s = s -> next)
 	{
 		if (strcmp(s -> name, name) == 0)
@@ -57,7 +57,7 @@ struct symtab_e *symtab_find(struct preproc_info *pp, char *name)
 void symtab_undef(struct preproc_info *pp, char *name)
 {
 	struct symtab_e *s, **p;
-	
+
 	p = &(pp -> sh);
 	for (s = pp -> sh; s; s = s -> next)
 	{
@@ -75,7 +75,7 @@ void symtab_define(struct preproc_info *pp, char *name, struct token_list *def, 
 {
 	struct symtab_e *s;
 	int i;
-		
+
 	s = lw_alloc(sizeof(struct symtab_e));
 	s -> name = lw_strdup(name);
 	s -> tl = def;
@@ -97,7 +97,7 @@ void symtab_dump(struct preproc_info *pp)
 	struct symtab_e *s;
 	struct token *t;
 	int i;
-		
+
 	for (s = pp -> sh; s; s = s -> next)
 	{
 		printf("%s", s -> name);

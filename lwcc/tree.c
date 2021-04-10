@@ -100,12 +100,12 @@ node_t *node_create(int type, ...)
 	node_t *r;
 	int nargs = 0;
 	va_list args;
-	
+
 	va_start(args, type);
 	r = lw_alloc(sizeof(node_t));
 	memset(r, 0, sizeof(node_t));
 	r -> type = type;
-	
+
 	switch (type)
 	{
 	case NODE_OPER_PLUS:
@@ -160,29 +160,29 @@ node_t *node_create(int type, ...)
 	case NODE_OPER_POSTDEC:
 		nargs = 1;
 		break;
-	
+
 	case NODE_TYPE_PTR:
 		nargs = 1;
 		break;
-		
+
 	case NODE_IDENT:
 	case NODE_CONST_INT:
 		r -> strval = lw_strdup(va_arg(args, char *));
 		break;
-	
+
 	case NODE_FUNDEF:
 		nargs = 4;
 		break;
-	
+
 	case NODE_OPER_COND:
 		nargs = 3;
 		break;
-	
+
 	case NODE_FUNDECL:
 		nargs = 3;
 		break;
 	}
-	
+
 	while (nargs--)
 	{
 		node_addchild(r, va_arg(args, node_t *));
@@ -194,7 +194,7 @@ node_t *node_create(int type, ...)
 void node_destroy(node_t *node)
 {
 	node_t *n;
-	
+
 	while (node -> children)
 	{
 		n = node -> children -> next_child;
@@ -208,10 +208,10 @@ void node_destroy(node_t *node)
 void node_addchild(node_t *node, node_t *nn)
 {
 	node_t *tmp;
-	
+
 	if (!nn)
 		return;
-	
+
 	nn -> parent = node;
 	nn -> next_child = NULL;
 	if (node -> children)
@@ -230,10 +230,10 @@ void node_removechild(node_t *node, node_t *nn)
 {
 	node_t **pp;
 	node_t *np;
-	
+
 	if (!node)
 		node = nn -> parent;
-	
+
 	pp = &(node -> children);
 	for (np = node -> children; np; np = np -> next_child)
 	{
@@ -243,7 +243,7 @@ void node_removechild(node_t *node, node_t *nn)
 	}
 	if (!np)
 		return;
-	
+
 	*pp = nn -> next_child;
 	nn -> parent = NULL;
 	nn -> next_child = NULL;
@@ -259,7 +259,7 @@ static void node_display_aux(node_t *node, FILE *f, int level)
 {
 	node_t *nn;
 	int i;
-	
+
 	for (i = 0; i < level * 4; i++)
 		fputc(' ', f);
 	fprintf(f, "(%s ", node_names[node -> type]);

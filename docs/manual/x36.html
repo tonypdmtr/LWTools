@@ -79,9 +79,9 @@ NAME="AEN36"
 ><P
 >This ASCII format consists of a series of CR+LF terminated "records" of ASCII
 text. Each record has the following structure: a start-of-record character
-"S", an ASCII record type digit (0-9), a two-digit ASCII hex byte count, a 
+"S", an ASCII record type digit (0-9), a two-digit ASCII hex byte count, a
 four-digit ASCII hex address, an optional sequence of two-digit ASCII hex data
-values, and a two-digit ASCII hex checksum. The LW tool chain issues only S0, 
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only S0,
 S1, S5 and S9 record types. S1 records are limited to maximum of 16 data bytes
 in length, and  paragraph alignment of addresses is favored. The address
 sequence of the S-Records directly follows that of the source file; multiple
@@ -89,7 +89,7 @@ ORG directives in the source code may result in out-of-sequence addresses in
 the S-Record output. </P
 ><P
 >Motorola S-Record format is a standard ASCII format accepted by most memory
-device programming equipment. It is particularly useful when the assembled 
+device programming equipment. It is particularly useful when the assembled
 code output is destined to reside within an EPROM or Flash memory device,
 for example.</P
 ><P

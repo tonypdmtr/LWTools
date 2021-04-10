@@ -385,13 +385,13 @@ NAME="AEN32"
 >2.3. ASCII Hexadecimal</A
 ></H2
 ><P
->This human-readable ASCII hexadecimal format consists of CR+LF terminated 
-lines of ASCII text. Each line has the following structure: a zero-padded 
+>This human-readable ASCII hexadecimal format consists of CR+LF terminated
+lines of ASCII text. Each line has the following structure: a zero-padded
 four-digit ASCII hex address, a colon separator, and one or more zero-padded
-two-digit hex values separated by commas. ASCII Hexadecimal format favors 
+two-digit hex values separated by commas. ASCII Hexadecimal format favors
 paragraph-aligned addresses (i.e. a least significant address nybble value
 of zero). During output, the number of hex values on each line are adjusted
-to align the address of the next line on a paragraph boundary. The sequence 
+to align the address of the next line on a paragraph boundary. The sequence
 of addresses in the ASCII Hexadecimal file directly follows that of the source
 file; multiple ORG directives in the source code may result in out-of-sequence
 addresses in the ASCII Hexadecimal output.</P
@@ -409,9 +409,9 @@ NAME="AEN36"
 ><P
 >This ASCII format consists of a series of CR+LF terminated "records" of ASCII
 text. Each record has the following structure: a start-of-record character
-"S", an ASCII record type digit (0-9), a two-digit ASCII hex byte count, a 
+"S", an ASCII record type digit (0-9), a two-digit ASCII hex byte count, a
 four-digit ASCII hex address, an optional sequence of two-digit ASCII hex data
-values, and a two-digit ASCII hex checksum. The LW tool chain issues only S0, 
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only S0,
 S1, S5 and S9 record types. S1 records are limited to maximum of 16 data bytes
 in length, and  paragraph alignment of addresses is favored. The address
 sequence of the S-Records directly follows that of the source file; multiple
@@ -419,7 +419,7 @@ ORG directives in the source code may result in out-of-sequence addresses in
 the S-Record output. </P
 ><P
 >Motorola S-Record format is a standard ASCII format accepted by most memory
-device programming equipment. It is particularly useful when the assembled 
+device programming equipment. It is particularly useful when the assembled
 code output is destined to reside within an EPROM or Flash memory device,
 for example.</P
 ><P
@@ -438,15 +438,15 @@ NAME="AEN41"
 >This ASCII format consists of a series of CR+LF terminated "records" of ASCII
 text. Each record has the following structure: a start-of-record character
 ":", a two-digit ASCII hex byte count, a four-digit ASCII hex address, a two-
-digit ASCII hex record type, an optional sequence of two-digit ASCII hex data 
-values, and a two-digit ASCII hex checksum. The LW tool chain issues only 00, 
-and 01 Intel Hex record types. Data records are limited to maximum of 16 
-data bytes in length, and paragraph alignment of addresses is favored. The 
-address sequence of the Intel hex records directly follows that of the source 
-file; multiple ORG directives in the source code may result in out-of-sequence 
+digit ASCII hex record type, an optional sequence of two-digit ASCII hex data
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only 00,
+and 01 Intel Hex record types. Data records are limited to maximum of 16
+data bytes in length, and paragraph alignment of addresses is favored. The
+address sequence of the Intel hex records directly follows that of the source
+file; multiple ORG directives in the source code may result in out-of-sequence
 addresses in the Intel Hex output. </P
 ><P
->Intel Hex format is the other standard ASCII format accepted by most memory 
+>Intel Hex format is the other standard ASCII format accepted by most memory
 device programming equipment, it and the Motorola S-Record format are used for
 similar purposes.</P
 ><P
@@ -512,7 +512,7 @@ linked to be collapsed together in the final binary.</P
 >Object files are very flexible in that they allow references that are not
 known at assembly time to be resolved at link time.  However, because the
 addresses of such references are not known at assembly time, there is no way
-for the assembler to deduce that an eight bit addressing mode is possible. 
+for the assembler to deduce that an eight bit addressing mode is possible.
 That means the assember will default to using sixteen bit addressing
 whenever an external or cross-section reference is used.</P
 ><P
@@ -522,7 +522,7 @@ are really in the direct page since the linker does not know what the direct
 page is supposed to be and does not emit errors for byte overflows.</P
 ><P
 >It is also possible to use external references in an eight bit immediate
-mode instruction.  In this case, only the low order eight bits will be used. 
+mode instruction.  In this case, only the low order eight bits will be used.
 Again, no byte overflows will be flagged.</P
 ></DIV
 ></DIV
@@ -645,7 +645,7 @@ CLASS="OPTION"
 a raw binary, <CODE
 CLASS="OPTION"
 >hex</CODE
-> for ASCII hexadecminal format, 
+> for ASCII hexadecminal format,
 <CODE
 CLASS="OPTION"
 >srec</CODE
@@ -910,8 +910,8 @@ CLASS="PARAMETER"
 instructions.  While there is general agreement on the pneumonics for most
 of the 6309 instructions, there is some variance with the block transfer
 instructions.  TFM for all four variations seems to have gained the most
-traction and, thus, this is the form that is recommended for LWASM. 
-However, it also supports COPY, COPY-, IMP, EXP, TFRP, TFRM, TFRS, and TFRR. 
+traction and, thus, this is the form that is recommended for LWASM.
+However, it also supports COPY, COPY-, IMP, EXP, TFRP, TFRM, TFRS, and TFRR.
 It further adds COPY+ as a synomym for COPY, IMPLODE for IMP, and EXPAND for
 EXP.  </P
 ><P
@@ -1032,7 +1032,7 @@ current source line within expressions. </P
 single quote ('). The ASCII values of two characters can be included by
 prefixing the characters with a quote (").</P
 ><P
->&#13;LWASM supports the following basic binary operators: +, -, *, /, and %. 
+>&#13;LWASM supports the following basic binary operators: +, -, *, /, and %.
 These represent addition, subtraction, multiplication, division, and
 modulus.  It also supports unary negation and unary 1's complement (- and ^
 respectively).  It is also possible to use ~ for the unary 1's complement
@@ -1047,7 +1047,7 @@ than addition and subtraction.  To force a specific order of evaluation,
 parentheses can be used in the usual manner.&#13;</P
 ><P
 >&#13;As of LWASM 2.5, the operators &#38;&#38; and || are recognized for boolean and and
-boolean or respectively.  They will return either 0 or 1 (false or true). 
+boolean or respectively.  They will return either 0 or 1 (false or true).
 They have the lowest precedence of all the binary operators.&#13;</P
 ></DIV
 ><DIV
@@ -1323,7 +1323,7 @@ CLASS="PARAMETER"
 >Set the assembly address. The address must be fully resolvable on the
 first pass so no external or forward references are permitted. ORG is not
 permitted within sections when outputting to object files. For target formats
-that include address information (decb, hex, srec, and ihex), an ORG 
+that include address information (decb, hex, srec, and ihex), an ORG
 directive will re-start the address sequence within the output. When using
 the raw target format, ORG is used only to determine the addresses of symbols.</P
 ></DD
@@ -1424,7 +1424,7 @@ CLASS="PARAMETER"
 >value</CODE
 >
 will be used as the fill.  The alignment value must be fully resolved on the
-first pass because it affects the addresses of subsquent instructions. 
+first pass because it affects the addresses of subsquent instructions.
 However, <CODE
 CLASS="PARAMETER"
 >value</CODE
@@ -1436,7 +1436,7 @@ accepted.</P
 CLASS="PARAMETER"
 >value</CODE
 > is specified as something like $12,
-this directive is not suitable for inclusion in the middle of actual code. 
+this directive is not suitable for inclusion in the middle of actual code.
 The default padding value is $00 which is intended to be used within data
 blocks.  </P
 ></DD
@@ -1910,7 +1910,7 @@ NAME="AEN585"
 >&#13;Structures are used to group related data in a fixed structure. A structure
 consists a number of fields, defined in sequential order and which take up
 specified size.  The assembler does not enforce any means of access within a
-structure; it assumes that whatever you are doing, you intended to do. 
+structure; it assumes that whatever you are doing, you intended to do.
 There are two pseudo ops that are used for defining structures.&#13;</P
 ><P
 ></P
@@ -2046,7 +2046,7 @@ such things as EQU or RMB. Even ORG can appear outside a section. ORG, however,
 makes no sense within a section because it is the linker that determines
 the starting address of the section's code, not the assembler.</P
 ><P
->All symbols defined globally in the assembly process are local to the 
+>All symbols defined globally in the assembly process are local to the
 source file and cannot be exported. All symbols defined within a section are
 considered local to the source file unless otherwise explicitly exported.
 Symbols referenced from external source files must be declared external,
@@ -2286,7 +2286,7 @@ CLASS="PARAMETER"
 ></DL
 ></DIV
 ><P
->Each pragma supported has a positive version and a negative version. 
+>Each pragma supported has a positive version and a negative version.
 The positive version enables the pragma while the negative version disables
 it.  The negatitve version is simply the positive version with "no" prefixed
 to it.  For instance, "pragma" vs.  "nopragma".  When only one version is
@@ -2305,7 +2305,7 @@ CLASS="VARIABLELIST"
 ><P
 >When in force, this pragma enables recognition of various
 compatibility instructions useful when assembling 6800 code.  These
-compatibility instructions are assembled into equivalent 6809 instructions. 
+compatibility instructions are assembled into equivalent 6809 instructions.
 This mode also includes several analogous instructions which are not
 strictly 6800 instructions but allow the similar style to be applied to 6809
 specific features.</P
@@ -2336,7 +2336,7 @@ to display 6309 timings.</P
 ><DD
 ><P
 >These pragmas enable convenience instructions extending the 6809 and 6309
-instruction sets respectively. For more information, see 
+instruction sets respectively. For more information, see
 <A
 HREF="#CONVINST"
 >Section 3.11</A
@@ -2401,7 +2401,7 @@ for one or two files to use this pragma internally.</P
 ><P
 >This pragma causes all symbols to be added to the export list
 automatically.  This is useful when a large number of symbols need to be
-exported but you do not wish to include an EXPORT directive for all of them. 
+exported but you do not wish to include an EXPORT directive for all of them.
 This is often useful on the command line but might be useful even inline
 with the PRAGMA directive if a large number of symbols in a row are to be
 exported.</P
@@ -2456,7 +2456,7 @@ symbols.</P
 ><DD
 ><P
 >One of the perennial annoyances for 6809 programmers is that the
-mneumonics for the short and long branch instructions are different (bxx vs. 
+mneumonics for the short and long branch instructions are different (bxx vs.
 lbxx), which is at odds with the rest of the instruction set.  This pragma
 is a solution to those annoying byte overflow errors that short branch
 instructions tend to aquire.</P
@@ -2581,7 +2581,7 @@ unmodified, vintage source code.</P
 an include file.  Instead of terminating all assembly, it merely stops
 processing of the current include file (this behavior matches the original
 Motorola 6809 assembler).  In addition, loading an ASCII value with a single
-quote (e.g., LDA #'N) is extended to 16-bit registers (e.g., LDD #'NO). 
+quote (e.g., LDA #'N) is extended to 16-bit registers (e.g., LDD #'NO).
 LWASM normally supports this via double quote and that is the proper use in
 modern code.  Finally, the FCC pseudo-op is extended to handle FCB-like
 behavior after the closing delimiter:</P
@@ -2634,7 +2634,7 @@ FSTR  FCC   "%hu,%hhu - %hu,%hhu"
 ><P
 >As a convenience, each input file has a pragma state stack. This
 allows, through the use of *PRAGMAPUSH and *PRAGMAPOP, a file to change a
-pragma state and then restore it to the precise state it had previously. 
+pragma state and then restore it to the precise state it had previously.
 If, at the end of an input file, all pragma states have not been popped,
 they will be removed from the stack.  Thus, it is critical to employ
 *PRAGMAPOP correctly. Because each input file has its own pragma stack,
@@ -2665,7 +2665,7 @@ target both the 6809 and the 6309.</P
 ><P
 >&#13;The 6809 extensions are straightforward with the exception of "TSTD" which
 assembles as "STD -2,S".  A benefit of using these is they will "just work"
-and take on their 6309 equivalent when you enable 6309 assembly mode. 
+and take on their 6309 equivalent when you enable 6309 assembly mode.
 Supported instructions: ASRD, CLRD,   COMD,   LSLD,   LSRD,   NEGD,   TSTD.</P
 ><P
 >&#13;6309 extensions are based on common patterns described by Chris Burke and
@@ -2694,7 +2694,7 @@ opt ct - show a running subtotal of cycles
 opt cc - clear the running subtotal</PRE
 ><P
 >&#13;The assembler supports both 6809 as well as native-mode 6309 cycle counts.
-In 6309 mode the counts are displayed in parenthesis instead of brackets. 
+In 6309 mode the counts are displayed in parenthesis instead of brackets.
 In addition, some operations have a variable cycle count.  In this case a
 "+?" is displayed to alert the reader.  Sample output is shown below.</P
 ><PRE
@@ -3043,7 +3043,7 @@ CLASS="PARAMETER"
 each section using the pattern specified by <CODE
 CLASS="PARAMETER"
 >string</CODE
->. 
+>.
 In the string, %s can appear exactly once and will be replaced with the
 section name.  The base address is calculated after all instances of each
 section have been collapsed together.&#13;</P
@@ -3226,7 +3226,7 @@ what you want.</P
 ><P
 >The type, language, attributes, revision, and module name can all be
 overridden by providing a special section in exactly one of the object files
-to be linked.  This section is called "__os9" (note the two underscores). 
+to be linked.  This section is called "__os9" (note the two underscores).
 To override the type, language, attributes, or revision values, define a
 non-exported symbol in this section called "type", "lang", "attr", or "rev"
 respectively.  Any other symbols defined are ignored.  To override the

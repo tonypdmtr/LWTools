@@ -67,15 +67,15 @@ void lwasm_do_unicorns(asmstate_t *as)
 	int i;
 	line_t *l;
 	lwasm_error_t *ee;
-			
-	/* output file list */	
+
+	/* output file list */
 	for (ifl = ifl_head; ifl; ifl = ifl -> next)
 	{
 		fputs("RESOURCE: type=file,filename=", stdout);
 		print_urlencoding(stdout, ifl -> fn);
 		fputc('\n', stdout);
 	}
-	
+
 	/* output macro list */
 	for (me = as -> macros; me; me = me -> next)
 	{
@@ -93,7 +93,7 @@ void lwasm_do_unicorns(asmstate_t *as)
 		}
 		fputc('\n', stdout);
 	}
-	
+
 	/* output structure list */
 	for (se = as -> structs; se; se = se -> next)
 	{
@@ -112,7 +112,7 @@ void lwasm_do_unicorns(asmstate_t *as)
 				show_unicorn_error(stdout, l, ee, "ERROR");
 			}
 		}
-		
+
 		if (l -> warn)
 		{
 			for (ee = l -> warn; ee; ee = ee -> next)
@@ -121,6 +121,6 @@ void lwasm_do_unicorns(asmstate_t *as)
 			}
 		}
 	}
-	
+
 	fprintf(stdout, "UNICORNSAWAY:\n");
 }

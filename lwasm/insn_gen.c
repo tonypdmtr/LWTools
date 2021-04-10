@@ -40,7 +40,7 @@ void insn_parse_gen_aux(asmstate_t *as, line_t *l, char **p, int elen)
 	char *optr2;
 	int v1, tv;
 	lw_expr_t s;
-	
+
 	if (!**p)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
@@ -92,9 +92,9 @@ indexed:
 		l -> lint2 = -1;
 	}
 	lwasm_skip_to_next_token(l, p);
-	
+
 	s = lwasm_parse_expr(as, p);
-	
+
 	if (**p == ',')
 	{
 		/* we have an indexed mode here - reset and transfer control to indexing mode */
@@ -107,7 +107,7 @@ indexed:
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	lwasm_save_expr(l, 0, s);
 
 	l -> minlen = OPLEN(instab[l -> insn].ops[0]) + 1 + elen;
@@ -138,7 +138,7 @@ indexed:
 	{
 		int min;
 		int max;
-		
+
 		if (lwasm_calculate_range(as, s, &min, &max) == 0)
 		{
 //			fprintf(stderr, "range (P) %d...%d for %s\n", min, max, lw_expr_print(s));
@@ -191,23 +191,23 @@ out:
 void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen)
 {
 	lw_expr_t e;
-	
+
 	if (l -> lint2 == 1)
 	{
 		// indexed
 		insn_resolve_indexed_aux(as, l, force, elen);
 		goto out;
 	}
-	
+
 	if (l -> lint2 != -1)
 		return;
-	
+
 	e = lwasm_fetch_expr(l, 0);
 	lwasm_reduce_expr(as, e);
 	if (lw_expr_istype(e, lw_expr_type_int))
 	{
 		int v;
-		
+
 		v = lw_expr_intval(e);
 
 		if (((v >> 8) & 0xff) == (l -> dpval & 0xff))
@@ -222,7 +222,7 @@ void insn_resolve_gen_aux(asmstate_t *as, line_t *l, int force, int elen)
 	{
 		int min;
 		int max;
-		
+
 		if (lwasm_calculate_range(as, e, &min, &max) == 0)
 		{
 //			fprintf(stderr, "range (R) %d...%d for %s\n", min, max, lw_expr_print(e));
@@ -280,13 +280,13 @@ out:
 void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 {
 	lw_expr_t e;
-	
+
 	e = lwasm_fetch_expr(l, 0);
 	lwasm_emitop(l, instab[l -> insn].ops[l -> lint2]);
-	
+
 	if (extra != -1)
 		lwasm_emit(l, extra);
-	
+
 	if (l -> lint2 == 1)
 	{
 		if (l -> lint == 3)
@@ -338,7 +338,7 @@ void insn_emit_gen_aux(asmstate_t *as, line_t *l, int extra)
 		l -> cycle_adj = lwasm_cycle_calc_ind(l);
 		return;
 	}
-	
+
 	if (l -> lint2 == 2)
 	{
 		lwasm_emitexpr(l, e, 2);
@@ -382,7 +382,7 @@ PARSEFUNC(insn_parse_gen0)
 		lwasm_register_error(as, l, E_IMMEDIATE_INVALID);
 		return;
 	}
-	
+
 	// handle non-immediate
 	insn_parse_gen_aux(as, l, p, 0);
 }
@@ -407,7 +407,7 @@ PARSEFUNC(insn_parse_gen8)
 	if (**p == '#')
 	{
 		lw_expr_t e;
-		
+
 		(*p)++;
 		as -> exprwidth = 8;
 		e = lwasm_parse_expr(as, p);
@@ -422,7 +422,7 @@ PARSEFUNC(insn_parse_gen8)
 		lwasm_save_expr(l, 0, e);
 		return;
 	}
-	
+
 	// handle non-immediate
 	insn_parse_gen_aux(as, l, p, 0);
 	if (l -> lint2 != -1)
@@ -484,7 +484,7 @@ PARSEFUNC(insn_parse_gen16)
 	if (**p == '#')
 	{
 		lw_expr_t e;
-		
+
 		(*p)++;
 		e = lwasm_parse_expr(as, p);
 		if (!e)
@@ -497,7 +497,7 @@ PARSEFUNC(insn_parse_gen16)
 		lwasm_save_expr(l, 0, e);
 		return;
 	}
-	
+
 	// handle non-immediate
 	insn_parse_gen_aux(as, l, p, 0);
 	if (l -> lint2 != -1)
@@ -549,7 +549,7 @@ PARSEFUNC(insn_parse_gen32)
 	if (**p == '#')
 	{
 		lw_expr_t e;
-		
+
 		(*p)++;
 		e = lwasm_parse_expr(as, p);
 		if (!e)
@@ -562,7 +562,7 @@ PARSEFUNC(insn_parse_gen32)
 		lwasm_save_expr(l, 0, e);
 		return;
 	}
-	
+
 	// handle non-immediate
 	insn_parse_gen_aux(as, l, p, 0);
 	if (l -> lint2 != -1)
@@ -611,7 +611,7 @@ EMITFUNC(insn_emit_gen32)
 PARSEFUNC(insn_parse_imm8)
 {
 	lw_expr_t e;
-	
+
 	if (**p == '#')
 	{
 		(*p)++;
@@ -636,7 +636,7 @@ PARSEFUNC(insn_parse_imm8)
 EMITFUNC(insn_emit_imm8)
 {
 	lw_expr_t e;
-	
+
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	e = lwasm_fetch_expr(l, 0);
 	if (lw_expr_istype(e, lw_expr_type_int))

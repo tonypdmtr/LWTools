@@ -49,7 +49,7 @@ a > or < on its own still specifies a branch point.
 PARSEFUNC(insn_parse_relgen)
 {
 	lw_expr_t t = NULL, e1, e2;
-	
+
 	l -> lint = -1;
 	l -> maxlen = OPLEN(instab[l -> insn].ops[3]) + 2;
 	l -> minlen = OPLEN(instab[l -> insn].ops[2]) + 1;
@@ -70,9 +70,9 @@ PARSEFUNC(insn_parse_relgen)
 			l -> lint = 8;
 		}
 	}
-	
+
 	/* forced sizes handled */
-	
+
 	// sometimes there is a "#", ignore if there
 	if (**p == '#')
 		(*p)++;
@@ -135,7 +135,7 @@ PARSEFUNC(insn_parse_relgen)
 			}
 		}
 	}
-	
+
 	if (!t)
 	{
 		t = lwasm_parse_expr(as, p);
@@ -198,7 +198,7 @@ RESOLVEFUNC(insn_resolve_relgen)
 {
 	lw_expr_t e, e2;
 	int offs;
-	
+
 	if (l -> lint == -1)
 	{
 		e = lwasm_fetch_expr(l, 0);
@@ -268,7 +268,7 @@ RESOLVEFUNC(insn_resolve_relgen)
 	}
 	if (!force)
 		return;
-		
+
 	if (l -> len == -1)
 	{
 		l -> len = OPLEN(instab[l -> insn].ops[3]) + 2;
@@ -280,7 +280,7 @@ EMITFUNC(insn_emit_relgen)
 {
 	lw_expr_t e;
 	int offs;
-	
+
 	e = lwasm_fetch_expr(l, 0);
 	if (l -> lint == 8)
 	{
@@ -289,7 +289,7 @@ EMITFUNC(insn_emit_relgen)
 			lwasm_register_error(as, l, E_EXPRESSION_NOT_CONST);
 			return;
 		}
-	
+
 		offs = lw_expr_intval(e);
 		if (l -> lint == 8 && (offs < -128 || offs > 127))
 		{

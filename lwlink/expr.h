@@ -68,7 +68,7 @@ struct lw_expr_stack_node_s
 {
 	lw_expr_term_t		*term;
 	lw_expr_stack_node_t	*prev;
-	lw_expr_stack_node_t	*next;	
+	lw_expr_stack_node_t	*next;
 };
 
 typedef struct lw_expr_stack_s

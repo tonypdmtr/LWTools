@@ -35,13 +35,13 @@ This file implements the various pseudo operations related to OS9 target
 PARSEFUNC(pseudo_parse_os9)
 {
 	lw_expr_t e;
-	
+
 	if (as -> output_format != OUTPUT_OS9 && as -> output_format != OUTPUT_OBJ)
 	{
 		lwasm_register_error2(as, l, E_DIRECTIVE_OS9_ONLY, "%s", "os9");
 		return;
 	}
-	
+
 	// fetch immediate value
 	e = lwasm_parse_expr(as, p);
 	if (!e)
@@ -56,7 +56,7 @@ PARSEFUNC(pseudo_parse_os9)
 EMITFUNC(pseudo_emit_os9)
 {
 	lw_expr_t e;
-	
+
 	e = lwasm_fetch_expr(l, 0);
 
 	lwasm_emitop(l, 0x103f);
@@ -67,14 +67,14 @@ PARSEFUNC(pseudo_parse_mod)
 {
 	lw_expr_t e;
 	int i;
-	
+
 	if (as -> output_format != OUTPUT_OS9)
 	{
 		lwasm_register_error2(as, l, E_DIRECTIVE_OS9_ONLY, "%s", "mod");
 		skip_operand(p);
 		return;
 	}
-	
+
 	if (as -> inmod)
 	{
 		lwasm_register_error(as, l, E_MODULE_IN);
@@ -111,7 +111,7 @@ PARSEFUNC(pseudo_parse_mod)
 	lwasm_save_expr(l, 5, e);
 
 	l -> inmod = 1;
-	
+
 	// we have an implicit ORG 0 with "mod"
 	lw_expr_destroy(l -> addr);
 	l -> addr = lw_expr_build(lw_expr_type_int, 0);
@@ -122,7 +122,7 @@ PARSEFUNC(pseudo_parse_mod)
 
 	// init crc
 	as -> inmod = 1;
-	
+
 	l -> len = 13;
 }
 
@@ -130,7 +130,7 @@ EMITFUNC(pseudo_emit_mod)
 {
 	lw_expr_t e1, e2, e3, e4;
 	int csum;
-	
+
 	as -> crc[0] = 0xff;
 	as -> crc[1] = 0xff;
 	as -> crc[2] = 0xff;
@@ -138,19 +138,19 @@ EMITFUNC(pseudo_emit_mod)
 	// sync bytes
 	lwasm_emit(l, 0x87);
 	lwasm_emit(l, 0xcd);
-	
+
 	// mod length
 	lwasm_emitexpr(l, e1 = lwasm_fetch_expr(l, 0), 2);
-	
+
 	// name offset
 	lwasm_emitexpr(l, e2 = lwasm_fetch_expr(l, 1), 2);
-	
+
 	// type
 	lwasm_emitexpr(l, e3 = lwasm_fetch_expr(l, 2), 1);
-	
+
 	// flags/rev
 	lwasm_emitexpr(l, e4 = lwasm_fetch_expr(l, 3), 1);
-	
+
 	// header check
 	csum = ~(0x87 ^ 0xCD ^(lw_expr_intval(e1) >> 8) ^ (lw_expr_intval(e1) & 0xff)
 		^ (lw_expr_intval(e2) >> 8) ^ (lw_expr_intval(e2) & 0xff)
@@ -160,10 +160,10 @@ EMITFUNC(pseudo_emit_mod)
 	// module type specific output
 	// note that these are handled the same for all so
 	// there need not be any special casing
-	
+
 	// exec offset or fmgr name offset
 	lwasm_emitexpr(l, lwasm_fetch_expr(l, 4), 2);
-	
+
 	// data size or drvr name offset
 	lwasm_emitexpr(l, lwasm_fetch_expr(l, 5), 2);
 }
@@ -176,13 +176,13 @@ PARSEFUNC(pseudo_parse_emod)
 		lwasm_register_error2(as, l, E_DIRECTIVE_OS9_ONLY, "%s", "emod");
 		return;
 	}
-	
+
 	if (!(as -> inmod))
 	{
 		lwasm_register_error(as, l, E_MODULE_NOTIN);
 		return;
 	}
-	
+
 	as -> inmod = 0;
 	l -> len = 3;
 }
@@ -190,7 +190,7 @@ PARSEFUNC(pseudo_parse_emod)
 EMITFUNC(pseudo_emit_emod)
 {
 	unsigned char tcrc[3];
-	
+
 	// don't mess with CRC!
 	tcrc[0] = as -> crc[0] ^ 0xff;
 	tcrc[1] = as -> crc[1] ^ 0xff;

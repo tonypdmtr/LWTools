@@ -32,7 +32,7 @@ char *generate_nextlabel(void)
 {
     static int labelnum = 0;
     char buf[16];
-    
+
     sprintf(buf, "L%d", labelnum++);
     return lw_strdup(buf);
 }
@@ -109,7 +109,7 @@ void generate_code(node_t *n, FILE *output)
         generate_code(n->children->next_child->next_child->next_child, output);
         fprintf(output, "\trts\n");
         break;
-    
+
     case NODE_CONST_INT:
         fprintf(output, "\tldd #%s\n", n->strval);
         break;
@@ -120,7 +120,7 @@ void generate_code(node_t *n, FILE *output)
         generate_code(n->children->next_child, output);
         fprintf(output, "\taddd ,s++\n");
         break;
-    
+
     case NODE_OPER_MINUS:
         generate_code(n->children, output);
         fprintf(output, "\tpshs d,x\n");
@@ -141,7 +141,7 @@ void generate_code(node_t *n, FILE *output)
         generate_code(n->children->next_child, output);
         fprintf(output, "\tjsr ___div16i\n\tpuls d\n");
         break;
-    
+
     case NODE_OPER_MOD:
         generate_code(n -> children, output);
         fprintf(output, "\tpshs d\n");
@@ -169,12 +169,12 @@ void generate_code(node_t *n, FILE *output)
         lw_free(label1);
         lw_free(label2);
         break;
-    
+
     case NODE_OPER_COMMA:
         generate_code(n -> children, output);
         generate_code(n -> children -> next_child, output);
         break;
-    
+
     case NODE_OPER_BWAND:
         generate_code(n -> children, output);
         fprintf(output, "\tpshs d\n");
@@ -214,7 +214,7 @@ void generate_code(node_t *n, FILE *output)
         fprintf(output, "\tsubd #0\n\tbeq %s\n%s\tldd #1\n%s\n", label2, label1, label2);
         lw_free(label1);
         lw_free(label2);
-        break; 
+        break;
 
     case NODE_OPER_NE:
     case NODE_OPER_EQ:
@@ -241,7 +241,7 @@ void generate_code(node_t *n, FILE *output)
         lw_free(label1);
         lw_free(label2);
         break;
-    
+
     default:
         for (nn = n -> children; nn; nn = nn -> next_child)
             generate_code(nn, output);

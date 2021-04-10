@@ -21,7 +21,7 @@ add_library(lwlib
     ${LWLIB_WIN}
 )
 
-add_executable(lwasm 
+add_executable(lwasm
     lwasm/audit.c
     lwasm/cycle.c
     lwasm/cmt.c
@@ -87,4 +87,3 @@ add_executable(lwobjdump
     lwlink/objdump.c
 )
 target_link_libraries(lwobjdump lwlib)
-

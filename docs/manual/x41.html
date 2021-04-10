@@ -80,15 +80,15 @@ NAME="AEN41"
 >This ASCII format consists of a series of CR+LF terminated "records" of ASCII
 text. Each record has the following structure: a start-of-record character
 ":", a two-digit ASCII hex byte count, a four-digit ASCII hex address, a two-
-digit ASCII hex record type, an optional sequence of two-digit ASCII hex data 
-values, and a two-digit ASCII hex checksum. The LW tool chain issues only 00, 
-and 01 Intel Hex record types. Data records are limited to maximum of 16 
-data bytes in length, and paragraph alignment of addresses is favored. The 
-address sequence of the Intel hex records directly follows that of the source 
-file; multiple ORG directives in the source code may result in out-of-sequence 
+digit ASCII hex record type, an optional sequence of two-digit ASCII hex data
+values, and a two-digit ASCII hex checksum. The LW tool chain issues only 00,
+and 01 Intel Hex record types. Data records are limited to maximum of 16
+data bytes in length, and paragraph alignment of addresses is favored. The
+address sequence of the Intel hex records directly follows that of the source
+file; multiple ORG directives in the source code may result in out-of-sequence
 addresses in the Intel Hex output. </P
 ><P
->Intel Hex format is the other standard ASCII format accepted by most memory 
+>Intel Hex format is the other standard ASCII format accepted by most memory
 device programming equipment, it and the Motorola S-Record format are used for
 similar purposes.</P
 ><P

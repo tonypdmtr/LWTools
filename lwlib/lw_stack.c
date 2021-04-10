@@ -29,7 +29,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 lw_stack_t lw_stack_create(void (*freefn)(void *d))
 {
 	lw_stack_t S;
-	
+
 	S = lw_alloc(sizeof(struct lw_stack_priv));
 	S -> head = NULL;
 	S -> freefn = freefn;
@@ -41,7 +41,7 @@ void *lw_stack_pop(lw_stack_t S)
 	if (S -> head)
 	{
 		void *ret, *r2;
-		
+
 		ret = S -> head -> data;
 		r2 = S -> head;
 		S -> head = S -> head -> next;
@@ -54,7 +54,7 @@ void *lw_stack_pop(lw_stack_t S)
 void lw_stack_destroy(lw_stack_t S)
 {
 	void *d;
-	
+
 	while ((d = lw_stack_pop(S)))
 		(S->freefn)(d);
 	lw_free(S);
@@ -70,7 +70,7 @@ void *lw_stack_top(lw_stack_t S)
 void lw_stack_push(lw_stack_t S, void *item)
 {
 	struct lw_stack_node_priv *t;
-	
+
 	t = lw_alloc(sizeof(struct lw_stack_node_priv));
 	t -> next = S -> head;
 	S -> head = t;

@@ -42,7 +42,7 @@ static int fetch_byte_ll(struct preproc_info *pp)
 {
 	int c;
 
-	if (pp -> eolstate != 0)	
+	if (pp -> eolstate != 0)
 	{
 		pp -> lineno++;
 		pp -> column = 0;
@@ -63,7 +63,7 @@ static int fetch_byte_ll(struct preproc_info *pp)
 			c = getc(pp -> fp);
 		pp -> eolstate = 0;
 	}
-	
+
 	if (c == 10)
 	{
 		// we have LF - end of line, flag to munch CR
@@ -89,7 +89,7 @@ static int fetch_byte_ll(struct preproc_info *pp)
 static int fetch_byte_tg(struct preproc_info *pp)
 {
 	int c;
-	
+
 	if (!pp -> trigraphs)
 	{
 		c = fetch_byte_ll(pp);
@@ -112,14 +112,14 @@ static int fetch_byte_tg(struct preproc_info *pp)
 				return c;
 			}
 		}
-	
+
 		c = fetch_byte_ll(pp);
 		while (c == '?')
 		{
 			pp -> qseen++;
 			c = fetch_byte_ll(pp);
 		}
-	
+
 		if (pp -> qseen >= 2)
 		{
 			// we have a trigraph
@@ -129,42 +129,42 @@ static int fetch_byte_tg(struct preproc_info *pp)
 				c = '#';
 				pp -> qseen -= 2;
 				break;
-			
+
 			case '/':
 				c = '\\';
 				pp -> qseen -= 2;
 				break;
-		
+
 			case '\'':
 				c = '^';
 				pp -> qseen -= 2;
 				break;
-		
+
 			case '(':
 				c = '[';
 				pp -> qseen -= 2;
 				break;
-		
+
 			case ')':
 				c = ']';
 				pp -> qseen -= 2;
 				break;
-		
+
 			case '!':
 				c = '|';
 				pp -> qseen -= 2;
 				break;
-		
+
 			case '<':
 				c = '{';
 				pp -> qseen -= 2;
 				break;
-		
+
 			case '>':
 				c = '}';
 				pp -> qseen -= 2;
 				break;
-		
+
 			case '-':
 				c = '~';
 				pp -> qseen -= 2;
@@ -240,7 +240,7 @@ static int fetch_byte(struct preproc_info *pp)
 		}
 		return c;
 	}
-	
+
 again:
 	if (pp -> unget != CPP_NOUNG)
 	{
@@ -296,7 +296,7 @@ int preproc_lex_fetch_byte(struct preproc_info *pp)
 		pp -> eolseen = 1;
 		return CPP_EOL;
 	}
-	
+
 	if (c == CPP_EOL)
 	{
 		pp -> eolseen = 1;
@@ -304,7 +304,7 @@ int preproc_lex_fetch_byte(struct preproc_info *pp)
 	}
 
 	pp -> eolseen = 0;
-	
+
 	/* convert comments to a single space here */
 	if (c == '/')
 	{
@@ -363,7 +363,7 @@ struct token *preproc_lex_next_token(struct preproc_info *pp)
 	struct lw_strbuf *strbuf;
 	struct token *t = NULL;
 	struct preproc_info *fs;
-					
+
 fileagain:
 	c = preproc_lex_fetch_byte(pp);
 	if (c == CPP_EOF)
@@ -379,7 +379,7 @@ fileagain:
 		sline = pp -> lineno;
 		scol = pp -> column;
 	}
-	
+
 	if (c == CPP_EOF)
 	{
 		/* check if we fell off the end of an include file */
@@ -417,53 +417,53 @@ fileagain:
 		ttype = TOK_WSPACE;
 		goto out;
 	}
-	
+
 	switch (c)
 	{
 	case '?':
 		ttype = TOK_QMARK;
 		goto out;
-		
+
 	case ':':
 		ttype = TOK_COLON;
 		goto out;
-		
+
 	case ',':
 		ttype = TOK_COMMA;
 		goto out;
-		
+
 	case '(':
 		ttype = TOK_OPAREN;
 		goto out;
-		
+
 	case ')':
 		ttype = TOK_CPAREN;
 		goto out;
-		
+
 	case '{':
 		ttype = TOK_OBRACE;
 		goto out;
-		
+
 	case '}':
 		ttype = TOK_CBRACE;
 		goto out;
-		
+
 	case '[':
 		ttype = TOK_OSQUARE;
 		goto out;
-		
+
 	case ']':
 		ttype = TOK_CSQUARE;
 		goto out;
-		
+
 	case '~':
 		ttype = TOK_COM;
 		goto out;
-		
+
 	case ';':
 		ttype = TOK_EOS;
 		goto out;
-	
+
 	/* and now for the possible multi character tokens */
 	case '#':
 		ttype = TOK_HASH;
@@ -473,7 +473,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '^':
 		ttype = TOK_XOR;
 		c = preproc_lex_fetch_byte(pp);
@@ -482,7 +482,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '!':
 		ttype = TOK_BNOT;
 		c = preproc_lex_fetch_byte(pp);
@@ -491,7 +491,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '*':
 		ttype = TOK_STAR;
 		c = preproc_lex_fetch_byte(pp);
@@ -500,7 +500,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '/':
 		ttype = TOK_DIV;
 		c = preproc_lex_fetch_byte(pp);
@@ -509,7 +509,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '=':
 		ttype = TOK_ASS;
 		c = preproc_lex_fetch_byte(pp);
@@ -518,7 +518,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '%':
 		ttype = TOK_MOD;
 		c = preproc_lex_fetch_byte(pp);
@@ -527,7 +527,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '-':
 		ttype = TOK_SUB;
 		c = preproc_lex_fetch_byte(pp);
@@ -540,7 +540,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '+':
 		ttype = TOK_ADD;
 		c = preproc_lex_fetch_byte(pp);
@@ -551,7 +551,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 
 	case '&':
 		ttype = TOK_BWAND;
@@ -592,8 +592,8 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
-		
+
+
 	case '>':
 		ttype = TOK_GT;
 		c = preproc_lex_fetch_byte(pp);
@@ -611,7 +611,7 @@ fileagain:
 		else
 			preproc_lex_unfetch_byte(pp, c);
 		goto out;
-	
+
 	case '\'':
 		/* character constant - turns into a  uint */
 chrlit:
@@ -787,7 +787,7 @@ numlit:
 		strval = lw_strbuf_end(strbuf);
 		preproc_lex_unfetch_byte(pp, c);
 		goto out;
-		
+
 	default:
 		ttype = TOK_CHAR;
 		strval = lw_alloc(2);
@@ -795,7 +795,7 @@ numlit:
 		strval[1] = 0;
 		break;
 	}
-out:	
+out:
 	t = token_create(ttype, strval, sline, scol, pp -> fn);
 	lw_free(strval);
 	return t;

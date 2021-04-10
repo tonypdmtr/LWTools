@@ -30,7 +30,7 @@ PARSEFUNC(insn_parse_tfm)
 	int r0, r1;
 	char *c;
 	int tfm = 0;
-			
+
 	c = strchr(reglist, toupper(*(*p)++));
 	if (!c)
 	{
@@ -73,7 +73,7 @@ PARSEFUNC(insn_parse_tfm)
 		(*p)++;
 		tfm |= 8;
 	}
-	
+
 	if (**p && !isspace(**p))
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
@@ -127,7 +127,7 @@ PARSEFUNC(insn_parse_tfmrtor)
 {
 	int r0, r1;
 	static const char *regs = "D X Y U S       A B     0 0 E F ";
-	
+
 	// register to register (r0,r1)
 	// registers are in order:
 	// D,X,Y,U,S,PC,W,V

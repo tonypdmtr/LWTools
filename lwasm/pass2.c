@@ -43,7 +43,7 @@ void do_pass2(asmstate_t *as)
 
 	// verify the export list
 	if (as -> output_format == OUTPUT_OBJ)
-	{	
+	{
 		for (ex = as -> exportlist; ex; ex = ex -> next)
 		{
 			s = lookup_symbol(as, NULL, ex -> symbol);
@@ -78,20 +78,20 @@ void do_pass2(asmstate_t *as)
 
 	// we want to throw errors on undefined symbols here
 	as -> badsymerr = 1;
-	
+
 	// now do some reductions on expressions
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
 		as -> cl = cl;
-		
+
 		// simplify address
 		lwasm_reduce_expr(as, cl -> addr);
 
 		// simplify data address
 		lwasm_reduce_expr(as, cl -> daddr);
-		
+
 		// simplify each expression
 		for (le = cl -> exprs; le; le = le -> next)
 			lwasm_reduce_expr(as, le -> expr);
-	}	
+	}
 }

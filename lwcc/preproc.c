@@ -60,7 +60,7 @@ again:
 
 	if (ct -> ttype == TOK_HASH && pp -> ppeolseen == 1)
 	{
-		// preprocessor directive 
+		// preprocessor directive
 		process_directive(pp);
 		goto again;
 	}
@@ -70,21 +70,21 @@ again:
 
 	if (ct -> ttype != TOK_WSPACE)
 		pp -> ppeolseen = 0;
-	
+
 	if (ct -> ttype == TOK_IDENT)
 	{
 		// possible macro expansion
 		if (expand_macro(pp, ct -> strval))
 	 		goto again;
 	}
-	
+
 	return ct;
 }
 
 static struct token *preproc_next_processed_token_nws(struct preproc_info *pp)
 {
 	struct token *t;
-	
+
 	do
 	{
 		t = preproc_next_processed_token(pp);
@@ -95,7 +95,7 @@ static struct token *preproc_next_processed_token_nws(struct preproc_info *pp)
 static struct token *preproc_next_token_nws(struct preproc_info *pp)
 {
 	struct token *t;
-	
+
 	do
 	{
 		t = preproc_next_token(pp);
@@ -106,7 +106,7 @@ static struct token *preproc_next_token_nws(struct preproc_info *pp)
 static void skip_eol(struct preproc_info *pp)
 {
 	struct token *t;
-	
+
 	if (pp -> curtok && pp -> curtok -> ttype == TOK_EOL)
 		return;
 	do
@@ -128,25 +128,25 @@ static void check_eol(struct preproc_info *pp)
 static void dir_ifdef(struct preproc_info *pp)
 {
 	struct token *ct;
-	
+
 	if (pp -> skip_level)
 	{
 		pp -> skip_level++;
 		skip_eol(pp);
 		return;
 	}
-	
+
 	do
 	{
 		ct = preproc_next_token(pp);
 	} while (ct -> ttype == TOK_WSPACE);
-	
+
 	if (ct -> ttype != TOK_IDENT)
 	{
 		preproc_throw_error(pp, "Bad #ifdef");
 		skip_eol(pp);
 	}
-	
+
 	if (symtab_find(pp, ct -> strval) == NULL)
 	{
 		pp -> skip_level++;
@@ -161,25 +161,25 @@ static void dir_ifdef(struct preproc_info *pp)
 static void dir_ifndef(struct preproc_info *pp)
 {
 	struct token *ct;
-	
+
 	if (pp -> skip_level)
 	{
 		pp -> skip_level++;
 		skip_eol(pp);
 		return;
 	}
-	
+
 	do
 	{
 		ct = preproc_next_token(pp);
 	} while (ct -> ttype == TOK_WSPACE);
-	
+
 	if (ct -> ttype != TOK_IDENT)
 	{
 		preproc_throw_error(pp, "Bad #ifdef");
 		skip_eol(pp);
 	}
-	
+
 	if (symtab_find(pp, ct -> strval) != NULL)
 	{
 		pp -> skip_level++;
@@ -274,7 +274,7 @@ static void dir_define(struct preproc_info *pp)
 	char *mname = NULL;
 
 	char **arglist = NULL;
-	
+
 	if (pp -> skip_level)
 	{
 		skip_eol(pp);
@@ -284,7 +284,7 @@ static void dir_define(struct preproc_info *pp)
 	ct = preproc_next_token_nws(pp);
 	if (ct -> ttype != TOK_IDENT)
 		goto baddefine;
-	
+
 	mname = lw_strdup(ct -> strval);
 	ct = preproc_next_token(pp);
 	if (ct -> ttype == TOK_WSPACE)
@@ -310,7 +310,7 @@ static void dir_define(struct preproc_info *pp)
 			}
 			if (ct -> ttype == TOK_CPAREN)
 				break;
-			
+
 			if (ct -> ttype == TOK_IDENT)
 			{
 				/* parameter name */
@@ -318,7 +318,7 @@ static void dir_define(struct preproc_info *pp)
 				/* record argument name */
 				arglist = lw_realloc(arglist, sizeof(char *) * nargs);
 				arglist[nargs - 1] = lw_strdup(ct -> strval);
-				
+
 				/* check for end of args or comma */
 				ct = preproc_next_token_nws(pp);
 				if (ct -> ttype == TOK_CPAREN)
@@ -355,11 +355,11 @@ baddefine2:
 		return;
 	}
 
-	tl = token_list_create();	
+	tl = token_list_create();
 	for (;;)
 	{
 		ct = preproc_next_token(pp);
-	
+
 		if (ct -> ttype == TOK_EOL)
 			break;
 		token_list_append(tl, token_dup(ct));
@@ -388,15 +388,15 @@ out:
 void preproc_add_macro(struct preproc_info *pp, char *str)
 {
 	char *s;
-	
+
 	pp -> lexstr = lw_strdup(str);
 	pp -> lexstrloc = 0;
 	s = strchr(pp -> lexstr, '=');
 	if (s)
 		*s = ' ';
-		
+
 	dir_define(pp);
-	
+
 	lw_free(pp -> lexstr);
 	pp -> lexstr = NULL;
 	pp -> lexstrloc = 0;
@@ -410,18 +410,18 @@ static void dir_undef(struct preproc_info *pp)
 		skip_eol(pp);
 		return;
 	}
-	
+
 	do
 	{
 		ct = preproc_next_token(pp);
 	} while (ct -> ttype == TOK_WSPACE);
-	
+
 	if (ct -> ttype != TOK_IDENT)
 	{
 		preproc_throw_error(pp, "Bad #undef");
 		skip_eol(pp);
 	}
-	
+
 	symtab_undef(pp, ct -> strval);
 	check_eol(pp);
 }
@@ -431,13 +431,13 @@ char *streol(struct preproc_info *pp)
 	struct lw_strbuf *s;
 	struct token *ct;
 	int i;
-		
+
 	s = lw_strbuf_new();
 	do
 	{
 		ct = preproc_next_token(pp);
 	} while (ct -> ttype == TOK_WSPACE);
-	
+
 	while (ct -> ttype != TOK_EOL)
 	{
 		for (i = 0; ct -> strval[i]; i++)
@@ -450,13 +450,13 @@ char *streol(struct preproc_info *pp)
 static void dir_error(struct preproc_info *pp)
 {
 	char *s;
-	
+
 	if (pp -> skip_level)
 	{
 		skip_eol(pp);
 		return;
 	}
-	
+
 	s = streol(pp);
 	preproc_throw_error(pp, "%s", s);
 	lw_free(s);
@@ -465,13 +465,13 @@ static void dir_error(struct preproc_info *pp)
 static void dir_warning(struct preproc_info *pp)
 {
 	char *s;
-	
+
 	if (pp -> skip_level)
 	{
 		skip_eol(pp);
 		return;
 	}
-	
+
 	s = streol(pp);
 	preproc_throw_warning(pp, "%s", s);
 	lw_free(s);
@@ -481,11 +481,11 @@ static char *preproc_file_exists_in_dir(char *dir, char *fn)
 {
 	int l;
 	char *f;
-	
+
 	l = snprintf(NULL, 0, "%s/%s", dir, fn);
 	f = lw_alloc(l + 1);
 	snprintf(f, l + 1, "%s/%s", dir, fn);
-	
+
 	if (access(f, R_OK) == 0)
 		return f;
 	lw_free(f);
@@ -498,7 +498,7 @@ static char *preproc_find_file(struct preproc_info *pp, char *fn, int sys)
 	char *pref;
 	char *rfn;
 
-	/* pass through absolute paths, dumb as they are */	
+	/* pass through absolute paths, dumb as they are */
 	if (fn[0] == '/')
 		return lw_strdup(fn);
 
@@ -518,7 +518,7 @@ static char *preproc_find_file(struct preproc_info *pp, char *fn, int sys)
 		lw_free(pref);
 		if (rfn)
 			return rfn;
-		
+
 		/* look in the "quote" dir list */
 		lw_stringlist_reset(pp -> quotelist);
 		for (pref = lw_stringlist_current(pp -> quotelist); pref; pref = lw_stringlist_next(pp -> quotelist))
@@ -528,7 +528,7 @@ static char *preproc_find_file(struct preproc_info *pp, char *fn, int sys)
 				return rfn;
 		}
 	}
-	
+
 	/* look in the "include" dir list */
 	lw_stringlist_reset(pp -> inclist);
 	for (pref = lw_stringlist_current(pp -> inclist); pref; pref = lw_stringlist_next(pp -> inclist))
@@ -538,7 +538,7 @@ static char *preproc_find_file(struct preproc_info *pp, char *fn, int sys)
 			return rfn;
 	}
 
-	/* the default search list is provided by the driver program */	
+	/* the default search list is provided by the driver program */
 	return NULL;
 }
 
@@ -551,7 +551,7 @@ static void dir_include(struct preproc_info *pp)
 	struct lw_strbuf *strbuf;
 	int i;
 	struct preproc_info *fs;
-	
+
 	ct = preproc_next_token_nws(pp);
 	if (ct -> ttype == TOK_STR_LIT)
 	{
@@ -650,7 +650,7 @@ badfile:
 		preproc_throw_error(pp, "Cannot open #include file %s - this is fatal", fn);
 		exit(1);
 	}
-	
+
 	/* save the current include file state, etc. */
 	fs = lw_alloc(sizeof(struct preproc_info));
 	*fs = *pp;
@@ -676,7 +676,7 @@ badfile:
 	pp -> found_level = 0;
 	pp -> else_level = 0;
 	pp -> else_skip_level = 0;
-	pp -> tokqueue = NULL;	
+	pp -> tokqueue = NULL;
 	// now get on with processing
 }
 
@@ -685,9 +685,9 @@ static void dir_line(struct preproc_info *pp)
 	struct token *ct;
 	long lineno;
 	char *estr;
-	
+
 	lineno = -1;
-	
+
 	ct = preproc_next_processed_token_nws(pp);
 	if (ct -> ttype == TOK_NUMBER)
 	{
@@ -737,7 +737,7 @@ static void dir_pragma(struct preproc_info *pp)
 		skip_eol(pp);
 		return;
 	}
-	
+
 	preproc_throw_warning(pp, "Unsupported #pragma");
 	skip_eol(pp);
 }
@@ -764,22 +764,22 @@ static void process_directive(struct preproc_info *pp)
 {
 	struct token *ct;
 	int i;
-	
+
 	do
 	{
 		ct = preproc_next_token(pp);
 	} while (ct -> ttype == TOK_WSPACE);
-	
+
 	// NULL directive
 	if (ct -> ttype == TOK_EOL)
 		return;
-	
+
 	if (ct -> ttype == TOK_NUMBER)
 	{
 		// this is probably a file marker from a previous run of the preprocessor
 		char *fn;
 		struct lw_strbuf *sb;
-		
+
 		i = preproc_numval(pp, ct);
 		ct  = preproc_next_token_nws(pp);
 		if (ct -> ttype != TOK_STR_LIT)
@@ -803,10 +803,10 @@ static void process_directive(struct preproc_info *pp)
 		skip_eol(pp);
 		return;
 	}
-	
+
 	if (ct -> ttype != TOK_IDENT)
 		goto baddir;
-	
+
 	for (i = 0; dirlist[i].name; i++)
 	{
 		if (strcmp(dirlist[i].name, ct -> strval) == 0)
@@ -839,7 +839,7 @@ static long eval_term_real(struct preproc_info *pp)
 {
 	long tval = 0;
 	struct token *ct;
-	
+
 eval_next:
 	ct = preproc_next_processed_token_nws(pp);
 	if (ct -> ttype == TOK_EOL)
@@ -847,7 +847,7 @@ eval_next:
 		preproc_throw_error(pp, "Bad expression");
 		return 0;
 	}
-	
+
 	switch (ct -> ttype)
 	{
 	case TOK_OPAREN:
@@ -864,11 +864,11 @@ eval_next:
 	case TOK_ADD: // unary +
 		goto eval_next;
 
-	case TOK_SUB: // unary -	
+	case TOK_SUB: // unary -
 		tval = eval_expr_real(pp, 200);
 		return -tval;
 
-	/* NOTE: we should only get "TOK_IDENT" from an undefined macro */		
+	/* NOTE: we should only get "TOK_IDENT" from an undefined macro */
 	case TOK_IDENT: // some sort of function, symbol, etc.
 		if (strcmp(ct -> strval, "defined"))
 		{
@@ -908,11 +908,11 @@ eval_next:
 		}
 		/* unknown identifier - it's zero */
 		return 0;
-	
+
 	/* numbers */
 	case TOK_NUMBER:
-		return preproc_numval(pp, ct);	
-		
+		return preproc_numval(pp, ct);
+
 	default:
 		preproc_throw_error(pp, "Bad expression");
 		skip_eoe(pp);
@@ -944,11 +944,11 @@ static long eval_expr_real(struct preproc_info *pp, int p)
 		{ TOK_BOR, 25 },
 		{ TOK_NONE, 0 }
 	};
-	
+
 	int op;
 	long term1, term2, term3;
 	struct token *ct;
-	
+
 	term1 = eval_term_real(pp);
 eval_next:
 	ct = preproc_next_processed_token_nws(pp);
@@ -970,21 +970,21 @@ eval_next:
 
 	/* get the second term */
 	term2 = eval_expr_real(pp, operators[op].prec);
-	
+
 	switch (operators[op].tok)
 	{
 	case TOK_ADD:
 		term3 = term1 + term2;
 		break;
-	
+
 	case TOK_SUB:
 		term3 = term1 - term2;
 		break;
-	
+
 	case TOK_STAR:
 		term3 = term1 * term2;
 		break;
-	
+
 	case TOK_DIV:
 		if (!term2)
 		{
@@ -994,7 +994,7 @@ eval_next:
 		}
 		term3 = term1 / term2;
 		break;
-	
+
 	case TOK_MOD:
 		if (!term2)
 		{
@@ -1004,35 +1004,35 @@ eval_next:
 		}
 		term3 = term1 % term2;
 		break;
-		
+
 	case TOK_BAND:
 		term3 = (term1 && term2);
 		break;
-	
+
 	case TOK_BOR:
 		term3 = (term1 || term2);
 		break;
-	
+
 	case TOK_EQ:
 		term3 = (term1 == term2);
 		break;
-	
+
 	case TOK_NE:
 		term3 = (term1 != term2);
 		break;
-	
+
 	case TOK_GT:
 		term3 = (term1 > term2);
 		break;
-	
+
 	case TOK_GE:
 		term3 = (term1 >= term2);
 		break;
-	
+
 	case TOK_LT:
 		term3 = (term1 < term2);
 		break;
-	
+
 	case TOK_LE:
 		term3 = (term1 <= term2);
 		break;
@@ -1049,7 +1049,7 @@ static long eval_expr(struct preproc_info *pp)
 {
 	long rv;
 	struct token *t;
-	
+
 	rv = eval_expr_real(pp, 0);
 	t = preproc_next_token_nws(pp);
 	if (t -> ttype != TOK_EOL)
@@ -1064,12 +1064,12 @@ static int eval_escape(char **t)
 {
 	int c;
 	int c2;
-	
+
 	if (**t == 0)
 		return 0;
 	c = *(*t)++;
 	int rv = 0;
-	
+
 	switch (c)
 	{
 	case 'n':
@@ -1131,7 +1131,7 @@ long preproc_numval(struct preproc_info *pp, struct token *t)
 	int c;
 	int ovf = 0;
 	union { long sv; unsigned long uv; } tv;
-		
+
 	if (t -> ttype == TOK_CHR_LIT)
 	{
 		tstr++;
@@ -1148,12 +1148,12 @@ long preproc_numval(struct preproc_info *pp, struct token *t)
 			if (rv / radix < rv2)
 				ovf = 1;
 			rv2 = rv;
-			
+
 		}
 		goto done;
 	}
-	
-	
+
+
 	if (*tstr == '0')
 	{
 		radix = 8;
@@ -1201,13 +1201,13 @@ static char *stringify(struct token_list *tli)
 	struct lw_strbuf *s;
 	int ws = 0;
 	struct token *tl = tli -> head;
-	
+
 	s = lw_strbuf_new();
 	lw_strbuf_add(s, '"');
 
 	while (tl && tl -> ttype == TOK_WSPACE)
 		tl = tl -> next;
-	
+
 	for (; tl; tl = tl -> next)
 	{
 		if (tl -> ttype == TOK_WSPACE)
@@ -1229,7 +1229,7 @@ static char *stringify(struct token_list *tli)
 		}
 		ws = 0;
 	}
-	
+
 	lw_strbuf_add(s, '"');
 	return lw_strbuf_end(s);
 }
@@ -1257,7 +1257,7 @@ static struct token_list *paste_tokens(struct preproc_info *pp, struct symtab_e 
 	char *tstr;
 	struct token *ttok;
 	int i;
-	
+
 	if (t1 -> ttype == TOK_IDENT)
 	{
 		i = macro_arg(s, t1 -> strval);
@@ -1325,16 +1325,16 @@ static struct token_list *paste_tokens(struct preproc_info *pp, struct symtab_e 
 		token_list_destroy(right);
 		return left;
 	}
-	
+
 	// both non-empty - past left tail with right head
 	// then past the right list onto the left
 	tstr = lw_alloc(strlen(left -> tail -> strval) + strlen(right -> head -> strval) + 1);
 	strcpy(tstr, left -> tail -> strval);
 	strcat(tstr, right -> head -> strval);
-	
+
 	pp -> lexstr = tstr;
 	pp -> lexstrloc = 0;
-	
+
 	ttok = preproc_lex_next_token(pp);
 	if (ttok -> ttype != TOK_ERROR && pp -> lexstr[pp -> lexstrloc] == 0)
 	{
@@ -1368,12 +1368,12 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 	struct token_list *expand_list;
 	int repl;
 	struct token_list *rtl;
-	
+
 	// check for built in macros
 	if (strcmp(mname, "__FILE__") == 0)
 	{
 		struct lw_strbuf *sb;
-		
+
 		sb = lw_strbuf_new();
 		lw_strbuf_add(sb, '"');
 		for (tstr = (char *)(pp -> fn); *tstr; tstr++)
@@ -1409,7 +1409,7 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 		struct tm *tv;
 		time_t tm;
 		static char *months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-		
+
 		tm = time(NULL);
 		tv = localtime(&tm);
 		snprintf(dbuf, 14, "\"%s %2d %04d\"", months[tv -> tm_mon], tv -> tm_mday, tv -> tm_year + 1900);
@@ -1421,18 +1421,18 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 		char tbuf[11];
 		struct tm *tv;
 		time_t tm;
-		
+
 		tm = time(NULL);
 		tv = localtime(&tm);
 		snprintf(tbuf, 11, "\"%02d:%02d:%02d\"", tv -> tm_hour, tv -> tm_min, tv -> tm_sec);
 		preproc_unget_token(pp, token_create(TOK_STR_LIT, tbuf, pp -> lineno, pp -> column, pp -> fn));
 		return 1;
 	}
-	
+
 	s = symtab_find(pp, mname);
 	if (!s)
 		return 0;
-	
+
 	for (e = pp -> expand_list; e; e = e -> next)
 	{
 		/* don't expand if we're already expanding the same macro */
@@ -1448,7 +1448,7 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 
 		goto expandmacro;
 	}
-	
+
 	// look for opening paren after optional whitespace
 	t2 = NULL;
 	t = NULL;
@@ -1471,14 +1471,14 @@ static int expand_macro(struct preproc_info *pp, char *mname)
 		}
 		return 0;
 	}
-	
+
 	// parse parameters here
 	t = preproc_next_token_nws(pp);
 	nargs = 1;
 	arglist = lw_alloc(sizeof(struct token_list *));
 	arglist[0] = token_list_create();
 	t2 = NULL;
-	
+
 	while (t -> ttype != TOK_CPAREN)
 	{
 		pcount = 0;
@@ -1568,8 +1568,8 @@ expandmacro:
 	}
 
 
-	// scan for concatenation and handle it	
-	
+	// scan for concatenation and handle it
+
 	for (t = expand_list -> head; t; t = t -> next)
 	{
 		if (t -> ttype == TOK_DBLHASH)
@@ -1596,7 +1596,7 @@ expandmacro:
 			// now paste t -> prev with t -> next and replace t with the result
 			// continue scanning for ## at t -> next -> next
 			t3 = t -> next -> next;
-			
+
 			rtl = paste_tokens(pp, s, arglist, t -> prev, t -> next);
 			token_list_remove(t -> next);
 			token_list_remove(t -> prev);
@@ -1610,7 +1610,7 @@ expandmacro:
 			token_list_destroy(rtl);
 		}
 	}
-	
+
 	// now scan for arguments and expand them
 	for (t = expand_list -> head; t; t = t -> next)
 	{
@@ -1637,18 +1637,18 @@ expandmacro:
 	if (expand_list -> head)
 	{
 		token_list_append(expand_list, token_create(TOK_ENDEXPAND, "", -1, -1, ""));
-		
+
 		// move the expanded list into the token queue
 		for (t = expand_list -> tail; t; t = t -> prev)
 			preproc_unget_token(pp, token_dup(t));
-		
+
 		/* set up expansion record */
 		e = lw_alloc(sizeof(struct expand_e));
 		e -> next = pp -> expand_list;
 		pp -> expand_list = e;
 		e -> s = s;
 	}
-	
+
 	/* now clean up */
 	token_list_destroy(expand_list);
 	for (i = 0; i < nargs; i++)
@@ -1658,14 +1658,14 @@ expandmacro:
 	}
 	lw_free(arglist);
 	lw_free(exparglist);
-	
+
 	return 1;
 }
 
 struct token *preproc_next(struct preproc_info *pp)
 {
 	struct token *t;
-	
+
 	t = preproc_next_processed_token(pp);
 	pp -> curtok = NULL;
 	return t;

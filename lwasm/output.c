@@ -51,13 +51,13 @@ void write_code_lwmod(asmstate_t *as, FILE *of);
 void do_output(asmstate_t *as)
 {
 	FILE *of;
-	
+
 	if (as -> errorcount > 0)
 	{
 		fprintf(stderr, "Not doing output due to assembly errors.\n");
 		return;
 	}
-	
+
 	of = fopen(as -> output_file, "wb");
 	if (!of)
 	{
@@ -71,19 +71,19 @@ void do_output(asmstate_t *as)
 	case OUTPUT_RAW:
 		write_code_raw(as, of);
 		break;
-		
+
 	case OUTPUT_DECB:
 		write_code_decb(as, of);
 		break;
-	
+
 	case OUTPUT_BASIC:
 		write_code_BASIC(as, of);
 		break;
-		
+
 	case OUTPUT_RAWREL:
 		write_code_rawrel(as, of);
 		break;
-	
+
 	case OUTPUT_OBJ:
 		write_code_obj(as, of);
 		break;
@@ -95,7 +95,7 @@ void do_output(asmstate_t *as)
 	case OUTPUT_HEX:
 		write_code_hex(as, of);
 		break;
-		
+
 	case OUTPUT_SREC:
 		write_code_srec(as, of);
 		break;
@@ -142,14 +142,14 @@ void write_code_BASIC(asmstate_t *as, FILE *of)
 	line_t *endblock;
 	int linenumber, linelength, startaddress, lastaddress, address;
 	int outidx;
-	
+
 	fprintf(of, "10 READ A,B\n");
 	fprintf(of, "20 IF A=-1 THEN 70\n");
 	fprintf(of, "30 FOR C = A TO B\n");
 	fprintf(of, "40 READ D:POKE C,D\n");
 	fprintf(of, "50 NEXT C\n");
 	fprintf(of, "60 GOTO 10\n");
-	
+
 	if (as -> execaddr == 0)
 	{
 		fprintf(of, "70 END");
@@ -158,22 +158,22 @@ void write_code_BASIC(asmstate_t *as, FILE *of)
 	{
 		fprintf(of, "70 EXEC %d", as -> execaddr);
 	}
-	
+
 	linenumber = 80;
 	linelength = 255;
-	
+
 	while(startblock)
 	{
 		startaddress = -1;
 		endblock = NULL;
-		
+
 		for (cl = startblock; cl; cl = cl -> next)
 		{
 			if (cl -> outputl < 0)
 				continue;
-		
+
 			address = lw_expr_intval(cl -> addr);
-		
+
 			if (startaddress == -1)
 			{
 				startaddress = address;
@@ -186,34 +186,34 @@ void write_code_BASIC(asmstate_t *as, FILE *of)
 					endblock = cl;
 					break;
 				}
-				
+
 				lastaddress += cl -> outputl;
 			}
 		}
-	
+
 		if (startaddress != -1)
 		{
 			linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, startaddress);
 			linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, lastaddress);
-	
+
 			for (cl = startblock; cl != endblock; cl = cl -> next)
 			{
 				if (cl -> outputl < 0)
 					continue;
-		
+
 				for (outidx=0; outidx<cl -> outputl; outidx++)
 				{
 					linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, cl -> output[outidx]);
 				}
 			}
 		}
-	
+
 		startblock = cl;
 	}
-	
+
 	linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, -1);
 	linelength = write_code_BASIC_fprintf(of, linelength, &linenumber, -1);
-	
+
 	fprintf(of, "\n");
 }
 
@@ -230,12 +230,12 @@ each instruction.
 void write_code_rawrel(asmstate_t *as, FILE *of)
 {
 	line_t *cl;
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
 		if (cl -> outputl <= 0)
 			continue;
-		
+
 		fseek(of, lw_expr_intval(cl -> addr), SEEK_SET);
 		writebytes(cl -> output, cl -> outputl, 1, of);
 	}
@@ -249,7 +249,7 @@ statements will produce mostly useless results
 void write_code_raw(asmstate_t *as, FILE *of)
 {
 	line_t *cl;
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
 		if (cl -> len > 0 && cl -> outputl == 0)
@@ -272,7 +272,7 @@ else.
 void write_code_os9(asmstate_t *as, FILE *of)
 {
 	line_t *cl;
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
 //		if (cl -> inmod == 0)
@@ -297,7 +297,7 @@ void write_code_decb(asmstate_t *as, FILE *of)
 	int nextcalc = -1;
 	unsigned char outbuf[5];
 	int caddr;
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
 		if (cl -> outputl < 0)
@@ -337,7 +337,7 @@ void write_code_decb(asmstate_t *as, FILE *of)
 		writebytes(outbuf, 2, 1, of);
 		fseek(of, 0, SEEK_END);
 	}
-	
+
 	// now write postamble
 	outbuf[0] = 0xFF;
 	outbuf[1] = 0x00;
@@ -351,22 +351,22 @@ int fetch_output_byte(line_t *cl, char *value, int *addr)
 {
 	static int outidx = 0;
 	static int lastaddr = -2;
-	
+
 	// try to read next byte in current line's output field
 	if ((cl -> outputl > 0) && (outidx < cl -> outputl))
 	{
 		*addr = lw_expr_intval(cl -> addr) + outidx;
 		*value = *(cl -> output + outidx++);
-		
+
 		// this byte follows the previous byte (contiguous, rc = 1)
 		if (*addr == lastaddr + 1)
 		{
 			lastaddr = *addr;
 			return 1;
 		}
-		
+
 		// this byte does not follow prev byte (disjoint, rc = -1)
-		else 
+		else
 		{
 			lastaddr = *addr;
 			return -1;
@@ -387,17 +387,17 @@ int fetch_output_byte(line_t *cl, char *value, int *addr)
 void write_code_hex(asmstate_t *as, FILE *of)
 {
 	const int RECLEN = 16;
-	
+
 	line_t *cl;
 	char outbyte;
 	int outaddr;
 	int rc;
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 		do
 		{
 			rc = fetch_output_byte(cl, &outbyte, &outaddr);
-			
+
 			// if address jump or xxx0 address, start new line
 			if ((rc == -1) || ((rc == 1) && (outaddr % RECLEN == 0)))
 			{
@@ -418,7 +418,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 {
 	#define SRECLEN 16
 	#define HDRLEN 51
-	
+
 	line_t *cl;
 	char outbyte;
 	int outaddr;
@@ -430,12 +430,12 @@ void write_code_srec(asmstate_t *as, FILE *of)
 	int recsum;
 	int reccnt = -1;
 	char rechdr[HDRLEN];
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 		do
 		{
 			rc = fetch_output_byte(cl, &outbyte, &outaddr);
-			
+
 			// if address jump or xxx0 address, start new S1 record
 			if ((rc == -1) || ((rc == 1) && (outaddr % SRECLEN == 0)))
 			{
@@ -475,7 +475,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 					fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
 					reccnt += 1;
 				}
-				
+
 				// now start the new S1 record
 				recdlen = 0;
 				recaddr = outaddr;
@@ -487,7 +487,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 				recdata[recdlen++] = outbyte;
 		}
 		while (rc);
-		
+
 	// done with all output lines, flush the final S1 record (if any)
 	if (recdlen > 0)
 	{
@@ -513,7 +513,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 		recsum += reccnt & 0xFF;
 		fprintf(of, "S503%04X", (unsigned int)reccnt);
 		fprintf(of, "%02X\r\n", (unsigned char)(~recsum));
-		
+
 		// emit S9 end-of-file record
 		recsum = 3;
 		recsum += (as -> execaddr >> 8) & 0xFF;
@@ -529,7 +529,7 @@ void write_code_srec(asmstate_t *as, FILE *of)
 void write_code_ihex(asmstate_t *as, FILE *of)
 {
 	#define IRECLEN 16
-	
+
 	line_t *cl;
 	char outbyte;
 	int outaddr;
@@ -540,12 +540,12 @@ void write_code_ihex(asmstate_t *as, FILE *of)
 	unsigned char recdata[IRECLEN];
 	int recsum;
 	int reccnt = 0;
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 		do
 		{
 			rc = fetch_output_byte(cl, &outbyte, &outaddr);
-			
+
 			// if address jump or xxx0 address, start new ihx record
 			if ((rc == -1) || ((rc == 1) && (outaddr % IRECLEN == 0)))
 			{
@@ -564,7 +564,7 @@ void write_code_ihex(asmstate_t *as, FILE *of)
 					fprintf(of, "%02X\r\n", (unsigned char)(256 - recsum));
 					reccnt += 1;
 				}
-				
+
 				// now start the new ihex record
 				recdlen = 0;
 				recaddr = outaddr;
@@ -576,7 +576,7 @@ void write_code_ihex(asmstate_t *as, FILE *of)
 				recdata[recdlen++] = outbyte;
 		}
 		while (rc);
-		
+
 	// done with all output lines, flush the final ihex record (if any)
 	if (recdlen > 0)
 	{
@@ -599,8 +599,8 @@ void write_code_ihex(asmstate_t *as, FILE *of)
 		fprintf(of, ":00%04X01FF", as -> execaddr & 0xffff);
 	}
 }
-	    
-	    
+
+
 void write_code_obj_sbadd(sectiontab_t *s, unsigned char b)
 {
 	if (s -> oblen >= s -> obsize)
@@ -619,66 +619,66 @@ int write_code_obj_expraux(lw_expr_t e, void *of)
 	int v;
 	int count = 1;
 	unsigned char buf[16];
-	
+
 	tt = lw_expr_type(e);
 
 	switch (tt)
 	{
 	case lw_expr_type_oper:
 		buf[0] =  0x04;
-		
+
 		switch (lw_expr_whichop(e))
 		{
 		case lw_expr_oper_plus:
 			buf[1] = 0x01;
 			count = lw_expr_operandcount(e) - 1;
 			break;
-		
+
 		case lw_expr_oper_minus:
 			buf[1] = 0x02;
 			break;
-		
+
 		case lw_expr_oper_times:
 			buf[1] = 0x03;
 			count = lw_expr_operandcount(e) - 1;
 			break;
-		
+
 		case lw_expr_oper_divide:
 			buf[1] = 0x04;
 			break;
-		
+
 		case lw_expr_oper_mod:
 			buf[1] = 0x05;
 			break;
-		
+
 		case lw_expr_oper_intdiv:
 			buf[1] = 0x06;
 			break;
-		
+
 		case lw_expr_oper_bwand:
 			buf[1] = 0x07;
 			break;
-		
+
 		case lw_expr_oper_bwor:
 			buf[1] = 0x08;
 			break;
-		
+
 		case lw_expr_oper_bwxor:
 			buf[1] = 0x09;
 			break;
-		
+
 		case lw_expr_oper_and:
 			buf[1] = 0x0A;
 			break;
-		
+
 		case lw_expr_oper_or:
 			buf[1] = 0x0B;
 			break;
-		
+
 		case lw_expr_oper_neg:
 			buf[1] = 0x0C;
 			break;
-		
+
 		case lw_expr_oper_com:
 			buf[1] = 0x0D;
 			break;
@@ -697,7 +697,7 @@ int write_code_obj_expraux(lw_expr_t e, void *of)
 		buf[2] = v & 0xff;
 		writebytes(buf, 3, 1, of);
 		return 0;
-		
+
 	case lw_expr_type_special:
 		v = lw_expr_specint(e);
 		switch (v)
@@ -707,11 +707,11 @@ int write_code_obj_expraux(lw_expr_t e, void *of)
 				// replaced with a synthetic symbol
 				sectiontab_t *se;
 				se = lw_expr_specptr(e);
-				
+
 				writebytes("\x03\x02", 2, 1, of);
 				writebytes(se -> name, strlen(se -> name) + 1, 1, of);
 				return 0;
-			}	
+			}
 		case lwasm_expr_import:
 			{
 				importlist_t *ie;
@@ -737,7 +737,7 @@ int write_code_obj_expraux(lw_expr_t e, void *of)
 				return 0;
 			}
 		}
-			
+
 	default:
 		// unrecognized term type - replace with integer 0
 //		fprintf(stderr, "Unrecognized term type: %s\n", lw_expr_print(e));
@@ -754,28 +754,28 @@ void write_code_obj_auxsym(asmstate_t *as, FILE *of, sectiontab_t *s, struct sym
 {
 	struct symtabe *se;
 	unsigned char buf[16];
-		
+
 	if (!se2)
 		return;
 	write_code_obj_auxsym(as, of, s, se2 -> left);
-	
+
 	for (se = se2; se; se = se -> nextver)
 	{
 		lw_expr_t te;
-		
+
 		debug_message(as, 200, "Consider symbol %s (%p) for export in section %p", se -> symbol, se -> section, s);
-		
+
 		// ignore symbols not in this section
 		if (se -> section != s)
 			continue;
-		
+
 		debug_message(as, 200, "  In section");
-			
+
 		if (se -> flags & symbol_flag_set)
 			continue;
-			
+
 		debug_message(as, 200, "  Not symbol_flag_set");
-			
+
 		te = lw_expr_copy(se -> value);
 		debug_message(as, 200, "  Value=%s", lw_expr_print(te));
 		as -> exportcheck = 1;
@@ -784,7 +784,7 @@ void write_code_obj_auxsym(asmstate_t *as, FILE *of, sectiontab_t *s, struct sym
 		as -> exportcheck = 0;
 
 		debug_message(as, 200, "  Value2=%s", lw_expr_print(te));
-			
+
 		// don't output non-constant symbols
 		if (!lw_expr_istype(te, lw_expr_type_int))
 		{
@@ -801,7 +801,7 @@ void write_code_obj_auxsym(asmstate_t *as, FILE *of, sectiontab_t *s, struct sym
 		}
 		// the "" is NOT an error
 		writebytes("", 1, 1, of);
-			
+
 		// write the address
 		buf[0] = (lw_expr_intval(te) >> 8) & 0xff;
 		buf[1] = lw_expr_intval(te) & 0xff;
@@ -824,7 +824,7 @@ void write_code_obj(asmstate_t *as, FILE *of)
 	// output the magic number and file header
 	// the 8 is NOT an error
 	writebytes("LWOBJ16", 8, 1, of);
-	
+
 	// run through the entire system and build the byte streams for each
 	// section; at the same time, generate a list of "local" symbols to
 	// output for each section
@@ -834,10 +834,10 @@ void write_code_obj(asmstate_t *as, FILE *of)
 	// character other than NUL.
 	// also we will generate a list of incomplete references for each
 	// section along with the actual definition that will be output
-	
+
 	// once all this information is generated, we will output each section
 	// to the file
-	
+
 	// NOTE: we build everything in memory then output it because the
 	// assembler accepts multiple instances of the same section but the
 	// linker expects only one instance of each section in the object file
@@ -845,7 +845,7 @@ void write_code_obj(asmstate_t *as, FILE *of)
 	// (also, the assembler treated multiple instances of the same section
 	// as continuations of previous sections so we would need to collect
 	// them together anyway.
-	
+
 	for (l = as -> line_head; l; l = l -> next)
 	{
 		if (l -> csect)
@@ -859,24 +859,24 @@ void write_code_obj(asmstate_t *as, FILE *of)
 					write_code_obj_sbadd(l -> csect, 0);
 		}
 	}
-	
+
 	// run through the sections
 	for (s = as -> sections; s; s = s -> next)
 	{
 		// write the name
 		writebytes(s -> name, strlen(s -> name) + 1, 1, of);
-		
+
 		// write the flags
 		if (s -> flags & section_flag_bss)
 			writebytes("\x01", 1, 1, of);
 		if (s -> flags & section_flag_constant)
 			writebytes("\x02", 1, 1, of);
-			
+
 		// indicate end of flags - the "" is NOT an error
 		writebytes("", 1, 1, of);
-		
+
 		// now the local symbols
-		
+
 		// a symbol for section base address
 		if ((s -> flags & section_flag_constant) == 0)
 		{
@@ -885,18 +885,18 @@ void write_code_obj(asmstate_t *as, FILE *of)
 			// address 0; "\0" is not an error
 			writebytes("\0", 2, 1, of);
 		}
-		
+
 		write_code_obj_auxsym(as, of, s, as -> symtab.head);
 		// flag end of local symbol table - "" is NOT an error
 		writebytes("", 1, 1, of);
-		
+
 		// now the exports -- FIXME
 		for (ex = as -> exportlist; ex; ex = ex -> next)
 		{
 			int eval;
 			lw_expr_t te;
 			line_t tl = { 0 };
-			
+
 			if (ex -> se == NULL)
 				continue;
 			if (ex -> se -> section != s)
@@ -921,29 +921,29 @@ void write_code_obj(asmstate_t *as, FILE *of)
 			buf[1] = eval & 0xff;
 			writebytes(buf, 2, 1, of);
 		}
-	
+
 		// flag end of exported symbols - "" is NOT an error
 		writebytes("", 1, 1, of);
-		
+
 		// FIXME - relocation table
 		for (re = s -> reloctab; re; re = re -> next)
 		{
 			int offset;
 			lw_expr_t te;
 			line_t tl = { 0 };
-			
+
 			tl.as = as;
 			as -> cl = &tl;
 			as -> csect = s;
 			as -> exportcheck = 1;
-			
+
 			if (re -> expr == NULL)
 			{
 				// this is an error but we'll simply ignore it
 				// and not output this expression
 				continue;
 			}
-			
+
 			// work through each term in the expression and output
 			// the proper equivalent to the object file
 			if (re -> size == 1)
@@ -953,7 +953,7 @@ void write_code_obj(asmstate_t *as, FILE *of)
 				buf[1] = 0x01;
 				writebytes(buf, 2, 1, of);
 			}
-			
+
 			te = lw_expr_copy(re -> offset);
 			lwasm_reduce_expr(as, te);
 			if (!lw_expr_istype(te, lw_expr_type_int))
@@ -963,13 +963,13 @@ void write_code_obj(asmstate_t *as, FILE *of)
 			}
 			offset = lw_expr_intval(te);
 			lw_expr_destroy(te);
-			
+
 			// output expression
 			lw_expr_testterms(re -> expr, write_code_obj_expraux, of);
-			
+
 			// flag end of expressions
 			writebytes("", 1, 1, of);
-			
+
 			// write the offset
 			buf[0] = (offset >> 8) & 0xff;
 			buf[1] = offset & 0xff;
@@ -978,9 +978,9 @@ void write_code_obj(asmstate_t *as, FILE *of)
 
 		// flag end of incomplete references list
 		writebytes("", 1, 1, of);
-		
+
 		// now blast out the code
-		
+
 		// length
 		if (s -> flags & section_flag_constant)
 		{
@@ -993,14 +993,14 @@ void write_code_obj(asmstate_t *as, FILE *of)
 			buf[1] = s -> oblen & 0xff;
 		}
 		writebytes(buf, 2, 1, of);
-		
-		
+
+
 		if (!(s -> flags & section_flag_bss) && !(s -> flags & section_flag_constant))
 		{
 			writebytes(s -> obytes, s -> oblen, 1, of);
 		}
 	}
-	
+
 	// flag no more sections
 	// the "" is NOT an error
 	writebytes("", 1, 1, of);
@@ -1025,17 +1025,17 @@ void write_code_lwmod(asmstate_t *as, FILE *of)
 	// the magic number
 	buf[0] = 0x8f;
 	buf[1] = 0xcf;
-	
+
 	// run through the entire system and build the byte streams for each
 	// section; we will make sure we only have simple references for
 	// any undefined references. That means at most an ADD (or SUB) operation
 	// with a single BSS symbol reference and a single constant value.
 	// We will use the constant value in the code stream and record the
 	// offset in a separate code stream for the BSS relocation table.
-	
+
 	// We build everything in memory here because we need to calculate the
 	// sizes of everything before we can output the complete header.
-	
+
 	for (l = as -> line_head; l; l = l -> next)
 	{
 		if (l -> csect)
@@ -1049,7 +1049,7 @@ void write_code_lwmod(asmstate_t *as, FILE *of)
 					write_code_obj_sbadd(l -> csect, 0);
 		}
 	}
-	
+
 	// now run through sections and set various parameters
 	initsize = 0;
 	bsssize = 0;
@@ -1142,7 +1142,7 @@ void write_code_lwmod(asmstate_t *as, FILE *of)
 	{
 		initaddr = as -> execaddr;
 	}
-	
+
 	// build relocation data
 	reloccode = NULL;
 	if (relocsize)
@@ -1150,7 +1150,7 @@ void write_code_lwmod(asmstate_t *as, FILE *of)
 		unsigned char *tptr;
 		reloccode = lw_alloc(relocsize);
 		tptr = reloccode;
-		
+
 		for (s = as -> sections; s; s = s -> next)
 		{
 			for (re = s -> reloctab; re; re = re -> next)
@@ -1158,7 +1158,7 @@ void write_code_lwmod(asmstate_t *as, FILE *of)
 				lw_expr_t te;
 				line_t tl;
 				int offset;
-			
+
 				tl.as = as;
 				as -> cl = &tl;
 				as -> csect = s;
@@ -1168,7 +1168,7 @@ void write_code_lwmod(asmstate_t *as, FILE *of)
 				{
 					int val;
 					int x;
-					
+
 					te = lw_expr_copy(re -> expr);
 					lwasm_reduce_expr(as, te);
 					if (!lw_expr_istype(te, lw_expr_type_int))
@@ -1192,7 +1192,7 @@ void write_code_lwmod(asmstate_t *as, FILE *of)
 					s -> obytes[offset + 1] = val & 0xff;
 					continue;
 				}
-				
+
 				offset = 0;
 				te = lw_expr_copy(re -> offset);
 				lwasm_reduce_expr(as, te);
@@ -1205,7 +1205,7 @@ void write_code_lwmod(asmstate_t *as, FILE *of)
 				offset = lw_expr_intval(te);
 				lw_expr_destroy(te);
 				//offset += sbase;
-				
+
 				*tptr++ = offset >> 8;
 				*tptr++ = offset & 0xff;
 			}

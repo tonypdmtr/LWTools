@@ -42,9 +42,9 @@ void dump_state(asmstate_t *as)
 //	importlist_t *im;
 	struct line_expr_s *le;
 	lwasm_error_t *e;
-	
+
 	debug_message(as, 100, "Lines:");
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
 		debug_message(as, 100, "%p INSN %d (%s) LEN %d DLEN %d PRAGMA %x", cl, cl -> insn, (cl -> insn >= 0) ? instab[cl -> insn].opcode : "<none>", cl -> len, cl -> dlen, cl -> pragmas);
@@ -85,7 +85,7 @@ void real_debug_message(asmstate_t *as, int level, const char *fmt, ...)
 		as -> debug_file = stderr;
 
 	va_start(args, fmt);
-	
+
 	fprintf(as -> debug_file, "DEBUG %03d (%ld): ", level, (long)time(NULL));
 	vfprintf(as -> debug_file, fmt, args);
 	fputc('\n', as -> debug_file);

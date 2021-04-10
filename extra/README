@@ -18,13 +18,13 @@ Similar to the "as" script above except for lwar.
 
 gcc6809lw-*.patch
 
-These are patches to the main gcc source distribution for specific releases. 
+These are patches to the main gcc source distribution for specific releases.
 The last number after the dash is a patch level for the specific patch. It
 is worth noting that a patch for a particular minor version of GCC may work
 with later minor versions in the same release sequence. That is, a patch
 for 4.6.1 might work with 4.6.4. These are different to the official
 gcc6809 releases in the following ways. First, all the source for as-6809
-is removed. Also, the special "helper" makefile and directory is removed. 
+is removed. Also, the special "helper" makefile and directory is removed.
 Also, as of this writing, the latest "official" release was for gcc 4.3.4
 which does not build on 64 bit linux.
 
@@ -107,4 +107,3 @@ even needed with gcc 4.3.x. They also had the side effect of causing things
 to break even if they weren't in use so they had to go. In other words, the
 -6 patch is the current best version to use so there's no point including
 the old ones.
-

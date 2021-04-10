@@ -70,7 +70,7 @@ static char *srec_script =
 	;
 
 // the built-in RAW target linker script
-static char *raw_script = 
+static char *raw_script =
 	"define basesympat s_%s\n"
 	"define lensympat l_%s\n"
 	"section init load 0000\n"
@@ -100,7 +100,7 @@ static char *lwex0_script =
 	;
 
 // the "simple" script
-static char *simple_script = 
+static char *simple_script =
 	"define basesympat s_%s\n"
 	"define lensympat l_%s\n"
 	"section *,!bss\n"
@@ -119,7 +119,7 @@ void setup_script()
 	{
 		FILE *f;
 		long bread;
-		
+
 		f = fopen(scriptfile, "rb");
 		if (!f)
 		{
@@ -130,9 +130,9 @@ void setup_script()
 		fseek(f, 0, SEEK_END);
 		size = ftell(f);
 		rewind(f);
-		
+
 		script = lw_alloc(size + 2);
-		
+
 		bread = fread(script, 1, size, f);
 		if (bread < size)
 		{
@@ -141,7 +141,7 @@ void setup_script()
 			exit(1);
 		}
 		fclose(f);
-		
+
 		script[size] = '\n';
 		script[size + 1] = '\0';
 	}
@@ -153,28 +153,28 @@ void setup_script()
 		case OUTPUT_RAW:
 			script = raw_script;
 			break;
-		
+
 		case OUTPUT_DECB:
 			script = decb_script;
 			break;
-		
+
 		case OUTPUT_SREC:
 			script = srec_script;
 			break;
-		
+
 		case OUTPUT_LWEX0:
 			script = lwex0_script;
 			break;
-		
+
 		case OUTPUT_OS9:
 			script = os9_script;
 			break;
-			
+
 		default:
 			script = simple_script;
 			break;
 		}
-		
+
 		size = strlen(script);
 		if (nscriptls)
 		{
@@ -183,7 +183,7 @@ void setup_script()
 			// prepend the "extra" script lines
 			for (i = 0; i < nscriptls; i++)
 				size += strlen(scriptls[i]) + 1;
-			
+
 			rscript = lw_alloc(size + 1);
 			oscript = rscript;
 			for (i = 0; i < nscriptls; i++)
@@ -216,7 +216,7 @@ void setup_script()
 
 		for (ptr = script; *ptr && *ptr != '\n' && *ptr != '\r'; ptr++)
 			/* do nothing */ ;
-		
+
 		line = lw_alloc(ptr - script + 1);
 		memcpy(line, script, ptr - script);
 		line[ptr - script] = '\0';
@@ -224,42 +224,42 @@ void setup_script()
 		// skip line terms
 		for (script = ptr + 1; *script == '\n' || *script == '\r'; script++)
 			/* do nothing */ ;
-		
+
 		// ignore leading whitespace
 		for (ptr = line; *ptr && isspace(*ptr); ptr++)
 			/* do nothing */ ;
-		
+
 		// ignore blank lines and comments
 		if (!*ptr || *ptr == '#' || *ptr == ';')
 			continue;
-		
+
 		for (ptr = line; *ptr && !isspace(*ptr); ptr++)
 			/* do nothing */ ;
-		
+
 		// now ptr points to the char past the first word
 		// NUL it out
 		if (*ptr)
 			*ptr++ = '\0';
-		
+
 		// skip spaces after the first word
 		for ( ; *ptr && isspace(*ptr); ptr++)
 			/* do nothing */ ;
-		
+
 		if (!strcmp(line, "sectopt"))
 		{
 			char *sn;
 			char *ptr3;
 			sectopt_t *so;
-			
+
 			for (ptr2 = ptr; *ptr && !isspace(*ptr2); ptr2++)
 				/* do nothing */ ;
-			
+
 			if (*ptr2)
 				*ptr2++ = '\0';
-			
+
 			while (*ptr2 && isspace(*ptr2))
 				ptr2++;
-			
+
 			// section name is at ptr
 			// ptr2 is the option type
 			sn = ptr;
@@ -267,20 +267,20 @@ void setup_script()
 			// now ptr2 points to the section option name
 			for (ptr3 = ptr2; *ptr3 && !isspace(*ptr3); ptr3++)
 				/* do nothing */ ;
-			
+
 			if (*ptr3)
 				*ptr3++ = 0;
-			
+
 			while (*ptr3 && isspace(*ptr3))
 				ptr3++;
-			
+
 			// now ptr3 points to option value
 			for (so = section_opts; so; so = so -> next)
 			{
 				if (!strcmp(so -> name, sn))
 					break;
 			}
-			
+
 			if (!so)
 			{
 				so = lw_alloc(sizeof(sectopt_t));
@@ -290,13 +290,13 @@ void setup_script()
 				so -> next = section_opts;
 				section_opts = so;
 			}
-			
+
 			if (!strcmp(ptr2, "padafter"))
 			{
 				if (so -> afterbytes)
 					lw_free(so -> afterbytes);
 				so -> aftersize = 0;
-				
+
 				for (;;)
 				{
 					int v;
@@ -304,15 +304,15 @@ void setup_script()
 
 					while (*ptr3 && isspace(*ptr3))
 						ptr3++;
-					
+
 					if (!ptr3)
 						break;
-					
+
 					v = strtoul(ptr3, &ptr4, 16);
 					if (ptr3 == ptr4)
 						break;
-					
-					
+
+
 					so -> afterbytes = lw_realloc(so -> afterbytes, so -> aftersize + 1);
 					so -> afterbytes[so -> aftersize] = v;
 					so -> aftersize++;
@@ -337,13 +337,13 @@ void setup_script()
 			// parse out the definition type
 			for (ptr2 = ptr; *ptr2 && !isspace(*ptr2); ptr2++)
 				/* do nothing */ ;
-			
+
 			if (*ptr2)
 				*ptr2++ = '\0';
-			
+
 			while (*ptr2 && isspace(*ptr2))
 				ptr2++;
-			
+
 			// now ptr points to the define type
 			if (!strcmp(ptr, "basesympat"))
 			{
@@ -380,7 +380,7 @@ void setup_script()
 		else if (!strcmp(line, "entry"))
 		{
 			int eaddr;
-			
+
 			eaddr = strtol(ptr, &ptr2, 16);
 			if (*ptr2)
 			{
@@ -400,16 +400,16 @@ void setup_script()
 			// parse out the section name and flags
 			for (ptr2 = ptr; *ptr2 && !isspace(*ptr2); ptr2++)
 				/* do nothing */ ;
-			
+
 			if (*ptr2)
 				*ptr2++ = '\0';
-			
+
 			while (*ptr2 && isspace(*ptr2))
 				ptr2++;
-				
+
 			// ptr now points to the section name and flags and ptr2
 			// to the first non-space character following
-			
+
 			// then look for "load <addr>" clause
 			if (*ptr2)
 			{
@@ -418,7 +418,7 @@ void setup_script()
 					ptr2 += 4;
 					while (*ptr2 && isspace(*ptr2))
 						ptr2++;
-					
+
 				}
 				else if (!strncmp(ptr2, "high", 4))
 				{
@@ -438,7 +438,7 @@ void setup_script()
 				if (linkscript.nlines > 0)
 					growsdown = linkscript.lines[linkscript.nlines - 1].growsdown;
 			}
-			
+
 			// now ptr2 points to the load address if there is one
 			// or NUL if not
 			linkscript.lines = lw_realloc(linkscript.lines, sizeof(struct scriptline_s) * (linkscript.nlines + 1));
@@ -482,17 +482,17 @@ void setup_script()
 		}
 		lw_free(line);
 	}
-	
+
 	if (scriptfile || nscriptls)
 		lw_free(oscript);
-	
+
 	if (entrysym)
 	{
 			int eaddr;
 			char *ptr2;
-			
+
 			lw_free(linkscript.execsym);
-			
+
 			eaddr = strtol(entrysym, &ptr2, 0);
 			if (*ptr2)
 			{

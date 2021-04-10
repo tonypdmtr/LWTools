@@ -28,7 +28,7 @@ PARSEFUNC(insn_parse_rtor)
 
 	static const char *regs = "D X Y U S PCW V A B CCDP0 0 E F ";
 	static const char *regs9 = "D X Y U S PC    A B CCDP        ";
-		
+
 	// register to register (r0,r1)
 	// registers are in order:
 	// D,X,Y,U,S,PC,W,V

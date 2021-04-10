@@ -44,9 +44,9 @@ void do_replace(void)
 	int i;
 	char fnbuf[1024];
 	char fnbuf2[1024];
-		
+
 	sprintf(fnbuf, "%s.tmp", archive_file);
-	
+
 	f = fopen(archive_file, "rb+");
 	if (!f)
 	{
@@ -61,7 +61,7 @@ void do_replace(void)
 		}
 		perror("Cannot open archive file");
 	}
-	
+
 	(void)(fread(buf, 1, 6, f) && 1);
 	if (memcmp("LWAR1V", buf, 6))
 	{
@@ -88,12 +88,12 @@ void do_replace(void)
 		}
 		if (c == EOF)
 			goto doadd;
-		
+
 		if (!c)
 		{
 			goto doadd;
 		}
-		
+
 		// find the end of the file name
 		i = 0;
 		while (c)
@@ -108,7 +108,7 @@ void do_replace(void)
 		}
 		fnbuf2[i] = 0;
 		filename = get_file_name(fnbuf2);
-		
+
 		// get length of archive member
 		l = 0;
 		c = fgetc(f);
@@ -119,7 +119,7 @@ void do_replace(void)
 		l |= c << 8;
 		c = fgetc(f);
 		l |= c;
-		
+
 		// is it a file we are replacing? if so, do not copy it
 		for (i = 0; i < nfiles; i++)
 		{
@@ -147,7 +147,7 @@ void do_replace(void)
 			}
 		}
 	}
-	
+
 	// done with the original file
 	fclose(f);
 doadd:
@@ -174,12 +174,12 @@ doadd:
 				}
 				if (c == EOF)
 					break;
-		
+
 				if (!c)
 				{
 					break;
 				}
-		
+
 				// find the end of the file name
 				while (c)
 				{
@@ -192,7 +192,7 @@ doadd:
 					}
 				}
 				fputc(0, nf);
-				
+
 				// get length of archive member
 				l = 0;
 				c = fgetc(f2);
@@ -207,7 +207,7 @@ doadd:
 				c = fgetc(f2);
 				fputc(c, nf);
 				l |= c;
-		
+
 				while (l)
 				{
 					c = fgetc(f2);
@@ -215,7 +215,7 @@ doadd:
 					l--;
 				}
 			}
-			
+
 			fclose(f2);
 			continue;
 		}
@@ -235,12 +235,12 @@ doadd:
 			l--;
 		}
 	}
-	
+
 	// flag end of file
 	fputc(0, nf);
-	
+
 	fclose(nf);
-	
+
 	if (rename(fnbuf, archive_file) < 0)
 	{
 		perror("Cannot replace old archive file");

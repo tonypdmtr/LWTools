@@ -27,4 +27,3 @@ branches:
     - master
 notifications:
   email: false
-

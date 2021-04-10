@@ -27,7 +27,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 struct lw_strbuf *lw_strbuf_new(void)
 {
 	struct lw_strbuf *lw_strbuf;
-	
+
 	lw_strbuf = lw_alloc(sizeof(struct lw_strbuf));
 	lw_strbuf -> str = NULL;
 	lw_strbuf -> bo = 0;

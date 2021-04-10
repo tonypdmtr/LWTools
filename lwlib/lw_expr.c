@@ -113,7 +113,7 @@ void lw_expr_set_var_handler(lw_expr_fn2_t *fn)
 lw_expr_t lw_expr_create(void)
 {
 	lw_expr_t r;
-	
+
 	r = lw_alloc(sizeof(struct lw_expr_priv));
 	r -> operands = NULL;
 	r -> value2 = NULL;
@@ -145,33 +145,33 @@ lw_expr_t lw_expr_copy(lw_expr_t E)
 {
 	lw_expr_t r;
 	struct lw_expr_opers *o;
-	
+
 	if (!E)
 		return NULL;
 	r = lw_alloc(sizeof(struct lw_expr_priv));
 	*r = *E;
 	r -> operands = NULL;
-	
+
 	if (E -> type == lw_expr_type_var)
 		r -> value2 = lw_strdup(E -> value2);
 	for (o = E -> operands; o; o = o -> next)
 	{
 		lw_expr_add_operand(r, o -> p);
 	}
-	
+
 	return r;
 }
 
 void lw_expr_add_operand(lw_expr_t E, lw_expr_t O)
 {
 	struct lw_expr_opers *o, *t;
-	
+
 	o = lw_alloc(sizeof(struct lw_expr_opers));
 	o -> p = lw_expr_copy(O);
 	o -> next = NULL;
 	for (t = E -> operands; t && t -> next; t = t -> next)
 		/* do nothing */ ;
-	
+
 	if (t)
 		t -> next = o;
 	else
@@ -183,7 +183,7 @@ lw_expr_t lw_expr_build_aux(int exprtype, va_list args)
 	lw_expr_t r;
 	int t;
 	void *p;
-	
+
 	lw_expr_t te1, te2;
 
 	r = lw_expr_create();
@@ -217,18 +217,18 @@ lw_expr_t lw_expr_build_aux(int exprtype, va_list args)
 			te2 = va_arg(args, lw_expr_t);
 		else
 			te2 = NULL;
-		
+
 		r -> type = lw_expr_type_oper;
 		r -> value = t;
 		lw_expr_add_operand(r, te1);
 		if (te2)
 			lw_expr_add_operand(r, te2);
 		break;
-	
+
 	default:
 		lw_error("Invalid expression type specified to lw_expr_build");
 	}
-	
+
 	return r;
 }
 
@@ -236,7 +236,7 @@ lw_expr_t lw_expr_build(int exprtype, ...)
 {
 	va_list args;
 	lw_expr_t r;
-	
+
 	va_start(args, exprtype);
 	r = lw_expr_build_aux(exprtype, args);
 	va_end(args);
@@ -259,7 +259,7 @@ void lw_expr_print_aux(lw_expr_t E, char **obuf, int *buflen, int *bufloc)
 		c++;
 		lw_expr_print_aux(o -> p, obuf, buflen, bufloc);
 	}
-	
+
 	switch (E -> type)
 	{
 	case lw_expr_type_int:
@@ -268,11 +268,11 @@ void lw_expr_print_aux(lw_expr_t E, char **obuf, int *buflen, int *bufloc)
 		else
 			snprintf(buf, 256, "%#x ", E -> value);
 		break;
-	
+
 	case lw_expr_type_var:
 		snprintf(buf, 256, "V(%s) ", (char *)(E -> value2));
 		break;
-	
+
 	case lw_expr_type_special:
 		snprintf(buf, 256, "S(%d,%p) ", E -> value, E -> value2);
 		break;
@@ -284,59 +284,59 @@ void lw_expr_print_aux(lw_expr_t E, char **obuf, int *buflen, int *bufloc)
 		case lw_expr_oper_plus:
 			strcat(buf, "+ ");
 			break;
-			
+
 		case lw_expr_oper_minus:
 			strcat(buf, "- ");
 			break;
-			
+
 		case lw_expr_oper_times:
 			strcat(buf, "* ");
 			break;
-			
+
 		case lw_expr_oper_divide:
 			strcat(buf, "/ ");
 			break;
-			
+
 		case lw_expr_oper_mod:
 			strcat(buf, "% ");
 			break;
-			
+
 		case lw_expr_oper_intdiv:
 			strcat(buf, "\\ ");
 			break;
-			
+
 		case lw_expr_oper_bwand:
 			strcat(buf, "BWAND ");
 			break;
-			
+
 		case lw_expr_oper_bwor:
 			strcat(buf, "BWOR ");
 			break;
-			
+
 		case lw_expr_oper_bwxor:
 			strcat(buf, "BWXOR ");
 			break;
-			
+
 		case lw_expr_oper_and:
 			strcat(buf, "AND ");
 			break;
-			
+
 		case lw_expr_oper_or:
 			strcat(buf, "OR ");
 			break;
-			
+
 		case lw_expr_oper_neg:
 			strcat(buf, "NEG ");
 			break;
-			
+
 		case lw_expr_oper_com:
 			strcat(buf, "COM ");
 			break;
-		
+
 		case lw_expr_oper_com8:
 			strcat(buf, "COM8 ");
 			break;
-			
+
 		default:
 			strcat(buf, "OPER ");
 			break;
@@ -346,7 +346,7 @@ void lw_expr_print_aux(lw_expr_t E, char **obuf, int *buflen, int *bufloc)
 		snprintf(buf, 256, "ERR ");
 		break;
 	}
-	
+
 	c = strlen(buf);
 	if (*bufloc + c >= *buflen)
 	{
@@ -395,7 +395,7 @@ int lw_expr_compare(lw_expr_t E1, lw_expr_t E2)
 		else
 			return 0;
 	}
-	
+
 	if (E1 -> type == lw_expr_type_special)
 	{
 		if (E1 -> value2 == E2 -> value2)
@@ -403,12 +403,12 @@ int lw_expr_compare(lw_expr_t E1, lw_expr_t E2)
 		else
 			return 0;
 	}
-	
+
 	for (o1 = E1 -> operands, o2 = E2 -> operands; o1 && o2; o1 = o1 -> next, o2 = o2 -> next)
 		if (lw_expr_compare(o1 -> p, o2 -> p) == 0)
 			return 0;
 	if (o1 || o2)
-		return 0;	
+		return 0;
 
 	return 1;
 }
@@ -436,7 +436,7 @@ void lw_expr_simplify_sortconstfirst(lw_expr_t E)
 		if (o -> p -> type == lw_expr_type_oper && (o -> p -> value == lw_expr_oper_times || o -> p -> value == lw_expr_oper_plus))
 			lw_expr_simplify_sortconstfirst(o -> p);
 	}
-	
+
 	for (o = E -> operands; o; o = o -> next)
 	{
 		if (o -> p -> type == lw_expr_type_int && o != E -> operands)
@@ -462,10 +462,10 @@ void lw_expr_sortoperandlist(struct lw_expr_opers **o)
 int lw_expr_simplify_compareoperandlist(struct lw_expr_opers **ol1, struct lw_expr_opers **ol2)
 {
 	struct lw_expr_opers *o1, *o2;
-	
+
 	lw_expr_sortoperandlist(ol1);
 	lw_expr_sortoperandlist(ol2);
-	
+
 	for (o1 = *ol1, o2 = *ol2; o1 &&  o2; o1 = o1 -> next, o2 = o2 -> next)
 	{
 		if (!lw_expr_compare(o1 -> p, o2 -> p))
@@ -489,16 +489,16 @@ int lw_expr_simplify_isliketerm(lw_expr_t e1, lw_expr_t e2)
 			for (o1 = e1 -> operands; o1; o1 = o1 -> next)
 				if (o1 -> p -> type != lw_expr_type_int)
 					break;
-			
+
 			for (o2 = e2 -> operands; o2; o2 = o2 -> next)
 				if (o2 -> p -> type != lw_expr_type_int)
 					break;
-			
+
 			if (lw_expr_simplify_compareoperandlist(&o1, &o2))
 				return 1;
 			return 0;
 		}
-		
+
 		// not a times - have to assume it's the operand list
 		// with a "1 *" in front if it
 		if (!e1 -> operands -> next)
@@ -509,7 +509,7 @@ int lw_expr_simplify_isliketerm(lw_expr_t e1, lw_expr_t e2)
 			return 0;
 		return 1;
 	}
-	
+
 	// e1 is not a times
 	if (e2 -> type == lw_expr_type_oper && e2 -> value == lw_expr_oper_times)
 	{
@@ -520,7 +520,7 @@ int lw_expr_simplify_isliketerm(lw_expr_t e1, lw_expr_t e2)
 			return 0;
 		return 1;
 	}
-	
+
 	// neither are times
 	if (!lw_expr_compare(e1, e2))
 		return 0;
@@ -530,17 +530,17 @@ int lw_expr_simplify_isliketerm(lw_expr_t e1, lw_expr_t e2)
 int lw_expr_contains(lw_expr_t E, lw_expr_t E1)
 {
 	struct lw_expr_opers *o;
-	
+
 	// NULL expr contains nothing :)
 	if (!E)
 		return 0;
-	
+
 	if (E1 -> type != lw_expr_type_var && E1 -> type != lw_expr_type_special)
 		return 0;
-	
+
 	if (lw_expr_compare(E, E1))
 		return 1;
-	
+
 	for (o = E -> operands; o; o = o -> next)
 	{
 		if (lw_expr_contains(o -> p, E1))
@@ -562,7 +562,7 @@ void lw_expr_simplify_go(lw_expr_t E, void *priv)
 		for (o = E -> operands -> next; o; o = o -> next)
 		{
 			lw_expr_t e1, e2;
-			
+
 			e2 = lw_expr_build(lw_expr_type_int, -1);
 			e1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_times, e2, o -> p);
 			lw_expr_destroy(o -> p);
@@ -576,19 +576,19 @@ void lw_expr_simplify_go(lw_expr_t E, void *priv)
 	if (E -> type == lw_expr_type_oper && E -> value == lw_expr_oper_neg)
 	{
 		lw_expr_t e1;
-		
+
 		E -> value = lw_expr_oper_times;
 		e1 = lw_expr_build(lw_expr_type_int, -1);
 		lw_expr_add_operand(E, e1);
 		lw_expr_destroy(e1);
 	}
-	
+
 again:
 	// try to resolve non-constant terms to constants here
 	if (E -> type == lw_expr_type_special && evaluate_special)
 	{
 		lw_expr_t te;
-		
+
 		te = evaluate_special(E -> value, E -> value2, priv);
 		if (lw_expr_contains(te, E))
 			lw_expr_destroy(te);
@@ -600,7 +600,7 @@ again:
 				lw_free(E -> value2);
 			*E = *te;
 			E -> operands = NULL;
-	
+
 			if (te -> type == lw_expr_type_var)
 				E -> value2 = lw_strdup(te -> value2);
 			for (o = te -> operands; o; o = o -> next)
@@ -619,7 +619,7 @@ again:
 	if (E -> type == lw_expr_type_var && evaluate_var)
 	{
 		lw_expr_t te;
-		
+
 		te = evaluate_var(E -> value2, priv);
 		if (!te)
 			return;
@@ -633,7 +633,7 @@ again:
 				lw_free(E -> value2);
 			*E = *te;
 			E -> operands = NULL;
-	
+
 			if (te -> type == lw_expr_type_var)
 				E -> value2 = lw_strdup(te -> value2);
 			for (o = te -> operands; o; o = o -> next)
@@ -660,7 +660,7 @@ again:
 			{
 				struct lw_expr_opers *o2;
 				// we have a + operation - bring operands up
-				
+
 				for (o2 = E -> operands; o2 && o2 -> next != o; o2 = o2 -> next)
 					/* do nothing */ ;
 				if (o2)
@@ -677,7 +677,7 @@ again:
 			}
 		}
 	}
-	
+
 	// merge times operations
 	if (E -> value == lw_expr_oper_times)
 	{
@@ -688,7 +688,7 @@ again:
 			{
 				struct lw_expr_opers *o2;
 				// we have a + operation - bring operands up
-				
+
 				for (o2 = E -> operands; o2 && o2 -> next != o; o2 = o2 -> next)
 					/* do nothing */ ;
 				if (o2)
@@ -705,7 +705,7 @@ again:
 			}
 		}
 	}
-	
+
 	// simplify operands
 	for (o = E -> operands; o; o = o -> next)
 		if (o -> p -> type != lw_expr_type_int)
@@ -721,7 +721,7 @@ again:
 	{
 		// we can do the operation here!
 		int tr = -42424242;
-		
+
 		switch (E -> value)
 		{
 		case lw_expr_oper_neg:
@@ -731,11 +731,11 @@ again:
 		case lw_expr_oper_com:
 			tr = ~(E -> operands -> p -> value);
 			break;
-		
+
 		case lw_expr_oper_com8:
 			tr = ~(E -> operands -> p -> value) & 0xff;
 			break;
-		
+
 		case lw_expr_oper_plus:
 			tr = E -> operands -> p -> value;
 			for (o = E -> operands -> next; o; o = o -> next)
@@ -763,7 +763,7 @@ again:
 			}
 			tr = E -> operands -> p -> value / E -> operands -> next -> p -> value;
 			break;
-		
+
 		case lw_expr_oper_mod:
 			if (E -> operands -> next -> p -> value == 0)
 			{
@@ -773,7 +773,7 @@ again:
 			}
 			tr = E -> operands -> p -> value % E -> operands -> next -> p -> value;
 			break;
-		
+
 		case lw_expr_oper_intdiv:
 			if (E -> operands -> next -> p -> value == 0)
 			{
@@ -803,9 +803,9 @@ again:
 		case lw_expr_oper_or:
 			tr = E -> operands -> p -> value || E -> operands -> next -> p -> value;
 			break;
-		
+
 		}
-		
+
 		while (E -> operands)
 		{
 			o = E -> operands;
@@ -822,11 +822,11 @@ again:
 	{
 		lw_expr_t e1;
 		int cval = 0;
-		
+
 		e1 = lw_expr_create();
 		e1 -> operands = E -> operands;
 		E -> operands = 0;
-		
+
 		for (o = e1 -> operands; o; o = o -> next)
 		{
 			if (o -> p -> type == lw_expr_type_int)
@@ -847,11 +847,11 @@ again:
 	{
 		lw_expr_t e1;
 		int cval = 1;
-		
+
 		e1 = lw_expr_create();
 		e1 -> operands = E -> operands;
 		E -> operands = 0;
-		
+
 		for (o = e1 -> operands; o; o = o -> next)
 		{
 			if (o -> p -> type == lw_expr_type_int)
@@ -888,11 +888,11 @@ again:
 			}
 		}
 	}
-	
+
 	// sort "constants" to the start of each operand list for + and *
 	if (E -> value == lw_expr_oper_plus || E -> value == lw_expr_oper_times)
 		lw_expr_simplify_sortconstfirst(E);
-	
+
 	// look for like terms and collect them together
 	if (E -> value == lw_expr_oper_plus)
 	{
@@ -902,20 +902,20 @@ again:
 			// skip constants
 			if (o -> p -> type == lw_expr_type_int)
 				continue;
-			
+
 			// we have a term to match
 			// (o -> p) is first term
 			for (o2 = o -> next; o2; o2 = o2 -> next)
 			{
 				lw_expr_t e1, e2;
-				
+
 				if (o2 -> p -> type == lw_expr_type_int)
 					continue;
 
 				if (lw_expr_simplify_isliketerm(o -> p, o2 -> p))
 				{
 					int coef, coef2;
-					
+
 					// we have a like term here
 					// do something about it
 					if (o -> p -> type == lw_expr_type_oper && o -> p -> value == lw_expr_oper_times)
@@ -1018,7 +1018,7 @@ again:
 		{
 			// collapse out zero terms
 			struct lw_expr_opers *o2;
-			
+
 			for (o = E -> operands; o; o = o -> next)
 			{
 				if (o -> p -> type == lw_expr_type_int && o -> p -> value == 0)
@@ -1044,7 +1044,7 @@ again:
 		}
 		return;
 	}
-	
+
 	/* handle <int> times <plus> - expand the terms - only with exactly two operands */
 	if (E -> value == lw_expr_oper_times)
 	{
@@ -1064,14 +1064,14 @@ again:
 					lw_free(E -> operands);
 					E -> operands = NULL;
 					E -> value = lw_expr_oper_plus;
-					
+
 					for (o = E2 -> operands; o; o = o -> next)
 					{
 						t1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_times, E3, o -> p);
 						lw_expr_add_operand(E, t1);
 						lw_expr_destroy(t1);
 					}
-					
+
 					lw_expr_destroy(E2);
 					lw_expr_destroy(E3);
 				}
@@ -1087,13 +1087,13 @@ again:
 					lw_free(E -> operands);
 					E -> operands = NULL;
 					E -> value = lw_expr_oper_plus;
-					
+
 					for (o = E2 -> operands; o; o = o -> next)
 					{
 						t1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_times, E3, o -> p);
 						lw_expr_add_operand(E, t1);
 					}
-					
+
 					lw_expr_destroy(E2);
 					lw_expr_destroy(E3);
 				}
@@ -1106,7 +1106,7 @@ void lw_expr_simplify_l(lw_expr_t E, void *priv)
 {
 	lw_expr_t te;
 	int c;
-	
+
 	(level)++;
 	// bail out if the level gets too deep
 	if (level >= 500 || bailing)
@@ -1176,7 +1176,7 @@ static void lw_expr_parse_next_tok(char **p)
 lw_expr_t lw_expr_parse_term(char **p, void *priv)
 {
 	lw_expr_t term, term2;
-	
+
 eval_next:
 	lw_expr_parse_next_tok(p);
 
@@ -1196,14 +1196,14 @@ eval_next:
 		(*p)++;
 		return term;
 	}
-	
+
 	// unary +
 	if (**p == '+')
 	{
 		(*p)++;
 		goto eval_next;
 	}
-	
+
 	// unary - (prec 200)
 	if (**p == '-')
 	{
@@ -1211,12 +1211,12 @@ eval_next:
 		term = lw_expr_parse_expr(p, priv, 200);
 		if (!term)
 			return NULL;
-		
+
 		term2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_neg, term);
 		lw_expr_destroy(term);
 		return term2;
 	}
-	
+
 	// unary ^ or ~ (complement, prec 200)
 	if (**p == '^' || **p == '~')
 	{
@@ -1224,7 +1224,7 @@ eval_next:
 		term = lw_expr_parse_expr(p, priv, 200);
 		if (!term)
 			return NULL;
-		
+
 		if (expr_width == 8)
 			term2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_com8, term);
 		else
@@ -1232,7 +1232,7 @@ eval_next:
 		lw_expr_destroy(term);
 		return term2;
 	}
-	
+
 	// non-operator - pass to caller
 	return parse_term(p, priv);
 }
@@ -1252,21 +1252,21 @@ lw_expr_t lw_expr_parse_expr(char **p, void *priv, int prec)
 		{ lw_expr_oper_divide, "/", 150 },
 		{ lw_expr_oper_mod, "%", 150 },
 		{ lw_expr_oper_intdiv, "\\", 150 },
-		
+
 		{ lw_expr_oper_and, "&&", 25 },
 		{ lw_expr_oper_or, "||", 25 },
-		
+
 		{ lw_expr_oper_bwand, "&", 50 },
 		{ lw_expr_oper_bwor, "|", 50 },
 		{ lw_expr_oper_bwor, "!", 50 },
 		{ lw_expr_oper_bwxor, "^", 50 },
-		
+
 		{ lw_expr_oper_none, "", 0 }
 	};
-	
+
 	int opern, i;
 	lw_expr_t term1, term2, term3;
-	
+
 	lw_expr_parse_next_tok(p);
 	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']' || **p == ';')
 		return NULL;
@@ -1279,7 +1279,7 @@ eval_next:
 	lw_expr_parse_next_tok(p);
 	if (!**p || isspace(**p) || **p == ')' || **p == ',' || **p == ']' || **p == ';')
 		return term1;
-	
+
 	// expecting an operator here
 	for (opern = 0; operators[opern].opernum != lw_expr_oper_none; opern++)
 	{
@@ -1288,7 +1288,7 @@ eval_next:
 		if (operators[opern].operstr[i] == '\0')
 			break;
 	}
-	
+
 	if (operators[opern].opernum == lw_expr_oper_none)
 	{
 		// unrecognized operator
@@ -1297,21 +1297,21 @@ eval_next:
 	}
 
 	// operator number is in opern, length of oper in i
-	
+
 	// logic:
 	// if the precedence of this operation is <= to the "prec" flag,
 	// we simply return without advancing the input pointer; the operator
 	// will be evaluated again in the enclosing function call
 	if (operators[opern].operprec <= prec)
 		return term1;
-	
+
 	// logic:
 	// we have a higher precedence operator here so we will advance the
 	// input pointer to the next term and let the expression evaluator
 	// loose on it after which time we will push our operator onto the
 	// stack and then go on with the expression evaluation
 	(*p) += i;
-	
+
 	// evaluate next expression(s) of higher precedence
 	term2 = lw_expr_parse_expr(p, priv, operators[opern].operprec);
 	if (!term2)
@@ -1319,15 +1319,15 @@ eval_next:
 		lw_expr_destroy(term1);
 		return NULL;
 	}
-	
+
 	// now create operator
 	term3 = lw_expr_build(lw_expr_type_oper, operators[opern].opernum, term1, term2);
 	lw_expr_destroy(term1);
 	lw_expr_destroy(term2);
-	
+
 	// the new "expression" is the next "left operand"
 	term1 = term3;
-	
+
 	// continue evaluating
 	goto eval_next;
 }
@@ -1343,13 +1343,13 @@ lw_expr_t lw_expr_parse_compact(char **p, void *priv)
 	parse_compact = 1;
 	return lw_expr_parse_expr(p, priv, 0);
 }
-	
+
 
 int lw_expr_testterms(lw_expr_t e, lw_expr_testfn_t *fn, void *priv)
 {
 	struct lw_expr_opers *o;
 	int r;
-	
+
 	for (o = e -> operands; o; o = o -> next)
 	{
 		r = lw_expr_testterms(o -> p, fn, priv);
@@ -1373,12 +1373,12 @@ int lw_expr_operandcount(lw_expr_t e)
 {
 	int count = 0;
 	struct lw_expr_opers *o;
-	
+
 	if (e -> type != lw_expr_type_oper)
 		return 0;
-	
+
 	for (o = e -> operands; o; o = o -> next)
 		count++;
-	
+
 	return count;
 }

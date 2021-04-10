@@ -42,7 +42,7 @@ void do_output_srec(FILE *of);
 void do_output(void)
 {
 	FILE *of;
-	
+
 	of = fopen(outfile, "wb");
 	if (!of)
 	{
@@ -50,13 +50,13 @@ void do_output(void)
 		perror("");
 		exit(1);
 	}
-	
+
 	switch (outformat)
 	{
 	case OUTPUT_DECB:
 		do_output_decb(of);
 		break;
-	
+
 	case OUTPUT_RAW:
 		do_output_raw(of);
 		break;
@@ -64,20 +64,20 @@ void do_output(void)
 	case OUTPUT_LWEX0:
 		do_output_lwex0(of);
 		break;
-	
+
 	case OUTPUT_OS9:
 		do_output_os9(of);
 		break;
-		
+
 	case OUTPUT_SREC:
 		do_output_srec(of);
 		break;
-		
+
 	default:
 		fprintf(stderr, "Unknown output format doing output!\n");
 		exit(111);
 	}
-	
+
 	fclose(of);
 }
 
@@ -86,7 +86,7 @@ void do_output_decb(FILE *of)
 	int sn, sn2;
 	int cloc, olen;
 	unsigned char buf[5];
-	
+
 	for (sn = 0; sn < nsects; sn++)
 	{
 		if (sectlist[sn].ptr -> flags & SECTION_BSS)
@@ -99,7 +99,7 @@ void do_output_decb(FILE *of)
 			// don't generate output for a zero size section
 			continue;
 		}
-		
+
 		// calculate the length of this output block
 		cloc = sectlist[sn].ptr -> loadaddress;
 		olen = 0;
@@ -116,7 +116,7 @@ void do_output_decb(FILE *of)
 			olen += sectlist[sn2].ptr -> codesize;
 			cloc += sectlist[sn2].ptr -> codesize;
 		}
-		
+
 		// write a preamble
 		buf[0] = 0x00;
 		buf[1] = olen >> 8;
@@ -147,7 +147,7 @@ void do_output_raw(FILE *of)
 {
 	int nskips = 0;		// used to output blanks for BSS inline
 	int sn;
-	
+
 	for (sn = 0; sn < nsects; sn++)
 	{
 		if (sectlist[sn].ptr -> flags & SECTION_BSS)
@@ -170,9 +170,9 @@ void do_output_srec(FILE *of)
 {
 	const int SRECLEN = 16;
 
-	int sn;	
+	int sn;
 	int remainingcodebytes;
-	
+
 	int codeaddr;
 	int i;
 	int recaddr = 0;
@@ -192,12 +192,12 @@ void do_output_srec(FILE *of)
 		recaddr = sectlist[sn].ptr -> loadaddress;
 		remainingcodebytes = sectlist[sn].ptr -> codesize;
 		sectcode = sectlist[sn].ptr -> code;
-		
-		while (remainingcodebytes) 
+
+		while (remainingcodebytes)
 		{
 			recdlen = (SRECLEN>remainingcodebytes)?remainingcodebytes:SRECLEN;
 			recsum = recdlen + 3;
-			codeaddr = recaddr - sectlist[sn].ptr -> loadaddress;			
+			codeaddr = recaddr - sectlist[sn].ptr -> loadaddress;
 			fprintf(of, "S1%02X%04X", recdlen + 3, recaddr & 0xffff);
 			for (i = 0; i < recdlen; i++)
 			{
@@ -225,7 +225,7 @@ void do_output_lwex0(FILE *of)
 	int sn;
 	int codedatasize = 0;
 	unsigned char buf[32];
-	
+
 	// calculate items for the file header
 	for (sn = 0; sn < nsects; sn++)
 	{
@@ -256,7 +256,7 @@ void do_output_lwex0(FILE *of)
 	buf[12] = linkscript.execaddr / 256;
 	buf[13] = linkscript.execaddr & 0xff;
 	memset(buf + 14, 0, 18);
-	
+
 	writebytes(buf, 1, 32, of);
 	// output the data
 	// NOTE: disjoint load addresses will not work correctly!!!!!
@@ -297,7 +297,7 @@ void os9crc(unsigned char crc[3], unsigned char b)
 		crc[2] ^= 0x21;
 	}
 }
- 
+
 
 void do_output_os9(FILE *of)
 {
@@ -306,10 +306,10 @@ void do_output_os9(FILE *of)
 	int bsssize = 0;
 	int nameoff;
 	int i;
-		
+
 	unsigned char buf[16];
 	unsigned char crc[3];
-	
+
 	// calculate items for the file header
 	for (sn = 0; sn < nsects; sn++)
 	{
@@ -333,7 +333,7 @@ void do_output_os9(FILE *of)
 	codedatasize += strlen(linkscript.name); // add in name length
 	if (linkscript.edition >= 0)
 		codedatasize += 1;
-	
+
 	// output the file header
 	buf[0] = 0x87;
 	buf[1] = 0xCD;
@@ -348,11 +348,11 @@ void do_output_os9(FILE *of)
 	buf[10] = linkscript.execaddr & 0xff;
 	buf[11] = (bsssize >> 8) & 0xff;
 	buf[12] = bsssize & 0xff;
-	
+
 	crc[0] = 0xff;
 	crc[1] = 0xff;
 	crc[2] = 0xff;
-	
+
 	os9crc(crc, buf[0]);
 	os9crc(crc, buf[1]);
 	os9crc(crc, buf[2]);
@@ -366,10 +366,10 @@ void do_output_os9(FILE *of)
 	os9crc(crc, buf[10]);
 	os9crc(crc, buf[11]);
 	os9crc(crc, buf[12]);
-	
-	
+
+
 	writebytes(buf, 1, 13, of);
-	
+
 	// output the data
 	// NOTE: disjoint load addresses will not work correctly!!!!!
 	for (sn = 0; sn < nsects; sn++)
@@ -383,7 +383,7 @@ void do_output_os9(FILE *of)
 		for (i = 0; i < sectlist[sn].ptr -> codesize; i++)
 			os9crc(crc, sectlist[sn].ptr -> code[i]);
 	}
-	
+
 	// output the name
 	for (i = 0; linkscript.name[i + 1]; i++)
 	{
@@ -393,14 +393,14 @@ void do_output_os9(FILE *of)
 	buf[0] = linkscript.name[i] | 0x80;
 	writebytes(buf, 1, 1, of);
 	os9crc(crc, buf[0]);
-	
+
 	if (linkscript.edition >= 0)
 	{
 		buf[0] = linkscript.edition & 0xff;
 		writebytes(buf, 1, 1, of);
 		os9crc(crc, buf[0]);
 	}
-	
+
 	crc[0] ^= 0xff;
 	crc[1] ^= 0xff;
 	crc[2] ^= 0xff;

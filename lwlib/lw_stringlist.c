@@ -29,13 +29,13 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 lw_stringlist_t lw_stringlist_create(void)
 {
 	lw_stringlist_t s;
-	
-	
+
+
 	s = lw_alloc(sizeof(struct lw_stringlist_priv));
 	s -> strings = NULL;
 	s -> nstrings = 0;
 	s -> cstring = 0;
-	
+
 	return s;
 }
 
@@ -86,13 +86,13 @@ int lw_stringlist_nstrings(lw_stringlist_t S)
 lw_stringlist_t lw_stringlist_copy(lw_stringlist_t S)
 {
 	lw_stringlist_t r;
-	
+
 	r = lw_alloc(sizeof(lw_stringlist_t));
 	r -> nstrings = S -> nstrings;
 	if (S -> nstrings)
 	{
 		int i;
-		
+
 		r -> strings = lw_alloc(sizeof(char *) * S -> nstrings);
 		for (i = 0; i < S -> nstrings; i++)
 		{

@@ -23,7 +23,7 @@
 #echo "LWTOOLS-ld $0 $*"
 path_to_lwlink=lwlink
 
-# Set defaults.  Some are based on the target type, which is 
+# Set defaults.  Some are based on the target type, which is
 # determined by the name by which the program was invoked.
 output_file=a.out
 libpaths=
@@ -90,12 +90,12 @@ while [ "$*" != "" ]; do
 			section_value=$1; shift
 			options="$options --section-base=$section_value"
 			;;
-		
+
 		-Map=*)
 			arg=${arg#-Map=};
 			options="$options --map=$arg"
 			;;
-			
+
 		--script=*)
 			options="$options $arg"
 			;;
@@ -127,20 +127,20 @@ while [ "$*" != "" ]; do
 		--format-lwex)
 			options="$options --format=lwex"
 			;;
-		
+
 		--sysroot=*)
 			options="$options $arg"
 			;;
-			
+
 		-nostdlib)
 			stdlibpaths=
 			;;
-		
+
 		-e)
 			options="$options --entry=$1"
 			shift
 			;;
-			
+
 		--entry)
 			options="$options $arg"
 			;;

@@ -183,7 +183,7 @@ extra_clean := $(extra_clean) *~ */*~
 	@rm -f $*.d.tmp
 	@echo Building $@
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
-	
+
 
 .PHONY: clean
 clean: $(cleantargs)
@@ -226,4 +226,3 @@ endif
 .PHONY: test
 test: all test/runtests
 	@test/runtests
-

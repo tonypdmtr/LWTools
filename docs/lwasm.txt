@@ -40,4 +40,3 @@ use 16 bit relative addressing but intrasegment internal references may use
 8 bit relative addressing. Forced 8 bit direct modes are probably an error
 but are permitted on the theory that the programmer might know something the
 assembler doesn't.
-

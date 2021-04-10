@@ -41,7 +41,7 @@ PARSEFUNC(pseudo_parse_dts)
 {
 	time_t tp;
 	char *t;
-	
+
 	skip_operand(p);
 	l -> len = 0;
 
@@ -55,14 +55,14 @@ PARSEFUNC(pseudo_parse_dts)
 		t++;
 		l -> len += 1;
 	}
-	
+
 }
 
 EMITFUNC(pseudo_emit_dts)
 {
 	char *t;
 	int i;
-	
+
 	for (t = l -> lstr, i = 0; i < l -> len; i++, t++)
 		lwasm_emit(l, *t);
 }
@@ -78,7 +78,7 @@ EMITFUNC(pseudo_emit_dtb)
 {
 	time_t tp;
 	struct tm *t;
-	
+
 	tp = time(NULL);
 	t = localtime(&tp);
 
@@ -94,7 +94,7 @@ EMITFUNC(pseudo_emit_dtb)
 PARSEFUNC(pseudo_parse_end)
 {
 	lw_expr_t addr;
-	
+
 	l -> len = 0;
 
 	if (CURPRAGMA(l, PRAGMA_M80EXT) && input_isinclude(as))
@@ -107,7 +107,7 @@ PARSEFUNC(pseudo_parse_end)
 		skip_operand(p);
 		return;
 	}
-	
+
 	if (!**p)
 	{
 		addr = lw_expr_build(lw_expr_type_int, 0);
@@ -132,7 +132,7 @@ EMITFUNC(pseudo_emit_end)
 		return;	/* ignore END inside includes */
 
 	addr = lwasm_fetch_expr(l, 0);
-	
+
 	if (addr)
 	{
 		if (!lw_expr_istype(addr, lw_expr_type_int))
@@ -159,7 +159,7 @@ PARSEFUNC(pseudo_parse_fcb)
 {
 	int i = 0;
 	lw_expr_t e;
-	
+
 	for (;;)
 	{
 		e = lwasm_parse_expr(as, p);
@@ -173,7 +173,7 @@ PARSEFUNC(pseudo_parse_fcb)
 			break;
 		(*p)++;
 	}
-	
+
 	l -> len = i;
 }
 
@@ -182,7 +182,7 @@ EMITFUNC(pseudo_emit_fcb)
 	int i;
 	lw_expr_t e;
 //	int v;
-	
+
 	for (i = 0; i < l -> len; i++)
 	{
 		e = lwasm_fetch_expr(l, i);
@@ -194,7 +194,7 @@ PARSEFUNC(pseudo_parse_fdb)
 {
 	int i = 0;
 	lw_expr_t e;
-	
+
 	for (;;)
 	{
 		e = lwasm_parse_expr(as, p);
@@ -208,7 +208,7 @@ PARSEFUNC(pseudo_parse_fdb)
 			break;
 		(*p)++;
 	}
-	
+
 	l -> len = i * 2;
 }
 
@@ -217,7 +217,7 @@ EMITFUNC(pseudo_emit_fdb)
 	int i;
 	lw_expr_t e;
 //	int v;
-	
+
 	for (i = 0; i < (l -> len)/2; i++)
 	{
 		e = lwasm_fetch_expr(l, i);
@@ -229,7 +229,7 @@ PARSEFUNC(pseudo_parse_fdbs)
 {
 	int i = 0;
 	lw_expr_t e;
-	
+
 	for (;;)
 	{
 		e = lwasm_parse_expr(as, p);
@@ -243,7 +243,7 @@ PARSEFUNC(pseudo_parse_fdbs)
 			break;
 		(*p)++;
 	}
-	
+
 	l -> len = i * 2;
 }
 
@@ -254,7 +254,7 @@ EMITFUNC(pseudo_emit_fdbs)
 	lw_expr_t t;
 	lw_expr_t t2;
 //	int v;
-	
+
 	for (i = 0; i < (l -> len)/2; i++)
 	{
 		e = lwasm_fetch_expr(l, i);
@@ -272,7 +272,7 @@ PARSEFUNC(pseudo_parse_fqb)
 {
 	int i = 0;
 	lw_expr_t e;
-	
+
 	for (;;)
 	{
 		e = lwasm_parse_expr(as, p);
@@ -286,7 +286,7 @@ PARSEFUNC(pseudo_parse_fqb)
 			break;
 		(*p)++;
 	}
-	
+
 	l -> len = i * 4;
 }
 
@@ -295,7 +295,7 @@ EMITFUNC(pseudo_emit_fqb)
 	int i;
 	lw_expr_t e;
 //	int v;
-	
+
 	for (i = 0; i < (l -> len)/4; i++)
 	{
 		e = lwasm_fetch_expr(l, i);
@@ -309,7 +309,7 @@ static int cstringlen(asmstate_t *as, line_t *ln, char **p, char delim)
 	char *str = NULL;
 	int blen = 0;
 	int bsize = 0;
-	
+
 	if (!(as -> pragmas & PRAGMA_CESCAPES))
 	{
 		for (; **p && **p != delim; (*p)++)
@@ -358,7 +358,7 @@ static int cstringlen(asmstate_t *as, line_t *ln, char **p, char delim)
 						wch *= 8;
 						wch += **p -0x30;
 					}
-					break;			
+					break;
 
 				/* hexadecimal value */
 				case 'x':
@@ -388,30 +388,30 @@ static int cstringlen(asmstate_t *as, line_t *ln, char **p, char delim)
 				case 'a':
 					wch = 7;
 					break;
-				
+
 				case 'b':
 					wch = 8;
 					break;
-				
+
 				case 't':
 					wch = 9;
 					break;
-				
+
 				case 'n':
 					wch = 10;
 					break;
-				
+
 				case 'v':
 					wch = 11;
 					break;
-				
+
 				case 'f':
 					wch = 12;
 					break;
-				
+
 				case 'r':
 					wch = 13;
-				
+
 				/* everything else represents itself */
 				default:
 					break;
@@ -438,24 +438,24 @@ PARSEFUNC(pseudo_parse_fcc)
 {
 	char delim;
 	int i;
-	
+
 	if (!**p)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	delim = **p;
 	(*p)++;
-	
+
 	i = cstringlen(as, l, p, delim);
-	
+
 	if (**p != delim)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	(*p)++;	
+	(*p)++;
 	l -> len = i;
 
 	/* handle additional expressions, like FCC "Hello",13,0 */
@@ -491,18 +491,18 @@ PARSEFUNC(pseudo_parse_fcs)
 {
 	char delim;
 	int i;
-	
+
 	if (!**p)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	delim = **p;
 	(*p)++;
-	
+
 	i = cstringlen(as, l, p, delim);
-	
+
 	if (**p != delim)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
@@ -515,7 +515,7 @@ PARSEFUNC(pseudo_parse_fcs)
 EMITFUNC(pseudo_emit_fcs)
 {
 	int i;
-	
+
 	for (i = 0; i < l -> len - 1; i++)
 		lwasm_emit(l, l -> lstr[i]);
 	lwasm_emit(l, l -> lstr[i] | 0x80);
@@ -525,16 +525,16 @@ PARSEFUNC(pseudo_parse_fcn)
 {
 	char delim;
 	int i;
-	
+
 	if (!**p)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	delim = **p;
 	(*p)++;
-	
+
 	i = cstringlen(as, l, p, delim);
 
 	if (**p != delim)
@@ -549,7 +549,7 @@ PARSEFUNC(pseudo_parse_fcn)
 EMITFUNC(pseudo_emit_fcn)
 {
 	int i;
-	
+
 	for (i = 0; i < (l -> len - 1); i++)
 		lwasm_emit(l, l -> lstr[i]);
 	lwasm_emit(l, 0);
@@ -558,7 +558,7 @@ EMITFUNC(pseudo_emit_fcn)
 PARSEFUNC(pseudo_parse_rmb)
 {
 	lw_expr_t expr;
-	
+
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
@@ -597,10 +597,10 @@ PARSEFUNC(pseudo_parse_rmb)
 RESOLVEFUNC(pseudo_resolve_rmb)
 {
 	lw_expr_t expr;
-	
+
 	if (l -> lint)
 		return;
-	
+
 	if (l -> inmod)
 	{
 		if (l -> dlen >= 0)
@@ -611,9 +611,9 @@ RESOLVEFUNC(pseudo_resolve_rmb)
 		if (l -> len >= 0)
 			return;
 	}
-			
+
 	expr = lwasm_fetch_expr(l, 0);
-	
+
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
 		if (lw_expr_intval(expr) < 0)
@@ -642,14 +642,14 @@ EMITFUNC(pseudo_emit_rmb)
 PARSEFUNC(pseudo_parse_rmd)
 {
 	lw_expr_t expr;
-	
+
 	l -> lint = 0;
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
 		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
-	
+
 	if (as -> instruct)
 	{
 		lwasm_reduce_expr(as, expr);
@@ -681,10 +681,10 @@ PARSEFUNC(pseudo_parse_rmd)
 RESOLVEFUNC(pseudo_resolve_rmd)
 {
 	lw_expr_t expr;
-	
+
 	if (l -> lint)
 		return;
-	
+
 	if (l -> inmod)
 	{
 		if (l -> dlen >= 0)
@@ -695,9 +695,9 @@ RESOLVEFUNC(pseudo_resolve_rmd)
 		if (l -> len >= 0)
 			return;
 	}
-	
+
 	expr = lwasm_fetch_expr(l, 0);
-	
+
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
 		if (lw_expr_intval(expr) < 0)
@@ -727,7 +727,7 @@ EMITFUNC(pseudo_emit_rmd)
 PARSEFUNC(pseudo_parse_rmq)
 {
 	lw_expr_t expr;
-	
+
 	l -> lint = 0;
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
@@ -768,7 +768,7 @@ RESOLVEFUNC(pseudo_resolve_rmq)
 
 	if (l -> lint)
 		return;
-	
+
 	if (l -> inmod)
 	{
 		if (l -> dlen >= 0)
@@ -779,9 +779,9 @@ RESOLVEFUNC(pseudo_resolve_rmq)
 		if (l -> len >= 0)
 			return;
 	}
-	
+
 	expr = lwasm_fetch_expr(l, 0);
-	
+
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
 		if (lw_expr_intval(expr) < 0)
@@ -793,7 +793,7 @@ RESOLVEFUNC(pseudo_resolve_rmq)
 		}
 		if (l -> inmod)
 			l -> dlen = lw_expr_intval(expr) * 4;
-		else 
+		else
 			l -> len = lw_expr_intval(expr) * 4;
 	}
 }
@@ -811,25 +811,25 @@ EMITFUNC(pseudo_emit_rmq)
 PARSEFUNC(pseudo_parse_zmq)
 {
 	lw_expr_t expr;
-	
+
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
 		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
-	
+
 	lwasm_save_expr(l, 0, expr);
 }
 
 RESOLVEFUNC(pseudo_resolve_zmq)
 {
 	lw_expr_t expr;
-	
+
 	if (l -> len >= 0)
 		return;
-	
+
 	expr = lwasm_fetch_expr(l, 0);
-	
+
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
 		if (lw_expr_intval(expr) < 0)
@@ -853,32 +853,32 @@ EMITFUNC(pseudo_emit_zmq)
 	}
 
 	for (i = 0; i < l -> len; i++)
-		lwasm_emit(l, 0);	
+		lwasm_emit(l, 0);
 }
 
 
 PARSEFUNC(pseudo_parse_zmd)
 {
 	lw_expr_t expr;
-	
+
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
 		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
-	
+
 	lwasm_save_expr(l, 0, expr);
 }
 
 RESOLVEFUNC(pseudo_resolve_zmd)
 {
 	lw_expr_t expr;
-	
+
 	if (l -> len >= 0)
 		return;
-	
+
 	expr = lwasm_fetch_expr(l, 0);
-	
+
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
 		if (lw_expr_intval(expr) < 0)
@@ -902,31 +902,31 @@ EMITFUNC(pseudo_emit_zmd)
 	}
 
 	for (i = 0; i < l -> len; i++)
-		lwasm_emit(l, 0);	
+		lwasm_emit(l, 0);
 }
 
 PARSEFUNC(pseudo_parse_zmb)
 {
 	lw_expr_t expr;
-	
+
 	expr = lwasm_parse_expr(as, p);
 	if (!expr)
 	{
 		lwasm_register_error(as, l, E_EXPRESSION_BAD);
 	}
-	
+
 	lwasm_save_expr(l, 0, expr);
 }
 
 RESOLVEFUNC(pseudo_resolve_zmb)
 {
 	lw_expr_t expr;
-	
+
 	if (l -> len >= 0)
 		return;
-	
+
 	expr = lwasm_fetch_expr(l, 0);
-	
+
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
 		if (lw_expr_intval(expr) < 0)
@@ -950,25 +950,25 @@ EMITFUNC(pseudo_emit_zmb)
 	}
 
 	for (i = 0; i < l -> len; i++)
-		lwasm_emit(l, 0);	
+		lwasm_emit(l, 0);
 }
 
 PARSEFUNC(pseudo_parse_org)
 {
 	lw_expr_t e;
-	
+
 	l -> len = 0;
-	
+
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	lw_expr_destroy(l -> daddr);
 	l -> daddr = e;
-	
+
 	if (l -> inmod == 0)
 	{
 		lw_expr_destroy(l -> addr);
@@ -1018,22 +1018,22 @@ PARSEFUNC(pseudo_parse_reorg)
 PARSEFUNC(pseudo_parse_equ)
 {
 	lw_expr_t e;
-	
+
 	l -> len = 0;
-	
+
 	if (!(l -> sym))
 	{
 		lwasm_register_error(as, l, E_SYMBOL_MISSING);
 		return;
 	}
-	
+
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	register_symbol(as, l, l -> sym, e, symbol_flag_none);
 	l -> symset = 1;
 	l -> dptr = lookup_symbol(as, l, l -> sym);
@@ -1043,22 +1043,22 @@ PARSEFUNC(pseudo_parse_equ)
 PARSEFUNC(pseudo_parse_set)
 {
 	lw_expr_t e;
-	
+
 	l -> len = 0;
-	
+
 	if (!(l -> sym))
 	{
 		lwasm_register_error(as, l, E_SYMBOL_MISSING);
 		return;
 	}
-	
+
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	register_symbol(as, l, l -> sym, e, symbol_flag_set);
 	l -> symset = 1;
 	l -> dptr = lookup_symbol(as, l, l -> sym);
@@ -1070,20 +1070,20 @@ PARSEFUNC(pseudo_parse_setdp)
 	lw_expr_t e;
 
 	l -> len = 0;
-	
+
 	if (as -> output_format == OUTPUT_OBJ)
 	{
 		lwasm_register_error(as, l, E_SETDP_INVALID);
 		return;
 	}
-	
+
 	e = lwasm_parse_expr(as, p);
 	if (!e)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	// try simplifying the expression and see if it turns into an int
 	lwasm_reduce_expr(as, e);
 	if (!lw_expr_istype(e, lw_expr_type_int))
@@ -1110,7 +1110,7 @@ PARSEFUNC(pseudo_parse_ifp1)
 		skip_operand(p);
 		return;
 	}
-	
+
 	lwasm_register_error2(as, l, W_NOT_SUPPORTED, "%s", "IFP1");
 }
 
@@ -1119,25 +1119,25 @@ PARSEFUNC(pseudo_parse_ifp2)
 	l -> len = 0;
 	l -> hideline = 1;
 	l -> hidecond = 1;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
 		skip_operand(p);
 		return;
 	}
-	
+
 	lwasm_register_error2(as, l, W_NOT_SUPPORTED, "%s", "IFP2");
 }
 
 PARSEFUNC(pseudo_parse_ifeq)
 {
 	lw_expr_t e;
-	
+
 	l -> len = 0;
 	l -> hideline = 1;
 	l -> hidecond = 1;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1158,11 +1158,11 @@ PARSEFUNC(pseudo_parse_ifeq)
 PARSEFUNC(pseudo_parse_ifne)
 {
 	lw_expr_t e;
-	
+
 	l -> len = 0;
 	l -> hideline = 1;
 	l -> hidecond = 1;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1184,11 +1184,11 @@ PARSEFUNC(pseudo_parse_ifne)
 PARSEFUNC(pseudo_parse_ifgt)
 {
 	lw_expr_t e;
-	
+
 	l -> len = 0;
 	l -> hideline = 1;
 	l -> hidecond = 1;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1209,11 +1209,11 @@ PARSEFUNC(pseudo_parse_ifgt)
 PARSEFUNC(pseudo_parse_ifge)
 {
 	lw_expr_t e;
-	
+
 	l -> len = 0;
 	l -> hideline = 1;
 	l -> hidecond = 1;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1234,11 +1234,11 @@ PARSEFUNC(pseudo_parse_ifge)
 PARSEFUNC(pseudo_parse_iflt)
 {
 	lw_expr_t e;
-	
+
 	l -> len = 0;
 	l -> hideline = 1;
 	l -> hidecond = 1;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1264,7 +1264,7 @@ PARSEFUNC(pseudo_parse_ifle)
 	l -> hidecond = 1;
 
 	l -> len = 0;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1303,10 +1303,10 @@ PARSEFUNC(pseudo_parse_else)
 	l -> hidecond = 1;
 	l -> hideline = 1;
 	skip_operand(p);
-	
+
 	if (as -> skipmacro)
 		return;
-	
+
 	if (as -> skipcond)
 	{
 		if (as -> skipcount == 1)
@@ -1325,11 +1325,11 @@ PARSEFUNC(pseudo_parse_ifdef)
 	char *sym;
 	int i;
 	struct symtabe *s;
-	
+
 	l -> len = 0;
 	l -> hideline = 1;
 	l -> hidecond = 1;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1340,14 +1340,14 @@ PARSEFUNC(pseudo_parse_ifdef)
 again:
 	for (i = 0; (*p)[i] && !isspace((*p)[i]) && (*p)[i] != '|' && (*p)[i] != '&'; i++)
 		/* do nothing */ ;
-	
+
 	sym = lw_strndup(*p, i);
 	(*p) += i;
-	
+
 	s = lookup_symbol(as, l, sym);
-	
+
 	lw_free(sym);
-	
+
 	if (!s)
 	{
 		if (**p == '|')
@@ -1366,11 +1366,11 @@ PARSEFUNC(pseudo_parse_ifndef)
 	char *sym;
 	int i;
 	struct symtabe *s;
-	
+
 	l -> len = 0;
 	l -> hideline = 1;
 	l -> hidecond = 1;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -1379,12 +1379,12 @@ PARSEFUNC(pseudo_parse_ifndef)
 	}
 	for (i = 0; (*p)[i] && !isspace((*p)[i]) && (*p)[i] != '&' && (*p)[i] != '|'; i++)
 		/* do nothing */ ;
-	
+
 	sym = lw_strndup(*p, i);
 	(*p) += i;
-	
+
 	s = lookup_symbol(as, l, sym);
-	
+
 	lw_free(sym);
 
 	if (s)
@@ -1468,13 +1468,13 @@ PARSEFUNC(pseudo_parse_includebin)
 	FILE *fp;
 	long flen;
 	char *rfn;
-	
+
 	if (!**p)
 	{
 		lwasm_register_error(as, l, E_FILENAME_MISSING);
 		return;
 	}
-	
+
 	if (**p == '"' || **p == '\'')
 	{
 		delim = **p;
@@ -1492,7 +1492,7 @@ PARSEFUNC(pseudo_parse_includebin)
 	*p = p2;
 	if (delim && **p)
 		(*p)++;
-	
+
 	fp = input_open_standalone(as, fn, &rfn);
 	if (!fp)
 	{
@@ -1500,9 +1500,9 @@ PARSEFUNC(pseudo_parse_includebin)
 		lw_free(fn);
 		return;
 	}
-	
+
 	l -> lstr = rfn;
-	
+
 	fseek(fp, 0, SEEK_END);
 	flen = ftell(fp);
 	fclose(fp);
@@ -1514,14 +1514,14 @@ EMITFUNC(pseudo_emit_includebin)
 {
 	FILE *fp;
 	int c;
-	
+
 	fp = fopen(l -> lstr, "rb");
 	if (!fp)
 	{
 		lwasm_register_error2(as, l, E_FILE_OPEN, "%s", "(emit)!");
 		return;
 	}
-	
+
 	for (;;)
 	{
 		c = fgetc(fp);
@@ -1541,13 +1541,13 @@ PARSEFUNC(pseudo_parse_include)
 	int delim = 0;
 	int len;
 	char buf[110];
-		
+
 	if (!**p)
 	{
 		lwasm_register_error(as, l, E_FILENAME_MISSING);
 		return;
 	}
-	
+
 	if (**p == '"' || **p == '\'')
 	{
 		delim = **p;
@@ -1569,7 +1569,7 @@ PARSEFUNC(pseudo_parse_include)
 	/* add a book-keeping entry for line numbers */
 	snprintf(buf, 100, "\001\001SETLINENO %d\n", l -> lineno + 1);
 	input_openstring(as, "INTERNAL", buf);
-	
+
 	len = strlen(fn) + 8;
 	p3 = lw_alloc(len + 1);
 	sprintf(p3, "include:%s", fn);
@@ -1591,17 +1591,17 @@ PARSEFUNC(pseudo_parse_align)
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	e = lwasm_parse_expr(as, p);
-	
+
 	if (!e)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	lwasm_save_expr(l, 0, e);
-	
+
 	if (**p == ',')
 	{
 		(*p)++;
@@ -1616,7 +1616,7 @@ PARSEFUNC(pseudo_parse_align)
 		lwasm_register_error(as, l, E_PADDING_BAD);
 		return;
 	}
-	
+
 	lwasm_save_expr(l, 1, e);
 }
 
@@ -1626,9 +1626,9 @@ RESOLVEFUNC(pseudo_resolve_align)
 	int align = 1;
 	lw_expr_t te;
 	int a;
-	
+
 	e = lwasm_fetch_expr(l, 0);
-	
+
 	if (lw_expr_istype(e, lw_expr_type_int))
 	{
 		align = lw_expr_intval(e);
@@ -1642,7 +1642,7 @@ RESOLVEFUNC(pseudo_resolve_align)
 	{
 		return;
 	}
-	
+
 
 	te = lw_expr_copy(l -> addr);
 	as -> exportcheck = 1;
@@ -1675,7 +1675,7 @@ EMITFUNC(pseudo_emit_align)
 {
 	lw_expr_t e;
 	int i;
-	
+
 	if (l -> csect && (l -> csect -> flags & (section_flag_bss | section_flag_constant)))
 		return;
 	e = lwasm_fetch_expr(l, 1);
@@ -1693,7 +1693,7 @@ PARSEFUNC(pseudo_parse_fill)
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	e1 = lwasm_parse_expr(as, p);
 	if (**p != ',')
 	{
@@ -1702,13 +1702,13 @@ PARSEFUNC(pseudo_parse_fill)
 	}
 	(*p)++;
 	e = lwasm_parse_expr(as, p);
-	
+
 	if (!e)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	lwasm_save_expr(l, 0, e);
 	lwasm_save_expr(l, 1, e1);
 
@@ -1725,7 +1725,7 @@ RESOLVEFUNC(pseudo_resolve_fill)
 	int align = 1;
 
 	e = lwasm_fetch_expr(l, 0);
-	
+
 	te = lw_expr_copy(e);
 	as -> exportcheck = 1;
 	lwasm_reduce_expr(as, te);
@@ -1747,7 +1747,7 @@ RESOLVEFUNC(pseudo_resolve_fill)
 		return;
 	}
 	lw_expr_destroy(te);
-	
+
 	l -> len = align;
 }
 
@@ -1755,11 +1755,11 @@ EMITFUNC(pseudo_emit_fill)
 {
 	lw_expr_t e;
 	int i;
-	
+
 	/* don't emit anything in bss */
 	if (l -> csect && (l -> csect -> flags & (section_flag_bss | section_flag_constant)))
 		return;
-	
+
 	e = lwasm_fetch_expr(l, 1);
 	for (i = 0; i < l -> len; i++)
 	{
@@ -1790,21 +1790,21 @@ char *strcond_parsearg(char **p)
 	{
 		return lw_strdup("");
 	}
-	
+
 	if (*tstr == '"')
 	{
 		// double quote delim
 		tstr++;
 		for (i = 0; tstr[i] && tstr[i] != '"'; i++)
 			/* do nothing */ ;
-		
+
 		arg = lw_alloc(i + 1);
 		strncpy(arg, tstr, i);
 		arg[i] = 0;
-		
+
 		if (tstr[i])
 			i++;
-		
+
 		*p += i;
 		return arg;
 	}
@@ -1814,14 +1814,14 @@ char *strcond_parsearg(char **p)
 		tstr++;
 		for (i = 0; tstr[i] && tstr[i] != '\''; i++)
 			/* do nothing */ ;
-		
+
 		arg = lw_alloc(i + 1);
 		strncpy(arg, tstr, i);
 		arg[i] = 0;
-		
+
 		if (tstr[i])
 			i++;
-		
+
 		*p += i;
 		return arg;
 	}
@@ -1830,13 +1830,13 @@ char *strcond_parsearg(char **p)
 		// bare word - whitespace or comma delim
 		for (i = 0; tstr[i] && !isspace(tstr[i]) && tstr[i] != ','; i++)
 			/* do nothing */ ;
-		
+
 		arg = lw_alloc(i + 1);
 		strncpy(arg, tstr, i);
 		arg[i] = 0;
 		if (tstr[i] == ',')
 			i++;
-		
+
 		*p += i;
 		return arg;
 	}
@@ -1849,10 +1849,10 @@ int strcond_eq(char **p)
 	char *arg1;
 	char *arg2;
 	int c = 0;
-		
+
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	if (strcmp(arg1, arg2) == 0)
 		c = 1;
 	lw_free(arg1);
@@ -1865,10 +1865,10 @@ int strcond_ieq(char **p)
 	char *arg1;
 	char *arg2;
 	int c = 0;
-		
+
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	if (strcasecmp(arg1, arg2) == 0)
 		c = 1;
 	lw_free(arg1);
@@ -1881,10 +1881,10 @@ int strcond_ne(char **p)
 	char *arg1;
 	char *arg2;
 	int c = 0;
-		
+
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	if (strcmp(arg1, arg2) != 0)
 		c = 1;
 	lw_free(arg1);
@@ -1897,10 +1897,10 @@ int strcond_ine(char **p)
 	char *arg1;
 	char *arg2;
 	int c = 0;
-		
+
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	if (strcasecmp(arg1, arg2) != 0)
 		c = 1;
 	lw_free(arg1);
@@ -1915,11 +1915,11 @@ int strcond_peq(char **p)
 	char *arg2;
 	size_t plen;
 	int c = 0;
-	
+
 	arg0 = strcond_parsearg(p);
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	plen = strtol(arg0, NULL, 10);
 	if (strlen(arg1) > plen)
 		arg1[plen] = 0;
@@ -1941,11 +1941,11 @@ int strcond_ipeq(char **p)
 	char *arg2;
 	size_t plen;
 	int c = 0;
-	
+
 	arg0 = strcond_parsearg(p);
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	plen = strtol(arg0, NULL, 10);
 	if (strlen(arg1) > plen)
 		arg1[plen] = 0;
@@ -1967,11 +1967,11 @@ int strcond_pne(char **p)
 	char *arg2;
 	size_t plen;
 	int c = 0;
-	
+
 	arg0 = strcond_parsearg(p);
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	plen = strtol(arg0, NULL, 10);
 	if (strlen(arg1) > plen)
 		arg1[plen] = 0;
@@ -1993,7 +1993,7 @@ int strcond_ipne(char **p)
 	char *arg2;
 	size_t plen;
 	int c = 0;
-	
+
 	arg0 = strcond_parsearg(p);
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
@@ -2019,14 +2019,14 @@ int strcond_seq(char **p)
 	char *arg2;
 	char *rarg1;
 	char *rarg2;
-	
+
 	size_t plen;
 	int c = 0;
-	
+
 	arg0 = strcond_parsearg(p);
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	rarg1 = arg1;
 	rarg2 = arg2;
 
@@ -2054,17 +2054,17 @@ int strcond_iseq(char **p)
 	char *arg2;
 	char *rarg1;
 	char *rarg2;
-	
+
 	size_t plen;
 	int c = 0;
-	
+
 	arg0 = strcond_parsearg(p);
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	rarg1 = arg1;
 	rarg2 = arg2;
-		
+
 	plen = strtol(arg0, NULL, 10);
 	if (strlen(arg1) > plen)
 	{
@@ -2074,7 +2074,7 @@ int strcond_iseq(char **p)
 	{
 		rarg2 += strlen(arg2) - plen;
 	}
-	
+
 	if (strcasecmp(rarg1, rarg2) == 0)
 		c = 1;
 	lw_free(arg0);
@@ -2091,17 +2091,17 @@ int strcond_sne(char **p)
 	char *arg2;
 	char *rarg1;
 	char *rarg2;
-	
+
 	size_t plen;
 	int c = 0;
-	
+
 	arg0 = strcond_parsearg(p);
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	rarg1 = arg1;
 	rarg2 = arg2;
-		
+
 	plen = strtol(arg0, NULL, 10);
 	if (strlen(arg1) > plen)
 	{
@@ -2111,7 +2111,7 @@ int strcond_sne(char **p)
 	{
 		rarg2 += strlen(arg2) - plen;
 	}
-	
+
 	if (strcmp(rarg1, rarg2) != 0)
 		c = 1;
 	lw_free(arg0);
@@ -2127,17 +2127,17 @@ int strcond_isne(char **p)
 	char *arg2;
 	char *rarg1;
 	char *rarg2;
-	
+
 	size_t plen;
 	int c = 0;
-	
+
 	arg0 = strcond_parsearg(p);
 	arg1 = strcond_parsearg(p);
 	arg2 = strcond_parsearg(p);
-	
+
 	rarg1 = arg1;
 	rarg2 = arg2;
-		
+
 	plen = strtol(arg0, NULL, 10);
 	if (strlen(arg1) > plen)
 	{
@@ -2147,7 +2147,7 @@ int strcond_isne(char **p)
 	{
 		rarg2 += strlen(arg2) - plen;
 	}
-	
+
 	if (strcasecmp(rarg1, rarg2) != 0)
 		c = 1;
 	lw_free(arg0);
@@ -2181,9 +2181,9 @@ PARSEFUNC(pseudo_parse_ifstr)
 	int tv = 0;
 	char *tstr;
 	int strop;
-	
+
 	l -> len = 0;
-	
+
 	if (as -> skipcond && !(as -> skipmacro))
 	{
 		as -> skipcount++;
@@ -2192,25 +2192,25 @@ PARSEFUNC(pseudo_parse_ifstr)
 	}
 
 	tstr = strcond_parsearg(p);
-	if (!**p || isspace(**p))	
+	if (!**p || isspace(**p))
 	{
 		lwasm_register_error(as, l, E_STRING_BAD);
 		return;
 	}
-		
+
 	for (strop = 0; strops[strop].str != NULL; strop++)
 		if (strcasecmp(strops[strop].str, tstr) == 0)
 			break;
-	
+
 	lw_free(tstr);
-	
+
 	if (strops[strop].str == NULL)
 	{
 		lwasm_register_error(as, l, E_STRING_BAD);
 	}
 
 	tv = (*(strops[strop].fn))(p);
-	
+
 	if (!tv)
 	{
 		as -> skipcond = 1;

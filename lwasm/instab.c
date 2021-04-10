@@ -457,7 +457,7 @@ instab_t instab[] =
 	{ "comf", 		{	0x1153, -1,		-1,		-1	}, 	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "comw",		{	0x1053,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "cwai",		{	0x3c, 	-1,		-1,		-1	},	insn_parse_imm8,		insn_resolve_imm8,				insn_emit_imm8,				lwasm_insn_normal},
-	
+
 	{ "daa",		{	0x19,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "dec",		{	0x0a,	0x6a,	0x7a,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
 	{ "deca",		{	0x4a,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
@@ -485,10 +485,10 @@ instab_t instab[] =
 	{ "ince",		{	0x114c,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "incf",		{	0x115c,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "incw",		{	0x105c,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
-	
+
 	{ "jmp",		{	0x0e,	0x6e,	0x7e,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
 	{ "jsr",		{	0x9d,	0xad,	0xbd,	-1	}, 	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
-	
+
 	{ "lbcc",		{	0x1024,	16,		0x24,	0x1024},insn_parse_relgen,		insn_resolve_relgen,				insn_emit_relgen,			lwasm_insn_normal},
 	{ "lbcs",		{	0x1025,	16,		0x25,	0x1025},insn_parse_relgen,		insn_resolve_relgen,				insn_emit_relgen,			lwasm_insn_normal},
 	{ "lbeq",		{	0x1027,	16,		0x27,	0x1027},insn_parse_relgen,		insn_resolve_relgen,				insn_emit_relgen,			lwasm_insn_normal},
@@ -537,21 +537,21 @@ instab_t instab[] =
 
 	{ "mul",		{	0x3d,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "muld",		{	0x119f,	0x11af,	0x11bf,	0x118f},insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6309},
-	
+
 	{ "neg",		{	0x00,	0x60,	0x70,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
 	{ "nega",		{	0x40,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "negb",		{	0x50,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "negd",		{	0x1040,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 
 	{ "nop",		{	0x12,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
-	
+
 	{ "oim",		{	0x01,	0x61,	0x71,	-1	},	insn_parse_logicmem,	insn_resolve_logicmem,			insn_emit_logicmem,			lwasm_insn_is6309},
 	{ "ora",		{	0x9a,	0xaa,	0xba,	0x8a},	insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_normal},
 	{ "orb",		{	0xda,	0xea,	0xfa,	0xca},	insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_normal},
 	{ "orcc",		{	0x1a,	-1,		-1,	0x1a	},	insn_parse_imm8,		insn_resolve_imm8,				insn_emit_imm8,				lwasm_insn_normal},
 	{ "ord",		{	0x109a,	0x10aa,	0x10ba,	0x108a},insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6309},
 	{ "orr",		{	0x1035,	-1,		-1,		-1	},	insn_parse_rtor,		insn_resolve_rtor,				insn_emit_rtor,				lwasm_insn_is6309},
-	
+
 	{ "pshs",		{	0x34,	-1,		-1,		-1	},	insn_parse_rlist,		insn_resolve_rlist,				insn_emit_rlist,				lwasm_insn_normal},
 	{ "pshsw",		{	0x1038,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "pshu",		{	0x36,	-1,		-1,		-1	},	insn_parse_rlist,		insn_resolve_rlist,				insn_emit_rlist,				lwasm_insn_normal},
@@ -560,7 +560,7 @@ instab_t instab[] =
 	{ "pulsw",		{	0x1039,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "pulu",		{	0x37,	-1,		-1,		-1	},	insn_parse_rlist,		insn_resolve_rlist,				insn_emit_rlist,				lwasm_insn_normal},
 	{ "puluw",		{	0x103b,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
-	
+
 	{ "reset",		{	0x3e,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6809},
 	{ "rhf",		{	0x14,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6809},
 	{ "rol",		{	0x09,	0x69,	0x79,	-1	},	insn_parse_gen0,		insn_resolve_gen0,				insn_emit_gen0,				lwasm_insn_normal},
@@ -575,7 +575,7 @@ instab_t instab[] =
 	{ "rorw",		{	0x1056,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_is6309},
 	{ "rti",		{	0x3b,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "rts",		{	0x39,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
-	
+
 	{ "sbca",		{	0x92,	0xa2,	0xb2,	0x82},	insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_normal},
 	{ "sbcb",		{	0xd2,	0xe2,	0xf2,	0xc2},	insn_parse_gen8,		insn_resolve_gen8,				insn_emit_gen8,				lwasm_insn_normal},
 	{ "sbcd",		{	0x1092,	0x10a2,	0x10b2,	0x1082},insn_parse_gen16,		insn_resolve_gen16,				insn_emit_gen16,			lwasm_insn_is6309},
@@ -605,7 +605,7 @@ instab_t instab[] =
 	{ "swi2",		{	0x103f,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "swi3",		{	0x113f,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
 	{ "sync",		{	0x13,	-1,		-1,		-1	},	insn_parse_inh,			insn_resolve_inh,				insn_emit_inh,				lwasm_insn_normal},
-	
+
 	// note: 			r+,r+	r-,r-	r+,r	r,r+
 	{ "tfm",		{	0x1138,	0x1139,	0x113a,	0x113b },insn_parse_tfm,		insn_resolve_tfm,				insn_emit_tfm,				lwasm_insn_is6309},
 
@@ -613,14 +613,14 @@ instab_t instab[] =
 	{ "copy",		{	0x1138, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
 	{ "copy+",		{	0x1138, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
 	{ "tfrp",		{	0x1138, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
-	
+
 	{ "copy-",		{	0x1139, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
 	{ "tfrm",		{	0x1139, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
-	
+
 	{ "imp",		{	0x113a, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
 	{ "implode",	{	0x113a, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
 	{ "tfrs",		{	0x113a, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
-	
+
 	{ "exp",		{	0x113b, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
 	{ "expand",		{	0x113b, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
 	{ "tfrr",		{	0x113b, -1, 	-1, 	-1},	insn_parse_tfmrtor,		insn_resolve_tfmrtor,			insn_emit_tfmrtor,			lwasm_insn_is6309},
@@ -672,7 +672,7 @@ instab_t instab[] =
 	{ "include",	{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_include,	pseudo_resolve_include,			pseudo_emit_include,		lwasm_insn_normal},
 	{ "incl",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_include,	pseudo_resolve_include,			pseudo_emit_include,		lwasm_insn_normal},
 	{ "use",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_include,	pseudo_resolve_include,			pseudo_emit_include,		lwasm_insn_normal},
-	
+
 	{ "align", 		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_align,		pseudo_resolve_align,			pseudo_emit_align,			lwasm_insn_normal},
 	{ "fill",		{	-1,		-1,		-1,		-1 },	pseudo_parse_fill,		pseudo_resolve_fill,			pseudo_emit_fill,			lwasm_insn_normal},
 
@@ -718,15 +718,15 @@ instab_t instab[] =
 	{ "struct",		{	-1,		-1,		-1,		-1},	pseudo_parse_struct,	pseudo_resolve_struct,			pseudo_emit_struct,			lwasm_insn_normal},
 	{ "ends",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_endstruct,	pseudo_resolve_endstruct,		pseudo_emit_endstruct,		lwasm_insn_struct},
 	{ "endstruct",	{	-1,		-1,		-1,		-1},	pseudo_parse_endstruct,	pseudo_resolve_endstruct,		pseudo_emit_endstruct,		lwasm_insn_struct},
-	
+
 
 	{ "pragma",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_pragma,	pseudo_resolve_pragma,			pseudo_emit_pragma,			lwasm_insn_normal},
 	{ "*pragma",	{	-1, 	-1, 	-1, 	-1},	pseudo_parse_starpragma,pseudo_resolve_starpragma,		pseudo_emit_starpragma,		lwasm_insn_normal},
 	{ "opt",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_starpragma,pseudo_resolve_starpragma,		pseudo_emit_starpragma,		lwasm_insn_normal},
 	{ "*pragmapush",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapush, pseudo_resolve_starpragmapush, pseudo_emit_starpragmapush,	lwasm_insn_normal},
 	{ "*pragmapop",	{	-1,	-1, 	-1,	-1},	pseudo_parse_starpragmapop, pseudo_resolve_starpragmapop, pseudo_emit_starpragmapop,	lwasm_insn_normal},
-	
-	
+
+
 	// for os9 target
 	{ "os9",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_os9,		pseudo_resolve_os9,				pseudo_emit_os9,			lwasm_insn_normal},
 	{ "mod",		{	-1, 	-1, 	-1, 	-1 },	pseudo_parse_mod,		pseudo_resolve_mod,				pseudo_emit_mod,			lwasm_insn_normal},
@@ -738,10 +738,10 @@ instab_t instab[] =
 	{ ".globl",		{	-1, 	-1, 	-1, 	-1}, 	pseudo_parse_export,	pseudo_resolve_export,			pseudo_emit_export,			lwasm_insn_normal},
 
 	{ ".module",	{	-1, 	-1, 	-1, 	-1},	pseudo_parse_noop,		pseudo_resolve_noop,			pseudo_emit_noop,			lwasm_insn_normal},
-	
+
 	{ ".4byte",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fqb,		pseudo_resolve_fqb,				pseudo_emit_fqb,			lwasm_insn_normal},
 	{ ".quad",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fqb,		pseudo_resolve_fqb,				pseudo_emit_fqb,			lwasm_insn_normal},
-	
+
 	{ ".word",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fdb,		pseudo_resolve_fdb,				pseudo_emit_fdb,			lwasm_insn_normal},
 	{ ".dw",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fdb,		pseudo_resolve_fdb,				pseudo_emit_fdb,			lwasm_insn_normal},
 
@@ -750,10 +750,10 @@ instab_t instab[] =
 
 	{ ".ascii",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fcc,		pseudo_resolve_fcc,				pseudo_emit_fcc,			lwasm_insn_normal},
 	{ ".str",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fcc,		pseudo_resolve_fcc,				pseudo_emit_fcc,			lwasm_insn_normal},
-	
+
 	{ ".ascis",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fcs,		pseudo_resolve_fcs,				pseudo_emit_fcs,			lwasm_insn_normal},
 	{ ".strs",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fcs,		pseudo_resolve_fcs,				pseudo_emit_fcs,			lwasm_insn_normal},
-	
+
 	{ ".asciz",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fcn,		pseudo_resolve_fcn,				pseudo_emit_fcn,			lwasm_insn_normal},
 	{ ".strz",		{	-1, 	-1, 	-1, 	-1},	pseudo_parse_fcn,		pseudo_resolve_fcn,				pseudo_emit_fcn,			lwasm_insn_normal},
 

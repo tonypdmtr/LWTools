@@ -61,7 +61,7 @@ typename(A) ::= KW_UNSIGNED baseint(B). {
 	}
 }
 
-baseint(A) ::= KW_INT. { A = node_create(NODE_TYPE_INT); } 
+baseint(A) ::= KW_INT. { A = node_create(NODE_TYPE_INT); }
 baseint(A) ::= KW_LONG. { A = node_create(NODE_TYPE_LONG); }
 baseint(A) ::= KW_LONG KW_INT. { A = node_create(NODE_TYPE_LONG); }
 baseint(A) ::= KW_LONG KW_LONG. { A = node_create(NODE_TYPE_LONGLONG); }

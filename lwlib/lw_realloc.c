@@ -31,13 +31,13 @@ void *lw_realloc(void *P, int S)
 	{
 		return lw_alloc(S);
 	}
-	
+
 	if (!S)
 	{
 		lw_free(P);
 		return NULL;
 	}
-	
+
 	r = realloc(P, S);
 	if (!r)
 	{

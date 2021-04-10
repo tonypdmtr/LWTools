@@ -64,14 +64,14 @@ typedef struct
 	unsigned char *code;	// pointer to the code
 	int loadaddress;		// the actual load address of the section
 	int processed;			// was the section processed yet?
-		
+
 	symtab_t *localsyms;	// local symbol table
 	symtab_t *exportedsyms;	// exported symbols table
-	
+
 	reloc_t *incompletes;	// table of incomplete references
-	
+
 	fileinfo_t *file;		// the file we are in
-	
+
 	int aftersize;			// add this many bytes after section on output
 	unsigned char *afterbytes;	// add these bytes after section on output
 } section_t;
@@ -189,7 +189,7 @@ struct symlist_s
 	char *sym;
 	int val;
 	symlist_t *next;
-	
+
 };
 
 extern symlist_t *symlist;

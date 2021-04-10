@@ -29,7 +29,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 struct lw_strpool *lw_strpool_create(void)
 {
 	struct lw_strpool *sp;
-	
+
 	sp = lw_alloc(sizeof(struct lw_strpool));
 	sp -> nstrs = 0;
 	sp -> strs = NULL;
@@ -39,7 +39,7 @@ struct lw_strpool *lw_strpool_create(void)
 extern void lw_strpool_free(struct lw_strpool *sp)
 {
 	int i;
-	
+
 	for (i = 0; i < sp -> nstrs; i++)
 		lw_free(sp -> strs[i]);
 	lw_free(sp -> strs);
@@ -49,20 +49,20 @@ extern void lw_strpool_free(struct lw_strpool *sp)
 char *lw_strpool_strdup(struct lw_strpool *sp, const char *s)
 {
 	int i;
-	
+
 	if (!s)
 		return NULL;
 
-	/* first do a fast scan for a pointer match */	
+	/* first do a fast scan for a pointer match */
 	for (i = 0; i < sp -> nstrs; i++)
 		if (sp -> strs[i] == s)
 			return sp -> strs[i];
-	
+
 	/* no match - do a slow scan for a string match */
 	for (i = 0; i < sp -> nstrs; i++)
 		if (strcmp(sp -> strs[i], s) == 0)
 			return sp -> strs[i];
-	
+
 	/* no match - create a new string entry */
 	sp -> strs = lw_realloc(sp -> strs, sizeof(char *) * (sp -> nstrs + 1));
 	sp -> strs[sp -> nstrs] = lw_strdup(s);

@@ -46,7 +46,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 	const char *reglist;
 	lw_expr_t e;
 	char *tstr;
-	
+
 
 	if (CURPRAGMA(l, PRAGMA_6809))
 	{
@@ -87,22 +87,22 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		case 'X':
 			rn = 0;
 			break;
-		
+
 		case 'y':
 		case 'Y':
 			rn = 1;
 			break;
-			
+
 		case 'u':
 		case 'U':
 			rn = 2;
 			break;
-			
+
 		case 's':
 		case 'S':
 			rn = 3;
 			break;
-			
+
 		case 'w':
 		case 'W':
 			if (CURPRAGMA(l, PRAGMA_6809))
@@ -112,7 +112,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			}
 			rn = 4;
 			break;
-			
+
 		default:
 			lwasm_register_error(as, l, E_OPERAND_BAD);
 			return;
@@ -217,22 +217,22 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			case 'X':
 				rn = 0;
 				break;
-		
+
 			case 'y':
 			case 'Y':
 				rn = 1;
 				break;
-			
+
 			case 'u':
 			case 'U':
 				rn = 2;
 				break;
-			
+
 			case 's':
 			case 'S':
 				rn = 3;
 				break;
-			
+
 			default:
 				lwasm_register_error(as, l, E_OPERAND_BAD);
 				return;
@@ -248,29 +248,29 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 				}
 				(*p)++;
 			}
-			
+
 			switch (i)
 			{
 			case 'A':
 				i = 0x86;
 				break;
-			
+
 			case 'B':
 				i = 0x85;
 				break;
-			
+
 			case 'D':
 				i = 0x8B;
 				break;
-			
+
 			case 'E':
 				i = 0x87;
 				break;
-			
+
 			case 'F':
 				i = 0x8A;
 				break;
-			
+
 			case 'W':
 				i = 0x8E;
 				break;
@@ -280,7 +280,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			return;
 		}
 	}
-	
+
 	/* we have the "expression" types now */
 	if (**p == '<')
 	{
@@ -321,7 +321,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		return;
 	}
 	lwasm_save_expr(l, 0, e);
-	
+
 	if (**p != ',')
 	{
 		/* if no comma, we have extended indirect */
@@ -344,7 +344,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		lwasm_register_error(as, l, E_REGISTER_BAD);
 		return;
 	}
-	
+
 	if (indir)
 	{
 		if (**p != ']')
@@ -395,7 +395,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			l -> lint = 2;
 			return;
 		}
-		
+
 		l -> pb = (0x80 * indir) | rn;
 
 /* [,w] and ,w
@@ -406,7 +406,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 */
 		return;
 	}
-	
+
 	// PCR? then we have PC relative addressing (like B??, LB??)
 	if (rn == 5 || (rn == 6 && CURPRAGMA(l, PRAGMA_PCASPCR)))
 	{
@@ -416,7 +416,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 		// on pass 1, adjust the expression for a subtraction of the
 		// current address
 		// e - (addr + linelen) => e - addr - linelen
-		
+
 		e2 = lw_expr_build(lw_expr_type_special, lwasm_expr_linelen, l);
 		e1 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_minus, e, e2);
 		lw_expr_destroy(e2);
@@ -439,7 +439,7 @@ void insn_parse_indexed_aux(asmstate_t *as, line_t *l, char **p)
 			return;
 		}
 	}
-	
+
 	if (rn == 6)
 	{
 		if (l -> lint == 1)
@@ -484,7 +484,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 	lw_expr_t e, e2;
 	int pb = -1;
 	int v;
-	
+
 	if (l -> len != -1)
 		return;
 
@@ -533,17 +533,17 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				case 3:
 					pb = 0x89 | ((l -> pb & 0x03) << 5) | ((l -> pb & 0x80) ? 0x10 : 0);
 					break;
-			
+
 				case 4: // W
 					pb = (l -> pb & 0x80) ? 0xB0 : 0xAF;
 					break;
-				
+
 				case 5: // PCR
 				case 6: // PC
 					pb = (l -> pb & 0x80) ? 0x9D : 0x8D;
 					break;
 				}
-				
+
 				l -> pb = pb;
 				lw_expr_destroy(e2);
 //				lw_expr_destroy(e3);
@@ -561,7 +561,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 				case 3:
 					pb = 0x88 | ((l -> pb & 0x03) << 5) | ((l -> pb & 0x80) ? 0x10 : 0);
 					break;
-			
+
 				case 4: // W
 					// use 16 bit because W doesn't have 8 bit, unless 0
 					if (v == 0 && !(CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) || l -> pb & 0x40))
@@ -575,13 +575,13 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 						l -> lint = 2;
 					}
 					break;
-				
+
 				case 5: // PCR
 				case 6: // PC
 					pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
 					break;
 				}
-			
+
 				l -> pb = pb;
 				lw_expr_destroy(e2);
 				return;
@@ -590,11 +590,11 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 			{
 				// we have X,Y,U,S and a possible 5 bit here
 				l -> lint = 0;
-				
+
 				if (v == 0 && !(CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) || l -> pb & 0x40))
 				{
 					pb = (l -> pb & 0x03) << 5 | 0x84;
-				}	
+				}
 				else
 				{
 					pb = ((l -> pb & 0x03) << 5) | (v & 0x1F);
@@ -638,12 +638,12 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 		}
 		lw_expr_destroy(e2);
 	}
-		
+
 	if (lw_expr_istype(e, lw_expr_type_int))
 	{
 		// we know how big it is
 		v = lw_expr_intval(e);
-			
+
 		if (v == 0 && !CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) && (l -> pb & 0x07) <= 4 && ((l -> pb & 0x40) == 0))
 		{
 			if ((l -> pb & 0x07) < 4)
@@ -670,17 +670,17 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 			case 3:
 				pb = 0x89 | (l -> pb & 0x03) << 5 | ((l -> pb & 0x80) ? 0x10 : 0);
 				break;
-			
+
 			case 4: // W
 				pb = (l -> pb & 0x80) ? 0xB0 : 0xAF;
 				break;
-				
+
 			case 5: // PCR
 			case 6: // PC
 				pb = (l -> pb & 0x80) ? 0x9D : 0x8D;
 				break;
 			}
-			
+
 			l -> pb = pb;
 			return;
 		}
@@ -696,7 +696,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 			case 3:
 				pb = 0x88 | (l -> pb & 0x03) << 5 | ((l -> pb & 0x80) ? 0x10 : 0);
 				break;
-			
+
 			case 4: // W
 				// use 16 bit because W doesn't have 8 bit, unless 0
 				if (v == 0 && !(CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) || l -> pb & 0x40))
@@ -710,13 +710,13 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 					l -> lint = 2;
 				}
 				break;
-				
+
 			case 5: // PCR
 			case 6: // PC
 				pb = (l -> pb & 0x80) ? 0x9C : 0x8C;
 				break;
 			}
-			
+
 			l -> pb = pb;
 			return;
 		}
@@ -724,7 +724,7 @@ void insn_resolve_indexed_aux(asmstate_t *as, line_t *l, int force, int elen)
 		{
 			// we have X,Y,U,S and a possible 5 bit here
 			l -> lint = 0;
-			
+
 			if (v == 0 && !(CURPRAGMA(l, PRAGMA_NOINDEX0TONONE) || l -> pb & 0x40))
 			{
 				pb = (l -> pb & 0x03) << 5 | 0x84;
@@ -752,7 +752,7 @@ RESOLVEFUNC(insn_resolve_indexed)
 {
 	if (l -> lint == -1)
 		insn_resolve_indexed_aux(as, l, force, 0);
-	
+
 	if (l -> lint != -1 && l -> pb != -1)
 	{
 		if (l -> lint == 3)
@@ -765,7 +765,7 @@ RESOLVEFUNC(insn_resolve_indexed)
 void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 {
 	lw_expr_t e;
-	
+
 	if (l -> lint == 1)
 	{
 		int i;
@@ -776,7 +776,7 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 			lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 		}
 	}
-	
+
 	// exclude expr,W since that can only be 16 bits
 	if (l -> lint == 3)
 	{
@@ -814,7 +814,7 @@ void insn_emit_indexed_aux(asmstate_t *as, line_t *l)
 			}
 		}
 	}
-	
+
 	lwasm_emitop(l, instab[l -> insn].ops[0]);
 	lwasm_emitop(l, l -> pb);
 

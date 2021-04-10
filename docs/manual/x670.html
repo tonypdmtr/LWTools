@@ -146,7 +146,7 @@ CLASS="PARAMETER"
 ></DL
 ></DIV
 ><P
->Each pragma supported has a positive version and a negative version. 
+>Each pragma supported has a positive version and a negative version.
 The positive version enables the pragma while the negative version disables
 it.  The negatitve version is simply the positive version with "no" prefixed
 to it.  For instance, "pragma" vs.  "nopragma".  When only one version is
@@ -165,7 +165,7 @@ CLASS="VARIABLELIST"
 ><P
 >When in force, this pragma enables recognition of various
 compatibility instructions useful when assembling 6800 code.  These
-compatibility instructions are assembled into equivalent 6809 instructions. 
+compatibility instructions are assembled into equivalent 6809 instructions.
 This mode also includes several analogous instructions which are not
 strictly 6800 instructions but allow the similar style to be applied to 6809
 specific features.</P
@@ -196,7 +196,7 @@ to display 6309 timings.</P
 ><DD
 ><P
 >These pragmas enable convenience instructions extending the 6809 and 6309
-instruction sets respectively. For more information, see 
+instruction sets respectively. For more information, see
 <A
 HREF="x816.html"
 >Section 3.11</A
@@ -261,7 +261,7 @@ for one or two files to use this pragma internally.</P
 ><P
 >This pragma causes all symbols to be added to the export list
 automatically.  This is useful when a large number of symbols need to be
-exported but you do not wish to include an EXPORT directive for all of them. 
+exported but you do not wish to include an EXPORT directive for all of them.
 This is often useful on the command line but might be useful even inline
 with the PRAGMA directive if a large number of symbols in a row are to be
 exported.</P
@@ -316,7 +316,7 @@ symbols.</P
 ><DD
 ><P
 >One of the perennial annoyances for 6809 programmers is that the
-mneumonics for the short and long branch instructions are different (bxx vs. 
+mneumonics for the short and long branch instructions are different (bxx vs.
 lbxx), which is at odds with the rest of the instruction set.  This pragma
 is a solution to those annoying byte overflow errors that short branch
 instructions tend to aquire.</P
@@ -441,7 +441,7 @@ unmodified, vintage source code.</P
 an include file.  Instead of terminating all assembly, it merely stops
 processing of the current include file (this behavior matches the original
 Motorola 6809 assembler).  In addition, loading an ASCII value with a single
-quote (e.g., LDA #'N) is extended to 16-bit registers (e.g., LDD #'NO). 
+quote (e.g., LDA #'N) is extended to 16-bit registers (e.g., LDD #'NO).
 LWASM normally supports this via double quote and that is the proper use in
 modern code.  Finally, the FCC pseudo-op is extended to handle FCB-like
 behavior after the closing delimiter:</P
@@ -494,7 +494,7 @@ FSTR  FCC   "%hu,%hhu - %hu,%hhu"
 ><P
 >As a convenience, each input file has a pragma state stack. This
 allows, through the use of *PRAGMAPUSH and *PRAGMAPOP, a file to change a
-pragma state and then restore it to the precise state it had previously. 
+pragma state and then restore it to the precise state it had previously.
 If, at the end of an input file, all pragma states have not been popped,
 they will be removed from the stack.  Thus, it is critical to employ
 *PRAGMAPOP correctly. Because each input file has its own pragma stack,

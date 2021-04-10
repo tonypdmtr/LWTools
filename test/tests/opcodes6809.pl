@@ -155,7 +155,7 @@ $lwasm = './lwasm/lwasm';
 	'lds' => 'I=10CE,D=10DE,i=10EE,E=10FE',
 	'stu' => 'D=DF,i=EF,E=FF',
 	'sts' => 'D=10DF,i=10EF,E=10FF'
-	
+
 );
 
 foreach $i (keys %insnlist)
@@ -195,7 +195,7 @@ foreach $i (keys %insnlist)
 			$operand = '*';
 		}
 		$asmcode = "\t$i $operand";
-		
+
 		# now feed the asm code to the assembler and fetch the result
 		$tf = ".asmtmp.$$.$i.$mc";
 		open H, ">$tf.asm";

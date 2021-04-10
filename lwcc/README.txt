@@ -97,4 +97,3 @@ Notably, this includes stdint.h, stdarg.h, and setjmp.h as these are
 specific to the compiler. The driver will arrange for this directory to be
 searched prior to the standard system directories so that these files will
 override any present in those directories.
-

@@ -43,7 +43,7 @@ static int cmpr(const void *e1, const void *e2)
 	struct lw_cmdline_options **o1, **o2;
 	o1 = (struct lw_cmdline_options **)e1;
 	o2 = (struct lw_cmdline_options **)e2;
-	
+
 	return strcmp((*o1) -> name ? (*o1) -> name : "", (*o2) -> name ? (*o2) -> name : "");
 }
 
@@ -67,23 +67,23 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 	int i;
 	int t;
 	int col;
-		
+
 	for (nopt = 0; parser -> options[nopt].name || parser -> options[nopt].key || parser -> options[nopt].doc; nopt++)
 		/* do nothing */ ;
-	
+
 	slist = lw_alloc(sizeof(struct lw_cmdline_options *) * (nopt + 3));
-	llist = lw_alloc(sizeof(struct lw_cmdline_options *) * (nopt + 3));	
+	llist = lw_alloc(sizeof(struct lw_cmdline_options *) * (nopt + 3));
 
 	for (i = 0; i < nopt; i++)
 	{
 		slist[i] = &(parser -> options[i]);
 		llist[i] = &(parser -> options[i]);
 	}
-	
+
 	/* now sort the two lists */
 	qsort(slist, nopt, sizeof(struct lw_cmdline_options *), cmpr2);
 	qsort(llist, nopt, sizeof(struct lw_cmdline_options *), cmpr);
-	
+
 	/* now append the automatic options */
 	slist[nopt] = &(builtin[0]);
 	slist[nopt + 1] = &(builtin[1]);
@@ -92,12 +92,12 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 	llist[nopt] = &(builtin[0]);
 	llist[nopt + 1] = &(builtin[1]);
 	llist[nopt + 2] = &(builtin[2]);
-	
+
 	/* now show the usage message */
 	printf("Usage: %s", name);
-	
+
 	col = 7 + strlen(name);
-	
+
 	/* print short options that take no args */
 	t = 0;
 	for (i = 0; i < nopt + 3; i++)
@@ -124,7 +124,7 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 		col++;
 		printf("]");
 	}
-	
+
 	/* print short options that take args */
 	for (i = 0; i < nopt + 3; i++)
 	{
@@ -156,7 +156,7 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 			}
 		}
 	}
-	
+
 	/* print long options */
 	for (i = 0; i < nopt + 3; i++)
 	{
@@ -181,7 +181,7 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 			}
 			else
 			{
-				printf(" [--%s%s=%s%s]", 
+				printf(" [--%s%s=%s%s]",
 					llist[i] -> name,
 					(llist[i] -> flags & lw_cmdline_opt_optional) ? "[" : "",
 					llist[i] -> arg,
@@ -209,7 +209,7 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 			col += t;
 		}
 	}
-	
+
 	/* print "non option" text */
 	if (parser -> args_doc)
 	{
@@ -220,7 +220,7 @@ static void lw_cmdline_usage(struct lw_cmdline_parser *parser, char *name)
 		printf(" %s", parser -> args_doc);
 	}
 	printf("\n");
-	
+
 	/* clean up scratch lists */
 	lw_free(slist);
 	lw_free(llist);
@@ -234,26 +234,26 @@ static void lw_cmdline_help(struct lw_cmdline_parser *parser, char *name)
 	char *tstr;
 	int col = 0;
 	int noequ;
-	
+
 	tstr = parser -> doc;
 	for (nopt = 0; parser -> options[nopt].name || parser -> options[nopt].key || parser -> options[nopt].doc; nopt++)
 		/* do nothing */ ;
-	
-	llist = lw_alloc(sizeof(struct lw_cmdline_options *) * (nopt + 3));	
+
+	llist = lw_alloc(sizeof(struct lw_cmdline_options *) * (nopt + 3));
 
 	for (i = 0; i < nopt; i++)
 	{
 		llist[i] = &(parser -> options[i]);
 	}
-	
+
 	/* now sort the list */
 	qsort(llist, nopt, sizeof(struct lw_cmdline_options *), cmpr);
-	
+
 	/* now append the automatic options */
 	llist[nopt] = &(builtin[0]);
 	llist[nopt + 1] = &(builtin[1]);
 	llist[nopt + 2] = &(builtin[2]);
-	
+
 	/* print brief usage */
 	printf("Usage: %s [OPTION...] %s\n", name, parser -> args_doc ? parser -> args_doc : "");
 	if (tstr)
@@ -323,7 +323,7 @@ static void lw_cmdline_help(struct lw_cmdline_parser *parser, char *name)
 		{
 			char *s = llist[i] -> doc;
 			char *s2;
-			
+
 			while (*s && isspace(*s))
 				s++;
 
@@ -381,7 +381,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 	int nextarg;
 	char *tstr;
 	int cch;
-		
+
 	/* first, permute the argv array so that all option arguments are at the start */
 	for (i = 1, firstarg = 1; i < argc; i++)
 	{
@@ -420,20 +420,20 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 
 		if (cch > 0)
 			goto shortopt;
-		
+
 		/* skip the "--" option */
 		if (argv[i][1] == '-' && argv[i][2] == 0)
 			break;
-		
+
 		if (argv[i][1] == '-')
 		{
 			goto longopt;
 		}
-		
+
 		cch = 1;
 	shortopt:
 		/* handle a short option here */
-		
+
 		/* automatic options */
 		if (argv[i][cch] == '?')
 			goto do_help;
@@ -465,7 +465,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 		if (strcmp(argv[i], "--version") == 0)
 			goto do_version;
 		/* look up name */
-		
+
 		for (j = 2; argv[i][j] && argv[i][j] != '='; j++)
 			/* do nothing */ ;
 		tstr = lw_alloc(j - 1);
@@ -485,7 +485,7 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 			tstr = NULL;
 		cch = 0;
 		i++;
-		
+
 	common:
 		/* j will be the offset into the option table when we get here */
 		/* cch will be zero and tstr will point to the arg if it's a long option */
@@ -503,17 +503,17 @@ int lw_cmdline_parse(struct lw_cmdline_parser *parser, int argc, char **argv, un
 		{
 			if (tstr && cch && argv[i][cch] == 0)
 				nextarg++;
-			
+
 			//if (!*tstr)
 			//	tstr = NULL;
-			
+
 			/* move on to next argument if we have an arg specified */
 			if (tstr && cch && argv[i][cch] != 0)
 			{
 				i++;
 				cch = 0;
 			}
-			
+
 			if (!tstr && (parser -> options[j].flags & lw_cmdline_opt_optional) == 0)
 			{
 				fprintf(stderr, "Option %s requires argument.\n", parser -> options[j].name);

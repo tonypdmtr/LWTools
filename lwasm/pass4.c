@@ -62,18 +62,18 @@ void do_pass4_aux(asmstate_t *as, int force)
 			as -> cl = sl;
 			lwasm_reduce_expr(as, sl -> addr);
 			lwasm_reduce_expr(as, sl -> daddr);
-	
+
 			// simplify each expression
 			for (le = sl -> exprs; le; le = le -> next)
 				lwasm_reduce_expr(as, le -> expr);
 		}
-		
+
 		debug_message(as, 200, "Found line %p", sl);
 		// simplify address
 		as -> cl = sl;
 		lwasm_reduce_expr(as, sl -> addr);
 		lwasm_reduce_expr(as, sl -> daddr);
-			
+
 		// simplify each expression
 		for (le = sl -> exprs; le; le = le -> next)
 			lwasm_reduce_expr(as, le -> expr);
@@ -94,7 +94,7 @@ void do_pass4_aux(asmstate_t *as, int force)
 			cnt--;
 			if (cnt == 0)
 				return;
-			
+
 			// this one resolved - try looking for the next one instead
 			// of wasting time running through the rest of the lines
 			continue;
@@ -108,14 +108,14 @@ void do_pass4_aux(asmstate_t *as, int force)
 			{
 				debug_message(as, 200, "Flatten line %p", cl);
 				as -> cl = cl;
-			
+
 				// simplify address
 				lwasm_reduce_expr(as, cl -> addr);
 				lwasm_reduce_expr(as, cl -> daddr);
 				// simplify each expression
 				for (le = cl -> exprs; le; le = le -> next)
 					lwasm_reduce_expr(as, le -> expr);
-			
+
 				if (cl -> len == -1)
 				{
 					// try resolving the instruction length

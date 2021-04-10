@@ -37,7 +37,7 @@ struct preproc_info *preproc_init(const char *fn)
 {
 	FILE *fp;
 	struct preproc_info *pp;
-	
+
 	if (!fn || (fn[0] == '-' && fn[1] == '0'))
 	{
 		fp = stdin;
@@ -48,7 +48,7 @@ struct preproc_info *preproc_init(const char *fn)
 	}
 	if (!fp)
 		return NULL;
-	
+
 	pp = lw_alloc(sizeof(struct preproc_info));
 	memset(pp, 0, sizeof(struct preproc_info));
 	pp -> strpool = lw_strpool_create();
@@ -75,14 +75,14 @@ void preproc_add_include(struct preproc_info *pp, char *dir, int sys)
 struct token *preproc_next_token(struct preproc_info *pp)
 {
 	struct token *t;
-	
+
 	if (pp -> curtok)
 		token_free(pp -> curtok);
 
 	/*
 	If there is a list of tokens to process, move it to the "unget" queue
 	with an EOF marker at the end of it.
-	*/	
+	*/
 	if (pp -> sourcelist)
 	{
 		for (t = pp -> sourcelist; t -> next; t = t -> next)
@@ -166,7 +166,7 @@ static void preproc_throw_message(struct preproc_info *pp, void (*cb)(const char
 {
 	int s, s2;
 	char *b;
-	
+
 	s2 = snprintf(NULL, 0, "(%s:%d:%d) ", pp -> fn, pp -> lineno, pp -> column);
 	s = vsnprintf(NULL, 0, m, args);
 	b = lw_alloc(s + s2 + 1);

@@ -113,7 +113,7 @@ static int input_isabsolute(const char *s)
 void input_add_to_resource_list(asmstate_t *as, const char *s)
 {
 	struct ifl *ifl;
-	
+
 	/* first see if the file is already referenced */
 	for (ifl = ifl_head; ifl; ifl = ifl -> next)
 	{
@@ -150,7 +150,7 @@ void input_pushpath(asmstate_t *as, char *fn)
 {
 	/* take apart fn into path and filename then push the path */
 	/* onto the current file path stack */
-	
+
 	/* also add it to the list of files included */
 	char *dn, *dp;
 //	int o;
@@ -160,7 +160,7 @@ void input_pushpath(asmstate_t *as, char *fn)
 
 	dn = lw_strdup(fn);
 	dp = dn + strlen(dn);
-	
+
 	while (--dp != dn)
 	{
 		if (*dp == '/')
@@ -168,7 +168,7 @@ void input_pushpath(asmstate_t *as, char *fn)
 	}
 	if (*dp == '/')
 		*dp = '\0';
-	
+
 	if (dp == dn)
 	{
 		lw_free(dn);
@@ -184,7 +184,7 @@ void input_pushpath(asmstate_t *as, char *fn)
 void input_openstring(asmstate_t *as, char *s, char *str)
 {
 	struct input_stack *t;
-	
+
 	t = lw_alloc(sizeof(struct input_stack));
 	t -> filespec = lw_strdup(s);
 
@@ -215,7 +215,7 @@ void input_open(asmstate_t *as, char *s)
 	else
 	{
 		char *ts;
-		
+
 		ts = lw_strndup(s, s2 - s);
 		s = s2 + 1;
 		if (!strcmp(ts, "include"))
@@ -224,13 +224,13 @@ void input_open(asmstate_t *as, char *s)
 			t -> type = input_type_file;
 		else
 			t -> type = input_type_error;
-		
+
 		lw_free(ts);
 	}
 	t -> next = as -> input_data;
 	t -> stack = NULL;
 	as -> input_data = t;
-	
+
 	switch (IS -> type)
 	{
 	case input_type_include:
@@ -252,7 +252,7 @@ void input_open(asmstate_t *as, char *s)
 			input_add_to_resource_list(as, s);
 			return;
 		}
-		
+
 		/* relative path, check relative to "current file" directory */
 		p = lw_stack_top(as -> file_dir);
 		p2 = make_filename(p, s);
@@ -294,7 +294,7 @@ void input_open(asmstate_t *as, char *s)
 		}
 		lw_error("Cannot open include file '%s': %s\n", s, strerror(errno));
 		break;
-		
+
 	case input_type_file:
 		debug_message(as, 1, "Opening (reg): %s\n", s);
 		IS -> data = fopen(s, "rb");
@@ -382,7 +382,7 @@ FILE *input_open_standalone(asmstate_t *as, char *s, char **rfn)
 		printf("%s\n", p2);
 		lw_free(p2);
 	}
-	
+
 	return NULL;
 }
 
@@ -392,7 +392,7 @@ char *input_readline(asmstate_t *as)
 	char linebuff[2049];
 	int lbloc;
 	int eol = 0;
-	
+
 	/* if no file is open, open one */
 nextfile:
 	if (!IS) {
@@ -402,7 +402,7 @@ nextfile:
 		lw_stringlist_next(as -> input_files);
 		input_open(as, s);
 	}
-	
+
 	switch (IS -> type)
 	{
 	case input_type_file:
@@ -446,9 +446,9 @@ nextfile:
 				eol = 1;
 				c2 = fgetc(IS -> data);
 				if (c2 == EOF)
-					c = EOF;  
+					c = EOF;
 				else if (c2 != '\n')
-					ungetc(c2, IS -> data);  
+					ungetc(c2, IS -> data);
 			}
 			else if (c == '\n')
 			{
@@ -456,9 +456,9 @@ nextfile:
 				eol = 1;
 				c2 = fgetc(IS -> data);
 				if (c2 == EOF)
-					c = EOF;  
+					c = EOF;
 				else if (c2 != '\r')
-					ungetc(c2, IS -> data);  
+					ungetc(c2, IS -> data);
 			}
 			else
 			{
@@ -530,7 +530,7 @@ nextfile:
 				return s;
 			}
 		}
-	
+
 	default:
 		lw_error("Problem reading from unknown input type\n");
 		return NULL;
@@ -548,7 +548,7 @@ void input_stack_push(asmstate_t *as, input_stack_entry *e)
 {
 	struct input_stack_node *n;
 
-	n = lw_alloc(sizeof(struct input_stack_node));	
+	n = lw_alloc(sizeof(struct input_stack_node));
 	n -> next = IS -> stack;
 	n -> entry = e;
 	IS -> stack = n;
@@ -558,7 +558,7 @@ input_stack_entry *input_stack_pop(asmstate_t *as, int magic, int (*fn)(input_st
 {
 	struct input_stack_node *n, *n2;
 	input_stack_entry *e2;
-	
+
 	n2 = NULL;
 	for (n = IS -> stack; n; n = n -> next)
 	{

@@ -28,7 +28,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 char *lw_strdup(const char *s)
 {
 	char *r;
-	
+
 	if (!s)
 		s = "(null)";
 
@@ -41,11 +41,11 @@ char *lw_strndup(const char *s, int len)
 {
 	char *r;
 	int sl;
-	
+
 	sl = strlen(s);
 	if (sl > len)
 		sl = len;
-	
+
 	r = lw_alloc(sl + 1);
 	memmove(r, s, sl);
 	r[sl] = '\0';
@@ -59,7 +59,7 @@ char *lw_token(const char *s, int sep, const char **ap)
 
 	if (!s)
 		return NULL;
-	
+
 	p = strchr(s, sep);
 	if (!p)
 	{
@@ -67,11 +67,11 @@ char *lw_token(const char *s, int sep, const char **ap)
 			*ap = NULL;
 		return lw_strdup(s);
 	}
-	
+
 	r = lw_alloc(p - s + 1);
 	strncpy(r, (char *)s, p - s);
 	r[p - s] = '\0';
-	
+
 	if (ap)
 	{
 		while (*p && *p == sep)

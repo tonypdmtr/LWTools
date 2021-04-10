@@ -82,24 +82,24 @@ static int parse_opts(int key, char *arg, void *state)
 	case 'I':
 		lw_stringlist_addstring(as -> include_list, arg);
 		break;
-	
+
 	case 'D':
 	{
 		char *offs;
 		int val = 1;
 		lw_expr_t te;
-		
+
 		if ((offs = strchr(arg, '=')))
 		{
 			*offs = '\0';
 			val = strtol(offs + 1, NULL, 0);
 		}
-		
+
 		/* register global symbol */
 		te = lw_expr_build(lw_expr_type_int, val);
 		register_symbol(as, NULL, arg, te, symbol_flag_nocheck | symbol_flag_set);
 		lw_expr_destroy(te);
-		
+
 		if (offs)
 			*offs = '=';
 		break;
@@ -227,7 +227,7 @@ static int parse_opts(int key, char *arg, void *state)
 	case 0x102:
 		as -> flags |= FLAG_DEPEND | FLAG_DEPENDNOERR;
 		break;
-	
+
 	case 0x142:
 		as -> flags |= FLAG_UNICORNS;
 		break;
@@ -264,7 +264,7 @@ static int parse_opts(int key, char *arg, void *state)
 			exit(1);
 		}
 		break;
-		
+
 	case 'p':
 		if (parse_pragma_string(as, arg, 0) == 0)
 		{
@@ -284,18 +284,18 @@ static int parse_opts(int key, char *arg, void *state)
 	case 'P':
 		as -> preprocess = 1;
 		break;
-	
+
 	case 0x200:
 		as -> pragmas |= PRAGMA_6800COMPAT;
 		break;
-		
+
 	case lw_cmdline_key_end:
 		break;
-	
+
 	case lw_cmdline_key_arg:
 		lw_stringlist_addstring(as -> input_files, arg);
 		break;
-		
+
 	default:
 		return lw_cmdline_err_unknown;
 	}
@@ -312,7 +312,7 @@ static struct lw_cmdline_parser cmdline_parser =
 };
 
 /*
-main function; parse command line, set up assembler state, and run the 
+main function; parse command line, set up assembler state, and run the
 assembler on the first file
 */
 void do_pass1(asmstate_t *as);
@@ -373,8 +373,8 @@ int main(int argc, char **argv)
 	// enable the "forward reference maximum size" pragma; old available
 	// can be obtained with --pragma=noforwardrefmax
 	asmstate.pragmas = PRAGMA_FORWARDREFMAX;
-	
-	/* parse command line arguments */	
+
+	/* parse command line arguments */
 	if (lw_cmdline_parse(&cmdline_parser, argc, argv, 0, 0, &asmstate) != 0)
 	{
 		exit(1);
@@ -422,23 +422,23 @@ int main(int argc, char **argv)
 	{
 		// output dependencies (other than "includebin")
 		char *n;
-		
+
 		while ((n = lw_stack_pop(asmstate.includelist)))
 		{
 			fprintf(stdout, "%s\n", n);
 			lw_free(n);
 		}
-	}	
+	}
 	else if ((asmstate.flags & FLAG_NOOUT) == 0)
 	{
 		debug_message(&asmstate, 50, "Doing output");
 		do_output(&asmstate);
 	}
-	
+
 	debug_message(&asmstate, 50, "Done assembly");
 
 	if (asmstate.flags & FLAG_UNICORNS)
-	{	
+	{
 		debug_message(&asmstate, 50, "Invoking unicorns");
 		lwasm_do_unicorns(&asmstate);
 	}

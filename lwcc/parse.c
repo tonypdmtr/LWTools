@@ -129,13 +129,13 @@ static struct { int tok; char *word; } keyword_list[] = {
 	{ TOK_KW_EXTERN, "extern" },
 	{ TOK_KW_GOTO, "goto" },
 	{ 0, "" }
-}; 
+};
 
 struct token *parse_next(struct preproc_info *pp)
 {
 	struct token *tok;
 	int i;
-	
+
 	for (;;)
 	{
 		tok = preproc_next(pp);
@@ -210,7 +210,7 @@ node_t *parse_program(struct preproc_info *pp)
 	struct tokendata *td;
 	struct parserinfo pi = { NULL };
 	void *parser;
-		
+
 	/* the cast below shuts up a warning */
 	parser = ParseAlloc((void *)lw_alloc);
 	for (;;)
@@ -218,7 +218,7 @@ node_t *parse_program(struct preproc_info *pp)
 		tok = parse_next(pp);
 		if (tok -> ttype == TOK_EOF)
 			break;
-		
+
 		td = lw_alloc(sizeof(struct tokendata));
 		td -> strval = NULL;
 		td -> numval[0] = 0;
@@ -232,9 +232,9 @@ node_t *parse_program(struct preproc_info *pp)
 		td -> tokid = lookup_ptok(tok -> ttype);
 		if (tok -> strval)
 			td -> strval = lw_strdup(tok -> strval);
-		
+
 		tokendata_print(stderr, td);
-		
+
 		Parse(parser, td -> tokid, td, &pi);
 	}
 	Parse(parser, 0, NULL, &pi);

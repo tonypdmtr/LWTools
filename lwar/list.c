@@ -35,14 +35,14 @@ void do_list(void)
 	char buf[8];
 	long l;
 	int c;
-		
+
 	f = fopen(archive_file, "rb");
 	if (!f)
 	{
 		perror("Opening archive file");
 		exit(1);
 	}
-	
+
 	(void)(fread(buf, 1, 6, f) && 1);
 	if (memcmp("LWAR1V", buf, 6))
 	{
@@ -60,8 +60,8 @@ void do_list(void)
 		}
 		if (c == EOF)
 			return;
-		
-		
+
+
 		// find the end of the file name
 		if (!c)
 			return;
@@ -76,7 +76,7 @@ void do_list(void)
 				exit(1);
 			}
 		}
-		
+
 		// get length of archive member
 		l = 0;
 		c = fgetc(f);

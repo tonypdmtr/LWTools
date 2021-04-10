@@ -36,7 +36,7 @@ This file contains the actual expression evaluator
 lw_expr_stack_t *lw_expr_stack_create(void)
 {
 	lw_expr_stack_t *s;
-	
+
 	s = lw_alloc(sizeof(lw_expr_stack_t));
 	s -> head = NULL;
 	s -> tail = NULL;
@@ -59,8 +59,8 @@ lw_expr_stack_t *lw_expr_stack_dup(lw_expr_stack_t *s)
 {
 	lw_expr_stack_node_t *t;
 	lw_expr_stack_t *s2;
-		
-	s2 = lw_expr_stack_create();	
+
+	s2 = lw_expr_stack_create();
 	for (t = s -> head; t; t = t -> next)
 	{
 		lw_expr_stack_push(s2, t -> term);
@@ -91,7 +91,7 @@ lw_expr_term_t *lw_expr_term_create_oper(int oper)
 lw_expr_term_t *lw_expr_term_create_int(int val)
 {
 	lw_expr_term_t *t;
-	
+
 	t = lw_alloc(sizeof(lw_expr_term_t));
 	t -> term_type = LW_TERM_INT;
 	t -> value = val;
@@ -101,7 +101,7 @@ lw_expr_term_t *lw_expr_term_create_int(int val)
 lw_expr_term_t *lw_expr_term_create_sym(char *sym, int symtype)
 {
 	lw_expr_term_t *t;
-	
+
 	t = lw_alloc(sizeof(lw_expr_term_t));
 	t -> term_type = LW_TERM_SYM;
 	t -> symbol = lw_strdup(sym);
@@ -115,13 +115,13 @@ lw_expr_term_t *lw_expr_term_dup(lw_expr_term_t *t)
 	{
 	case LW_TERM_INT:
 		return lw_expr_term_create_int(t -> value);
-		
+
 	case LW_TERM_OPER:
 		return lw_expr_term_create_oper(t -> value);
-		
+
 	case LW_TERM_SYM:
 		return lw_expr_term_create_sym(t -> symbol, t -> value);
-	
+
 	default:
 		exit(1);
 	}
@@ -136,12 +136,12 @@ void lw_expr_stack_push(lw_expr_stack_t *s, lw_expr_term_t *t)
 	{
 		exit(1);
 	}
-	
+
 	n = lw_alloc(sizeof(lw_expr_stack_node_t));
 	n -> next = NULL;
 	n -> prev = s -> tail;
 	n -> term = lw_expr_term_dup(t);
-	
+
 	if (s -> head)
 	{
 		s -> tail -> next = n;
@@ -158,22 +158,22 @@ lw_expr_term_t *lw_expr_stack_pop(lw_expr_stack_t *s)
 {
 	lw_expr_term_t *t;
 	lw_expr_stack_node_t *n;
-	
+
 	if (!(s -> tail))
 		return NULL;
-	
+
 	n = s -> tail;
 	s -> tail = n -> prev;
 	if (!(n -> prev))
 	{
 		s -> head = NULL;
 	}
-	
+
 	t = n -> term;
 	n -> term = NULL;
-	
+
 	lw_free(n);
-	
+
 	return t;
 }
 
@@ -199,7 +199,7 @@ int lw_expr_reval(lw_expr_stack_t *s, lw_expr_stack_t *(*sfunc)(char *sym, int s
 	lw_expr_stack_node_t *n;
 	lw_expr_stack_t *ss;
 	int c;
-	
+
 next_iter_sym:
 	// resolve symbols
 	// symbols that do not resolve to an expression are left alone
@@ -233,7 +233,7 @@ next_iter_sym:
 				lw_expr_term_free(n -> term);
 				lw_free(n);
 				n = ss -> tail;
-				
+
 				ss -> head = NULL;
 				ss -> tail = NULL;
 				lw_expr_stack_free(ss);
@@ -243,11 +243,11 @@ next_iter_sym:
 	if (c)
 		goto next_iter_sym;
 
-next_iter:	
+next_iter:
 	// a single term
 	if (s -> head == s -> tail)
 		return 0;
-	
+
 	// search for an operator
 	for (n = s -> head; n; n = n -> next)
 	{
@@ -274,8 +274,8 @@ next_iter:
 					if (n -> next)
 						n -> next -> prev = n -> prev;
 					else
-						s -> tail = n -> prev;	
-					
+						s -> tail = n -> prev;
+
 					lw_expr_term_free(n -> term);
 					lw_free(n);
 					break;
@@ -349,8 +349,8 @@ next_iter:
 					if (n -> next)
 						n -> next -> prev = n -> prev -> prev;
 					else
-						s -> tail = n -> prev -> prev;	
-					
+						s -> tail = n -> prev -> prev;
+
 					lw_expr_term_free(n -> term);
 					lw_expr_term_free(n -> prev -> term);
 					lw_free(n -> prev);
@@ -366,6 +366,6 @@ next_iter:
 	// (n will only be NULL if we didn't find any operators to simplify)
 	if (n)
 		goto next_iter;
-	
+
 	return 0;
 }

@@ -38,17 +38,17 @@ PARSEFUNC(insn_parse_logicmem)
 {
 //	const char *p2;
 	lw_expr_t s;
-	
+
 	if (**p == '#')
 		(*p)++;
-	
+
 	s = lwasm_parse_expr(as, p);
 	if (!s)
 	{
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	lwasm_save_expr(l, 100, s);
 	lwasm_skip_to_next_token(l, p);
 	if (**p != ',' && **p != ';')
@@ -56,7 +56,7 @@ PARSEFUNC(insn_parse_logicmem)
 		lwasm_register_error(as, l, E_OPERAND_BAD);
 		return;
 	}
-	
+
 	(*p)++;
 	lwasm_skip_to_next_token(l, p);
 	// now we have a general addressing mode - call for it
@@ -67,7 +67,7 @@ RESOLVEFUNC(insn_resolve_logicmem)
 {
 	if (l -> len != -1)
 		return;
-	
+
 	insn_resolve_gen_aux(as, l, force, 1);
 }
 
@@ -75,14 +75,14 @@ EMITFUNC(insn_emit_logicmem)
 {
 	lw_expr_t e;
 	int v;
-	
+
 	e = lwasm_fetch_expr(l, 100);
 	if (!lw_expr_istype(e, lw_expr_type_int))
 	{
 		lwasm_register_error(as, l, E_IMMEDIATE_UNRESOLVED);
 		return;
 	}
-	
+
 	v = lw_expr_intval(e);
 /*	if (v < -128 || v > 255)
 	{
@@ -90,6 +90,6 @@ EMITFUNC(insn_emit_logicmem)
 		lwasm_register_error(as, l, E_BYTE_OVERFLOW);
 		return;
 	}
-*/	
+*/
 	insn_emit_gen_aux(as, l, v & 0xff);
 }

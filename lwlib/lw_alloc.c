@@ -25,7 +25,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 void *lw_alloc(int size)
 {
 	void *r;
-	
+
 	r = malloc(size);
 	if (!r)
 	{

@@ -37,7 +37,7 @@ void do_add(void)
 	int c;
 	FILE *f2;
 	int i;
-	
+
 	f = fopen(archive_file, "rb+");
 	if (!f)
 	{
@@ -52,7 +52,7 @@ void do_add(void)
 		}
 		perror("Cannot open archive file");
 	}
-	
+
 	(void)(fread(buf, 1, 6, f) && 1);
 	if (memcmp("LWAR1V", buf, 6))
 	{
@@ -70,13 +70,13 @@ void do_add(void)
 		}
 		if (c == EOF)
 			goto doadd;
-		
+
 		if (!c)
 		{
 			fseek(f, -1, SEEK_CUR);
 			goto doadd;
 		}
-		
+
 		// find the end of the file name
 		while (c)
 		{
@@ -87,7 +87,7 @@ void do_add(void)
 				exit(1);
 			}
 		}
-		
+
 		// get length of archive member
 		l = 0;
 		c = fgetc(f);
@@ -98,7 +98,7 @@ void do_add(void)
 		l |= c << 8;
 		c = fgetc(f);
 		l |= c;
-		
+
 		fseek(f, l, SEEK_CUR);
 	}
 	// back up to the NUL byte at the end of the file
@@ -127,12 +127,12 @@ doadd:
 				}
 				if (c == EOF)
 					break;
-		
+
 				if (!c)
 				{
 					break;
 				}
-		
+
 				// find the end of the file name
 				while (c)
 				{
@@ -145,7 +145,7 @@ doadd:
 					}
 				}
 				fputc(0, f);
-				
+
 				// get length of archive member
 				l = 0;
 				c = fgetc(f2);
@@ -160,7 +160,7 @@ doadd:
 				c = fgetc(f2);
 				fputc(c, f);
 				l |= c;
-		
+
 				while (l)
 				{
 					c = fgetc(f2);
@@ -168,7 +168,7 @@ doadd:
 					l--;
 				}
 			}
-			
+
 			fclose(f2);
 			continue;
 		}
@@ -188,7 +188,7 @@ doadd:
 			l--;
 		}
 	}
-	
+
 	// flag end of file
-	fputc(0, f);	
+	fputc(0, f);
 }

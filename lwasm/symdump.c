@@ -39,10 +39,10 @@ struct listinfo
 int dump_symbols_test(lw_expr_t e, void *p)
 {
 	struct listinfo *li = p;
-	
+
 	if (li -> complex)
 		return 0;
-	
+
 	if (lw_expr_istype(e, lw_expr_type_special))
 	{
 		if (lw_expr_specint(e) == lwasm_expr_secbase)
@@ -67,14 +67,14 @@ void dump_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 	struct listinfo li;
 
 	li.as = as;
-	
+
 	if (!se)
 		return;
-	
+
 	dump_symbols_aux(as, of, se -> left);
-	
+
 	for (s = se; s; s = s -> nextver)
-	{	
+	{
 		if (s -> flags & symbol_flag_nolist)
 			continue;
 
@@ -99,7 +99,7 @@ void dump_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 			lwasm_reduce_expr(as, te);
 			as -> exportcheck = 0;
 		}
-		
+
 		if (lw_expr_istype(te, lw_expr_type_int))
 		{
 			fprintf(of, " $%04X\n", lw_expr_intval(te));
@@ -110,20 +110,20 @@ void dump_symbols_aux(asmstate_t *as, FILE *of, struct symtabe *se)
 		}
 		lw_expr_destroy(te);
 	}
-	
+
 	dump_symbols_aux(as, of, se -> right);
 }
 
 void do_symdump(asmstate_t *as)
 {
 	FILE *of;
-	
+
 	if (!(as -> flags & FLAG_SYMDUMP))
 	{
 		return;
 	}
 	else
-	{		
+	{
 		if (as -> symbol_dump_file)
 		{
 			if (strcmp(as -> symbol_dump_file, "-") == 0)

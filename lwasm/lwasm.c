@@ -63,7 +63,7 @@ lw_expr_t lwasm_evaluate_var(char *var, void *priv)
 	lw_expr_t e;
 	importlist_t *im;
 	struct symtabe *s;
-	
+
 	debug_message(as, 225, "eval var: look up %s", var);
 	s = lookup_symbol(as, as -> cl, var);
 	if (s)
@@ -72,25 +72,25 @@ lw_expr_t lwasm_evaluate_var(char *var, void *priv)
 		e = lw_expr_build(lw_expr_type_special, lwasm_expr_syment, s);
 		return e;
 	}
-	
+
 	if (as -> undefzero)
 	{
 		debug_message(as, 225, "eval var: undefined symbol treated as 0");
 		e = lw_expr_build(lw_expr_type_int, 0);
 		return e;
 	}
-	
+
 	// undefined here is undefied unless output is object
 	if (as -> output_format != OUTPUT_OBJ)
 		goto nomatch;
-	
+
 	// check for import
 	for (im = as -> importlist; im; im = im -> next)
 	{
 		if (!strcmp(im -> symbol, var))
 			break;
 	}
-	
+
 	// check for "undefined" to import automatically
 	if ((as -> passno != 0) && !im && CURPRAGMA(as -> cl, PRAGMA_UNDEFEXTERN))
 	{
@@ -100,7 +100,7 @@ lw_expr_t lwasm_evaluate_var(char *var, void *priv)
 		im -> next = as -> importlist;
 		as -> importlist = im;
 	}
-	
+
 	if (!im)
 		goto nomatch;
 
@@ -143,13 +143,13 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 			return lw_expr_build(lw_expr_type_int, cl -> dlen);
 		}
 		break;
-					
+
 	case lwasm_expr_linelen:
 		{
 			line_t *cl = ptr;
 			if (cl -> len != -1)
 				return lw_expr_build(lw_expr_type_int, cl -> len);
-				
+
 			if (cl -> as -> pretendmax)
 			{
 				if (cl -> maxlen != 0)
@@ -161,13 +161,13 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 			return NULL;
 		}
 		break;
-		
+
 	case lwasm_expr_linedaddr:
 		{
 			line_t *cl = ptr;
 			return lw_expr_copy(cl -> daddr);
 		}
-	
+
 	case lwasm_expr_lineaddr:
 		{
 			line_t *cl = ptr;
@@ -176,18 +176,18 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 			else
 				return NULL;
 		}
-	
+
 	case lwasm_expr_syment:
 		{
 			struct symtabe *sym = ptr;
 			return lw_expr_copy(sym -> value);
 		}
-	
+
 	case lwasm_expr_import:
 		{
 			return NULL;
 		}
-	
+
 	case lwasm_expr_nextbp:
 		{
 			line_t *cl = ptr;
@@ -202,7 +202,7 @@ lw_expr_t lwasm_evaluate_special(int t, void *ptr, void *priv)
 			}
 			return NULL;
 		}
-	
+
 	case lwasm_expr_prevbp:
 		{
 			line_t *cl = ptr;
@@ -396,7 +396,7 @@ void lwasm_register_error_real(asmstate_t *as, line_t *l, lwasm_errorcode_t erro
 		l->err = e;
 		as->errorcount++;
 	}
-	
+
 	e -> code = error_code;
 	e -> charpos = -1;
 
@@ -452,26 +452,26 @@ void lwasm_emit(line_t *cl, int byte)
 		cl -> outputbl += 8;
 	}
 	cl -> output[cl -> outputl++] = byte & 0xff;
-	
+
 	if (cl -> inmod)
 	{
 		asmstate_t *as = cl -> as;
 		// update module CRC
 		// this is a direct transliteration from the nitros9 asm source
-		// to C; it can, no doubt, be optimized for 32 bit processing  
+		// to C; it can, no doubt, be optimized for 32 bit processing
 		byte &= 0xff;
 
 		byte ^= (as -> crc)[0];
 		(as -> crc)[0] = (as -> crc)[1];
 		(as -> crc)[1] = (as -> crc)[2];
 		(as -> crc)[1] ^= (byte >> 7);
-		(as -> crc)[2] = (byte << 1); 
+		(as -> crc)[2] = (byte << 1);
 		(as -> crc)[1] ^= (byte >> 2);
 		(as -> crc)[2] ^= (byte << 6);
 		byte ^= (byte << 1);
 		byte ^= (byte << 2);
 		byte ^= (byte << 4);
-		if (byte & 0x80) 
+		if (byte & 0x80)
 		{
 			(as -> crc)[0] ^= 0x80;
 		    (as -> crc)[2] ^= 0x21;
@@ -494,10 +494,10 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 	asmstate_t *as = priv;
 	int neg = 1;
 	int val;
-	
+
 	if (!**p)
 		return NULL;
-	
+
 	if (**p == '.'
 			&& !((*p)[1] >= 'A' && (*p)[1] <= 'Z')
 			&& !((*p)[1] >= 'a' && (*p)[1] <= 'z')
@@ -507,14 +507,14 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		(*p)++;
 		return lw_expr_build(lw_expr_type_special, lwasm_expr_linedaddr, as -> cl);
 	}
-	
+
 	if (**p == '*')
 	{
 		// special "symbol" for current line addr (*)
 		(*p)++;
 		return lw_expr_build(lw_expr_type_special, lwasm_expr_lineaddr, as -> cl);
 	}
-	
+
 	// branch points
 	if (**p == '<')
 	{
@@ -526,7 +526,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		(*p)++;
 		return lw_expr_build(lw_expr_type_special, lwasm_expr_nextbp, as -> cl);
 	}
-	
+
 	// double ascii constant
 	if (**p == '"')
 	{
@@ -538,13 +538,13 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			return NULL;
 		v = (unsigned char)**p << 8 | (unsigned char)*((*p)+1);
 		(*p) += 2;
-		
+
 		if (**p == '"')
 			(*p)++;
-		
+
 		return lw_expr_build(lw_expr_type_int, v);
 	}
-	
+
 	/* double ASCII constant, like LDD #'MG */
 	if (CURPRAGMA(as->cl, PRAGMA_M80EXT))
 	{
@@ -570,26 +570,26 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 	if (**p == '\'')
 	{
 		int v;
-		
+
 		(*p)++;
 		if (!**p)
 			return NULL;
-		
+
 		v = (unsigned char)**p;
 		(*p)++;
-		
+
 		if (**p == '\'')
 			(*p)++;
-		
+
 		return lw_expr_build(lw_expr_type_int, v);
 	}
-	
+
 	if (**p == '&')
 	{
 		val = 0;
 		// decimal constant
 		(*p)++;
-		
+
 		if (**p == '-')
 		{
 			(*p)++;
@@ -639,7 +639,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		}
 		return lw_expr_build(lw_expr_type_int, val * neg);
 	}
-	
+
 	if (**p == '$')
 	{
 		// hexadecimal constant
@@ -668,7 +668,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		}
 		return lw_expr_build(lw_expr_type_int, v * neg);
 	}
-	
+
 	if (**p == '0' && (*((*p)+1) == 'x' || *((*p)+1) == 'X'))
 	{
 		// hexadecimal constant, C style
@@ -690,7 +690,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		}
 		return lw_expr_build(lw_expr_type_int, v);
 	}
-	
+
 	if (**p == '@' && (*((*p)+1) >= '0' && *((*p)+1) <= '7'))
 	{
 		// octal constant
@@ -710,7 +710,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 				(*p)--;
 			return NULL;
 		}
-		
+
 		while (**p && strchr("01234567", **p))
 		{
 			v = v * 8 + (**p - '0');
@@ -718,14 +718,14 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		}
 		return lw_expr_build(lw_expr_type_int, v * neg);
 	}
-	
+
 
 	// symbol or bare decimal or suffix constant here
 	do
 	{
 		int havedol = 0;
 		int l = 0;
-		
+
 		while ((*p)[l] && strchr(SYMCHARS, (*p)[l]))
 		{
 			if ((*p)[l] == '$')
@@ -741,13 +741,13 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 				l++;
 			l++;
 		}
-		
+
 		if (havedol || **p < '0' || **p > '9')
 		{
 			// have a symbol here
 			char *sym;
 			lw_expr_t term;
-			
+
 			sym = lw_strndup(*p, l);
 			(*p) += l;
 			term = lw_expr_build(lw_expr_type_var, sym);
@@ -755,10 +755,10 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			return term;
 		}
 	} while (0);
-	
+
 	if (!**p)
 		return NULL;
-	
+
 	// we have a numeric constant here, either decimal or postfix base notation
 	{
 		int decval = 0, binval = 0, hexval = 0, octval = 0;
@@ -766,7 +766,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 		int bindone = 0;
 		int val;
 		int dval;
-		
+
 		while (1)
 		{
 			if (!**p || !strchr("0123456789ABCDEFabcdefqhoQHO", **p))
@@ -789,17 +789,17 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 					return NULL;
 				}
 			}
-			
+
 			dval = toupper(**p);
 			(*p)++;
-			
+
 			if (bindone)
 			{
 				// any characters past "B" means it is not binary
 				bindone = 0;
 				valtype &= 14;
 			}
-			
+
 			switch (dval)
 			{
 			case 'Q':
@@ -815,7 +815,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 					return NULL;
 				}
 				/* can't get here */
-			
+
 			case 'H':
 				if (valtype & 8)
 				{
@@ -828,7 +828,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 					return NULL;
 				}
 				/* can't get here */
-			
+
 			case 'B':
 				// this is a bit of a sticky one since B may be a
 				// hex number instead of the end of a binary number
@@ -840,7 +840,7 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 					valtype = 9;
 				}
 				/* fall through intented */
-			
+
 			default:
 				// digit
 				dval -= '0';
@@ -872,14 +872,14 @@ lw_expr_t lwasm_parse_term(char **p, void *priv)
 			}
 			if (valtype == -1)
 				break;
-			
+
 			// return if no more valid types
 			if (valtype == 0)
 				return NULL;
-			
-			val = decval; // in case we fall through	
-		} 
-		
+
+			val = decval; // in case we fall through
+		}
+
 		// get here if we have a value
 		return lw_expr_build(lw_expr_type_int, val);
 	}
@@ -890,7 +890,7 @@ lw_expr_t lwasm_parse_expr(asmstate_t *as, char **p)
 {
 	lw_expr_t e;
 
-	if (as->exprwidth != 16)	
+	if (as->exprwidth != 16)
 	{
 		lw_expr_setwidth(as->exprwidth);
 		if (CURPRAGMA(as -> cl, PRAGMA_NEWSOURCE))
@@ -920,7 +920,7 @@ int lwasm_reduce_expr(asmstate_t *as, lw_expr_t expr)
 void lwasm_save_expr(line_t *cl, int id, lw_expr_t expr)
 {
 	struct line_expr_s *e;
-	
+
 	for (e = cl -> exprs; e; e = e -> next)
 	{
 		if (e -> id == id)
@@ -930,7 +930,7 @@ void lwasm_save_expr(line_t *cl, int id, lw_expr_t expr)
 			return;
 		}
 	}
-	
+
 	e = lw_alloc(sizeof(struct line_expr_s));
 	e -> expr = expr;
 	e -> id = id;
@@ -941,7 +941,7 @@ void lwasm_save_expr(line_t *cl, int id, lw_expr_t expr)
 lw_expr_t lwasm_fetch_expr(line_t *cl, int id)
 {
 	struct line_expr_s *e;
-	
+
 	for (e = cl -> exprs; e; e = e -> next)
 	{
 		if (e -> id == id)
@@ -1005,11 +1005,11 @@ int lwasm_emitexpr(line_t *l, lw_expr_t expr, int size)
 {
 	int v = 0;
 	int ol;
-	
+
 	ol = l -> outputl;
 	if (ol == -1)
 		ol = 0;
-		
+
 	if (lw_expr_istype(expr, lw_expr_type_int))
 	{
 		v = lw_expr_intval(expr);
@@ -1025,7 +1025,7 @@ int lwasm_emitexpr(line_t *l, lw_expr_t expr, int size)
 			ad.v = 0;
 			ad.oc = 0;
 			ad.ms = 0;
-			
+
 			if (l -> csect == NULL)
 			{
 				lwasm_register_error(l -> as, l, E_INSTRUCTION_SECTION);
@@ -1098,7 +1098,7 @@ int lwasm_emitexpr(line_t *l, lw_expr_t expr, int size)
 				lwasm_register_error(l -> as, l, E_INSTRUCTION_SECTION);
 				return -1;
 			}
-			
+
 			if (size == 4)
 			{
 				// create a two part reference because lwlink doesn't
@@ -1107,7 +1107,7 @@ int lwasm_emitexpr(line_t *l, lw_expr_t expr, int size)
 				te = lw_expr_build(lw_expr_type_int, 0x10000);
 				te2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_divide, expr, te);
 				lw_expr_destroy(te);
-				
+
 				re = lw_alloc(sizeof(reloctab_t));
 				re -> next = l -> csect -> reloctab;
 				l -> csect -> reloctab = re;
@@ -1121,7 +1121,7 @@ int lwasm_emitexpr(line_t *l, lw_expr_t expr, int size)
 				te = lw_expr_build(lw_expr_type_int, 0xFFFF);
 				te2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_bwand, expr, te);
 				lw_expr_destroy(te);
-				
+
 				re = lw_alloc(sizeof(reloctab_t));
 				re -> next = l -> csect -> reloctab;
 				l -> csect -> reloctab = re;
@@ -1152,29 +1152,29 @@ int lwasm_emitexpr(line_t *l, lw_expr_t expr, int size)
 		lwasm_register_error(l->as, l, E_EXPRESSION_NOT_RESOLVED);
 		return -1;
 	}
-	
+
 	switch (size)
 	{
 	case 4:
 		lwasm_emit(l, v >> 24);
 		lwasm_emit(l, v >> 16);
 		/* fallthrough intended */
-			
+
 	case 2:
 		lwasm_emit(l, v >> 8);
 		/* fallthrough intended */
-		
+
 	case 1:
 		lwasm_emit(l, v);
 	}
-	
+
 	return 0;
 }
 
 int lwasm_lookupreg2(const char *regs, char **p)
 {
 	int rval = 0;
-	
+
 	while (*regs)
 	{
 		if (toupper(**p) == *regs)
@@ -1199,7 +1199,7 @@ int lwasm_lookupreg2(const char *regs, char **p)
 int lwasm_lookupreg3(const char *regs, char **p)
 {
 	int rval = 0;
-	
+
 	while (*regs)
 	{
 		if (toupper(**p) == *regs)
@@ -1232,7 +1232,7 @@ void lwasm_show_errors(asmstate_t *as)
 {
 	line_t *cl;
 	lwasm_error_t *e;
-	
+
 	for (cl = as -> line_head; cl; cl = cl -> next)
 	{
 		if (!(cl -> err) && !(cl -> warn))
@@ -1275,7 +1275,7 @@ lw_expr_t lwasm_parse_cond(asmstate_t *as, char **p)
 	debug_message(as, 250, "Parsing condition");
 	e = lwasm_parse_expr(as, p);
 	debug_message(as, 250, "COND EXPR: %s", lw_expr_print(e));
-	
+
 	if (!e)
 	{
 		lwasm_register_error(as, as -> cl, E_EXPRESSION_BAD);
@@ -1328,7 +1328,7 @@ int lwasm_calculate_range_tf(lw_expr_t e, void *info)
 {
 	struct range_data *rd = info;
 	int i;
-	
+
 	if (lw_expr_istype(e, lw_expr_type_int))
 	{
 		i = lw_expr_intval(e);
@@ -1336,7 +1336,7 @@ int lwasm_calculate_range_tf(lw_expr_t e, void *info)
 		rd -> max += i;
 		return 0;
 	}
-	
+
 	if (lw_expr_istype(e, lw_expr_type_special))
 	{
 		line_t *l;
@@ -1357,7 +1357,7 @@ int lwasm_calculate_range_tf(lw_expr_t e, void *info)
 		}
 		return 0;
 	}
-	
+
 	if (lw_expr_istype(e, lw_expr_type_var))
 	{
 		lw_expr_t te;
@@ -1378,7 +1378,7 @@ int lwasm_calculate_range_tf(lw_expr_t e, void *info)
 			return -1;
 		return 0;
 	}
-	
+
 	if (lw_expr_istype(e, lw_expr_type_oper))
 	{
 		if (lw_expr_whichop(e) == lw_expr_oper_plus)
@@ -1386,7 +1386,7 @@ int lwasm_calculate_range_tf(lw_expr_t e, void *info)
 		rd -> min = -1;
 		return -1;
 	}
-	
+
 	rd -> min = -1;
 	return -1;
 }
@@ -1394,14 +1394,14 @@ int lwasm_calculate_range_tf(lw_expr_t e, void *info)
 int lwasm_calculate_range(asmstate_t *as, lw_expr_t expr, int *min, int *max)
 {
 	struct range_data rd;
-	
+
 	rd.min = 0;
 	rd.max = 0;
 	rd.as = as;
-	
+
 	if (!expr)
 		return -1;
-	
+
 	lw_expr_testterms(expr, lwasm_calculate_range_tf, (void *)&rd);
 	*min = rd.min;
 	*max = rd.max;
@@ -1415,13 +1415,13 @@ void lwasm_reduce_line_exprs(line_t *cl)
 	asmstate_t *as;
 	struct line_expr_s *le;
 	int i;
-			
+
 	as = cl -> as;
 	as -> cl = cl;
-			
+
 	// simplify address
 	lwasm_reduce_expr(as, cl -> addr);
-		
+
 	// simplify data address
 	lwasm_reduce_expr(as, cl -> daddr);
 
@@ -1432,7 +1432,7 @@ void lwasm_reduce_line_exprs(line_t *cl)
 		lwasm_reduce_expr(as, le -> expr);
 		debug_message(as, 100, "Reduce expressions: exp[%d] = %s", i, lw_expr_print(le -> expr));
 	}
-			
+
 	if (cl -> len == -1 || cl -> dlen == -1)
 	{
 		// try resolving the instruction length

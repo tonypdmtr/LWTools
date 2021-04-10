@@ -40,24 +40,24 @@ void do_pass3(asmstate_t *as)
 	int rc;
 	line_t *cl;
 	struct line_expr_s *le;
-	
+
 	do
 	{
 		rc = 0;
 		for (cl = as -> line_head; cl; cl = cl -> next)
 		{
 			as -> cl = cl;
-			
+
 			// simplify address
 			lwasm_reduce_expr(as, cl -> addr);
-		
+
 			// simplify data address
 			lwasm_reduce_expr(as, cl -> daddr);
 
 			// simplify each expression
 			for (le = cl -> exprs; le; le = le -> next)
 				lwasm_reduce_expr(as, le -> expr);
-			
+
 			if (cl -> len == -1 || cl -> dlen == -1)
 			{
 				// try resolving the instruction length

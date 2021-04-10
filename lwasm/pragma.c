@@ -123,7 +123,7 @@ int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
 			as->pragmas &= ~pragma;
 		else
 			as->pragmas |= pragma;
-		
+
 		debug_message(as, 200, "New pragma state: %08X", as -> pragmas);
 	}
 	return 1;
@@ -132,13 +132,13 @@ int parse_pragma_string(asmstate_t *as, char *str, int ignoreerr)
 PARSEFUNC(pseudo_parse_pragma)
 {
 	char *ps, *t;
-	
+
 	for (t = *p; *t && !isspace(*t); t++)
 		/* do nothing */ ;
-	
+
 	ps = lw_strndup(*p, t - *p);
 	*p = t;
-	
+
 	l -> len = 0;
 
 	if (parse_pragma_string(as, ps, 0) == 0)
@@ -161,12 +161,12 @@ PARSEFUNC(pseudo_parse_starpragma)
 
 	for (t = *p; *t && !isspace(*t); t++)
 		/* do nothing */ ;
-	
+
 	ps = lw_strndup(*p, t - *p);
 	*p = t;
 
 	l -> len = 0;
-	
+
 	// *pragma must NEVER throw an error
 	parse_pragma_string(as, ps, 1);
 	if (as -> pragmas & PRAGMA_NOLIST)
@@ -196,15 +196,15 @@ PARSEFUNC(pseudo_parse_starpragmapop)
 	int i;
 	const char *np;
 	struct pragma_stack_entry *pse;
-	
+
 	for (t = *p; *t && !isspace(*t); t++)
 		/* do nothing */ ;
-	
+
 	ps = lw_strndup(*p, t - *p);
 	*p = t;
-	
+
 	l -> len = 0;
-	
+
 	// *pragma stuff must never throw an error
 	np = ps;
 
@@ -239,15 +239,15 @@ PARSEFUNC(pseudo_parse_starpragmapush)
 	int i;
 	const char *np;
 	struct pragma_stack_entry *pse;
-	
+
 	for (t = *p; *t && !isspace(*t); t++)
 		/* do nothing */ ;
-	
+
 	ps = lw_strndup(*p, t - *p);
 	*p = t;
-	
+
 	l -> len = 0;
-	
+
 	// *pragma stuff must never throw an error
 	np = ps;
 
@@ -277,7 +277,7 @@ PARSEFUNC(pseudo_parse_starpragmapush)
 				debug_message(as, 100, "Pushed pragma string %s", pse->str);
 
 				input_stack_push(as, (input_stack_entry *)pse);
-				
+
 				if (set_pragmas[i].flag == PRAGMA_NOLIST)
 					l -> pragmas |= PRAGMA_NOLIST;
 			}
@@ -287,4 +287,3 @@ PARSEFUNC(pseudo_parse_starpragmapush)
 
 	lw_free(ps);
 }
-

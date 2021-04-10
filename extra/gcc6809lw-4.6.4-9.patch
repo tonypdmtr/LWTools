@@ -1018,7 +1018,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +print_direct_prefix (FILE * file, rtx addr)
 +{
 +	if (TARGET_DIRECT &&
-+       (GET_CODE (addr) == SYMBOL_REF) && 
++       (GET_CODE (addr) == SYMBOL_REF) &&
 +       SYMBOL_REF_FLAG (addr) &&
 +       check_direct_prefix_flag)
 +   {
@@ -1094,7 +1094,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +	}
 +
 +	else if (code == 'R') {
-+		fprintf (file, "%s", 
++		fprintf (file, "%s",
 +			m6809_get_regs_printable (INTVAL (x)));
 +	}
 +
@@ -1594,8 +1594,8 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +
 +#if 0
 +/**
-+ * Handle pragmas.  Note that only the last branch pragma seen in the 
-+ * source has any affect on code generation.  
++ * Handle pragmas.  Note that only the last branch pragma seen in the
++ * source has any affect on code generation.
 + */
 +
 +#define BAD_PRAGMA(msgid, arg) \
@@ -1688,7 +1688,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 + * boundary. */
 +void
 +m6809_asm_named_section (
-+	const char *name, 
++	const char *name,
 +	unsigned int flags ATTRIBUTE_UNUSED,
 +	tree decl)
 +{
@@ -1709,12 +1709,12 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +		 * instead of 0x8000. Replaced both 8 bit and 16 bit comparisions with
 +		 * a more straight forward range comparison - excessive cleverness isn't
 +		 * really required here.
-+		 */    
++		 */
 +		case CONST_INT:
 +		   /* Constants that can fit into 1 byte should be
 +			 * loaded into a Q_REGS reg */
 +			if ((INTVAL(x) >= -128 && INTVAL(x) <= 127) &&
-+//			if (((unsigned) (INTVAL(x) + 0x80) < 0x100) && 
++//			if (((unsigned) (INTVAL(x) + 0x80) < 0x100) &&
 +  				 (regclass > A_REGS))
 +      		return Q_REGS;
 +
@@ -1876,7 +1876,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +	if (code == MINUS)
 +		size = -size;
 +
-+	return gen_rtx_SET (Pmode, stack_pointer_rtx, 
++	return gen_rtx_SET (Pmode, stack_pointer_rtx,
 +		gen_rtx_PLUS (Pmode, stack_pointer_rtx,
 +			gen_int_mode (size, HImode)));
 +}
@@ -1887,7 +1887,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +gen_rtx_register_pushpop (int op, int regs)
 +{
 +	rtx nregs = gen_int_mode (regs, QImode);
-+	
++
 +	if (op == UNSPEC_PUSH_RS)
 +		return gen_register_push (nregs);
 +	else
@@ -1962,8 +1962,8 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 + * should be 1 for a unary op or 2 for a binary op.
 + */
 +void
-+emit_libcall_insns (enum machine_mode mode, 
-+	const char *name, 
++emit_libcall_insns (enum machine_mode mode,
++	const char *name,
 +	rtx *operands,
 +	int count)
 +{
@@ -2010,7 +2010,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +const char *
 +output_branch_insn (enum rtx_code code, rtx *operands, int length)
 +{
-+	int shortform; 
++	int shortform;
 +
 +	/* Decide whether or not to use the long or short form.
 +	 * Calculate automatically based on insn lengths. */
@@ -2024,7 +2024,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +	 */
 +	switch (code)
 +	{
-+		case LABEL_REF: 
++		case LABEL_REF:
 +			if (shortform)
 +				output_branch_insn1 ("bra", operands, 0);
 +			else if (flag_pic)
@@ -2131,7 +2131,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +				*total = 0;
 +				return true;
 +			}
-+			else if ((unsigned) INTVAL (X) < 077) 
++			else if ((unsigned) INTVAL (X) < 077)
 +			{
 +				*total = 1;
 +				return true;
@@ -2237,7 +2237,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +			 * as operand 1 is constant. */
 +			if (mode == QImode || (mode == HImode && has_const_arg))
 +				*total += COSTS_N_INSNS (1);
-+			else 
++			else
 +				*total += COSTS_N_INSNS (GET_MODE_SIZE (mode));
 +
 +			/* -1, 0, and 1 can be done using inherent instructions
@@ -2261,7 +2261,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +  		case ASHIFT: case ASHIFTRT: case LSHIFTRT:
 +  		case ROTATE: case ROTATERT:
 +			/* 6809 can do shift/rotates of a QImode by a constant in
-+			 * 1 insn times the shift count, or in HImode by a constant 
++			 * 1 insn times the shift count, or in HImode by a constant
 +			 * by splitting to 2 insns.
 +			 *
 +			 * Shift by a nonconstant will take significantly longer
@@ -2304,12 +2304,12 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 + 			could be QImode, or QImode widened to HImode, or a constant
 + 			that fits into 8-bits.  As long as both operands qualify,
 + 			we can use a single mul instruction.
-+  
++
 + 			Assume that fast multiply can be used, and change this if we find
 + 			differently... */
 + 			int ok_for_qihi3 = 1;
-+  
-+ 			/* Check the first operand */	
++
++ 			/* Check the first operand */
 + 			switch (GET_MODE (op0))
 + 			{
 + 				case QImode:
@@ -2322,7 +2322,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 + 					ok_for_qihi3 = 0;
 + 					break;
 +  			}
-+ 
++
 +			/* Likewise, check the second operand.  This is where constants may appear. */
 + 			switch (GET_MODE (op1))
 + 			{
@@ -2340,7 +2340,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 + 					ok_for_qihi3 = 0;
 + 					break;
 + 			}
-+ 
++
 + 			/* Fast multiply takes about 4 times as many cycles as a normal
 + 			arithmetic operation.  Otherwise, it will take an expensive libcall. */
 + 			if (ok_for_qihi3)
@@ -2383,7 +2383,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +{
 +	if (TREE_CODE (*node) != FUNCTION_TYPE)
 +	{
-+		warning (WARNING_OPT "'%s' only valid for functions", 
++		warning (WARNING_OPT "'%s' only valid for functions",
 +			IDENTIFIER_POINTER (name));
 +		*no_add_attrs = TRUE;
 +	}
@@ -2405,7 +2405,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +
 +
 +static tree
-+m6809_handle_default_attribute (tree *node ATTRIBUTE_UNUSED, 
++m6809_handle_default_attribute (tree *node ATTRIBUTE_UNUSED,
 +	tree name ATTRIBUTE_UNUSED,
 +	tree args ATTRIBUTE_UNUSED,
 +	int flags ATTRIBUTE_UNUSED,
@@ -2437,7 +2437,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +	 * void_ftype_uchar = void f(unsigned char)
 +	 * uchar_ftype_uchar2 = unsigned char f (unsigned char, unsigned char)
 +	 */
-+	tree void_ftype_void = 
++	tree void_ftype_void =
 +		build_function_type (void_type_node, void_list_node);
 +
 +	tree void_ftype_uchar =
@@ -2446,7 +2446,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +
 +	tree uchar_ftype_uchar2 =
 +		build_function_type (unsigned_char_type_node,
-+			tree_cons (NULL_TREE, unsigned_char_type_node, 
++			tree_cons (NULL_TREE, unsigned_char_type_node,
 +				tree_cons (NULL_TREE, unsigned_char_type_node, void_list_node)));
 +
 +	/* Register each builtin function. */
@@ -2509,8 +2509,8 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +/** Expand a builtin that was registered in init_builtins into
 + * RTL.  */
 +rtx
-+m6809_expand_builtin (tree exp, 
-+	rtx target, 
++m6809_expand_builtin (tree exp,
++	rtx target,
 +	rtx subtarget ATTRIBUTE_UNUSED,
 +	enum machine_mode mode ATTRIBUTE_UNUSED,
 +	int ignore ATTRIBUTE_UNUSED )
@@ -2712,10 +2712,10 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +			output_asm_insn ("lbsr\t__far_call_handler", operands);
 +		else
 +			output_asm_insn ("jsr\t__far_call_handler\t;old style", operands);
-+  
++
 +    /* Now output the name of the call site */
 +    output_asm_insn ("\t.dw\t%C0", operands);
-+  
++
 +    /* Finally output the page number */
 +    sprintf (page_data, "\t.db\t%s", far_functionp (operands[0]));
 +    output_asm_insn (page_data, operands);
@@ -2915,7 +2915,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +    if (live_regs && !m6809_current_function_has_type_attr_p ("interrupt"))
 +        emit_insn (
 +          gen_rtx_register_pushpop (UNSPEC_POP_RS, PC_REGBIT | live_regs));
-+  
++
 +    if (m6809_current_function_has_type_attr_p ("interrupt"))
 +      emit_jump_insn (gen_return_rti ());
 +    else
@@ -2984,7 +2984,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +	if (size > MAX_ASM_ASCII_STRING)
 +	{
 +		m6809_output_ascii (fp, str, MAX_ASM_ASCII_STRING);
-+		m6809_output_ascii (fp, str + MAX_ASM_ASCII_STRING, 
++		m6809_output_ascii (fp, str + MAX_ASM_ASCII_STRING,
 +			size - MAX_ASM_ASCII_STRING);
 +		return;
 +	}
@@ -3015,7 +3015,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +		except that it only supports 7-bit codes. */
 +		if (c >= ' ' && c < 0177 && c != '\\' && c != '"')
 +  			putc (c, fp);
-+		else switch (c) 
++		else switch (c)
 +		{
 +			case '\n':
 +#ifndef TARGET_COCO
@@ -3163,7 +3163,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +
 +	mode = GET_MODE (operands[0]);
 +	count = INTVAL (operands[2]);
-+	
++
 +	/* Handle a shift count outside the range of 0 .. N-1, where
 +	 * N is the mode size in bits.  We normalize the count, and
 +	 * for negative counts we also invert the direction of the
@@ -3223,7 +3223,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +		}
 +
 +		m6809_emit_move_insn (output,
-+			gen_rtx_fmt_ee (code, mode, copy_rtx (output), 
++			gen_rtx_fmt_ee (code, mode, copy_rtx (output),
 +				gen_rtx_CONST_INT (VOIDmode, count-8)));
 +		return;
 +	}
@@ -3268,13 +3268,13 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.c gcc-4.6.4/gcc/config/m6809/m6
 +	{
 +		m6809_emit_move_insn (operands[0],
 +			gen_rtx_fmt_ee (code, mode, operands[1], const1_rtx));
-+	
++
 +		m6809_emit_move_insn (operands[0],
-+			gen_rtx_fmt_ee (code, mode, operands[1], 
++			gen_rtx_fmt_ee (code, mode, operands[1],
 +				gen_rtx_CONST_INT (VOIDmode, count-1)));
 +		return;
 +	}
-+	
++
 +	/* Decompose the single shift of a 16-bit quantity into two
 +	 * CPU instructions, one for each 8-bit half.
 +	 */
@@ -4192,7 +4192,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.h gcc-4.6.4/gcc/config/m6809/m6
 +
 +   For any two classes, it is very desirable that there be another
 +   class that represents their union.  */
-+   
++
 +enum reg_class {
 +    NO_REGS,    /* The trivial class with no registers in it */
 +    D_REGS,     /* 16-bit (word (HI)) data (D) */
@@ -4456,7 +4456,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.h gcc-4.6.4/gcc/config/m6809/m6
 +	Argument Lists
 +--------------------------------------------------------------*/
 +
-+/* Cumulative arguments are tracked in a single integer, 
++/* Cumulative arguments are tracked in a single integer,
 + * which is the number of bytes of arguments scanned so far,
 + * plus which registers have already been used.  The register
 + * info is kept in some of the upper bits */
@@ -4755,7 +4755,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.h gcc-4.6.4/gcc/config/m6809/m6
 + * Note that the C standard does not require that doubles
 + * hold any more bits than float.  Since the 6809 has so few
 + * registers, we cannot really support more than 32-bits. */
-+#define DOUBLE_TYPE_SIZE 32 
++#define DOUBLE_TYPE_SIZE 32
 +
 +/* Size (bits) of the type "long double" on target machine */
 +#define LONG_DOUBLE_TYPE_SIZE 32
@@ -4881,7 +4881,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.h gcc-4.6.4/gcc/config/m6809/m6
 +#define BSS_SECTION_ASM_OP (bss_section_op)
 +
 +/* Support the ctors and dtors sections for g++.  */
-+ 
++
 +#undef CTORS_SECTION_ASM_OP
 +#define CTORS_SECTION_ASM_OP    "\t.area\t.ctors"
 +#undef DTORS_SECTION_ASM_OP
@@ -5047,7 +5047,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.h gcc-4.6.4/gcc/config/m6809/m6
 +  output_addr_const (FILE, (VALUE)), \
 +  fprintf (FILE, "\n"))
 +
-+/* This is how to output a string. */ 
++/* This is how to output a string. */
 +#define ASM_OUTPUT_ASCII(FILE,STR,SIZE) m6809_output_ascii (FILE, STR, SIZE)
 +
 +/* This is how to output an insn to push a register on the stack.
@@ -6183,7 +6183,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.md gcc-4.6.4/gcc/config/m6809/m
 +; reference.  This requires dereferencing the pointer into a
 +; temporary register (X), which must be saved/restored around the
 +; compute instructions.
-+(define_split 
++(define_split
 +  [(set (match_operand:HI 0 "register_operand" "")
 +    (match_operator:HI 3 "logical_bit_operator"
 +      [(match_operand:HI 1 "register_operand" "")
@@ -6211,7 +6211,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.md gcc-4.6.4/gcc/config/m6809/m
 +; Split a bitwise HImode into two QImode instructions.  This is
 +; the common case.  This handles splitting when neither of the
 +; above two cases applies.
-+(define_split 
++(define_split
 +  [(set (match_operand:HI 0 "register_operand" "")
 +    (match_operator:HI 3 "logical_bit_operator"
 +      [(match_operand:HI 1 "register_operand" "")
@@ -7298,7 +7298,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.md gcc-4.6.4/gcc/config/m6809/m
 +;   ""
 +;   "bit%0\t%2"
 +;   [(set_attr "length" "3")])
-+; 
++;
 +; (define_peephole
 +;   [(set (match_operand:QI 0 "register_operand" "=q")
 +;     (and:QI (match_operand:QI 1 "register_operand" "0")
@@ -7543,7 +7543,7 @@ diff -urN gcc-4.6.4-clean/gcc/config/m6809/m6809.opt gcc-4.6.4/gcc/config/m6809/
 +Target Mask(REG_ARGS)
 +Use registers for function arguments
 +
-+mshort_size 
++mshort_size
 +Target RejectNegative Mask(SMALL_SIZE_T)
 +Use 8-bit size_t
 +
@@ -7922,7 +7922,7 @@ diff -urN gcc-4.6.4-clean/gcc/libgcc2.c gcc-4.6.4/gcc/libgcc2.c
 +++ gcc-4.6.4/gcc/libgcc2.c	2017-11-28 21:12:11.156911596 -0700
 @@ -485,6 +485,7 @@
  #endif
- 
+
  #ifdef L_bswapsi2
 +#if MIN_UNITS_PER_WORD > 1
  SItype
@@ -7956,7 +7956,7 @@ diff -urN gcc-4.6.4-clean/gcc/libgcc2.c gcc-4.6.4/gcc/libgcc2.c
       to lose any bits.  Some day someone else can write a faster version
       that avoids converting to DFtype, and verify it really works right.  */
 @@ -1298,7 +1302,7 @@
- 
+
    /* Assemble result from the two parts.  */
    return ((UDWtype) hi << W_TYPE_SIZE) | lo;
 -#elif FLT_MANT_DIG < W_TYPE_SIZE
@@ -7979,7 +7979,7 @@ diff -urN gcc-4.6.4-clean/gcc/longlong.h gcc-4.6.4/gcc/longlong.h
 @@ -528,6 +528,11 @@
  	   : "cbit")
  #endif /* __M32R__ */
- 
+
 +#if defined (__m6309__) || defined (__m6809__)
 +#define count_leading_zeros(COUNT,X)	((COUNT) = __builtin_clz (X))
 +#define count_trailing_zeros(COUNT,X)	((COUNT) = __builtin_ctz (X))
@@ -7992,14 +7992,14 @@ diff -urN gcc-4.6.4-clean/gcc/Makefile.in gcc-4.6.4/gcc/Makefile.in
 --- gcc-4.6.4-clean/gcc/Makefile.in	2013-04-01 02:32:34.000000000 -0600
 +++ gcc-4.6.4/gcc/Makefile.in	2017-11-28 21:12:11.160911575 -0700
 @@ -2003,14 +2003,14 @@
- 
+
  # Compile the start modules crt0.o and mcrt0.o that are linked with
  # every program
 -$(T)crt0.o: s-crt0 ; @true
 -$(T)mcrt0.o: s-crt0; @true
 +crt0.o: s-crt0 ; @true
 +mcrt0.o: s-crt0; @true
- 
+
  s-crt0:	$(CRT0_S) $(MCRT0_S) $(GCC_PASSES) $(CONFIG_H)
  	$(GCC_FOR_TARGET) $(GCC_CFLAGS) $(CRT0STUFF_T_CFLAGS) \
 -	  -o $(T)crt0.o -c $(CRT0_S)
@@ -8008,7 +8008,7 @@ diff -urN gcc-4.6.4-clean/gcc/Makefile.in gcc-4.6.4/gcc/Makefile.in
 -	  -o $(T)mcrt0.o -c $(MCRT0_S)
 +	  -o mcrt0.o -c $(MCRT0_S)
  	$(STAMP) s-crt0
- #
+ #
  # Compiling object files from source files.
 diff -urN gcc-4.6.4-clean/gcc/opth-gen.awk gcc-4.6.4/gcc/opth-gen.awk
 --- gcc-4.6.4-clean/gcc/opth-gen.awk	2011-02-08 10:41:00.000000000 -0700
@@ -8023,7 +8023,7 @@ diff -urN gcc-4.6.4-clean/gcc/opth-gen.awk gcc-4.6.4/gcc/opth-gen.awk
  print ""
  print "#include \"flag-types.h\""
 @@ -432,18 +432,9 @@
- 
+
  for (i = 0; i < n_opts; i++) {
  	opt = opt_args("InverseMask", flags[i])
 -	if (opt ~ ",") {
@@ -8043,24 +8043,24 @@ diff -urN gcc-4.6.4-clean/gcc/opth-gen.awk gcc-4.6.4/gcc/opth-gen.awk
 +		      " ((target_flags & MASK_" nth_arg(0, opt) ") == 0)"
  }
  print ""
- 
+
 diff -urN gcc-4.6.4-clean/gcc/tree.h gcc-4.6.4/gcc/tree.h
 --- gcc-4.6.4-clean/gcc/tree.h	2011-10-06 13:57:52.000000000 -0600
 +++ gcc-4.6.4/gcc/tree.h	2017-11-28 21:12:11.160911575 -0700
 @@ -3563,6 +3563,8 @@
    TI_UINTDI_TYPE,
    TI_UINTTI_TYPE,
- 
+
 +  TI_UINT8_TYPE,
 +  TI_UINT16_TYPE,
    TI_UINT32_TYPE,
    TI_UINT64_TYPE,
- 
+
 diff -urN gcc-4.6.4-clean/gcc/version.c gcc-4.6.4/gcc/version.c
 --- gcc-4.6.4-clean/gcc/version.c	2009-04-21 13:03:23.000000000 -0600
 +++ gcc-4.6.4/gcc/version.c	2017-11-29 17:11:34.133149157 -0700
 @@ -21,16 +21,16 @@
- 
+
  /* This is the location of the online document giving instructions for
     reporting bugs.  If you distribute a modified version of GCC,
 -   please configure with --with-bugurl pointing to a document giving
@@ -8071,14 +8071,14 @@ diff -urN gcc-4.6.4-clean/gcc/version.c gcc-4.6.4/gcc/version.c
 +   reporting bugs to you, not us.  (You are of course welcome to
 +   forward us bugs reported to you, if you determine that they are
 +   not bugs in your modifications.)  */
- 
+
 -const char bug_report_url[] = BUGURL;
 +const char bug_report_url[] = "<URL:http://lost.l-w.ca/coco/lwtools/>";
- 
+
  /* The complete version string, assembled from several pieces.
     BASEVER, DATESTAMP, DEVPHASE, and REVISION are defined by the
     Makefile.  */
- 
+
 -const char version_string[] = BASEVER DATESTAMP DEVPHASE REVISION;
 +const char version_string[] = BASEVER DATESTAMP DEVPHASE REVISION " (gcc6809lw pl9)";
  const char pkgversion_string[] = PKGVERSION;
@@ -8099,11 +8099,11 @@ diff -urN gcc-4.6.4-clean/libgcc/fixed-obj.mk gcc-4.6.4/libgcc/fixed-obj.mk
 +++ gcc-4.6.4/libgcc/fixed-obj.mk	2017-11-28 21:12:11.160911575 -0700
 @@ -23,7 +23,7 @@
  #$(info $o$(objext): -DL$($o-label) $($o-opt))
- 
+
  $o$(objext): %$(objext): $(gcc_srcdir)/config/fixed-bit.c
 -	$(gcc_compile) -DL$($*-label) $($*-opt) -c $(gcc_srcdir)/config/fixed-bit.c $(vis_hide)
 +	$(gcc_compile) -DL$($*-label) $($*-opt) -c $(gcc_srcdir)/config/fixed-bit.c $(vis_hide) -save-temps
- 
+
  ifeq ($(enable_shared),yes)
  $(o)_s$(objext): %_s$(objext): $(gcc_srcdir)/config/fixed-bit.c
 diff -urN gcc-4.6.4-clean/libgcc/Makefile.in gcc-4.6.4/libgcc/Makefile.in
@@ -8118,7 +8118,7 @@ diff -urN gcc-4.6.4-clean/libgcc/Makefile.in gcc-4.6.4/libgcc/Makefile.in
 +	ln -sf $(gcc_srcdir)/libgcc2.c $*.c && \
 +	$(gcc_compile) -DL$* -c $*.c $(vis_hide) -save-temps
  libgcc-objects += $(lib2funcs-o)
- 
+
  ifeq ($(enable_shared),yes)
 @@ -410,8 +410,9 @@
  # Build LIB2_DIVMOD_FUNCS.
@@ -8130,7 +8130,7 @@ diff -urN gcc-4.6.4-clean/libgcc/Makefile.in gcc-4.6.4/libgcc/Makefile.in
 +	$(gcc_compile) -DL$* -c $*.c \
 +	  -fexceptions -fnon-call-exceptions $(vis_hide) -save-temps
  libgcc-objects += $(lib2-divmod-o)
- 
+
  ifeq ($(enable_shared),yes)
 @@ -443,7 +444,8 @@
  ifneq ($(FPBIT),)
@@ -8140,7 +8140,7 @@ diff -urN gcc-4.6.4-clean/libgcc/Makefile.in gcc-4.6.4/libgcc/Makefile.in
 +	ln -sf $(FPBIT) $*.c && \
 +	$(gcc_compile) -DFINE_GRAINED_LIBRARIES -DL$* -c $*.c $(vis_hide) -save-temps
  libgcc-objects += $(fpbit-o)
- 
+
  ifeq ($(enable_shared),yes)
 @@ -458,7 +460,8 @@
  ifneq ($(DPBIT),)
@@ -8150,7 +8150,7 @@ diff -urN gcc-4.6.4-clean/libgcc/Makefile.in gcc-4.6.4/libgcc/Makefile.in
 +	ln -sf $(DPBIT) $*.c && \
 +	$(gcc_compile) -DFINE_GRAINED_LIBRARIES -DL$* -c $*.c $(vis_hide) -save-temps
  libgcc-objects += $(dpbit-o)
- 
+
  ifeq ($(enable_shared),yes)
 diff -urN gcc-4.6.4-clean/README.LW gcc-4.6.4/README.LW
 --- gcc-4.6.4-clean/README.LW	1969-12-31 17:00:00.000000000 -0700

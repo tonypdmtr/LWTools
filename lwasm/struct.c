@@ -31,33 +31,33 @@ Contains stuff associated with structure processing
 PARSEFUNC(pseudo_parse_struct)
 {
 	structtab_t *s;
-	
+
 	if (as -> instruct)
 	{
 		lwasm_register_error(as, l, E_STRUCT_RECURSE);
 		return;
 	}
-	
+
 	if (l -> sym == NULL)
 	{
 		lwasm_register_error(as, l, E_STRUCT_NOSYMBOL);
 		return;
 	}
-	
+
 	for (s = as -> structs; s; s = s -> next)
 	{
-		if (!strcmp(s -> name, l -> sym))	
+		if (!strcmp(s -> name, l -> sym))
 			break;
 	}
-	
+
 	if (s)
 	{
 		lwasm_register_error(as, l, E_STRUCT_DUPE);
 		return;
 	}
-	
+
 	as -> instruct = 1;
-	
+
 	s = lw_alloc(sizeof(structtab_t));
 	s -> name = lw_strdup(l -> sym);
 	s -> next = as -> structs;
@@ -66,12 +66,12 @@ PARSEFUNC(pseudo_parse_struct)
 	s -> definedat = l;
 	as -> structs = s;
 	as -> cstruct = s;
-	
+
 	skip_operand(p);
-	
+
 	l -> len = 0;
 	l -> symset = 1;
-	
+
 	// save current assembly address and initialize to 0
 	as -> savedaddr = l -> addr;
 	l -> addr = lw_expr_build(lw_expr_type_int, 0);
@@ -88,7 +88,7 @@ static void instantiate_struct(asmstate_t *as, line_t *l, structtab_t *s, char *
 
 	if (baseaddr == NULL)
 		baseaddr = l -> addr;
-	
+
 	plen = strlen(pref);
 	for (e = s -> fields; e; e = e -> next)
 	{
@@ -109,18 +109,18 @@ static void instantiate_struct(asmstate_t *as, line_t *l, structtab_t *s, char *
 		te2 = lw_expr_build(lw_expr_type_oper, lw_expr_oper_plus, te, baseaddr);
 		register_symbol(as, l, t, te2, symbol_flag_nocheck);
 		lw_expr_destroy(te);
-		
+
 		if (e -> substruct)
 		{
 			instantiate_struct(as, l, e -> substruct, t, te2);
 		}
-		
+
 		lw_expr_destroy(te2);
-		
+
 		lw_free(t);
 		addr += e -> size;
 	}
-	
+
 	/* register the "sizeof" symbol */
 	len = plen + 8;
 	t = lw_alloc(len + 1);
@@ -135,7 +135,7 @@ static void instantiate_struct(asmstate_t *as, line_t *l, structtab_t *s, char *
 PARSEFUNC(pseudo_parse_endstruct)
 {
 	lw_expr_t te;
-		
+
 	if (as -> instruct == 0)
 	{
 		lwasm_register_error(as, l, W_ENDSTRUCT_WITHOUT);
@@ -144,27 +144,27 @@ PARSEFUNC(pseudo_parse_endstruct)
 	}
 
 	te = lw_expr_build(lw_expr_type_int, 0);
-	
+
 	// make all the relevant generic struct symbols
 	instantiate_struct(as, l, as -> cstruct, as -> cstruct -> name, te);
 	lw_expr_destroy(te);
-	
+
 	l -> soff = as -> cstruct -> size;
 	as -> instruct = 0;
-	
+
 	skip_operand(p);
-	
+
 	lw_expr_destroy(l -> addr);
 	l -> addr = as -> savedaddr;
 	as -> savedaddr = NULL;
-	
+
 	l -> len = 0;
 }
 
 void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab_t *ss)
 {
 	structtab_field_t *e, *e2;
-	
+
 	l -> soff = as -> cstruct -> size;
 	e = lw_alloc(sizeof(structtab_field_t));
 	e -> next = NULL;
@@ -190,7 +190,7 @@ void register_struct_entry(asmstate_t *as, line_t *l, int size, structtab_t *ss)
 int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc)
 {
 	structtab_t *s;
-	
+
 	debug_message(as, 200, "Checking for structure expansion: %s", opc);
 
 	for (s = as -> structs; s; s = s -> next)
@@ -198,12 +198,12 @@ int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc)
 		if (!strcmp(opc, s -> name))
 			break;
 	}
-	
+
 	if (!s)
 		return -1;
-	
+
 	debug_message(as, 10, "Expanding structure: %s", opc);
-	
+
 	if (!(l -> sym))
 	{
 		lwasm_register_error(as, l, E_STRUCT_NONAME);
@@ -227,7 +227,6 @@ int expand_struct(asmstate_t *as, line_t *l, char **p, char *opc)
 		instantiate_struct(as, l, s, l -> sym, NULL);
 		return 0;
 	}
-	
+
 	return 0;
 }
-
